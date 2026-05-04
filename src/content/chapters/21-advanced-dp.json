@@ -1,0 +1,73 @@
+﻿{
+  "id": "21-advanced-dp",
+  "title": "Advanced Dynamic Programming",
+  "category": "advanced",
+  "theory": {
+    "overview": "Advanced DP techniques build on fundamentals to solve complex optimization problems. Key patterns include: State Machine DP (multiple states with transitions), Digit DP (counting numbers with digit constraints), DP on Trees (post-order traversal for tree structures), and DP with Bitmasking (for small sets represented as bitmasks). State space optimization reduces memory from O(n²) to O(n) when only previous state is needed.",
+    "keyConcepts": [
+      {
+        "name": "State Machine DP",
+        "description": "Multiple states with transitions between them. Example: stock trading with states (hold, not hold, cooldown)."
+      },
+      {
+        "name": "Digit DP",
+        "description": "Count numbers in range satisfying digit constraints using memoization on (position, tight, leadingZero, sum)."
+      },
+      {
+        "name": "Tree DP",
+        "description": "Process tree bottom-up. DP[u] depends on DP[v] for all children v of u. Post-order traversal."
+      },
+      {
+        "name": "Bitmask DP",
+        "description": "Represent subsets as bitmasks (integers). DP[mask] stores optimal solution for elements in mask."
+      }
+    ],
+    "complexity": {
+      "stateMachine": "O(n × states)",
+      "digitDP": "O(digits × tight × sum)",
+      "treeDP": "O(n × state)",
+      "bitmaskDP": "O(2^n × n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Best Time to Buy/Sell Stock III", "difficulty": "hard" },
+    { "id": "p2", "title": "Best Time to Buy/Sell Stock IV", "difficulty": "hard" },
+    { "id": "p3", "title": "Best Time to Buy/Sell Stock with Transaction Fee", "difficulty": "medium" },
+    { "id": "p4", "title": "Number of Digit One", "difficulty": "hard" },
+    { "id": "p5", "title": "Count Numbers with Unique Digits", "difficulty": "medium" },
+    { "id": "p6", "title": "Non-negative Integers without Consecutive Ones", "difficulty": "hard" },
+    { "id": "p7", "title": "Maximum Students Taking Exam", "difficulty": "hard" },
+    { "id": "p8", "title": "Minimum Cost to Connect Two Groups of Points", "difficulty": "hard" },
+    { "id": "p9", "title": "Distribute Repeating Integers", "difficulty": "hard" },
+    { "id": "p10", "title": "Number of Ways to Wear Different Hats", "difficulty": "hard" },
+    { "id": "p11", "title": "House Robber III (Tree)", "difficulty": "medium" },
+    { "id": "p12", "title": "Binary Tree Maximum Path Sum", "difficulty": "hard" },
+    { "id": "p13", "title": "Longest ZigZag Path in Binary Tree", "difficulty": "medium" },
+    { "id": "p14", "title": "Maximum Subtree BST", "difficulty": "hard" },
+    { "id": "p15", "title": "Unique Binary Search Trees II", "difficulty": "medium" },
+    { "id": "p16", "title": "Minimum Score Triangulation of Polygon", "difficulty": "hard" },
+    { "id": "p17", "title": "Minimum Cost to Cut a Stick", "difficulty": "hard" },
+    { "id": "p18", "title": "Strange Printer", "difficulty": "hard" },
+    { "id": "p19", "title": "Remove Boxes", "difficulty": "hard" },
+    { "id": "p20", "title": "Cherry Pickup II", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "states": ["rest", "hold", "sold"], "highlightLines": [1, 2], "description": "State Machine: rest (no stock), hold (have stock), sold (just sold)." },
+    { "step": 1, "action": "transition", "transitions": {"rest": ["rest", "hold"], "hold": ["hold", "sold"], "sold": ["rest"]}, "highlightLines": [5, 6, 7], "description": "Transitions: rest→hold (buy), hold→sold (sell), sold→rest (cooldown)." },
+    { "step": 2, "action": "dp-update", "day": 1, "dp": {"rest": 0, "hold": 0, "sold": 0}, "highlightLines": [10, 11, 12], "description": "Day 1: rest=0 (do nothing), hold=-price[0] (buy), sold=0 (can't sell)." },
+    { "step": 3, "action": "iterate", "day": 2, "dp": {"rest": 0, "hold": -1, "sold": 3}, "highlightLines": [15, 16, 17], "description": "Day 2: rest=max(0,0)=0, hold=max(-5,-1)=-1, sold=0+4=4? Adjust based on prices." },
+    { "step": 4, "action": "optimize", "space": "O(1)", "highlightLines": [20, 21], "description": "Space optimization: Only need previous day's 3 states. O(1) space!" },
+    { "step": 5, "action": "result", "maxProfit": 3, "highlightLines": [24], "description": "Result: max of final states. Achieved optimal trading strategy." }
+  ],
+  "minigame": {
+    "type": "state-machine",
+    "title": "Stock Trading State Machine",
+    "description": "Navigate stock trading with cooldown and fee constraints. Use state machine DP to maximize profit.",
+    "instructions": [
+      "Observe price chart over time",
+      "Track states: can buy, holding, cooldown",
+      "Apply state transitions",
+      "Maximize profit with optimal trades"
+    ]
+  }
+}

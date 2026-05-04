@@ -1,0 +1,401 @@
+{
+  "id": "29-network-flow",
+  "bookId": "book-dsa",
+  "title": "Network Flow",
+  "category": "Graphs",
+  "order": 29,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Network Flow deals with flow in directed graphs with capacities. Key problem: find maximum flow from source to sink. Applications: bipartite matching, transportation, scheduling, and image segmentation. Classic algorithms: Ford-Fulkerson (with BFS/DFS), Edmonds-Karp (BFS), Dinic's algorithm. This chapter covers max flow, min cut theorem, and flow algorithms.",
+    "sections": [
+      {
+        "title": "Flow Network",
+        "content": "Directed graph with source s, sink t, and edge capacities. Flow must satisfy: capacity constraint (flow ≤ capacity), flow conservation (flow in = flow out at all nodes except s and t). Max flow: maximum total flow from s to t. Min cut: minimum total capacity of edges separating s from t.",
+        "properties": [
+          "Capacity constraint: f(e) ≤ c(e)",
+          "Flow conservation: Σ(in) = Σ(out)",
+          "Max flow = Min cut (Max-Flow Min-Cut Theorem)"
+        ]
+      },
+      {
+        "title": "Ford-Fulkerson Algorithm",
+        "content": "Repeatedly find augmenting paths (paths from s to t with available capacity) and augment flow. Residual graph: graph showing remaining capacity. When no augmenting path exists, flow is maximum. Time: $O(E \\times f)$ where f is max flow (can be slow for large flows).",
+        "algorithm": "Find augmenting path in residual graph. Augment flow by bottleneck capacity. Update residual graph. Repeat until no augmenting path.",
+        "complexity": { "time": "$O(E \\times f)$", "space": "$O(V+E)$" }
+      },
+      {
+        "title": "Edmonds-Karp Algorithm",
+        "content": "Ford-Fulkerson with BFS to find shortest augmenting path (in edges). Guarantees $O(VE^2)$ time regardless of flow value. BFS ensures polynomial time. Practical for moderate-sized graphs.",
+        "algorithm": "BFS in residual graph to find shortest augmenting path. Augment flow. Repeat.",
+        "complexity": { "time": "$O(VE^2)$", "space": "$O(V+E)$" }
+      },
+      {
+        "title": "Dinic's Algorithm",
+        "content": "More efficient max flow algorithm. Constructs level graph using BFS (layers from s). Uses DFS to send blocking flow (saturates at least one edge per DFS). Rebuilds level graph when no more augmenting paths. Time: $O(V^2E)$ or $O(E \\sqrt{V})$ for bipartite matching.",
+        "algorithm": "BFS to build level graph. DFS to send blocking flow. Rebuild level graph when stuck. Repeat until t unreachable.",
+        "complexity": { "time": "$O(V^2E)$", "space": "$O(V+E)$" }
+      },
+      {
+        "title": "Applications",
+        "content": "Bipartite matching: transform to max flow (source to left, right to sink, edges with capacity 1). Maximum bipartite matching = max flow. Image segmentation: source to foreground, background to sink, edge weights = similarity. Min cut = optimal segmentation. Project selection: profit/cost as flow/capacity.",
+        "applications": [
+          "Bipartite matching",
+          "Image segmentation",
+          "Project selection",
+          "Transportation"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Residual Graph",
+        "description": "Graph showing remaining capacity on each edge. Forward edge: c - f. Backward edge: f (allows undoing flow).",
+        "use": "Find augmenting paths"
+      },
+      {
+        "name": "Augmenting Path",
+        "description": "Path from s to t in residual graph with available capacity. Bottleneck = min capacity on path.",
+        "action": "Augment flow by bottleneck"
+      },
+      {
+        "name": "Max-Flow Min-Cut Theorem",
+        "description": "Maximum flow equals minimum cut capacity. Cut: partition of vertices with s in one set, t in other. Cut capacity = sum of capacities crossing cut.",
+        "significance": "Fundamental theorem of network flow"
+      },
+      {
+        "name": "Blocking Flow",
+        "description": "Flow that saturates at least one edge on every path from s to t in level graph. Dinic's uses blocking flows.",
+        "use": "Dinic's algorithm efficiency"
+      }
+    ],
+    "complexity": {
+      "fordFulkerson": "$O(E \\times f)$",
+      "edmondsKarp": "$O(VE^2)$",
+      "dinic": "$O(V^2E)$",
+      "bipartiteMatching": "$O(E \\sqrt{V})$ with Dinic's"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize",
+      "description": "Initialize flow to 0 on all edges. Build residual graph.",
+      "code": "flow = {e: 0 for e in edges}; residual = build_residual_graph();",
+      "visualState": { "flow": "0", "residual": "built" }
+    },
+    {
+      "step": 2,
+      "title": "Find Augmenting Path",
+      "description": "Find path from s to t in residual graph with available capacity.",
+      "code": "path = bfs_or_dfs(residual, s, t);",
+      "visualState": { "path": "found" }
+    },
+    {
+      "step": 3,
+      "title": "Calculate Bottleneck",
+      "description": "Find minimum capacity on augmenting path.",
+      "code": "bottleneck = min(residual[e] for e in path);",
+      "visualState": { "bottleneck": "calculated" }
+    },
+    {
+      "step": 4,
+      "title": "Augment Flow",
+      "description": "Add bottleneck to flow, update residual graph.",
+      "code": "for e in path: flow[e] += bottleneck; residual[e] -= bottleneck; residual[reverse(e)] += bottleneck;",
+      "visualState": { "flow": "augmented" }
+    },
+    {
+      "step": 5,
+      "title": "Repeat",
+      "description": "Repeat until no augmenting path exists. Return max flow.",
+      "code": "while path: augment(); path = find_path(); return total_flow;",
+      "visualState": { "maxFlow": "returned" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Max Area of Island",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find maximum area of island in binary matrix (not max flow, but related).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS/BFS to find connected components of 1s. Count size.",
+      "hints": "DFS/BFS on matrix"
+    },
+    {
+      "id": "p2",
+      "title": "Surrounded Regions",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Capture surrounded 'O' regions (connected to border = not surrounded).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS from border 'O's, mark as safe. Flip remaining 'O's to 'X'.",
+      "hints": "DFS from border"
+    },
+    {
+      "id": "p3",
+      "title": "Number of Enclaves",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count land cells that cannot reach border.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS from border land cells. Count unvisited land cells.",
+      "hints": "DFS from border, count unvisited"
+    },
+    {
+      "id": "p4",
+      "title": "Maximal Square",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find largest square of 1s in binary matrix.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(n)$" },
+      "solution": "DP. dp[i][j] = min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1 if matrix[i][j]=1.",
+      "hints": "DP with min of three neighbors"
+    },
+    {
+      "id": "p5",
+      "title": "Maximal Rectangle",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find largest rectangle of 1s in binary matrix.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(n)$" },
+      "solution": "Treat each row as histogram, find largest rectangle in histogram for each row.",
+      "hints": "Histogram per row"
+    },
+    {
+      "id": "p6",
+      "title": "Course Schedule II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find course order (topological sort) given prerequisites.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Kahn's algorithm (BFS) or DFS with post-order.",
+      "hints": "Topological sort"
+    },
+    {
+      "id": "p7",
+      "title": "Course Schedule",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if can finish all courses (detect cycle in directed graph).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Topological sort. If cycle exists, can't finish.",
+      "hints": "Detect cycle in directed graph"
+    },
+    {
+      "id": "p8",
+      "title": "Alien Dictionary",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find order of alien language from sorted words.",
+      "complexity": { "time": "$O(C)$", "space": "$O(1)$" },
+      "solution": "Build graph from adjacent words. Topological sort.",
+      "hints": "Build graph, topological sort"
+    },
+    {
+      "id": "p9",
+      "title": "Sequence Reconstruction",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if sequence is unique topological order.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Build graph, check if sequence is valid topological order.",
+      "hints": "Check topological order validity"
+    },
+    {
+      "id": "p10",
+      "title": "Minimum Height Trees",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find roots of minimum height trees.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Trim leaves iteratively until 1-2 nodes remain.",
+      "hints": "Trim leaves iteratively"
+    },
+    {
+      "id": "p11",
+      "title": "Reconstruct Itinerary",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Reconstruct itinerary from tickets (Eulerian path).",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(E)$" },
+      "solution": "Hierholzer's algorithm (DFS, post-order). Sort destinations lexicographically.",
+      "hints": "Eulerian path, Hierholzer's"
+    },
+    {
+      "id": "p12",
+      "title": "Redundant Connection II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find edge to remove in graph with two possible cycles.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find with parent tracking. Handle edge to same node and multiple parents.",
+      "hints": "Union-Find with parent tracking"
+    },
+    {
+      "id": "p13",
+      "title": "Graph Valid Tree",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if graph is valid tree (n nodes, n-1 edges, connected, no cycles).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Check n-1 edges. Union-Find for cycle detection. Check connectivity.",
+      "hints": "Union-Find, check n-1 edges"
+    },
+    {
+      "id": "p14",
+      "title": "Accounts Merge",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Merge accounts with same email.",
+      "complexity": { "time": "$O(\\sum a_i \\log \\sum a_i)$", "space": "$O(\\sum a_i)$" },
+      "solution": "Union-Find on emails. Group by root.",
+      "hints": "Union-Find on emails"
+    },
+    {
+      "id": "p15",
+      "title": "Sentence Similarity II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if sentences are similar given similarity pairs (transitive).",
+      "complexity": { "time": "$O(n \\times (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Union-Find on words. Check if each word pair connected.",
+      "hints": "Union-Find on words"
+    },
+    {
+      "id": "p16",
+      "title": "Satisfiability of Equality Equations",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if equality equations are satisfiable.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find for equalities. Check inequalities.",
+      "hints": "Union-Find for equalities"
+    },
+    {
+      "id": "p17",
+      "title": "Longest Increasing Path",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Longest increasing path in matrix (can move in 4 directions).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS with memoization. dp[i][j] = longest path starting from (i,j).",
+      "hints": "DFS with memoization"
+    },
+    {
+      "id": "p18",
+      "title": "Word Ladder II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all shortest transformation sequences from begin to end.",
+      "complexity": { "time": "$O(N \\times L^2)$", "space": "$O(N \\times L)$" },
+      "solution": "BFS level by level. Build graph of transformations. Backtrack to find all paths.",
+      "hints": "BFS level by level, backtrack"
+    },
+    {
+      "id": "p19",
+      "title": "Ladder Length",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Length of shortest transformation sequence from begin to end.",
+      "complexity": { "time": "$O(N \\times L^2)$", "space": "$O(N \\times L)$" },
+      "solution": "BFS on word graph. Each word connected to words differing by one letter.",
+      "hints": "BFS on word graph"
+    },
+    {
+      "id": "p20",
+      "title": "Word Ladder",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest transformation sequence (word ladder).",
+      "complexity": { "time": "$O(N \\times L^2)$", "space": "$O(N \\times L)$" },
+      "solution": "BFS with bidirectional search for efficiency.",
+      "hints": "Bidirectional BFS"
+    },
+    {
+      "id": "p21",
+      "title": "Sliding Puzzle",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum moves to solve sliding puzzle.",
+      "complexity": { "time": "$O((mn)!)$", "space": "$O((mn)!)$" },
+      "solution": "BFS on puzzle states. Use visited set to avoid cycles.",
+      "hints": "BFS on puzzle states"
+    },
+    {
+      "id": "p22",
+      "title": "Minimum Number of Days",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum days to disconnect graph (remove nodes).",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n^2)$" },
+      "solution": "Binary search on days. For each day, check if graph is disconnected using BFS.",
+      "hints": "Binary search + BFS check"
+    },
+    {
+      "id": "p23",
+      "title": "Critical Connections",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find critical connections (bridges) in network.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Tarjan's algorithm. Track discovery and low times.",
+      "hints": "Tarjan's algorithm"
+    },
+    {
+      "id": "p24",
+      "title": "Reorder Routes",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum edges to reverse so every node can reach node 0.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "BFS from node 0. Count wrong-direction edges.",
+      "hints": "BFS from node 0"
+    },
+    {
+      "id": "p25",
+      "title": "Find the City",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find city with smallest number of neighbors at distance threshold.",
+      "complexity": { "time": "$O(n \\times (E \\log V))$", "space": "$O(V)$" },
+      "solution": "Dijkstra from each city.",
+      "hints": "Dijkstra from each city"
+    }
+  ],
+  "minigame": {
+    "id": "network-flow",
+    "title": "Network Flow Master",
+    "description": "Master network flow! Visualize max flow, residual graphs, and augmenting paths.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Max Flow", "task": "Find max flow in network" },
+      { "name": "Residual", "task": "Build residual graph" },
+      { "name": "Bipartite", "task": "Max bipartite matching" }
+    ]
+  },
+  "visualizer": {
+    "type": "network-flow",
+    "title": "Network Flow Visualizer",
+    "description": "Visualize max flow algorithms, residual graphs, and augmenting paths.",
+    "features": ["Flow network visualization", "Residual graph", "Augmenting path animation", "Cut visualization"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Edmonds-Karp (BFS Ford-Fulkerson)",
+        "code": "from collections import deque\n\ndef edmonds_karp(graph, source, sink):\n    n = len(graph)\n    flow = [[0] * n for _ in range(n)]\n    max_flow = 0\n    \n    while True:\n        # BFS to find augmenting path\n        parent = [-1] * n\n        parent[source] = source\n        q = deque([source])\n        \n        while q and parent[sink] == -1:\n            u = q.popleft()\n            for v in range(n):\n                if parent[v] == -1 and graph[u][v] - flow[u][v] > 0:\n                    parent[v] = u\n                    q.append(v)\n        \n        if parent[sink] == -1:\n            break  # No augmenting path\n        \n        # Find bottleneck\n        path_flow = float('inf')\n        v = sink\n        while v != source:\n            u = parent[v]\n            path_flow = min(path_flow, graph[u][v] - flow[u][v])\n            v = u\n        \n        # Augment flow\n        v = sink\n        while v != source:\n            u = parent[v]\n            flow[u][v] += path_flow\n            flow[v][u] -= path_flow\n            v = u\n        \n        max_flow += path_flow\n    \n    return max_flow  # O(VE^2)"
+      },
+      {
+        "title": "Bipartite Matching as Max Flow",
+        "code": "def max_bipartite_matching(graph, n_left, n_right):\n    # Convert to flow network\n    # Source -> left nodes (capacity 1)\n    # Left -> right edges (capacity 1)\n    # Right nodes -> sink (capacity 1)\n    \n    n = n_left + n_right + 2\n    source, sink = 0, n - 1\n    flow_graph = [[0] * n for _ in range(n)]\n    \n    # Source to left\n    for i in range(n_left):\n        flow_graph[source][i + 1] = 1\n    \n    # Left to right\n    for u, v in graph:\n        flow_graph[u + 1][v + n_left + 1] = 1\n    \n    # Right to sink\n    for i in range(n_right):\n        flow_graph[i + n_left + 1][sink] = 1\n    \n    return edmonds_karp(flow_graph, source, sink)"
+      },
+      {
+        "title": "Dinic's Algorithm",
+        "code": "def dinic(graph, source, sink):\n    n = len(graph)\n    level = [0] * n\n    \n    def bfs():\n        for i in range(n):\n            level[i] = -1\n        level[source] = 0\n        q = deque([source])\n        \n        while q:\n            u = q.popleft()\n            for v in range(n):\n                if level[v] == -1 and graph[u][v] > 0:\n                    level[v] = level[u] + 1\n                    q.append(v)\n        \n        return level[sink] != -1\n    \n    def dfs(u, flow):\n        if u == sink:\n            return flow\n        for v in range(n):\n            if level[v] == level[u] + 1 and graph[u][v] > 0:\n                pushed = dfs(v, min(flow, graph[u][v]))\n                if pushed > 0:\n                    graph[u][v] -= pushed\n                    graph[v][u] += pushed\n                    return pushed\n        return 0\n    \n    max_flow = 0\n    while bfs():\n        while pushed := dfs(source, float('inf')):\n            max_flow += pushed\n    \n    return max_flow  # O(V^2E)"
+      }
+    ]
+  }
+}

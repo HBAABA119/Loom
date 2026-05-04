@@ -1,0 +1,75 @@
+﻿{
+  "id": "13-dfs-bfs",
+  "title": "Graph Traversals: DFS & BFS",
+  "category": "advanced",
+  "theory": {
+    "overview": "Depth-First Search (DFS) and Breadth-First Search (BFS) are the two fundamental algorithms for traversing or searching graph/tree data structures. DFS explores as far as possible along each branch before backtracking (using a stack). BFS explores all neighbors at current depth before moving deeper (using a queue). Each has distinct properties: DFS uses less memory and finds paths quickly; BFS finds shortest paths in unweighted graphs.",
+    "keyConcepts": [
+      {
+        "name": "DFS - Depth First",
+        "description": "Explore deep before wide. Uses stack (recursive or explicit). Good for: topological sort, detecting cycles, finding connected components."
+      },
+      {
+        "name": "BFS - Breadth First",
+        "description": "Explore wide before deep. Uses queue. Guarantees shortest path in unweighted graphs. Good for: shortest path, level-order traversal."
+      },
+      {
+        "name": "Visited Set",
+        "description": "Track visited nodes to avoid cycles and redundant processing. Essential for both DFS and BFS."
+      },
+      {
+        "name": "Time & Space Complexity",
+        "description": "Both O(V + E) time to visit all vertices and edges. DFS: O(h) space (h = height). BFS: O(w) space (w = max width)."
+      }
+    ],
+    "complexity": {
+      "time": "O(V + E)",
+      "dfsSpace": "O(h) where h is max depth",
+      "bfsSpace": "O(w) where w is max width"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Number of Islands (DFS/BFS)", "difficulty": "medium" },
+    { "id": "p2", "title": "Clone Graph", "difficulty": "medium" },
+    { "id": "p3", "title": "Pacific Atlantic Water Flow", "difficulty": "medium" },
+    { "id": "p4", "title": "Surrounded Regions", "difficulty": "medium" },
+    { "id": "p5", "title": "Walls and Gates", "difficulty": "medium" },
+    { "id": "p6", "title": "Open the Lock (BFS)", "difficulty": "medium" },
+    { "id": "p7", "title": "Perfect Squares (BFS)", "difficulty": "medium" },
+    { "id": "p8", "title": "Shortest Bridge (Multi-source BFS)", "difficulty": "medium" },
+    { "id": "p9", "title": "01 Matrix (Multi-source BFS)", "difficulty": "medium" },
+    { "id": "p10", "title": "Rotting Oranges", "difficulty": "medium" },
+    { "id": "p11", "title": "Binary Tree Level Order Traversal", "difficulty": "medium" },
+    { "id": "p12", "title": "Zigzag Level Order Traversal", "difficulty": "medium" },
+    { "id": "p13", "title": "Vertical Order Traversal", "difficulty": "hard" },
+    { "id": "p14", "title": "All Nodes Distance K in Binary Tree", "difficulty": "medium" },
+    { "id": "p15", "title": "Longest Increasing Path in Matrix", "difficulty": "hard" },
+    { "id": "p16", "title": "Word Ladder (BFS)", "difficulty": "hard" },
+    { "id": "p17", "title": "Word Ladder II (BFS)", "difficulty": "hard" },
+    { "id": "p18", "title": "Web Crawler (BFS/DFS)", "difficulty": "medium" },
+    { "id": "p19", "title": "Remove Invalid Parentheses (BFS)", "difficulty": "hard" },
+    { "id": "p20", "title": "Shortest Path in Grid with Obstacles", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init-dfs", "graph": {"A": ["B", "C"], "B": ["D", "E"], "C": ["F"], "D": [], "E": ["F"], "F": []}, "start": "A", "stack": ["A"], "visited": [], "highlightLines": [1, 2], "description": "DFS: Start at A, push to stack. Stack = [A]" },
+    { "step": 1, "action": "visit", "node": "A", "stack": ["C", "B"], "visited": ["A"], "highlightLines": [5, 6], "description": "Pop A, mark visited. Push neighbors C, B onto stack." },
+    { "step": 2, "action": "visit", "node": "B", "stack": ["C", "E", "D"], "visited": ["A", "B"], "highlightLines": [5, 6], "description": "Pop B (LIFO), mark visited. Push D, E onto stack." },
+    { "step": 3, "action": "visit", "node": "D", "stack": ["C", "E"], "visited": ["A", "B", "D"], "highlightLines": [5, 6], "description": "Pop D. No unvisited neighbors. D is leaf node." },
+    { "step": 4, "action": "visit", "node": "E", "stack": ["C", "F"], "visited": ["A", "B", "D", "E"], "highlightLines": [5, 6], "description": "Pop E. Push F (only unvisited neighbor)." },
+    { "step": 5, "action": "init-bfs", "graph": {"A": ["B", "C"], "B": ["D", "E"], "C": ["F"], "D": [], "E": ["F"], "F": []}, "start": "A", "queue": ["A"], "visited": [], "highlightLines": [20, 21], "description": "Now BFS: Start at A, enqueue. Queue = [A]" },
+    { "step": 6, "action": "visit", "node": "A", "queue": ["B", "C"], "visited": ["A"], "level": 0, "highlightLines": [24, 25], "description": "Dequeue A. Enqueue B, C. Level 0 complete." },
+    { "step": 7, "action": "visit", "node": "B", "queue": ["C", "D", "E"], "visited": ["A", "B"], "level": 1, "highlightLines": [24, 25], "description": "Dequeue B. Enqueue D, E. Still processing level 1." },
+    { "step": 8, "action": "visit", "node": "C", "queue": ["D", "E", "F"], "visited": ["A", "B", "C"], "level": 1, "highlightLines": [24, 25], "description": "Dequeue C. Enqueue F. Level 1 complete." }
+  ],
+  "minigame": {
+    "type": "maze-solver",
+    "title": "Maze Escape Challenge",
+    "description": "Navigate a maze using DFS and BFS strategies. Compare path lengths and exploration patterns.",
+    "instructions": [
+      "Select DFS or BFS algorithm",
+      "Watch the search explore the maze",
+      "Compare paths found by each method",
+      "BFS guarantees shortest path, DFS uses less memory"
+    ]
+  }
+}

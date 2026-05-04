@@ -1,0 +1,72 @@
+﻿{
+  "id": "12-graphs",
+  "title": "Graph Fundamentals",
+  "category": "advanced",
+  "theory": {
+    "overview": "A graph is a non-linear data structure consisting of vertices (nodes) and edges that connect pairs of vertices. Graphs model relationships between objects: social networks (people as nodes, friendships as edges), road networks (intersections as nodes, roads as edges), and dependency graphs (tasks as nodes, dependencies as edges). Graphs can be directed (edges have direction) or undirected, weighted (edges have costs) or unweighted.",
+    "keyConcepts": [
+      {
+        "name": "Adjacency List vs Matrix",
+        "description": "Adjacency List: O(V+E) space, good for sparse graphs. Adjacency Matrix: O(V²) space, fast edge lookup O(1)."
+      },
+      {
+        "name": "Directed vs Undirected",
+        "description": "Directed edges are one-way (arrows). Undirected edges are bidirectional. Social networks are undirected; Twitter follows are directed."
+      },
+      {
+        "name": "Weighted Edges",
+        "description": "Edges have associated values (costs, distances, capacities). Essential for shortest path and flow problems."
+      },
+      {
+        "name": "Cycles and Paths",
+        "description": "Path: sequence of edges connecting vertices. Cycle: path that starts and ends at same vertex. DAG: Directed Acyclic Graph (no cycles)."
+      }
+    ],
+    "complexity": {
+      "adjListSpace": "O(V + E)",
+      "adjMatrixSpace": "O(V²)",
+      "edgeLookupList": "O(degree)",
+      "edgeLookupMatrix": "O(1)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Find if Path Exists in Graph", "difficulty": "easy" },
+    { "id": "p2", "title": "Find the Town Judge", "difficulty": "easy" },
+    { "id": "p3", "title": "Find Center of Star Graph", "difficulty": "easy" },
+    { "id": "p4", "title": "Keys and Rooms", "difficulty": "medium" },
+    { "id": "p5", "title": "Number of Provinces", "difficulty": "medium" },
+    { "id": "p6", "title": "Count Connected Components", "difficulty": "medium" },
+    { "id": "p7", "title": "Redundant Connection", "difficulty": "medium" },
+    { "id": "p8", "title": "Graph Valid Tree", "difficulty": "medium" },
+    { "id": "p9", "title": "Evaluate Division", "difficulty": "medium" },
+    { "id": "p10", "title": "Clone Graph", "difficulty": "medium" },
+    { "id": "p11", "title": "Is Graph Bipartite?", "difficulty": "medium" },
+    { "id": "p12", "title": "Possible Bipartition", "difficulty": "medium" },
+    { "id": "p13", "title": "Course Schedule", "difficulty": "medium" },
+    { "id": "p14", "title": "Course Schedule II", "difficulty": "medium" },
+    { "id": "p15", "title": "Minimum Height Trees", "difficulty": "medium" },
+    { "id": "p16", "title": "Find Eventual Safe States", "difficulty": "medium" },
+    { "id": "p17", "title": "Maximum Employees to Be Invited", "difficulty": "hard" },
+    { "id": "p18", "title": "Longest Cycle in a Graph", "difficulty": "hard" },
+    { "id": "p19", "title": "Parallel Courses III", "difficulty": "hard" },
+    { "id": "p20", "title": "Reconstruct Itinerary", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "nodes": [{"id": "A", "x": 100, "y": 200}, {"id": "B", "x": 250, "y": 100}, {"id": "C", "x": 400, "y": 200}, {"id": "D", "x": 250, "y": 300}], "edges": [["A", "B"], ["B", "C"], ["C", "D"], ["D", "A"], ["A", "C"]], "highlightLines": [1, 2, 3], "description": "Initialize undirected graph with 4 nodes and 5 edges" },
+    { "step": 1, "action": "adjList", "adjList": {"A": ["B", "D", "C"], "B": ["A", "C"], "C": ["B", "D", "A"], "D": ["C", "A"]}, "highlightLines": [5, 6], "description": "Build adjacency list: Each node points to its neighbors" },
+    { "step": 2, "action": "adjMatrix", "matrix": [[0, 1, 1, 1], [1, 0, 1, 0], [1, 1, 0, 1], [1, 0, 1, 0]], "highlightLines": [8, 9], "description": "Build adjacency matrix: matrix[i][j] = 1 if edge exists" },
+    { "step": 3, "action": "degree", "degrees": {"A": 3, "B": 2, "C": 3, "D": 2}, "highlightLines": [11, 12], "description": "Calculate degree of each node (number of connections)" },
+    { "step": 4, "action": "addEdge", "newEdge": ["B", "D"], "edges": [["A", "B"], ["B", "C"], ["C", "D"], ["D", "A"], ["A", "C"], ["B", "D"]], "highlightLines": [15, 16], "description": "Add edge B-D: Update both adjacency structures" }
+  ],
+  "minigame": {
+    "type": "graph-builder",
+    "title": "Graph Construction Challenge",
+    "description": "Build graphs by adding nodes and edges. Switch between adjacency list and matrix views to understand space-time tradeoffs.",
+    "instructions": [
+      "Add nodes by clicking on canvas",
+      "Connect nodes with edges",
+      "Switch between list and matrix view",
+      "Compare memory usage for sparse vs dense graphs"
+    ]
+  }
+}

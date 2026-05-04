@@ -1,0 +1,430 @@
+{
+  "id": "20-dp-fundamentals",
+  "bookId": "book-dsa",
+  "title": "Dynamic Programming Fundamentals",
+  "category": "Algorithms",
+  "order": 20,
+  "estimatedTime": "65 min",
+  "theory": {
+    "overview": "Dynamic Programming (DP) solves complex problems by breaking them into simpler subproblems, storing results to avoid redundant computation. Key principles: optimal substructure (optimal solution contains optimal solutions to subproblems) and overlapping subproblems (same subproblems recur). DP trades space for time. This chapter covers DP fundamentals, memoization, tabulation, and classic 1D/2D DP problems.",
+    "sections": [
+      {
+        "title": "DP Principles",
+        "content": "Optimal substructure: can construct optimal solution from optimal solutions to subproblems. Overlapping subproblems: same subproblems solved multiple times (memoization helps). Memoization (top-down): recursive with caching. Tabulation (bottom-up): iterative table filling. State: parameters that uniquely identify subproblem. Transition: how to compute state from smaller states.",
+        "principles": [
+          "Optimal substructure",
+          "Overlapping subproblems",
+          "Memoization (top-down)",
+          "Tabulation (bottom-up)"
+        ]
+      },
+      {
+        "title": "Memoization vs Tabulation",
+        "content": "Memoization: recursive, cache results, intuitive, may have stack overflow. Tabulation: iterative, fill table, no recursion, often more efficient. Both achieve same time complexity. Memoization easier to implement for problems with natural recursion. Tabulation better for space optimization and avoiding stack limits.",
+        "comparison": [
+          { "aspect": "Approach", "memo": "Top-down recursive", "tabulation": "Bottom-up iterative" },
+          { "aspect": "Stack", "memo": "Uses call stack", "tabulation": "No stack" },
+          { "aspect": "Space", "memo": "O(n) stack + cache", "tabulation": "O(n) table" }
+        ]
+      },
+      {
+        "title": "1D DP",
+        "content": "Single-dimensional DP array. dp[i] represents solution for subproblem ending at or including i. Examples: climbing stairs (dp[i] = dp[i-1] + dp[i-2]), Fibonacci (dp[i] = dp[i-1] + dp[i-2]), house robber (dp[i] = max(dp[i-1], dp[i-2] + nums[i])). State space is linear.",
+        "examples": [
+          "Climbing stairs: dp[i] = dp[i-1] + dp[i-2]",
+          "Fibonacci: dp[i] = dp[i-1] + dp[i-2]",
+          "House robber: dp[i] = max(dp[i-1], dp[i-2] + nums[i])"
+        ]
+      },
+      {
+        "title": "2D DP",
+        "content": "Two-dimensional DP table. dp[i][j] represents solution for subproblem involving first i rows and j columns (or similar). Examples: unique paths (dp[i][j] = dp[i-1][j] + dp[i][j-1]), edit distance, longest common subsequence. State space is grid.",
+        "examples": [
+          "Unique paths: dp[i][j] = dp[i-1][j] + dp[i][j-1]",
+          "Edit distance: dp[i][j] based on operations",
+          "LCS: dp[i][j] = dp[i-1][j-1] + 1 if match else max(dp[i-1][j], dp[i][j-1])"
+        ]
+      },
+      {
+        "title": "DP Pattern Recognition",
+        "content": "Look for: optimal substructure (can we break problem into smaller problems?), overlapping subproblems (same subproblems repeated?), choice at each step (which subproblem leads to optimal solution?). Common patterns: linear DP, interval DP, knapsack, LIS, LCS, tree DP. Practice pattern recognition to identify DP problems.",
+        "patterns": [
+          "Linear DP (1D array)",
+          "Interval DP (subarrays)",
+          "Knapsack (choose items)",
+          "LIS/LCS (subsequences)",
+          "Tree DP (on tree structures)"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Optimal Substructure",
+        "description": "Optimal solution can be constructed from optimal solutions to subproblems. Essential for DP validity.",
+        "check": "Can you solve smaller instances and combine?"
+      },
+      {
+        "name": "Overlapping Subproblems",
+        "description": "Same subproblems solved multiple times. Memoization caches results to avoid recomputation.",
+        "benefit": "Exponential → polynomial time"
+      },
+      {
+        "name": "State Definition",
+        "description": "Parameters that uniquely identify subproblem. Good state definition is key to DP solution.",
+        "example": "dp[i] = solution for first i elements"
+      },
+      {
+        "name": "Transition",
+        "description": "How to compute current state from previous states. The recurrence relation.",
+        "example": "dp[i] = dp[i-1] + dp[i-2]"
+      }
+    ],
+    "complexity": {
+      "time": "Depends on state space × transition cost",
+      "space": "O(state space), can often be optimized"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Identify Subproblems",
+      "description": "Break problem into smaller subproblems. Identify what parameters define each subproblem.",
+      "code": "state = parameters that uniquely identify subproblem",
+      "visualState": { "subproblems": "identified" }
+    },
+    {
+      "step": 2,
+      "title": "Define State",
+      "description": "Define dp array/table. dp[state] = answer for that subproblem.",
+      "code": "dp[i] = solution for subproblem with parameter i",
+      "visualState": { "dp": "defined" }
+    },
+    {
+      "step": 3,
+      "title": "Define Transition",
+      "description": "Write recurrence relation. How to compute dp[i] from smaller states.",
+      "code": "dp[i] = combine(dp[i-1], dp[i-2], ...)",
+      "visualState": { "recurrence": "defined" }
+    },
+    {
+      "step": 4,
+      "title": "Base Cases",
+      "description": "Define initial conditions. Smallest subproblems that can be solved directly.",
+      "code": "dp[0] = base_value; dp[1] = base_value;",
+      "visualState": { "base": "defined" }
+    },
+    {
+      "step": 5,
+      "title": "Fill DP Table",
+      "description": "Iterate through states in correct order (bottom-up) or use memoization (top-down).",
+      "code": "for i in range(2, n): dp[i] = transition(dp[i-1], dp[i-2]);",
+      "visualState": { "table": "filled" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Climbing Stairs",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Number of ways to climb n stairs (1 or 2 steps at a time).",
+      "example": "n=3. Output: 3 (1+1+1, 1+2, 2+1)",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "dp[i] = dp[i-1] + dp[i-2]. Base: dp[0]=1, dp[1]=1. Can optimize to O(1) space.",
+      "hints": "dp[i] = dp[i-1] + dp[i-2]"
+    },
+    {
+      "id": "p2",
+      "title": "Fibonacci Number",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Compute nth Fibonacci number.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "dp[i] = dp[i-1] + dp[i-2]. Base: dp[0]=0, dp[1]=1. O(1) space with two variables.",
+      "hints": "dp[i] = dp[i-1] + dp[i-2]"
+    },
+    {
+      "id": "p3",
+      "title": "House Robber",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Max money from robbing houses (can't rob adjacent houses).",
+      "example": "nums=[2,7,9,3,1]. Output: 12 (2+9+1)",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "dp[i] = max(dp[i-1], dp[i-2] + nums[i]). Skip or take current house.",
+      "hints": "dp[i] = max(dp[i-1], dp[i-2] + nums[i])"
+    },
+    {
+      "id": "p4",
+      "title": "House Robber II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Houses arranged in circle (first and last adjacent).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Two cases: rob houses 0 to n-2, or 1 to n-1. Take max of both.",
+      "hints": "Two cases: exclude first or exclude last"
+    },
+    {
+      "id": "p5",
+      "title": "Min Cost Climbing Stairs",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Min cost to reach top of stairs (cost to step on stair i).",
+      "example": "cost=[10,15,20]. Output: 15 (start at 1, go to 2)",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "dp[i] = cost[i] + min(dp[i-1], dp[i-2]). Return min(dp[n-1], dp[n-2]).",
+      "hints": "dp[i] = cost[i] + min(dp[i-1], dp[i-2])"
+    },
+    {
+      "id": "p6",
+      "title": "Decode Ways",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of ways to decode string (A=1, B=2, ..., Z=26).",
+      "example": "s='12'. Output: 2 ('AB' or 'L')",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "dp[i] = dp[i-1] (if valid single digit) + dp[i-2] (if valid two digits).",
+      "hints": "Check single digit and two digit validity"
+    },
+    {
+      "id": "p7",
+      "title": "Unique Paths",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of unique paths from top-left to bottom-right in m×n grid (only right/down).",
+      "example": "m=3, n=7. Output: 28",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(n)$" },
+      "solution": "dp[i][j] = dp[i-1][j] + dp[i][j-1]. Can optimize to 1D.",
+      "hints": "dp[i][j] = dp[i-1][j] + dp[i][j-1]"
+    },
+    {
+      "id": "p8",
+      "title": "Unique Paths II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Unique paths with obstacles in grid.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(n)$" },
+      "solution": "dp[i][j] = 0 if obstacle, else dp[i-1][j] + dp[i][j-1].",
+      "hints": "dp[i][j] = 0 if obstacle"
+    },
+    {
+      "id": "p9",
+      "title": "Coin Change",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum coins to make amount (unlimited coins).",
+      "example": "coins=[1,2,5], amount=11. Output: 3 (5+5+1)",
+      "complexity": { "time": "$O(n \\times amount)$", "space": "$O(amount)$" },
+      "solution": "dp[i] = min(dp[i], dp[i-coin] + 1) for each coin.",
+      "hints": "dp[i] = min(dp[i], dp[i-coin] + 1)"
+    },
+    {
+      "id": "p10",
+      "title": "Coin Change 2",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of ways to make amount (order doesn't matter).",
+      "complexity": { "time": "$O(n \\times amount)$", "space": "$O(amount)$" },
+      "solution": "dp[i] += dp[i-coin] for each coin (process coins one by one).",
+      "hints": "Process coins one by one to avoid counting permutations"
+    },
+    {
+      "id": "p11",
+      "title": "Longest Increasing Subsequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Length of longest strictly increasing subsequence.",
+      "example": "nums=[10,9,2,5,3,7,101,18]. Output: 4 ([2,3,7,101])",
+      "complexity": { "time": "$O(n^2)$ or $O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "dp[i] = 1 + max(dp[j]) for j < i and nums[j] < nums[i]. Or patience sorting O(n log n).",
+      "hints": "dp[i] = 1 + max(dp[j]) for valid j"
+    },
+    {
+      "id": "p12",
+      "title": "Longest Common Subsequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Length of LCS between two strings.",
+      "example": "text1='abcde', text2='ace'. Output: 3 ('ace')",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "dp[i][j] = dp[i-1][j-1] + 1 if match else max(dp[i-1][j], dp[i][j-1]).",
+      "hints": "dp[i][j] = dp[i-1][j-1] + 1 if match else max"
+    },
+    {
+      "id": "p13",
+      "title": "Edit Distance",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum operations to convert word1 to word2 (insert, delete, replace).",
+      "example": "word1='horse', word2='ros'. Output: 3",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "dp[i][j] based on operations: replace, delete, insert.",
+      "hints": "dp[i][j] = min(dp[i-1][j-1] + replace, dp[i-1][j] + delete, dp[i][j-1] + insert)"
+    },
+    {
+      "id": "p14",
+      "title": "Maximum Subarray",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Maximum sum of contiguous subarray.",
+      "example": "nums=[-2,1,-3,4,-1,2,1,-5,4]. Output: 6 ([4,-1,2,1])",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Kadane's algorithm: dp[i] = max(nums[i], dp[i-1] + nums[i]).",
+      "hints": "dp[i] = max(nums[i], dp[i-1] + nums[i])"
+    },
+    {
+      "id": "p15",
+      "title": "Partition Equal Subset Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if array can be partitioned into two subsets with equal sum.",
+      "example": "nums=[1,5,11,5]. Output: true ([1,5,5] and [11])",
+      "complexity": { "time": "$O(n \\times sum)$", "space": "$O(sum)$" },
+      "solution": "Subset sum DP. Check if sum/2 achievable.",
+      "hints": "Subset sum DP for target = sum/2"
+    },
+    {
+      "id": "p16",
+      "title": "Target Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of ways to assign + and - to get target sum.",
+      "example": "nums=[1,1,1,1,1], target=3. Output: 5",
+      "complexity": { "time": "$O(n \\times sum)$", "space": "$O(sum)$" },
+      "solution": "Subset sum variant. Find ways to get (target + sum(nums)) / 2.",
+      "hints": "Convert to subset sum problem"
+    },
+    {
+      "id": "p17",
+      "title": "Combination Sum IV",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of combinations that add to target (order matters).",
+      "example": "nums=[1,2,3], target=4. Output: 7",
+      "complexity": { "time": "$O(target \\times n)$", "space": "$O(target)$" },
+      "solution": "dp[i] = sum(dp[i-num]) for all num. Order matters (permutations).",
+      "hints": "dp[i] = sum(dp[i-num]) for all num"
+    },
+    {
+      "id": "p18",
+      "title": "Word Break",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if string can be segmented into dictionary words.",
+      "example": "s='leetcode', wordDict=['leet','code']. Output: true",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "dp[i] = true if s[0:i] can be segmented. dp[i] = any(dp[j] and s[j:i] in dict).",
+      "hints": "dp[i] = any(dp[j] and s[j:i] in dict)"
+    },
+    {
+      "id": "p19",
+      "title": "Word Break II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Return all possible segmentations.",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(2^n)$" },
+      "solution": "DP + backtracking. Memoize results for each position.",
+      "hints": "DP + backtracking with memoization"
+    },
+    {
+      "id": "p20",
+      "title": "Triangle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum path sum from top to bottom of triangle.",
+      "example": "[[2],[3,4],[6,5,7],[4,1,8,3]]. Output: 11 (2+3+5+1)",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "dp[j] = triangle[i][j] + min(dp[j], dp[j+1]). Bottom-up.",
+      "hints": "Bottom-up, update in place"
+    },
+    {
+      "id": "p21",
+      "title": "Minimum Path Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum path sum from top-left to bottom-right in grid.",
+      "example": "grid=[[1,3,1],[1,5,1],[4,2,1]]. Output: 7",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(n)$" },
+      "solution": "dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]).",
+      "hints": "dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1])"
+    },
+    {
+      "id": "p22",
+      "title": "Interleaving String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if s3 is formed by interleaving s1 and s2.",
+      "example": "s1='aabcc', s2='dbbca', s3='aadbbcbcac'. Output: true",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "dp[i][j] = (dp[i-1][j] and s1[i-1]==s3[i+j-1]) or (dp[i][j-1] and s2[j-1]==s3[i+j-1]).",
+      "hints": "dp[i][j] depends on previous states and character match"
+    },
+    {
+      "id": "p23",
+      "title": "Distinct Subsequences",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Number of distinct subsequences of s equal to t.",
+      "example": "s='rabbbit', t='rabbit'. Output: 3",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "dp[i][j] = dp[i-1][j-1] + dp[i-1][j] if s[i-1]==t[j-1] else dp[i-1][j].",
+      "hints": "dp[i][j] = dp[i-1][j-1] + dp[i-1][j] if match"
+    },
+    {
+      "id": "p24",
+      "title": "Perfect Squares",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Least number of perfect square numbers that sum to n.",
+      "example": "n=12. Output: 3 (4+4+4)",
+      "complexity": { "time": "$O(n \\sqrt{n})$", "space": "$O(n)$" },
+      "solution": "dp[i] = 1 + min(dp[i - j*j]) for all j*j ≤ i.",
+      "hints": "dp[i] = 1 + min(dp[i - j*j])"
+    },
+    {
+      "id": "p25",
+      "title": "Integer Break",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Maximum product of integers that sum to n (at least 2 positive integers).",
+      "example": "n=10. Output: 36 (3+3+4 → 3×3×4)",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "dp[i] = max(max(j*(i-j), j*dp[i-j])) for j from 1 to i-1.",
+      "hints": "dp[i] = max(j*(i-j), j*dp[i-j])"
+    }
+  ],
+  "minigame": {
+    "id": "dp-master",
+    "title": "DP Master",
+    "description": "Master Dynamic Programming! Visualize state transitions and table filling.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Climbing Stairs", "task": "Find ways to climb 5 stairs" },
+      { "name": "Coin Change", "task": "Min coins for amount 11" },
+      { "name": "LIS", "task": "Find LIS length" }
+    ]
+  },
+  "visualizer": {
+    "type": "dp-visualizer",
+    "title": "DP Visualizer",
+    "description": "Visualize DP table filling, state transitions, and memoization.",
+    "features": ["Table visualization", "State highlighting", "Transition arrows", "Memoization cache"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Climbing Stairs (Tabulation)",
+        "code": "def climbStairs(n):\n    if n <= 2:\n        return n\n    dp = [0] * (n + 1)\n    dp[1], dp[2] = 1, 2\n    \n    for i in range(3, n + 1):\n        dp[i] = dp[i-1] + dp[i-2]\n    \n    return dp[n]  # O(n) time, O(n) space"
+      },
+      {
+        "title": "Climbing Stairs (Memoization)",
+        "code": "def climbStairs(n, memo={}):\n    if n <= 2:\n        return n\n    if n in memo:\n        return memo[n]\n    \n    memo[n] = climbStairs(n-1, memo) + climbStairs(n-2, memo)\n    return memo[n]  # O(n) time, O(n) space"
+      },
+      {
+        "title": "Coin Change",
+        "code": "def coinChange(coins, amount):\n    dp = [float('inf')] * (amount + 1)\n    dp[0] = 0\n    \n    for coin in coins:\n        for i in range(coin, amount + 1):\n            dp[i] = min(dp[i], dp[i - coin] + 1)\n    \n    return dp[amount] if dp[amount] != float('inf') else -1"
+      }
+    ]
+  }
+}

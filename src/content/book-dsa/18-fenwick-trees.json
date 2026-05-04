@@ -1,0 +1,402 @@
+{
+  "id": "18-fenwick-trees",
+  "bookId": "book-dsa",
+  "title": "Fenwick Trees (Binary Indexed Trees)",
+  "category": "Advanced Data Structures",
+  "order": 18,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Fenwick Tree (Binary Indexed Tree or BIT) is a data structure for efficient prefix sum queries and point updates. Simpler and more space-efficient than segment tree for prefix sum operations. Supports point update and prefix sum query in $O(\\log n)$ time. Range sum query = two prefix sum queries. Used in frequency counting, cumulative sums, and inversion counting. This chapter covers BIT structure, operations, and applications.",
+    "sections": [
+      {
+        "title": "BIT Structure",
+        "content": "Array of size n+1 (1-indexed). Each index i stores sum of a range of original array. The range is determined by the lowest set bit of i: i & -i (two's complement). Index i covers range [i - (i & -i) + 1, i]. This hierarchical structure enables efficient prefix sum computation.",
+        "structure": {
+          "size": "n+1 (1-indexed)",
+          "range": "[i - (i & -i) + 1, i]",
+          "lsb": "i & -i (lowest set bit)"
+        }
+      },
+      {
+        "title": "Point Update",
+        "content": "Update value at index i. Add delta to all BIT indices that include i in their range. Move to next index: i += i & -i. Time: $O(\\log n)$. Each update affects $O(\\log n)$ indices.",
+        "algorithm": "while i <= n: bit[i] += delta; i += i & -i;",
+        "complexity": { "time": "$O(\\log n)$" }
+      },
+      {
+        "title": "Prefix Sum Query",
+        "content": "Query sum of elements from 1 to i. Sum BIT values for indices that contribute to prefix. Move to previous index: i -= i & -i. Time: $O(\\log n)$. Each query accesses $O(\\log n)$ indices.",
+        "algorithm": "sum = 0; while i > 0: sum += bit[i]; i -= i & -i; return sum;",
+        "complexity": { "time": "$O(\\log n)$" }
+      },
+      {
+        "title": "Range Sum Query",
+        "content": "Sum of elements from l to r = prefix_sum(r) - prefix_sum(l-1). Two prefix sum queries. Time: $O(\\log n)$. BIT excels at prefix-based operations.",
+        "algorithm": "return query(r) - query(l-1);",
+        "complexity": { "time": "$O(\\log n)$" }
+      },
+      {
+        "title": "BIT vs Segment Tree",
+        "content": "BIT: simpler code, less memory ($O(n)$ vs $O(4n)$), faster constant factor, limited to prefix-based operations. Segment Tree: more flexible (any range query, range updates, multiple operations), more complex, more memory. Choose BIT for prefix sums, segment tree for general range queries.",
+        "comparison": [
+          { "aspect": "Code complexity", "bit": "Simple", "segment": "Complex" },
+          { "aspect": "Memory", "bit": "$O(n)$", "segment": "$O(4n)$" },
+          { "aspect": "Flexibility", "bit": "Prefix only", "segment": "Any range" },
+          { "aspect": "Range updates", "bit": "Limited", "segment": "Full support" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Lowest Set Bit",
+        "description": "i & -i gives the lowest set bit of i. Determines the range covered by BIT index i. Key to BIT's structure.",
+        "example": "i = 12 (1100), i & -i = 4 (0100)"
+      },
+      {
+        "name": "1-Indexed",
+        "description": "BIT uses 1-indexed array. Index 0 is unused. This simplifies the lowest set bit calculation.",
+        "reason": "i & -i works correctly with 1-indexing"
+      },
+      {
+        "name": "Prefix to Range",
+        "description": "Range sum [l, r] = prefix(r) - prefix(l-1). BIT directly supports prefix, so range is derived.",
+        "formula": "sum(l,r) = query(r) - query(l-1)"
+      },
+      {
+        "name": "Inverse Operation",
+        "description": "Update moves forward (i += lsb), query moves backward (i -= lsb). These are inverse operations on the BIT structure.",
+        "direction": "Update: forward, Query: backward"
+      }
+    ],
+    "complexity": {
+      "build": "$O(n \\log n)$ or $O(n)$",
+      "pointUpdate": "$O(\\log n)$",
+      "prefixQuery": "$O(\\log n)$",
+      "rangeQuery": "$O(\\log n)$",
+      "space": "$O(n)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize BIT",
+      "description": "Create BIT array of size n+1, initialized to 0.",
+      "code": "bit = [0] * (n + 1);",
+      "visualState": { "bit": "all zeros" }
+    },
+    {
+      "step": 2,
+      "title": "Build BIT",
+      "description": "For each element in original array, call update(i, arr[i]).",
+      "code": "for i in range(1, n+1): update(i, arr[i-1]);",
+      "visualState": { "bit": "built from array" }
+    },
+    {
+      "step": 3,
+      "title": "Point Update",
+      "description": "Add delta to index i. Update all affected BIT indices.",
+      "code": "while i <= n: bit[i] += delta; i += i & -i;",
+      "visualState": { "path": "forward through indices" }
+    },
+    {
+      "step": 4,
+      "title": "Prefix Query",
+      "description": "Sum elements from 1 to i. Accumulate BIT values.",
+      "code": "sum = 0; while i > 0: sum += bit[i]; i -= i & -i; return sum;",
+      "visualState": { "path": "backward through indices" }
+    },
+    {
+      "step": 5,
+      "title": "Range Query",
+      "description": "Sum elements from l to r using two prefix queries.",
+      "code": "return query(r) - query(l-1);",
+      "visualState": { "result": "prefix(r) - prefix(l-1)" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Range Sum Query - Mutable",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement range sum with point updates using BIT.",
+      "complexity": { "update": "$O(\\log n)$", "sumRange": "$O(\\log n)$" },
+      "solution": "BIT with sum operations. update(i, delta), query(i) for prefix, sumRange(l,r) = query(r) - query(l-1).",
+      "hints": "BIT, prefix sum, range = prefix(r) - prefix(l-1)"
+    },
+    {
+      "id": "p2",
+      "title": "Count of Smaller Numbers After Self",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "For each element, count smaller elements to its right.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Process from right. BIT for counting. Coordinate compression for values.",
+      "hints": "Process from right, BIT for counting, coordinate compression"
+    },
+    {
+      "id": "p3",
+      "title": "Reverse Pairs",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count pairs i < j where nums[i] > 2 * nums[j].",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Process from right. BIT for counting. Query count of elements < nums[i]/2.",
+      "hints": "BIT from right, count elements < nums[i]/2"
+    },
+    {
+      "id": "p4",
+      "title": "Create Sorted Array Through Instructions",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Cost to create sorted array (count smaller and larger elements).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Two BITs or one BIT with coordinate compression. Count smaller and larger.",
+      "hints": "BIT for counting smaller and larger"
+    },
+    {
+      "id": "p5",
+      "title": "Range Sum Query 2D",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "2D range sum with point updates.",
+      "complexity": { "update": "$O(\\log m \\times \\log n)$", "query": "$O(\\log m \\times \\log n)$" },
+      "solution": "2D BIT. BIT of BITs. Update and query nested.",
+      "hints": "2D BIT, nested operations"
+    },
+    {
+      "id": "p6",
+      "title": "Count of Range Sum",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count range sums in [lower, upper].",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Prefix sum + BIT for counting prefix sums in range.",
+      "hints": "Prefix sum + BIT for counting"
+    },
+    {
+      "id": "p7",
+      "title": "Fruit Into Baskets",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Max fruits in two baskets (at most 2 types).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Sliding window (not BIT). Track types in window.",
+      "hints": "Sliding window (not BIT)"
+    },
+    {
+      "id": "p8",
+      "title": "Longest Subarray with Sum at Most K",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest subarray with sum ≤ K.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Prefix sum + BIT or binary search on prefix sums.",
+      "hints": "Prefix sum + BIT or binary search"
+    },
+    {
+      "id": "p9",
+      "title": "Number of Subarrays with Sum Less Than K",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count subarrays with sum < K.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Prefix sum + BIT for counting prefix sums.",
+      "hints": "Prefix sum + BIT for counting"
+    },
+    {
+      "id": "p10",
+      "title": "Find the Kth Smallest Sum",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find kth smallest sum from two arrays.",
+      "complexity": { "time": "$O(n \\log n \\log range)$", "space": "$O(n)$" },
+      "solution": "Binary search on sum + BIT to count pairs ≤ mid.",
+      "hints": "Binary search + BIT for counting"
+    },
+    {
+      "id": "p11",
+      "title": "K-th Largest Element in a Stream",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find kth largest in stream.",
+      "complexity": { "add": "$O(\\log k)$", "getKth": "$O(1)$" },
+      "solution": "Min-heap of size k (not BIT).",
+      "hints": "Min-heap (not BIT)"
+    },
+    {
+      "id": "p12",
+      "title": "Kth Smallest Element in Sorted Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find kth smallest in sorted matrix.",
+      "complexity": { "time": "$O(k \\log n)$", "space": "$O(n)$" },
+      "solution": "Min-heap (not BIT). Initialize with first column.",
+      "hints": "Min-heap (not BIT)"
+    },
+    {
+      "id": "p13",
+      "title": "Rank Transform of Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Replace each element with its rank.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort unique values, map to ranks. Coordinate compression.",
+      "hints": "Coordinate compression (not BIT)"
+    },
+    {
+      "id": "p14",
+      "title": "Relative Ranks",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Assign ranks to scores.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort scores, assign ranks with tie handling.",
+      "hints": "Sort and rank (not BIT)"
+    },
+    {
+      "id": "p15",
+      "title": "How Many Numbers Are Smaller Than Current",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "For each element, count smaller elements.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort and count, or BIT with coordinate compression.",
+      "hints": "Sort or BIT with coordinate compression"
+    },
+    {
+      "id": "p16",
+      "title": "Array of Doubled Pairs",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if array can be rearranged into doubled pairs.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort, use hash map or BIT to track counts.",
+      "hints": "Sort + hash map (not BIT)"
+    },
+    {
+      "id": "p17",
+      "title": "Maximum Ice Cream Bars",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Max ice cream bars with given coins.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort costs, greedy buy cheapest first.",
+      "hints": "Sort + greedy (not BIT)"
+    },
+    {
+      "id": "p18",
+      "title": "Assign Cookies",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Assign cookies to children (greed factor, cookie size).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort both, two pointers greedy.",
+      "hints": "Sort + two pointers (not BIT)"
+    },
+    {
+      "id": "p19",
+      "title": "Boats to Save People",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min boats to save people (each boat max 2 people, weight limit).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort weights, two pointers (lightest + heaviest).",
+      "hints": "Sort + two pointers (not BIT)"
+    },
+    {
+      "id": "p20",
+      "title": "Advantage Shuffle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange A to maximize advantage over B.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort both, greedy match.",
+      "hints": "Sort + greedy (not BIT)"
+    },
+    {
+      "id": "p21",
+      "title": "Car Fleet",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of car fleets arriving at destination.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort by position, calculate time, count fleets.",
+      "hints": "Sort + stack (not BIT)"
+    },
+    {
+      "id": "p22",
+      "title": "Minimum Number of Arrows to Burst Balloons",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min arrows to burst all balloons (overlapping intervals).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort by end, greedy shoot at end.",
+      "hints": "Sort + greedy (not BIT)"
+    },
+    {
+      "id": "p23",
+      "title": "Non-overlapping Intervals",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Remove minimum intervals to make non-overlapping.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort by end, greedy keep non-overlapping.",
+      "hints": "Sort + greedy (not BIT)"
+    },
+    {
+      "id": "p24",
+      "title": "Meeting Rooms II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min meeting rooms required.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort start and end times, two pointers or min-heap.",
+      "hints": "Sort + two pointers or heap (not BIT)"
+    },
+    {
+      "id": "p25",
+      "title": "Insert Interval",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Insert interval into sorted non-overlapping intervals.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Iterate, merge overlapping intervals.",
+      "hints": "Iteration + merge (not BIT)"
+    }
+  ],
+  "minigame": {
+    "id": "fenwick-tree-builder",
+    "title": "BIT Master",
+    "description": "Master Fenwick Trees! Build, update, and query interactively.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Build", "task": "Build BIT for array [1,2,3,4,5]" },
+      { "name": "Update", "task": "Update index 3 to 10" },
+      { "name": "Query", "task": "Query prefix sum to index 4" }
+    ]
+  },
+  "visualizer": {
+    "type": "fenwick-tree",
+    "title": "Fenwick Tree Visualizer",
+    "description": "Visualize BIT structure, update, and query operations.",
+    "features": ["Array visualization", "LSB highlighting", "Update path", "Query path"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Fenwick Tree Implementation",
+        "code": "class FenwickTree:\n    def __init__(self, n):\n        self.n = n\n        self.bit = [0] * (n + 1)\n    \n    def update(self, i, delta):\n        while i <= self.n:\n            self.bit[i] += delta\n            i += i & -i  # Move to next index\n    \n    def query(self, i):\n        sum = 0\n        while i > 0:\n            sum += self.bit[i]\n            i -= i & -i  # Move to parent\n        return sum\n    \n    def range_query(self, l, r):\n        return self.query(r) - self.query(l - 1)"
+      },
+      {
+        "title": "Count Smaller After Self",
+        "code": "def count_smaller(nums):\n    # Coordinate compression\n    sorted_nums = sorted(set(nums))\n    rank = {v: i+1 for i, v in enumerate(sorted_nums)}\n    \n    bit = FenwickTree(len(rank))\n    result = [0] * len(nums)\n    \n    for i in range(len(nums)-1, -1, -1):\n        r = rank[nums[i]]\n        result[i] = bit.query(r - 1)  # Count smaller\n        bit.update(r, 1)  # Add current\n    \n    return result"
+      },
+      {
+        "title": "2D Fenwick Tree",
+        "code": "class FenwickTree2D:\n    def __init__(self, m, n):\n        self.m, self.n = m, n\n        self.bit = [[0] * (n + 1) for _ in range(m + 1)]\n    \n    def update(self, x, y, delta):\n        i = x\n        while i <= self.m:\n            j = y\n            while j <= self.n:\n                self.bit[i][j] += delta\n                j += j & -j\n            i += i & -i\n    \n    def query(self, x, y):\n        sum = 0\n        i = x\n        while i > 0:\n            j = y\n            while j > 0:\n                sum += self.bit[i][j]\n                j -= j & -j\n            i -= i & -i\n        return sum"
+      }
+    ]
+  }
+}

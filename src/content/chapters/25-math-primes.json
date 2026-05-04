@@ -1,0 +1,73 @@
+﻿{
+  "id": "25-math-primes",
+  "title": "Mathematics & Prime Numbers",
+  "category": "advanced",
+  "theory": {
+    "overview": "Number theory and mathematical algorithms are fundamental to cryptography, hashing, and optimization problems. Key concepts include: Sieve of Eratosthenes for prime generation, Modular Arithmetic for large number operations, GCD/LCM using Euclidean algorithm, Fast Exponentiation (binary exponentiation), and Euler's Totient function. These power RSA encryption, hash functions, and competitive programming solutions.",
+    "keyConcepts": [
+      {
+        "name": "Sieve of Eratosthenes",
+        "description": "Find all primes up to n in O(n log log n). Mark multiples of each prime starting from 2. Efficient prime generation."
+      },
+      {
+        "name": "Euclidean Algorithm",
+        "description": "Compute GCD using gcd(a, b) = gcd(b, a mod b). O(log min(a,b)). Extended version finds modular inverse."
+      },
+      {
+        "name": "Modular Arithmetic",
+        "description": "(a + b) % mod, (a * b) % mod. Essential for large numbers. Fermat's Little Theorem: a^(p-1) ≡ 1 (mod p) for prime p."
+      },
+      {
+        "name": "Fast Exponentiation",
+        "description": "Compute a^b in O(log b) using binary representation of exponent. Critical for modular exponentiation in RSA."
+      }
+    ],
+    "complexity": {
+      "sieve": "O(n log log n)",
+      "gcd": "O(log min(a,b))",
+      "fastPow": "O(log exponent)",
+      "primeCheck": "O(√n) naive, O(log³n) Miller-Rabin"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Count Primes (Sieve)", "difficulty": "medium" },
+    { "id": "p2", "title": "Ugly Number II", "difficulty": "medium" },
+    { "id": "p3", "title": "Super Ugly Number", "difficulty": "medium" },
+    { "id": "p4", "title": "Factorial Trailing Zeroes", "difficulty": "easy" },
+    { "id": "p5", "title": "Excel Sheet Column Number", "difficulty": "easy" },
+    { "id": "p6", "title": "Excel Sheet Column Title", "difficulty": "easy" },
+    { "id": "p7", "title": "Pow(x, n)", "difficulty": "medium" },
+    { "id": "p8", "title": "Sqrt(x)", "difficulty": "easy" },
+    { "id": "p9", "title": "Valid Perfect Square", "difficulty": "easy" },
+    { "id": "p10", "title": "Add Binary", "difficulty": "easy" },
+    { "id": "p11", "title": "Add Strings", "difficulty": "easy" },
+    { "id": "p12", "title": "Multiply Strings", "difficulty": "medium" },
+    { "id": "p13", "title": "Fraction to Recurring Decimal", "difficulty": "medium" },
+    { "id": "p14", "title": "Max Points on a Line", "difficulty": "hard" },
+    { "id": "p15", "title": "Integer to English Words", "difficulty": "hard" },
+    { "id": "p16", "title": "Basic Calculator", "difficulty": "hard" },
+    { "id": "p17", "title": "Basic Calculator II", "difficulty": "medium" },
+    { "id": "p18", "title": "Basic Calculator III", "difficulty": "hard" },
+    { "id": "p19", "title": "Prime Palindrome", "difficulty": "medium" },
+    { "id": "p20", "title": "Consecutive Numbers Sum", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "n": 30, "isPrime": [true, true, true], "highlightLines": [1, 2], "description": "Sieve: Initialize array 2..30 as potentially prime" },
+    { "step": 1, "action": "mark", "p": 2, "multiples": [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30], "highlightLines": [5, 6], "description": "Start with p=2. Mark all multiples as not prime." },
+    { "step": 2, "action": "next", "p": 3, "multiples": [9, 12, 15, 18, 21, 24, 27, 30], "highlightLines": [8, 9], "description": "Next unmarked is 3 (prime). Mark its multiples." },
+    { "step": 3, "action": "skip", "p": 4, "isPrime": false, "highlightLines": [11, 12], "description": "4 is already marked (not prime). Skip." },
+    { "step": 4, "action": "next", "p": 5, "multiples": [25, 30], "highlightLines": [8, 9], "description": "5 is prime. Mark multiples 25, 30." },
+    { "step": 5, "action": "result", "primes": [2, 3, 5, 7, 11, 13, 17, 19, 23, 29], "count": 10, "highlightLines": [15, 16], "description": "Result: 10 primes ≤ 30. Sieve complete!" }
+  ],
+  "minigame": {
+    "type": "prime-sieve",
+    "title": "Prime Sieve Visualizer",
+    "description": "Watch the Sieve of Eratosthenes eliminate non-primes. See how multiples of each prime are efficiently marked.",
+    "instructions": [
+      "Set upper bound N",
+      "Watch algorithm mark multiples",
+      "Observe prime numbers remain",
+      "Compare naive O(n√n) vs sieve O(n log log n)"
+    ]
+  }
+}

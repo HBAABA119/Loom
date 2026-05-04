@@ -1,0 +1,73 @@
+﻿{
+  "id": "15-mst",
+  "title": "Minimum Spanning Tree",
+  "category": "advanced",
+  "theory": {
+    "overview": "A Minimum Spanning Tree (MST) is a subset of edges that connects all vertices in a weighted, undirected graph with the minimum total edge weight. MSTs have exactly V-1 edges (no cycles). Two classic algorithms solve this: Kruskal's (sorts edges, uses union-find, O(E log E)) and Prim's (grows tree from a node, uses priority queue, O(E log V)). MSTs have applications in network design, clustering, and approximation algorithms.",
+    "keyConcepts": [
+      {
+        "name": "Kruskal's Algorithm",
+        "description": "Sort all edges by weight. Add edges in order, skipping those that form cycles (detected with Union-Find). Greedy approach."
+      },
+      {
+        "name": "Prim's Algorithm",
+        "description": "Start from arbitrary node. Grow tree by adding cheapest edge connecting tree to non-tree vertex. Like Dijkstra but with edge weights."
+      },
+      {
+        "name": "Cut Property",
+        "description": "For any cut of the graph, the minimum weight edge crossing the cut belongs to some MST. Foundation of MST algorithms."
+      },
+      {
+        "name": "Union-Find (Disjoint Set)",
+        "description": "Data structure for Kruskal's. Supports union (connect sets) and find (which set) in nearly O(1) with path compression."
+      }
+    ],
+    "complexity": {
+      "kruskal": "O(E log E) - dominated by sorting",
+      "prim": "O(E log V) with binary heap",
+      "space": "O(V + E)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Min Cost to Connect All Points", "difficulty": "medium" },
+    { "id": "p2", "title": "Connecting Cities With Minimum Cost", "difficulty": "medium" },
+    { "id": "p3", "title": "Find Critical and Pseudo-Critical Edges", "difficulty": "hard" },
+    { "id": "p4", "title": "Optimize Water Distribution", "difficulty": "hard" },
+    { "id": "p5", "title": "Kruskal's Algorithm MST", "difficulty": "medium" },
+    { "id": "p6", "title": "Prim's Algorithm MST", "difficulty": "medium" },
+    { "id": "p7", "title": "Network Design (Redundant Connections)", "difficulty": "medium" },
+    { "id": "p8", "title": "Minimum Cost to Make at Least One Valid Path", "difficulty": "hard" },
+    { "id": "p9", "title": "Minimize Malware Spread", "difficulty": "hard" },
+    { "id": "p10", "title": "Minimize Malware Spread II", "difficulty": "hard" },
+    { "id": "p11", "title": "Accounts Merge (Union-Find)", "difficulty": "medium" },
+    { "id": "p12", "title": "Number of Provinces", "difficulty": "medium" },
+    { "id": "p13", "title": "Redundant Connection", "difficulty": "medium" },
+    { "id": "p14", "title": "Graph Valid Tree", "difficulty": "medium" },
+    { "id": "p15", "title": "Longest Consecutive Sequence", "difficulty": "medium" },
+    { "id": "p16", "title": "Max Area of Island", "difficulty": "medium" },
+    { "id": "p17", "title": "Making a Large Island", "difficulty": "hard" },
+    { "id": "p18", "title": "Last Day Where You Can Still Cross", "difficulty": "hard" },
+    { "id": "p19", "title": "Largest Component Size by Common Factor", "difficulty": "hard" },
+    { "id": "p20", "title": "Regions Cut By Slashes", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "nodes": [{"id": "A"}, {"id": "B"}, {"id": "C"}, {"id": "D"}], "edges": [{"from": "A", "to": "B", "w": 4}, {"from": "B", "to": "C", "w": 2}, {"from": "C", "to": "D", "w": 1}, {"from": "A", "to": "D", "w": 5}, {"from": "B", "to": "D", "w": 3}], "mst": [], "highlightLines": [1, 2], "description": "Kruskal's: Start with sorted edges, empty MST. Each node is its own component." },
+    { "step": 1, "action": "sort", "sortedEdges": [{"w": 1, "e": ["C", "D"]}, {"w": 2, "e": ["B", "C"]}, {"w": 3, "e": ["B", "D"]}, {"w": 4, "e": ["A", "B"]}, {"w": 5, "e": ["A", "D"]}], "highlightLines": [4, 5], "description": "Sort all edges by weight ascending: (C-D,1), (B-C,2), (B-D,3), (A-B,4), (A-D,5)" },
+    { "step": 2, "action": "add", "edge": ["C", "D"], "w": 1, "mst": [["C", "D"]], "components": 3, "highlightLines": [7, 8, 9], "description": "Add C-D (weight 1): C and D in different components. Include in MST. 3 components remain." },
+    { "step": 3, "action": "add", "edge": ["B", "C"], "w": 2, "mst": [["C", "D"], ["B", "C"]], "components": 2, "highlightLines": [7, 8, 9], "description": "Add B-C (weight 2): B and C-D in different components. Include. 2 components remain." },
+    { "step": 4, "action": "skip", "edge": ["B", "D"], "w": 3, "mst": [["C", "D"], ["B", "C"]], "components": 2, "highlightLines": [11, 12], "description": "Skip B-D (weight 3): B and D already in same component! Would form cycle." },
+    { "step": 5, "action": "add", "edge": ["A", "B"], "w": 4, "mst": [["C", "D"], ["B", "C"], ["A", "B"]], "components": 1, "highlightLines": [7, 8, 9], "description": "Add A-B (weight 4): A connects to B-C-D component. Include. 1 component - MST complete!" },
+    { "step": 6, "action": "result", "mst": [["C", "D"], ["B", "C"], ["A", "B"]], "totalWeight": 7, "edgesInMST": 3, "highlightLines": [15, 16], "description": "MST complete with 3 edges, total weight = 1+2+4 = 7. All 4 nodes connected." }
+  ],
+  "minigame": {
+    "type": "mst-builder",
+    "title": "Network Cable Optimizer",
+    "description": "Connect all buildings with minimum cable length. Choose between Kruskal's and Prim's algorithms to see different approaches.",
+    "instructions": [
+      "Place buildings on the grid",
+      "Watch the MST algorithm connect them",
+      "Compare total cable used",
+      "Try both Kruskal's and Prim's methods"
+    ]
+  }
+}

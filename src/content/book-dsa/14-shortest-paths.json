@@ -1,0 +1,399 @@
+{
+  "id": "14-shortest-paths",
+  "bookId": "book-dsa",
+  "title": "Shortest Path Algorithms",
+  "category": "Graphs",
+  "order": 14,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Shortest path problems find the minimum cost path between vertices in weighted graphs. Key algorithms: Dijkstra (non-negative weights, greedy), Bellman-Ford (handles negative weights, detects negative cycles), Floyd-Warshall (all-pairs shortest paths), A* (heuristic-guided search). These algorithms are fundamental in navigation, network routing, and optimization. This chapter covers each algorithm, their assumptions, complexities, and applications.",
+    "sections": [
+      {
+        "title": "Dijkstra's Algorithm",
+        "content": "Finds shortest paths from source to all vertices in graph with non-negative edge weights. Greedy: always process vertex with minimum distance. Uses min-heap for efficiency. Time: $O((V+E) \\log V)$ with heap, $O(V^2)$ without. Space: $O(V)$. Cannot handle negative weights (greedy choice may be suboptimal). Used in GPS navigation, network routing.",
+        "algorithm": "Initialize distances to ∞, source to 0. Min-heap of (dist, vertex). While heap: extract min, relax edges. If new distance < current, update and push to heap.",
+        "complexity": { "time": "$O((V+E) \\log V)$", "space": "$O(V)$" }
+      },
+      {
+        "title": "Bellman-Ford Algorithm",
+        "content": "Finds shortest paths from source, handles negative weights. Detects negative cycles reachable from source. Relax all edges V-1 times (max path length without cycles). If V-th relaxation still improves, negative cycle exists. Time: $O(V \\times E)$. Space: $O(V)$. Slower than Dijkstra but more general.",
+        "algorithm": "Initialize distances to ∞, source to 0. Repeat V-1 times: relax all edges. Check for negative cycle.",
+        "complexity": { "time": "$O(V \\times E)$", "space": "$O(V)$" }
+      },
+      {
+        "title": "Floyd-Warshall Algorithm",
+        "content": "All-pairs shortest paths. Dynamic programming: dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]). Try each vertex k as intermediate. Time: $O(V^3)$. Space: $O(V^2)$. Handles negative weights (detects negative cycles on diagonal). Simpler to implement than running Dijkstra V times.",
+        "algorithm": "Initialize dist matrix. For k in 0..V-1: for i in 0..V-1: for j in 0..V-1: dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]).",
+        "complexity": { "time": "$O(V^3)$", "space": "$O(V^2)$" }
+      },
+      {
+        "title": "A* Algorithm",
+        "content": "Heuristic-guided search for shortest path. Cost function f(n) = g(n) + h(n) where g(n) is actual cost from start, h(n) is heuristic estimate to goal. Uses priority queue sorted by f(n). Optimal if heuristic is admissible (never overestimates) and consistent. Used in pathfinding, games.",
+        "algorithm": "Priority queue by f(n) = g(n) + h(n). Expand node with minimum f. If goal reached, return path.",
+        "heuristic": "Must be admissible: h(n) ≤ true cost to goal"
+      },
+      {
+        "title": "Algorithm Comparison",
+        "content": "Dijkstra: non-negative weights, single-source, efficient. Bellman-Ford: negative weights, single-source, slower. Floyd-Warshall: all-pairs, simple, $O(V^3)$. A*: heuristic-guided, single-target, faster with good heuristic. BFS: unweighted, single-source, $O(V+E)$. Choose based on graph properties and requirements.",
+        "comparison": [
+          { "algorithm": "Dijkstra", "weights": "Non-negative", "type": "Single-source", "time": "$O((V+E) \\log V)$" },
+          { "algorithm": "Bellman-Ford", "weights": "Any", "type": "Single-source", "time": "$O(V \\times E)$" },
+          { "algorithm": "Floyd-Warshall", "weights": "Any", "type": "All-pairs", "time": "$O(V^3)$" },
+          { "algorithm": "A*", "weights": "Non-negative", "type": "Single-target", "time": "Depends on heuristic" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Relaxation",
+        "description": "If dist[u] + weight(u,v) < dist[v], update dist[v] = dist[u] + weight(u,v). Core operation in all shortest path algorithms.",
+        "formula": "dist[v] = min(dist[v], dist[u] + w(u,v))"
+      },
+      {
+        "name": "Negative Cycle",
+        "description": "Cycle with total weight < 0. Can make shortest paths undefined (can keep going around cycle to decrease distance infinitely). Bellman-Ford detects these.",
+        "detection": "After V-1 relaxations, if any edge can still be relaxed, negative cycle exists"
+      },
+      {
+        "name": "Heuristic Admissibility",
+        "description": "Heuristic h(n) is admissible if h(n) ≤ true cost to goal. Ensures A* finds optimal path. Consistent heuristic also satisfies triangle inequality.",
+        "property": "h(n) never overestimates true cost"
+      },
+      {
+        "name": "Greedy Choice",
+        "description": "Dijkstra's greedy choice: always process vertex with minimum distance. Works because non-negative weights ensure no better path through unprocessed vertices.",
+        "validity": "Only with non-negative edge weights"
+      }
+    ],
+    "complexity": {
+      "dijkstra": "$O((V+E) \\log V)$ time, $O(V)$ space",
+      "bellmanFord": "$O(V \\times E)$ time, $O(V)$ space",
+      "floydWarshall": "$O(V^3)$ time, $O(V^2)$ space",
+      "astar": "Depends on heuristic, typically $O(E)$ for good heuristics"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Dijkstra - Initialize",
+      "description": "Set all distances to ∞ except source (0). Add source to min-heap.",
+      "code": "dist = [∞] * V; dist[source] = 0; heap = [(0, source)];",
+      "visualState": { "dist": "[∞,0,∞,...]", "heap": "[(0,source)]" }
+    },
+    {
+      "step": 2,
+      "title": "Extract Minimum",
+      "description": "Extract vertex with minimum distance from heap. If already processed, skip.",
+      "code": "d, u = heappop(heap); if d > dist[u]: continue;",
+      "visualState": { "current": "u", "distance": "d" }
+    },
+    {
+      "step": 3,
+      "title": "Relax Edges",
+      "description": "For each neighbor v: if dist[u] + w(u,v) < dist[v], update dist[v] and push to heap.",
+      "code": "for v, w in neighbors[u]: if dist[u] + w < dist[v]: dist[v] = dist[u] + w; heappush(heap, (dist[v], v));",
+      "visualState": { "relaxing": "edges" }
+    },
+    {
+      "step": 4,
+      "title": "Repeat",
+      "description": "Continue until heap empty. All shortest distances computed.",
+      "code": "while heap: ...",
+      "visualState": { "loop": "until empty" }
+    },
+    {
+      "step": 5,
+      "title": "Reconstruct Path",
+      "description": "Track predecessor during relaxation. Reconstruct path by backtracking from target.",
+      "code": "path = []; while target != source: path.append(target); target = pred[target]; path.append(source); return path[::-1];",
+      "visualState": { "path": "reconstructed" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Network Delay Time",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find time for signal to reach all nodes (max shortest path from source).",
+      "example": "times=[[2,1,1],[2,3,1],[3,4,1]], N=4, K=2. Output: 2",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V+E)$" },
+      "solution": "Dijkstra from source K. Return max distance or -1 if any unreachable.",
+      "hints": "Dijkstra, return max distance"
+    },
+    {
+      "id": "p2",
+      "title": "Cheapest Flights Within K Stops",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find cheapest flight from src to dst with at most K stops.",
+      "complexity": { "time": "$O(K \\times E)$", "space": "$O(V)$" },
+      "solution": "Bellman-Ford variant. Relax edges K+1 times (K stops = K+1 edges). Track min cost.",
+      "hints": "Bellman-Ford, K+1 relaxations"
+    },
+    {
+      "id": "p3",
+      "title": "Path with Minimum Effort",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find path minimizing maximum height difference (edge weight = abs diff).",
+      "complexity": { "time": "$O(m \\times n \\log(m \\times n))$", "space": "$O(m \\times n)$" },
+      "solution": "Dijkstra variant: min-heap by max effort. Track minimum max effort to each cell.",
+      "hints": "Dijkstra, min-heap by max effort"
+    },
+    {
+      "id": "p4",
+      "title": "Shortest Path in Binary Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest path from top-left to bottom-right (8 directions, can only pass through 0).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS (unweighted). Queue stores (row, col, distance).",
+      "hints": "BFS, unweighted"
+    },
+    {
+      "id": "p5",
+      "title": "Shortest Path in a Grid with Obstacles",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest path removing at most k obstacles.",
+      "complexity": { "time": "$O(m \\times n \\times k)$", "space": "$O(m \\times n \\times k)$" },
+      "solution": "BFS on state (row, col, removed). Track visited states.",
+      "hints": "BFS on (row, col, removed) state"
+    },
+    {
+      "id": "p6",
+      "title": "Minimum Cost to Reach City",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum cost to reach destination with discounts (can use at most one discount).",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V)$" },
+      "solution": "Dijkstra with state (node, used_discount). Two copies of each node.",
+      "hints": "Dijkstra with state (node, used_discount)"
+    },
+    {
+      "id": "p7",
+      "title": "Shortest Path Visiting All Nodes",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest path visiting all nodes in undirected graph.",
+      "complexity": { "time": "$O(2^n \\times n + 2^n \\times E)$", "space": "$O(2^n \\times n)$" },
+      "solution": "BFS on state (node, visited_mask). State space = node × all visited subsets.",
+      "hints": "BFS on (node, visited_mask)"
+    },
+    {
+      "id": "p8",
+      "title": "Dijkstra with Early Stop",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest path to specific target (can stop early).",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V)$" },
+      "solution": "Dijkstra, stop when target extracted from heap.",
+      "hints": "Dijkstra, stop at target"
+    },
+    {
+      "id": "p9",
+      "title": "Reconstruct Itinerary",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Reconstruct itinerary in lexical order given tickets (Eulerian path).",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(E)$" },
+      "solution": "Hierholzer's algorithm. DFS, remove edges, add to result in reverse.",
+      "hints": "Hierholzer's algorithm"
+    },
+    {
+      "id": "p10",
+      "title": "Floyd-Warshall Implementation",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement Floyd-Warshall to find all-pairs shortest paths.",
+      "complexity": { "time": "$O(V^3)$", "space": "$O(V^2)$" },
+      "solution": "Initialize dist matrix. Triple nested loops: k, i, j. dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]).",
+      "hints": "Triple nested loops, k in outermost"
+    },
+    {
+      "id": "p11",
+      "title": "Detect Negative Cycle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Detect negative cycle in weighted directed graph.",
+      "complexity": { "time": "$O(V \\times E)$", "space": "$O(V)$" },
+      "solution": "Bellman-Ford. After V-1 relaxations, if any edge can still be relaxed, negative cycle exists.",
+      "hints": "Bellman-Ford, check after V-1 relaxations"
+    },
+    {
+      "id": "p12",
+      "title": "Currency Arbitrage",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Detect arbitrage opportunity (cycle with product > 1).",
+      "complexity": { "time": "$O(V \\times E)$", "space": "$O(V)$" },
+      "solution": "Bellman-Ford on -log(weights). Negative cycle = arbitrage.",
+      "hints": "Bellman-Ford on -log(weights)"
+    },
+    {
+      "id": "p13",
+      "title": "A* Pathfinding",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement A* for grid pathfinding with Manhattan distance heuristic.",
+      "complexity": { "time": "$O(E)$", "space": "$O(V)$" },
+      "solution": "Priority queue by f = g + h. g = actual cost, h = Manhattan distance to goal.",
+      "hints": "f = g + h, Manhattan heuristic"
+    },
+    {
+      "id": "p14",
+      "title": "Minimum Spanning Tree",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find MST using Prim's or Kruskal's algorithm.",
+      "complexity": { "prim": "$O(E \\log V)$", "kruskal": "$O(E \\log E)$" },
+      "solution": "Prim's: start from any vertex, add min edge to cut. Kruskal's: sort edges, add if connects different components (Union-Find).",
+      "hints": "Prim's or Kruskal's"
+    },
+    {
+      "id": "p15",
+      "title": "Second Minimum Time to Reach Destination",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find second shortest path from source to destination.",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V)$" },
+      "solution": "Dijkstra with two distances per node (best, second best). Update both when relaxing.",
+      "hints": "Dijkstra with two distances per node"
+    },
+    {
+      "id": "p16",
+      "title": "Constrained Shortest Path",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest path with constraint (e.g., must visit certain nodes).",
+      "complexity": { "time": "Exponential in constraints", "space": "Exponential" },
+      "solution": "State-space Dijkstra. State includes visited required nodes.",
+      "hints": "State-space Dijkstra"
+    },
+    {
+      "id": "p17",
+      "title": "Shortest Path in Directed Acyclic Graph",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest paths in DAG (can be done in O(V+E)).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Topological sort, then relax edges in topological order.",
+      "hints": "Topological sort, relax in order"
+    },
+    {
+      "id": "p18",
+      "title": "Longest Path in DAG",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest path in DAG (can be done in O(V+E)).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Topological sort, negate weights, find shortest path, or DP with topological order.",
+      "hints": "Topological sort, DP"
+    },
+    {
+      "id": "p19",
+      "title": "Critical Path Method",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest path in DAG (project scheduling).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Topological sort, DP to find longest path to each node.",
+      "hints": "Topological sort, DP for longest path"
+    },
+    {
+      "id": "p20",
+      "title": "Word Ladder",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest transformation sequence (BFS = shortest path in unweighted graph).",
+      "complexity": { "time": "$O(n \\times m^2)$", "space": "$O(n \\times m^2)$" },
+      "solution": "BFS from beginWord. Each edge = one letter change.",
+      "hints": "BFS, unweighted graph"
+    },
+    {
+      "id": "p21",
+      "title": "Minimum Number of Vertices to Reach All Nodes",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum vertices to reach all nodes in directed graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Find strongly connected components (Kosaraju or Tarjan). Count components with no incoming edges.",
+      "hints": "SCC, count components with no incoming edges"
+    },
+    {
+      "id": "p22",
+      "title": "Find the City With Smallest Neighbors",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find city with smallest number of neighbors at distance threshold.",
+      "complexity": { "time": "$O(n \\times (E \\log V))$", "space": "$O(V)$" },
+      "solution": "Dijkstra from each city, count reachable within threshold.",
+      "hints": "Dijkstra from each city"
+    },
+    {
+      "id": "p23",
+      "title": "Minimum Score Path",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find path minimizing maximum edge weight (minimax path).",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V)$" },
+      "solution": "Dijkstra variant: min-heap by max edge weight on path.",
+      "hints": "Dijkstra, min-heap by max edge weight"
+    },
+    {
+      "id": "p24",
+      "title": "Maximum Probability Path",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find path maximizing product of probabilities (multiply instead of add).",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V)$" },
+      "solution": "Dijkstra with multiplication. Use -log to convert to addition, or use max-heap.",
+      "hints": "Dijkstra with multiplication or -log"
+    },
+    {
+      "id": "p25",
+      "title": "Shortest Distance After Road Additions",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Answer queries about shortest path after adding roads.",
+      "complexity": { "time": "$O(Q \\times (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Floyd-Warshall after each addition, or incremental updates.",
+      "hints": "Floyd-Warshall or incremental"
+    }
+  ],
+  "minigame": {
+    "id": "shortest-path",
+    "title": "Pathfinder Master",
+    "description": "Master shortest path algorithms! Visualize Dijkstra, Bellman-Ford, and A*.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Dijkstra", "task": "Find shortest path using Dijkstra" },
+      { "name": "Bellman-Ford", "task": "Find shortest path with negative weights" },
+      { "name": "A*", "task": "Find path using heuristic search" }
+    ]
+  },
+  "visualizer": {
+    "type": "shortest-path",
+    "title": "Shortest Path Visualizer",
+    "description": "Visualize Dijkstra, Bellman-Ford, and A* step by step.",
+    "features": ["Algorithm selection", "Distance updates", "Path reconstruction", "Comparison mode"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Dijkstra's Algorithm",
+        "code": "import heapq\n\ndef dijkstra(graph, start):\n    dist = {node: float('inf') for node in graph}\n    dist[start] = 0\n    heap = [(0, start)]\n    \n    while heap:\n        d, u = heapq.heappop(heap)\n        if d > dist[u]:\n            continue\n        for v, w in graph[u]:\n            if dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                heapq.heappush(heap, (dist[v], v))\n    \n    return dist"
+      },
+      {
+        "title": "Bellman-Ford",
+        "code": "def bellman_ford(edges, V, start):\n    dist = [float('inf')] * V\n    dist[start] = 0\n    \n    for _ in range(V - 1):\n        for u, v, w in edges:\n            if dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n    \n    # Check for negative cycle\n    for u, v, w in edges:\n        if dist[u] + w < dist[v]:\n            return None  # Negative cycle\n    \n    return dist"
+      },
+      {
+        "title": "Floyd-Warshall",
+        "code": "def floyd_warshall(graph):\n    V = len(graph)\n    dist = [[float('inf')] * V for _ in range(V)]\n    \n    for i in range(V):\n        for j in range(V):\n            dist[i][j] = graph[i][j] if i != j else 0\n    \n    for k in range(V):\n        for i in range(V):\n            for j in range(V):\n                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])\n    \n    return dist"
+      }
+    ]
+  }
+}

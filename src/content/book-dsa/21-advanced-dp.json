@@ -1,0 +1,401 @@
+{
+  "id": "21-advanced-dp",
+  "bookId": "book-dsa",
+  "title": "Advanced Dynamic Programming",
+  "category": "Algorithms",
+  "order": 21,
+  "estimatedTime": "70 min",
+  "theory": {
+    "overview": "Advanced DP extends fundamentals to more complex patterns: interval DP (subarrays/substrings), knapsack variants, DP on trees, DP with bitmask, DP on graphs, and optimization techniques. These patterns solve harder problems like palindrome partitioning, matrix chain multiplication, traveling salesman, and tree DP. This chapter covers advanced DP patterns, state compression, and optimization techniques.",
+    "sections": [
+      {
+        "title": "Interval DP",
+        "content": "DP on intervals/subarrays. State: dp[l][r] = answer for subarray from l to r. Process intervals by increasing length. Examples: matrix chain multiplication (minimum scalar multiplications), palindrome partitioning (minimum cuts), burst balloons. Complexity typically $O(n^3)$ for interval DP.",
+        "pattern": "dp[l][r] = combine(dp[l][k], dp[k+1][r]) for k in [l, r-1]",
+        "complexity": "$O(n^3)$ for most interval DP"
+      },
+      {
+        "title": "Knapsack Variants",
+        "content": "0/1 knapsack: each item used at most once. Unbounded knapsack: unlimited use. Bounded knapsack: limited copies. Multiple knapsack: multiple constraints. Fractional knapsack: greedy (not DP). Each variant has different DP formulation.",
+        "variants": [
+          { "name": "0/1 Knapsack", "dp": "dp[i][w] = max(dp[i-1][w], dp[i-1][w-weight] + value)" },
+          { "name": "Unbounded", "dp": "dp[w] = max(dp[w], dp[w-weight] + value)" },
+          { "name": "Bounded", "dp": "Binary decomposition or count limit" }
+        ]
+      },
+      {
+        "title": "DP with Bitmask",
+        "content": "Use bitmask to represent subset state. dp[mask] = answer for subset represented by mask. Used for TSP, subset problems, assignment problems. State space: $O(2^n)$. Used when n ≤ 20-25 due to exponential state space.",
+        "pattern": "dp[mask] = combine(dp[mask without bit], contribution of bit)",
+        "complexity": "$O(n \\times 2^n)$ typical"
+      },
+      {
+        "title": "DP on Trees",
+        "content": "DP on tree structures. State: dp[node] = answer for subtree rooted at node. Post-order traversal (process children first). Examples: tree diameter, maximum path sum, independent set on tree. Time: $O(n)$ for linear tree DP.",
+        "pattern": "dp[node] = combine(dp[child] for child in children)",
+        "traversal": "Post-order DFS"
+      },
+      {
+        "title": "DP Optimization",
+        "content": "Convex hull optimization: optimize DP of form dp[i] = min(dp[j] + cost(j,i)) where cost satisfies quadrangle inequality. Divide and conquer DP: optimize DP with monotone opt property. Knuth optimization: for DP with quadrangle inequality and monotonicity. These reduce $O(n^2)$ to $O(n \\log n)$ or $O(n)$.",
+        "techniques": [
+          "Convex hull optimization",
+          "Divide and conquer DP",
+          "Knuth optimization",
+          "Aliens trick (parameter search)"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "State Compression",
+        "description": "Represent complex state with compact encoding (bitmask, hashing). Essential for problems with exponential state space.",
+        "example": "Bitmask for subset: mask has bit i set if element i in subset"
+      },
+      {
+        "name": "Monotonicity",
+        "description": "Optimal transition point moves monotonically. Enables divide and conquer or Knuth optimization.",
+        "property": "opt[i] ≤ opt[i+1] for optimal transition point"
+      },
+      {
+        "name": "Quadrangle Inequality",
+        "description": "Cost function satisfies w(a,c) + w(b,d) ≤ w(a,d) + w(b,c) for a ≤ b ≤ c ≤ d. Enables Knuth optimization.",
+        "use": "Matrix chain multiplication, optimal BST"
+      },
+      {
+        "name": "Tree DP Order",
+        "description": "Process children before parent (post-order). DP at node depends on children's DP results.",
+        "traversal": "DFS, return after processing children"
+      }
+    ],
+    "complexity": {
+      "intervalDP": "$O(n^3)$ typical",
+      "knapsack": "$O(n \\times W)$",
+      "bitmaskDP": "$O(n \\times 2^n)$",
+      "treeDP": "$O(n)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Identify Pattern",
+      "description": "Recognize DP pattern: interval, knapsack, bitmask, tree, etc.",
+      "code": "pattern = identify_problem_type()",
+      "visualState": { "pattern": "identified" }
+    },
+    {
+      "step": 2,
+      "title": "Define State",
+      "description": "Define state parameters. For interval: dp[l][r]. For bitmask: dp[mask].",
+      "code": "state = parameters defining subproblem",
+      "visualState": { "state": "defined" }
+    },
+    {
+      "step": 3,
+      "title": "Define Transition",
+      "description": "Write recurrence. How to compute current state from previous states.",
+      "code": "dp[state] = combine(dp[prev_states])",
+      "visualState": { "transition": "defined" }
+    },
+    {
+      "step": 4,
+      "title": "Optimize if Possible",
+      "description": "Check for optimization opportunities: monotonicity, convex hull, etc.",
+      "code": "if monotone_opt: apply_optimization()",
+      "visualState": { "optimized": "applied" }
+    },
+    {
+      "step": 5,
+      "title": "Implement",
+      "description": "Implement with appropriate order (bottom-up) or memoization (top-down).",
+      "code": "fill_dp_table() or memoized_recursive()",
+      "visualState": { "result": "computed" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Matrix Chain Multiplication",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum scalar multiplications to multiply matrix chain.",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n^2)$" },
+      "solution": "Interval DP. dp[l][r] = min(dp[l][k] + dp[k+1][r] + dims[l-1]*dims[k]*dims[r]).",
+      "hints": "dp[l][r] = min over k of dp[l][k] + dp[k+1][r] + cost"
+    },
+    {
+      "id": "p2",
+      "title": "Burst Balloons",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Maximum coins by bursting balloons optimally.",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n^2)$" },
+      "solution": "Interval DP. Add 1 at boundaries. dp[l][r] = max(dp[l][k] + dp[k+1][r] + nums[l-1]*nums[k]*nums[r+1]).",
+      "hints": "Add 1 at boundaries, interval DP"
+    },
+    {
+      "id": "p3",
+      "title": "Palindrome Partitioning II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum cuts to partition string into palindromes.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "dp[i] = min cuts for s[0:i]. Precompute palindrome table. dp[i] = min(dp[j] + 1) if s[j:i] is palindrome.",
+      "hints": "Precompute palindromes, dp[i] = min(dp[j] + 1)"
+    },
+    {
+      "id": "p4",
+      "title": "0/1 Knapsack",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Maximum value with weight limit (each item once).",
+      "complexity": { "time": "$O(n \\times W)$", "space": "$O(W)$" },
+      "solution": "dp[w] = max(dp[w], dp[w-weight] + value). Process items one by one.",
+      "hints": "dp[w] = max(dp[w], dp[w-weight] + value)"
+    },
+    {
+      "id": "p5",
+      "title": "Unbounded Knapsack",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Maximum value with unlimited item use.",
+      "complexity": { "time": "$O(n \\times W)$", "space": "$O(W)$" },
+      "solution": "dp[w] = max(dp[w], dp[w-weight] + value). Same as 0/1 but process w in increasing order.",
+      "hints": "Process w in increasing order (unlimited use)"
+    },
+    {
+      "id": "p6",
+      "title": "Partition to K Equal Sum Subsets",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if array can be partitioned into k subsets with equal sum.",
+      "complexity": { "time": "$O(n \\times 2^n)$", "space": "$O(2^n)$" },
+      "solution": "Backtracking with memoization or DP with bitmask.",
+      "hints": "Backtracking with memoization or bitmask DP"
+    },
+    {
+      "id": "p7",
+      "title": "Travelling Salesman",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum distance to visit all cities and return to start.",
+      "complexity": { "time": "$O(n^2 \\times 2^n)$", "space": "$O(n \\times 2^n)$" },
+      "solution": "DP with bitmask. dp[mask][i] = min distance to visit cities in mask ending at i.",
+      "hints": "dp[mask][i] = min distance to visit mask ending at i"
+    },
+    {
+      "id": "p8",
+      "title": "Assign Cookies",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Max children content with greed factor and cookie size.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort both, greedy two pointers (not DP).",
+      "hints": "Sort + greedy (not DP)"
+    },
+    {
+      "id": "p9",
+      "title": "Partition Array Into K Subsets",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Partition array into k subsets with equal sum.",
+      "complexity": { "time": "$O(k \\times 2^n)$", "space": "$O(2^n)$" },
+      "solution": "Backtracking with memoization or DP with bitmask.",
+      "hints": "Backtracking with memoization"
+    },
+    {
+      "id": "p10",
+      "title": "Scramble String",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if s2 is scrambled string of s1.",
+      "complexity": { "time": "$O(n^4)$", "space": "$O(n^3)$" },
+      "solution": "Interval DP. dp[i][j][len] = if s1[i:i+len] can form s2[j:j+len].",
+      "hints": "dp[i][j][len] = check all possible splits"
+    },
+    {
+      "id": "p11",
+      "title": "Remove Boxes",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Maximum points by removing boxes (consecutive same color = k^2 points).",
+      "complexity": { "time": "$O(n^4)$", "space": "$O(n^3)$" },
+      "solution": "DP with additional parameter for consecutive count. dp[l][r][k] = max points for l..r with k consecutive boxes of same color as r.",
+      "hints": "dp[l][r][k] with consecutive count parameter"
+    },
+    {
+      "id": "p12",
+      "title": "Minimum Cost to Cut Stick",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum cost to cut stick at given positions.",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n^2)$" },
+      "solution": "Interval DP. dp[l][r] = min cost to cut between positions l and r.",
+      "hints": "Interval DP on cut positions"
+    },
+    {
+      "id": "p13",
+      "title": "Strange Printer",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum turns to print string (printer can print sequence of same character).",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n^2)$" },
+      "solution": "Interval DP. dp[i][j] = min turns to print s[i:j+1].",
+      "hints": "dp[i][j] = min(dp[i][k] + dp[k+1][j] - 1 if s[k]==s[k+1])"
+    },
+    {
+      "id": "p14",
+      "title": "Minimum Score Triangulation of Polygon",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum score triangulation of polygon (score = product of triangle vertices).",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n^2)$" },
+      "solution": "Interval DP. dp[i][j] = min score to triangulate polygon from i to j.",
+      "hints": "dp[i][j] = min(dp[i][k] + dp[k][j] + vals[i]*vals[k]*vals[j])"
+    },
+    {
+      "id": "p15",
+      "title": "Cherry Pickup",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Max cherries collected by two paths from (0,0) to (n-1,n-1).",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n^3)$" },
+      "solution": "DP with two paths moving simultaneously. dp[r1][c1][c2] where r1 + c1 = r2 + c2.",
+      "hints": "Two paths simultaneously, dp[r1][c1][c2]"
+    },
+    {
+      "id": "p16",
+      "title": "Dungeon Game",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimum initial health to reach princess in dungeon.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DP from end to start. dp[i][j] = min health needed starting from (i,j).",
+      "hints": "DP from end to start"
+    },
+    {
+      "id": "p17",
+      "title": "Regular Expression Matching",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if string matches pattern with '.' and '*'.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DP. dp[i][j] = if s[0:i] matches p[0:j]. Handle '*' specially.",
+      "hints": "dp[i][j] based on pattern matching"
+    },
+    {
+      "id": "p18",
+      "title": "Wildcard Matching",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if string matches pattern with '?' and '*'.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(n)$" },
+      "solution": "DP. dp[i][j] = if s[0:i] matches p[0:j]. '*' can match empty or one+ characters.",
+      "hints": "dp[i][j] with '*' handling"
+    },
+    {
+      "id": "p19",
+      "title": "Distinct Subsequences II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Number of distinct subsequences (count, not just length).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "DP with last occurrence tracking to avoid duplicates.",
+      "hints": "Track last occurrence to avoid duplicates"
+    },
+    {
+      "id": "p20",
+      "title": "Count Different Palindromic Subsequences",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count distinct palindromic subsequences.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "Interval DP. dp[l][r] = count of distinct palindromic subsequences in s[l:r+1].",
+      "hints": "dp[l][r] = dp[l+1][r] + dp[l][r-1] - dp[l+1][r-1] + (s[l]==s[r] ? dp[l+1][r-1] + 1 : 0)"
+    },
+    {
+      "id": "p21",
+      "title": "Minimum ASCII Delete Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum delete sum to make two strings equal.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DP similar to edit distance but only delete operations.",
+      "hints": "DP similar to edit distance"
+    },
+    {
+      "id": "p22",
+      "title": "Longest Palindromic Subsequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Length of longest palindromic subsequence.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "dp[i][j] = dp[i+1][j-1] + 2 if s[i]==s[j] else max(dp[i+1][j], dp[i][j-1]).",
+      "hints": "dp[i][j] = dp[i+1][j-1] + 2 if match else max"
+    },
+    {
+      "id": "p23",
+      "title": "Shortest Common Supersequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Shortest string that has both s1 and s2 as subsequences.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "Use LCS. SCS length = m + n - LCS length. Construct from LCS.",
+      "hints": "SCS = m + n - LCS"
+    },
+    {
+      "id": "p24",
+      "title": "Best Time to Buy and Sell Stock IV",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Max profit with at most k transactions.",
+      "complexity": { "time": "$O(n \\times k)$", "space": "$O(k)$" },
+      "solution": "DP. dp[t][i] = max profit with t transactions up to day i.",
+      "hints": "dp[t][i] = max(dp[t][i-1], price[i] + max(dp[t-1][j] - price[j]))"
+    },
+    {
+      "id": "p25",
+      "title": "Count Palindromic Substrings",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count palindromic substrings (contiguous).",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "DP or expand around center. dp[i][j] = true if s[i]==s[j] and (j-i<3 or dp[i+1][j-1]).",
+      "hints": "dp[i][j] = s[i]==s[j] and (j-i<3 or dp[i+1][j-1])"
+    }
+  ],
+  "minigame": {
+    "id": "advanced-dp",
+    "title": "Advanced DP Master",
+    "description": "Master advanced DP patterns! Interval, bitmask, and tree DP.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Interval", "task": "Matrix chain multiplication" },
+      { "name": "Bitmask", "task": "TSP with 4 cities" },
+      { "name": "Knapsack", "task": "0/1 knapsack" }
+    ]
+  },
+  "visualizer": {
+    "type": "advanced-dp",
+    "title": "Advanced DP Visualizer",
+    "description": "Visualize interval DP, bitmask DP, and optimization techniques.",
+    "features": ["Interval table", "Bitmask states", "Tree DP", "Optimization visualization"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Matrix Chain Multiplication",
+        "code": "def matrixChainMultiplication(dims):\n    n = len(dims) - 1\n    dp = [[0] * n for _ in range(n)]\n    \n    for length in range(2, n + 1):\n        for i in range(n - length + 1):\n            j = i + length - 1\n            dp[i][j] = float('inf')\n            for k in range(i, j):\n                cost = dp[i][k] + dp[k+1][j] + dims[i]*dims[k]*dims[j+1]\n                dp[i][j] = min(dp[i][j], cost)\n    \n    return dp[0][n-1]  # O(n^3)"
+      },
+      {
+        "title": "TSP with Bitmask",
+        "code": "def tsp(graph):\n    n = len(graph)\n    dp = [[float('inf')] * n for _ in range(1 << n)]\n    dp[1][0] = 0  # Start at node 0\n    \n    for mask in range(1 << n):\n        for u in range(n):\n            if not (mask & (1 << u)):\n                continue\n            for v in range(n):\n                if mask & (1 << v):\n                    continue\n                new_mask = mask | (1 << v)\n                dp[new_mask][v] = min(dp[new_mask][v], dp[mask][u] + graph[u][v])\n    \n    return min(dp[(1 << n) - 1][i] for i in range(1, n))  # O(n^2 * 2^n)"
+      },
+      {
+        "title": "0/1 Knapsack",
+        "code": "def knapsack(weights, values, W):\n    n = len(weights)\n    dp = [0] * (W + 1)\n    \n    for i in range(n):\n        for w in range(W, weights[i] - 1, -1):\n            dp[w] = max(dp[w], dp[w - weights[i]] + values[i])\n    \n    return dp[W]  # O(n * W)"
+      }
+    ]
+  }
+}

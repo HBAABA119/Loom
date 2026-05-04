@@ -1,0 +1,73 @@
+﻿{
+  "id": "26-suffix-trees",
+  "title": "Suffix Trees & Arrays",
+  "category": "advanced",
+  "theory": {
+    "overview": "A Suffix Tree is a compressed trie of all suffixes of a string. It enables O(m) pattern matching for a query of length m, and can find the longest repeated substring, longest common substring between two strings, and many other string problems in linear time. Suffix Arrays are a space-efficient alternative that store sorted suffix indices. Together with LCP (Longest Common Prefix) arrays, they solve the same problems with lower constant factors.",
+    "keyConcepts": [
+      {
+        "name": "Suffix Tree Construction",
+        "description": "Ukkonen's algorithm builds suffix tree in O(n) time. Each suffix is a path from root to leaf. Edges labeled with substrings."
+      },
+      {
+        "name": "Suffix Array",
+        "description": "Array of all suffixes sorted lexicographically. SA[i] = starting index of i-th smallest suffix. O(n log n) construction."
+      },
+      {
+        "name": "LCP Array",
+        "description": "Longest Common Prefix array. LCP[i] = length of common prefix between suffixes at SA[i] and SA[i-1]. Enables linear time solutions."
+      },
+      {
+        "name": "Applications",
+        "description": "Pattern matching, longest repeated substring, longest common substring, longest palindrome, DNA sequencing, plagiarism detection."
+      }
+    ],
+    "complexity": {
+      "buildTree": "O(n) with Ukkonen's",
+      "buildArray": "O(n log n) or O(n)",
+      "patternMatch": "O(m) where m is pattern length",
+      "space": "O(n) for tree or array"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Implement Trie II", "difficulty": "medium" },
+    { "id": "p2", "title": "Longest Repeated Substring", "difficulty": "hard" },
+    { "id": "p3", "title": "Longest Common Substring", "difficulty": "hard" },
+    { "id": "p4", "title": "Longest Palindromic Substring (Manacher's)", "difficulty": "hard" },
+    { "id": "p5", "title": "Distinct Substrings", "difficulty": "hard" },
+    { "id": "p6", "title": "Pattern Matching (KMP)", "difficulty": "medium" },
+    { "id": "p7", "title": "Rabin-Karp String Matching", "difficulty": "medium" },
+    { "id": "p8", "title": "Z-Algorithm (Linear Pattern Matching)", "difficulty": "medium" },
+    { "id": "p9", "title": "Substring Search (Rolling Hash)", "difficulty": "medium" },
+    { "id": "p10", "title": "Find All Anagrams in String", "difficulty": "medium" },
+    { "id": "p11", "title": "Permutation in String", "difficulty": "medium" },
+    { "id": "p12", "title": "Minimum Window Substring", "difficulty": "hard" },
+    { "id": "p13", "title": "Sliding Window Maximum", "difficulty": "hard" },
+    { "id": "p14", "title": "String Matching with Wildcards", "difficulty": "hard" },
+    { "id": "p15", "title": "Shortest Palindrome", "difficulty": "hard" },
+    { "id": "p16", "title": "Suffix Array Construction", "difficulty": "hard" },
+    { "id": "p17", "title": "LCP Array Construction", "difficulty": "hard" },
+    { "id": "p18", "title": "Number of Distinct Substrings", "difficulty": "hard" },
+    { "id": "p19", "title": "Repeated DNA Sequences", "difficulty": "medium" },
+    { "id": "p20", "title": "Concatenation of All Words", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "text": "banana", "suffixes": ["banana", "anana", "nana", "ana", "na", "a"], "highlightLines": [1, 2], "description": "String 'banana'. All 6 suffixes listed." },
+    { "step": 1, "action": "sort", "sorted": ["a", "ana", "anana", "banana", "na", "nana"], "sa": [5, 3, 1, 0, 4, 2], "highlightLines": [4, 5], "description": "Sort suffixes lexicographically. Suffix Array = [5,3,1,0,4,2]" },
+    { "step": 2, "action": "lcp", "lcp": [0, 1, 3, 0, 0, 2], "highlightLines": [7, 8], "description": "LCP array: [0,1,3,0,0,2]. Max LCP=3 gives longest repeated substring 'ana'." },
+    { "step": 3, "action": "search", "pattern": "ana", "result": [1, 3], "highlightLines": [11, 12], "description": "Search 'ana': Binary search suffix array, find occurrences at indices 1 and 3." },
+    { "step": 4, "action": "longest", "type": "repeated", "substring": "ana", "length": 3, "highlightLines": [15, 16], "description": "Longest repeated substring: 'ana' with length 3 (found via max LCP)." },
+    { "step": 5, "action": "build-tree", "text": "banana$", "tree": "compressed", "highlightLines": [19, 20], "description": "Build suffix tree using Ukkonen's algorithm in O(n) time." }
+  ],
+  "minigame": {
+    "type": "string-matcher",
+    "title": "String Pattern Hunter",
+    "description": "Build a suffix array and search for patterns. Compare different string matching algorithms.",
+    "instructions": [
+      "Enter a text string",
+      "Build suffix array visualization",
+      "Search for patterns",
+      "Compare KMP, Rabin-Karp, and Suffix Array approaches"
+    ]
+  }
+}

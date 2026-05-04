@@ -1,0 +1,77 @@
+﻿{
+  "id": "11-heaps",
+  "title": "Heaps & Priority Queues",
+  "category": "intermediate",
+  "theory": {
+    "overview": "A heap is a specialized tree-based data structure that satisfies the heap property: in a max heap, any node is greater than or equal to its children; in a min heap, any node is less than or equal to its children. Heaps are commonly implemented as binary trees using arrays. They provide O(log n) insertion and extraction of the max/min element, making them ideal for priority queues, heap sort, and finding kth largest/smallest elements.",
+    "keyConcepts": [
+      {
+        "name": "Heap Property",
+        "description": "Max Heap: parent ≥ children. Min Heap: parent ≤ children. The root is always the max (or min) element."
+      },
+      {
+        "name": "Array Implementation",
+        "description": "Heaps are typically stored in arrays. For 0-indexed: parent(i) = (i-1)/2, left(i) = 2i+1, right(i) = 2i+2."
+      },
+      {
+        "name": "Heapify Up/Down",
+        "description": "Heapify Up (bubble up): for insertions. Heapify Down (sift down): for extractions. Both O(log n)."
+      },
+      {
+        "name": "Priority Queue",
+        "description": "Abstract data type implemented efficiently with heaps. Supports: insert, extract-max/min, peek."
+      }
+    ],
+    "complexity": {
+      "insert": "O(log n)",
+      "extractMax": "O(log n)",
+      "peek": "O(1)",
+      "buildHeap": "O(n)",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Kth Largest Element in Array", "difficulty": "medium" },
+    { "id": "p2", "title": "Top K Frequent Elements", "difficulty": "medium" },
+    { "id": "p3", "title": "Find Median from Data Stream", "difficulty": "hard" },
+    { "id": "p4", "title": "Sliding Window Maximum", "difficulty": "hard" },
+    { "id": "p5", "title": "Merge K Sorted Lists", "difficulty": "hard" },
+    { "id": "p6", "title": "Task Scheduler", "difficulty": "medium" },
+    { "id": "p7", "title": "Reorganize String (No Adjacent Same)", "difficulty": "medium" },
+    { "id": "p8", "title": "IPO (Maximize Capital)", "difficulty": "medium" },
+    { "id": "p9", "title": "Ugly Number II", "difficulty": "medium" },
+    { "id": "p10", "title": "Super Ugly Number", "difficulty": "medium" },
+    { "id": "p11", "title": "K Closest Points to Origin", "difficulty": "medium" },
+    { "id": "p12", "title": "Kth Smallest Element in Sorted Matrix", "difficulty": "medium" },
+    { "id": "p13", "title": "Last Stone Weight", "difficulty": "easy" },
+    { "id": "p14", "title": "Kth Largest Element in a Stream", "difficulty": "easy" },
+    { "id": "p15", "title": "Design Twitter", "difficulty": "medium" },
+    { "id": "p16", "title": "Cheapest Flights Within K Stops", "difficulty": "medium" },
+    { "id": "p17", "title": "Network Delay Time", "difficulty": "medium" },
+    { "id": "p18", "title": "The Skyline Problem", "difficulty": "hard" },
+    { "id": "p19", "title": "Trapping Rain Water II", "difficulty": "hard" },
+    { "id": "p20", "title": "Shortest Path Visiting All Nodes", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "heap": [], "highlightLines": [1, 2], "description": "Initialize empty max heap (array representation)" },
+    { "step": 1, "action": "insert", "heap": [5], "index": 0, "highlightLines": [5, 6], "description": "Insert 5: First element, becomes root." },
+    { "step": 2, "action": "insert", "heap": [5, 3], "index": 1, "parent": 0, "highlightLines": [5, 6], "description": "Insert 3: Add to end. 3 < 5, heap property maintained." },
+    { "step": 3, "action": "insert", "heap": [8, 3, 5], "index": 2, "parent": 0, "highlightLines": [8, 9, 10], "description": "Insert 8: Add to end. 8 > 5, bubble up! Swap with parent." },
+    { "step": 4, "action": "bubble", "heap": [8, 3, 5], "index": 0, "highlightLines": [8], "description": "8 is now root. No more parents to compare." },
+    { "step": 5, "action": "insert", "heap": [8, 3, 5, 1], "index": 3, "parent": 1, "highlightLines": [5, 6], "description": "Insert 1: Add to end. 1 < 3, no bubble needed." },
+    { "step": 6, "action": "insert", "heap": [8, 7, 5, 1, 3], "index": 4, "parent": 1, "highlightLines": [8, 9, 10], "description": "Insert 7: Add to end. 7 > 3, bubble up! Swap with parent." },
+    { "step": 7, "action": "extract", "heap": [7, 3, 5, 1], "extracted": 8, "highlightLines": [13, 14], "description": "Extract max: Remove root (8), replace with last element (1)." },
+    { "step": 8, "action": "sift", "heap": [7, 3, 5, 1], "index": 0, "children": [1, 2], "highlightLines": [16, 17, 18], "description": "Sift down: 1 < 7 and 5, swap with max child (7)." }
+  ],
+  "minigame": {
+    "type": "heap-operations",
+    "title": "Heap Operations Visualizer",
+    "description": "Insert and extract elements from a heap. Watch bubble up and sift down operations maintain heap property.",
+    "instructions": [
+      "Insert values to see bubble up (heapify up)",
+      "Extract max to see sift down (heapify down)",
+      "Observe how heap property is maintained",
+      "Understand array representation"
+    ]
+  }
+}

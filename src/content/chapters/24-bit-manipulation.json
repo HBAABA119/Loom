@@ -1,0 +1,73 @@
+﻿{
+  "id": "24-bit-manipulation",
+  "title": "Bit Manipulation",
+  "category": "advanced",
+  "theory": {
+    "overview": "Bit manipulation uses bitwise operators to work at the level of individual bits. It's fundamental for low-level programming, compression, cryptography, and certain optimization problems. Key operations include AND (&), OR (|), XOR (^), NOT (~), Left Shift (<<), and Right Shift (>>). Bit manipulation enables compact representations (bit masks), efficient arithmetic (powers of 2), and clever algorithms for subset generation, power of two checks, and finding single numbers.",
+    "keyConcepts": [
+      {
+        "name": "Basic Bitwise Operators",
+        "description": "AND (&): both bits must be 1. OR (|): at least one bit is 1. XOR (^): exactly one bit is 1. NOT (~): flips all bits."
+      },
+      {
+        "name": "Bit Shifts",
+        "description": "Left shift (<<): multiply by 2^n. Right shift (>>): divide by 2^n. Unsigned right shift (>>>): fills with zeros."
+      },
+      {
+        "name": "Common Tricks",
+        "description": "n & (n-1) clears lowest set bit. n & (-n) isolates lowest set bit. n ^ n = 0, n ^ 0 = n."
+      },
+      {
+        "name": "Bitmask Applications",
+        "description": "Represent subsets of n elements as n-bit integers. DP with bitmasks solves exponential problems efficiently for small n."
+      }
+    ],
+    "complexity": {
+      "singleOperations": "O(1)",
+      "countSetBits": "O(log n) or O(1) with lookup",
+      "bitmaskDP": "O(2^n × n)",
+      "space": "O(1) for operations"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Single Number", "difficulty": "easy" },
+    { "id": "p2", "title": "Single Number II", "difficulty": "medium" },
+    { "id": "p3", "title": "Single Number III", "difficulty": "medium" },
+    { "id": "p4", "title": "Number of 1 Bits", "difficulty": "easy" },
+    { "id": "p5", "title": "Counting Bits", "difficulty": "easy" },
+    { "id": "p6", "title": "Missing Number", "difficulty": "easy" },
+    { "id": "p7", "title": "Reverse Bits", "difficulty": "easy" },
+    { "id": "p8", "title": "Bitwise AND of Numbers Range", "difficulty": "medium" },
+    { "id": "p9", "title": "Power of Two", "difficulty": "easy" },
+    { "id": "p10", "title": "Power of Four", "difficulty": "easy" },
+    { "id": "p11", "title": "Maximum XOR of Two Numbers", "difficulty": "medium" },
+    { "id": "p12", "title": "Maximum Product of Word Lengths", "difficulty": "medium" },
+    { "id": "p13", "title": "Total Hamming Distance", "difficulty": "medium" },
+    { "id": "p14", "title": "UTF-8 Validation", "difficulty": "medium" },
+    { "id": "p15", "title": "Gray Code", "difficulty": "medium" },
+    { "id": "p16", "title": "Binary Watch", "difficulty": "easy" },
+    { "id": "p17", "title": "Number Complement", "difficulty": "easy" },
+    { "id": "p18", "title": "Find XOR Sum of All Pairs Bitwise AND", "difficulty": "hard" },
+    { "id": "p19", "title": "Shortest Path Visiting All Nodes", "difficulty": "hard" },
+    { "id": "p20", "title": "Minimum Number of Work Sessions", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "n": 13, "binary": "1101", "highlightLines": [1, 2], "description": "Number 13 in binary: 1101 (8 + 4 + 0 + 1)" },
+    { "step": 1, "action": "and", "a": 13, "b": 10, "result": 8, "binary": "1101 & 1010 = 1000", "highlightLines": [5, 6], "description": "13 & 10: 1101 & 1010 = 1000 (8). Both bits must be 1." },
+    { "step": 2, "action": "or", "a": 13, "b": 10, "result": 15, "binary": "1101 | 1010 = 1111", "highlightLines": [8, 9], "description": "13 | 10: 1101 | 1010 = 1111 (15). At least one bit is 1." },
+    { "step": 3, "action": "xor", "a": 13, "b": 10, "result": 7, "binary": "1101 ^ 1010 = 0111", "highlightLines": [11, 12], "description": "13 ^ 10: 1101 ^ 1010 = 0111 (7). Bits must differ." },
+    { "step": 4, "action": "left-shift", "n": 13, "shift": 2, "result": 52, "binary": "1101 << 2 = 110100", "highlightLines": [15, 16], "description": "13 << 2: Shift left by 2. 1101 → 110100 (52). Multiply by 4." },
+    { "step": 5, "action": "trick", "n": 12, "n-1": 11, "result": 8, "binary": "1100 & 1011 = 1000", "highlightLines": [19, 20], "description": "12 & (12-1) = 1100 & 1011 = 1000 (8). Clears lowest set bit!" }
+  ],
+  "minigame": {
+    "type": "bit-calculator",
+    "title": "Bitwise Calculator",
+    "description": "Interactive bitwise operation calculator. Visualize numbers in binary and apply operations bit by bit.",
+    "instructions": [
+      "Enter two numbers",
+      "View binary representations",
+      "Apply AND, OR, XOR, shifts",
+      "Observe results in real-time"
+    ]
+  }
+}

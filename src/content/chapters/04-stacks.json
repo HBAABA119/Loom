@@ -1,0 +1,74 @@
+﻿{
+  "id": "04-stacks",
+  "title": "Stacks",
+  "category": "fundamentals",
+  "theory": {
+    "overview": "A stack is a linear data structure that follows the Last In First Out (LIFO) principle. The last element added to the stack is the first one to be removed. Think of it like a stack of plates - you can only add or remove plates from the top. Stacks support two primary operations: push (add to top) and pop (remove from top). They are fundamental for function call management, expression evaluation, backtracking algorithms, and undo operations.",
+    "keyConcepts": [
+      {
+        "name": "LIFO Principle",
+        "description": "Last In, First Out - the most recently added element is the first one to be removed. This is the fundamental property of stacks."
+      },
+      {
+        "name": "Push and Pop",
+        "description": "Push adds an element to the top of the stack. Pop removes the top element. Both are O(1) operations."
+      },
+      {
+        "name": "Peek/Top",
+        "description": "View the top element without removing it. Useful for checking what will be popped next."
+      },
+      {
+        "name": "Call Stack",
+        "description": "Programming languages use stacks to manage function calls. Each function call pushes a frame; returns pop it."
+      }
+    ],
+    "complexity": {
+      "access": "O(n)",
+      "search": "O(n)",
+      "insertion": "O(1)",
+      "deletion": "O(1)",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Valid Parentheses", "difficulty": "easy" },
+    { "id": "p2", "title": "Min Stack (Get Min in O(1))", "difficulty": "medium" },
+    { "id": "p3", "title": "Evaluate Reverse Polish Notation", "difficulty": "medium" },
+    { "id": "p4", "title": "Daily Temperatures", "difficulty": "medium" },
+    { "id": "p5", "title": "Next Greater Element", "difficulty": "medium" },
+    { "id": "p6", "title": "Decode String (Nested)", "difficulty": "medium" },
+    { "id": "p7", "title": "Asteroid Collision", "difficulty": "medium" },
+    { "id": "p8", "title": "Simplify Path (Unix)", "difficulty": "medium" },
+    { "id": "p9", "title": "Basic Calculator II", "difficulty": "medium" },
+    { "id": "p10", "title": "Remove K Digits (Smallest Number)", "difficulty": "medium" },
+    { "id": "p11", "title": "Largest Rectangle in Histogram", "difficulty": "hard" },
+    { "id": "p12", "title": "Maximal Rectangle (Binary Matrix)", "difficulty": "hard" },
+    { "id": "p13", "title": "Trapping Rain Water", "difficulty": "hard" },
+    { "id": "p14", "title": "Longest Valid Parentheses", "difficulty": "hard" },
+    { "id": "p15", "title": "Binary Tree Inorder Traversal", "difficulty": "easy" },
+    { "id": "p16", "title": "Flatten Nested List Iterator", "difficulty": "medium" },
+    { "id": "p17", "title": "Implement Queue using Stacks", "difficulty": "easy" },
+    { "id": "p18", "title": "Sort a Stack (Recursion)", "difficulty": "medium" },
+    { "id": "p19", "title": "Redundant Braces", "difficulty": "medium" },
+    { "id": "p20", "title": "Design a Stack with Increment Operation", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "state": { "elements": [], "capacity": 5, "top": -1 }, "highlightLines": [1, 2], "description": "Initialize empty stack with capacity 5" },
+    { "step": 1, "action": "push", "state": { "elements": [10], "capacity": 5, "top": 0 }, "value": 10, "highlightLines": [5, 6, 7], "description": "Push 10: Add to top of stack" },
+    { "step": 2, "action": "push", "state": { "elements": [10, 20], "capacity": 5, "top": 1 }, "value": 20, "highlightLines": [5, 6, 7], "description": "Push 20: Stack grows upward" },
+    { "step": 3, "action": "push", "state": { "elements": [10, 20, 30], "capacity": 5, "top": 2 }, "value": 30, "highlightLines": [5, 6, 7], "description": "Push 30: Top pointer moves to index 2" },
+    { "step": 4, "action": "pop", "state": { "elements": [10, 20], "capacity": 5, "top": 1 }, "value": 30, "highlightLines": [10, 11, 12], "description": "Pop: Remove 30 from top, return value" },
+    { "step": 5, "action": "peek", "state": { "elements": [10, 20], "capacity": 5, "top": 1 }, "value": 20, "highlightLines": [15, 16], "description": "Peek: View top element (20) without removing" },
+    { "step": 6, "action": "push", "state": { "elements": [10, 20, 40], "capacity": 5, "top": 2 }, "value": 40, "highlightLines": [5, 6, 7], "description": "Push 40: Add new element after pop" }
+  ],
+  "minigame": {
+    "type": "reverse-stack",
+    "title": "Reverse the Stack",
+    "description": "Use Push and Pop operations to transform [3, 7, 2] into [2, 7, 3]. Remember: Stack is LIFO!",
+    "instructions": [
+      "Use Push to add new elements",
+      "Use Pop to remove from top",
+      "Match the target stack to win"
+    ]
+  }
+}

@@ -1,0 +1,419 @@
+{
+  "id": "24-bit-manipulation",
+  "bookId": "book-dsa",
+  "title": "Bit Manipulation",
+  "category": "Algorithms",
+  "order": 24,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Bit manipulation operates on individual bits of integers using bitwise operators. It's efficient for problems involving binary representation, subsets, flags, and optimization. Common operations: AND (&), OR (|), XOR (^), NOT (~), left shift (<<), right shift (>>). This chapter covers bit operators, common tricks, and bit manipulation problems.",
+    "sections": [
+      {
+        "title": "Bitwise Operators",
+        "content": "AND (&): 1 if both bits 1. OR (|): 1 if either bit 1. XOR (^): 1 if bits different. NOT (~): flip all bits. Left shift (<<): multiply by 2^n. Right shift (>>): divide by 2^n (arithmetic preserves sign). These are O(1) operations.",
+        "operators": [
+          { "op": "&", "desc": "AND: 1 if both 1" },
+          { "op": "|", "desc": "OR: 1 if either 1" },
+          { "op": "^", "desc": "XOR: 1 if different" },
+          { "op": "~", "desc": "NOT: flip all bits" },
+          { "op": "<<", "desc": "Left shift: multiply by 2^n" },
+          { "op": ">>", "desc": "Right shift: divide by 2^n" }
+        ]
+      },
+      {
+        "title": "Common Bit Tricks",
+        "content": "Check if odd: n & 1. Check if power of 2: n & (n-1) == 0. Get lowest set bit: n & -n. Clear lowest set bit: n & (n-1). Count set bits: Brian Kernighan's algorithm. Swap without temp: a ^= b; b ^= a; a ^= b.",
+        "tricks": [
+          "Odd: n & 1",
+          "Power of 2: n & (n-1) == 0",
+          "Lowest set bit: n & -n",
+          "Clear lowest set bit: n & (n-1)",
+          "Count set bits: n &= n-1 loop"
+        ]
+      },
+      {
+        "title": "Bitmask Applications",
+        "content": "Subset representation: bitmask where bit i set means element i in subset. Generate all subsets: iterate 0 to 2^n-1. Check if bit set: (mask >> i) & 1. Set bit: mask | (1 << i). Clear bit: mask & ~(1 << i). Toggle bit: mask ^ (1 << i). Used in DP, backtracking, and combinatorial problems.",
+        "operations": [
+          "Check bit: (mask >> i) & 1",
+          "Set bit: mask | (1 << i)",
+          "Clear bit: mask & ~(1 << i)",
+          "Toggle bit: mask ^ (1 << i)"
+        ]
+      },
+      {
+        "title": "XOR Properties",
+        "content": "XOR is commutative and associative. a ^ a = 0. a ^ 0 = a. a ^ b ^ a = b (cancels out). Used for finding single element in pairs, swapping without temp, and finding missing number.",
+        "properties": [
+          "Commutative: a ^ b = b ^ a",
+          "Associative: (a ^ b) ^ c = a ^ (b ^ c)",
+          "Self-inverse: a ^ a = 0",
+          "Identity: a ^ 0 = a"
+        ]
+      },
+      {
+        "title": "Bit Manipulation vs Other Approaches",
+        "content": "Bit manipulation: O(1) per operation, space-efficient, but can be less readable. Hash map: O(1) average, more readable, but uses more space. Array: O(n) operations, simple. Choose bit manipulation for space efficiency and when operations naturally map to bits.",
+        "comparison": [
+          { "aspect": "Speed", "bit": "O(1)", "hash": "O(1) avg" },
+          { "aspect": "Space", "bit": "Minimal", "hash": "O(n)" },
+          { "aspect": "Readability", "bit": "Low", "hash": "High" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Two's Complement",
+        "description": "Representation of signed integers. Negative numbers: ~n + 1. Explains right shift behavior (arithmetic preserves sign).",
+        "example": "-5 = ~5 + 1"
+      },
+      {
+        "name": "Lowest Set Bit",
+        "description": "Rightmost 1 bit. n & -n isolates it. Useful for Brian Kernighan's algorithm and bitmask operations.",
+        "use": "n & -n"
+      },
+      {
+        "name": "Bitmask",
+        "description": "Integer where each bit represents a boolean flag or element presence. Compact representation of subsets.",
+        "size": "n bits for n elements"
+      },
+      {
+        "name": "XOR Cancellation",
+        "description": "XORing same value twice cancels out. Used to find single element in pairs (all others appear twice).",
+        "property": "a ^ a = 0"
+      }
+    ],
+    "complexity": {
+      "bitOperations": "$O(1)$ time per operation",
+      "countBits": "$O(number of set bits)$ or $O(log n)$",
+      "space": "$O(1)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Identify Bit Operation",
+      "description": "Determine which bit operation needed (AND, OR, XOR, shift, etc.).",
+      "code": "operation = determine_bit_operation()",
+      "visualState": { "operation": "identified" }
+    },
+    {
+      "step": 2,
+      "title": "Apply Operation",
+      "description": "Apply bitwise operation to operands.",
+      "code": "result = a & b; or result = a << n;",
+      "visualState": { "result": "computed" }
+    },
+    {
+      "step": 3,
+      "title": "Iterate if Needed",
+      "description": "For operations on all bits (count set bits, etc.), iterate through bits.",
+      "code": "while n: n &= n - 1; count++;",
+      "visualState": { "iterated": "through bits" }
+    },
+    {
+      "step": 4,
+      "title": "Handle Edge Cases",
+      "description": "Handle negative numbers (two's complement), overflow, and sign extension.",
+      "code": "if negative: handle_two_complement();",
+      "visualState": { "edges": "handled" }
+    },
+    {
+      "step": 5,
+      "title": "Return Result",
+      "description": "Return result of bit manipulation.",
+      "code": "return result;",
+      "visualState": { "result": "returned" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Single Number",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find element that appears once (all others appear twice).",
+      "example": "nums=[2,2,1]. Output: 1",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "XOR all elements. Pairs cancel out, single remains.",
+      "hints": "XOR all elements"
+    },
+    {
+      "id": "p2",
+      "title": "Single Number II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find element appearing once (others appear three times).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Count bits at each position modulo 3. Or use bit manipulation with two variables.",
+      "hints": "Count bits modulo 3"
+    },
+    {
+      "id": "p3",
+      "title": "Single Number III",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find two elements appearing once (others appear twice).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "XOR all to get xor of two singles. Find rightmost set bit, partition array, XOR each partition.",
+      "hints": "Partition by rightmost set bit"
+    },
+    {
+      "id": "p4",
+      "title": "Number of 1 Bits",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Count set bits in integer.",
+      "example": "n=11 (1011). Output: 3",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "Brian Kernighan: n &= n-1 until n=0. Count iterations.",
+      "hints": "Brian Kernighan: n &= n-1"
+    },
+    {
+      "id": "p5",
+      "title": "Reverse Bits",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Reverse bits of 32-bit unsigned integer.",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "Iterate 32 bits. Extract bit from right, add to result at left.",
+      "hints": "Extract from right, add to left"
+    },
+    {
+      "id": "p6",
+      "title": "Missing Number",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find missing number in [0,n] containing n numbers.",
+      "example": "nums=[3,0,1]. Output: 2",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "XOR all numbers with 0 to n. Missing number remains.",
+      "hints": "XOR with 0 to n"
+    },
+    {
+      "id": "p7",
+      "title": "Sum of Two Integers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate sum without + or - operators.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Use XOR for sum without carry, AND << 1 for carry. Repeat until no carry.",
+      "hints": "XOR for sum, AND << 1 for carry"
+    },
+    {
+      "id": "p8",
+      "title": "Power of Two",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if n is power of 2.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "n > 0 and n & (n-1) == 0.",
+      "hints": "n & (n-1) == 0"
+    },
+    {
+      "id": "p9",
+      "title": "Power of Four",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if n is power of 4.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "n > 0, power of 2, and (n-1) % 3 == 0 (only one bit set in odd positions).",
+      "hints": "Power of 2 and (n-1) % 3 == 0"
+    },
+    {
+      "id": "p10",
+      "title": "Hamming Distance",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Number of positions where bits differ between two integers.",
+      "example": "x=1, y=4. Output: 2",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "XOR, count set bits.",
+      "hints": "XOR, count set bits"
+    },
+    {
+      "id": "p11",
+      "title": "Total Hamming Distance",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Sum of hamming distances between all pairs.",
+      "complexity": { "time": "$O(n \\times 32)$", "space": "$O(1)$" },
+      "solution": "For each bit position, count ones. Distance contribution = ones * (n-ones).",
+      "hints": "Count ones at each bit position"
+    },
+    {
+      "id": "p12",
+      "title": "Find the Difference",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find added character in t (t is s shuffled plus one char).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "XOR all characters. Result is extra character.",
+      "hints": "XOR all characters"
+    },
+    {
+      "id": "p13",
+      "title": "Maximum XOR of Two Numbers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find maximum XOR of any two numbers in array.",
+      "complexity": { "time": "$O(n \\times 32)$", "space": "$O(n)$" },
+      "solution": "Bit Trie (32 bits). For each number, find number in Trie that maximizes XOR.",
+      "hints": "Bit Trie, maximize XOR bit by bit"
+    },
+    {
+      "id": "p14",
+      "title": "Maximum XOR With an Element",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "For each query, find max XOR with any number ≤ limit.",
+      "complexity": { "time": "$O(n \\times 32 + m \\times 32)$", "space": "$O(n \\times 32)$" },
+      "solution": "Bit Trie. For each query, search Trie respecting limit constraint.",
+      "hints": "Bit Trie with limit constraint"
+    },
+    {
+      "id": "p15",
+      "title": "Bitwise AND of Numbers Range",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Bitwise AND of all numbers in range [m, n].",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "Find common prefix of m and n. Shift right until equal, shift back.",
+      "hints": "Find common prefix"
+    },
+    {
+      "id": "p16",
+      "title": "Gray Code",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate n-bit Gray code sequence.",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(2^n)$" },
+      "solution": "G(i) = i ^ (i >> 1). Or recursive: G(n) = G(n-1) + reverse(G(n-1)) with leading bit.",
+      "hints": "G(i) = i ^ (i >> 1)"
+    },
+    {
+      "id": "p17",
+      "title": "Complement of Base 10 Integer",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Complement of integer (flip bits in binary representation without leading zeros).",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "Find number of bits, create mask, XOR with mask.",
+      "hints": "XOR with mask of all 1s"
+    },
+    {
+      "id": "p18",
+      "title": "Binary Number with Alternating Bits",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if binary representation has alternating bits.",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "n ^ (n >> 1) should be all 1s (alternating). Check if n ^ (n >> 1) + 1 is power of 2.",
+      "hints": "n ^ (n >> 1) should be all 1s"
+    },
+    {
+      "id": "p19",
+      "title": "Binary Gap",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Maximum distance between consecutive 1s in binary.",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "Iterate bits, track last 1 position, update max gap.",
+      "hints": "Track last 1 position"
+    },
+    {
+      "id": "p20",
+      "title": "Counting Bits",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Count set bits for all numbers from 0 to n.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "DP: bits[i] = bits[i >> 1] + (i & 1). Or Brian Kernighan for each.",
+      "hints": "DP: bits[i] = bits[i >> 1] + (i & 1)"
+    },
+    {
+      "id": "p21",
+      "title": "Integer Replacement",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum operations to reduce n to 1 (n even: n/2, n odd: n+1 or n-1).",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "Bit manipulation or greedy. For odd n, choose n+1 if n is 3 or ends with 01, else n-1.",
+      "hints": "Greedy based on bit pattern"
+    },
+    {
+      "id": "p22",
+      "title": "UTF-8 Validation",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Validate UTF-8 encoding.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Check leading bits to determine byte sequence length. Validate each byte.",
+      "hints": "Check leading bits for sequence length"
+    },
+    {
+      "id": "p23",
+      "title": "Reordered Power of 2",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if n is power of 2 after reordering digits.",
+      "complexity": { "time": "$O(log n)$", "space": "$O(1)$" },
+      "solution": "Count digits of n. Compare with digit counts of powers of 2 up to 2^29.",
+      "hints": "Compare digit counts with powers of 2"
+    },
+    {
+      "id": "p24",
+      "title": "Find the Duplicate Number",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find duplicate in array of n+1 integers where each is 1 to n.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Floyd's cycle detection (treat array as linked list). Or XOR (not for this variant).",
+      "hints": "Floyd's cycle detection"
+    },
+    {
+      "id": "p25",
+      "title": "Subsets",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all subsets using bitmask.",
+      "complexity": { "time": "$O(2^n \\times n)$", "space": "$O(n)$" },
+      "solution": "Iterate mask from 0 to 2^n-1. For each mask, collect elements where bit is set.",
+      "hints": "Iterate 0 to 2^n-1, check bits"
+    }
+  ],
+  "minigame": {
+    "id": "bit-manipulation",
+    "title": "Bit Master",
+    "description": "Master bit manipulation! XOR, bitmasks, and bit tricks.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "XOR", "task": "Find single number using XOR" },
+      { "name": "Bitmask", "task": "Generate subsets using bitmask" },
+      { "name": "Count Bits", "task": "Count set bits efficiently" }
+    ]
+  },
+  "visualizer": {
+    "type": "bit-manipulation",
+    "title": "Bit Manipulation Visualizer",
+    "description": "Visualize bit operations, XOR cancellation, and bitmask operations.",
+    "features": ["Binary representation", "Bit operation animation", "XOR visualization", "Bitmask display"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Count Set Bits (Brian Kernighan)",
+        "code": "def countBits(n):\n    count = 0\n    while n:\n        n &= n - 1  # Clear lowest set bit\n        count += 1\n    return count  # O(number of set bits)"
+      },
+      {
+        "title": "Single Number (XOR)",
+        "code": "def singleNumber(nums):\n    result = 0\n    for num in nums:\n        result ^= num  # Pairs cancel out\n    return result  # O(n)"
+      },
+      {
+        "title": "Bitmask for Subsets",
+        "code": "def subsets(nums):\n    n = len(nums)\n    result = []\n    \n    for mask in range(1 << n):  # 0 to 2^n - 1\n        subset = []\n        for i in range(n):\n            if (mask >> i) & 1:  # Check if bit i is set\n                subset.append(nums[i])\n        result.append(subset)\n    \n    return result  # O(2^n * n)"
+      }
+    ]
+  }
+}

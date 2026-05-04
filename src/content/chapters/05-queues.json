@@ -1,0 +1,74 @@
+﻿{
+  "id": "05-queues",
+  "title": "Queues",
+  "category": "fundamentals",
+  "theory": {
+    "overview": "A queue is a linear data structure that follows the First In First Out (FIFO) principle. The first element added is the first one to be removed. Think of it like a line of people - the person who arrived first is served first. Queues support enqueue (add to rear) and dequeue (remove from front) operations. They are essential for task scheduling, breadth-first search, caching, and handling requests in order.",
+    "keyConcepts": [
+      {
+        "name": "FIFO Principle",
+        "description": "First In, First Out - the oldest element in the queue is processed first. This ensures fairness in task scheduling."
+      },
+      {
+        "name": "Enqueue and Dequeue",
+        "description": "Enqueue adds to the rear (tail). Dequeue removes from the front (head). Both are O(1) operations in a proper implementation."
+      },
+      {
+        "name": "Front and Rear Pointers",
+        "description": "Front tracks where elements are removed. Rear tracks where elements are added. These pointers move as operations occur."
+      },
+      {
+        "name": "Circular Queue",
+        "description": "An efficient implementation using an array where the rear can wrap around to the beginning when space is available at the front."
+      }
+    ],
+    "complexity": {
+      "access": "O(n)",
+      "search": "O(n)",
+      "insertion": "O(1)",
+      "deletion": "O(1)",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Implement Queue using Stacks", "difficulty": "easy" },
+    { "id": "p2", "title": "Design Circular Queue", "difficulty": "medium" },
+    { "id": "p3", "title": "Sliding Window Maximum", "difficulty": "hard" },
+    { "id": "p4", "title": "Number of Islands (BFS)", "difficulty": "medium" },
+    { "id": "p5", "title": "Course Schedule (Topological)", "difficulty": "medium" },
+    { "id": "p6", "title": "Perfect Squares (BFS)", "difficulty": "medium" },
+    { "id": "p7", "title": "Open the Lock", "difficulty": "medium" },
+    { "id": "p8", "title": "Word Ladder", "difficulty": "hard" },
+    { "id": "p9", "title": "Binary Tree Level Order Traversal", "difficulty": "medium" },
+    { "id": "p10", "title": "Rotting Oranges", "difficulty": "medium" },
+    { "id": "p11", "title": "Shortest Path in Binary Matrix", "difficulty": "medium" },
+    { "id": "p12", "title": "As Far from Land as Possible", "difficulty": "medium" },
+    { "id": "p13", "title": "Map of Highest Peak", "difficulty": "medium" },
+    { "id": "p14", "title": "Reveal Cards in Increasing Order", "difficulty": "medium" },
+    { "id": "p15", "title": "Dota2 Senate (Prediction)", "difficulty": "medium" },
+    { "id": "p16", "title": "First Unique Character in String", "difficulty": "easy" },
+    { "id": "p17", "title": "Task Scheduler", "difficulty": "medium" },
+    { "id": "p18", "title": "Design Hit Counter", "difficulty": "medium" },
+    { "id": "p19", "title": "Moving Average from Data Stream", "difficulty": "easy" },
+    { "id": "p20", "title": "LRU Cache (Queue + Hash)", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "state": { "elements": [], "capacity": 5, "front": 0, "rear": -1, "size": 0 }, "highlightLines": [1, 2], "description": "Initialize empty queue with capacity 5" },
+    { "step": 1, "action": "enqueue", "state": { "elements": [10], "capacity": 5, "front": 0, "rear": 0, "size": 1 }, "value": 10, "highlightLines": [5, 6, 7], "description": "Enqueue 10: Add to rear of queue" },
+    { "step": 2, "action": "enqueue", "state": { "elements": [10, 20], "capacity": 5, "front": 0, "rear": 1, "size": 2 }, "value": 20, "highlightLines": [5, 6, 7], "description": "Enqueue 20: Rear pointer moves to index 1" },
+    { "step": 3, "action": "enqueue", "state": { "elements": [10, 20, 30], "capacity": 5, "front": 0, "rear": 2, "size": 3 }, "value": 30, "highlightLines": [5, 6, 7], "description": "Enqueue 30: Queue grows from rear" },
+    { "step": 4, "action": "dequeue", "state": { "elements": [20, 30], "capacity": 5, "front": 1, "rear": 2, "size": 2 }, "value": 10, "highlightLines": [10, 11, 12], "description": "Dequeue: Remove 10 from front, front pointer moves" },
+    { "step": 5, "action": "peek", "state": { "elements": [20, 30], "capacity": 5, "front": 1, "rear": 2, "size": 2 }, "value": 20, "highlightLines": [15, 16], "description": "Peek: View front element (20) without removing" },
+    { "step": 6, "action": "enqueue", "state": { "elements": [20, 30, 40], "capacity": 5, "front": 1, "rear": 3, "size": 3 }, "value": 40, "highlightLines": [5, 6, 7], "description": "Enqueue 40: Continue adding to rear" }
+  ],
+  "minigame": {
+    "type": "build-queue",
+    "title": "Build the Queue",
+    "description": "Use Enqueue and Dequeue operations to transform [1, 2, 3] into [1, 2, 3, 4, 5]. Remember: Queue is FIFO!",
+    "instructions": [
+      "Use Enqueue to add elements to rear",
+      "Use Dequeue to remove from front",
+      "Match the target queue to win"
+    ]
+  }
+}

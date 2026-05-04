@@ -1,0 +1,73 @@
+﻿{
+  "id": "18-fenwick-trees",
+  "title": "Fenwick Trees (Binary Indexed Tree)",
+  "category": "advanced",
+  "theory": {
+    "overview": "A Fenwick Tree (Binary Indexed Tree or BIT) is a data structure that efficiently supports prefix sum queries and point updates, both in O(log n) time. It uses less memory than segment trees (O(n) vs O(4n)) and has better cache performance due to simpler operations. The key insight is using binary representation of indices to store partial sums. BITs are ideal for problems requiring cumulative frequency tables or prefix sums with updates.",
+    "keyConcepts": [
+      {
+        "name": "Range of Responsibility",
+        "description": "Each index i is responsible for range [i - 2^r + 1, i] where r is position of least significant set bit. 2^r = i & (-i)."
+      },
+      {
+        "name": "Update Operation",
+        "description": "To add value at index i: while i <= n, tree[i] += value, i += i & (-i). Propagates up the tree."
+      },
+      {
+        "name": "Query Operation",
+        "description": "To get prefix sum [1, i]: while i > 0, sum += tree[i], i -= i & (-i). Combines relevant nodes."
+      },
+      {
+        "name": "Range Query",
+        "description": "Sum[l, r] = prefix(r) - prefix(l-1). Two queries give range sum in O(log n) each."
+      }
+    ],
+    "complexity": {
+      "update": "O(log n)",
+      "query": "O(log n)",
+      "build": "O(n log n) or O(n) optimized",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Range Sum Query - Mutable", "difficulty": "medium" },
+    { "id": "p2", "title": "Count of Smaller Numbers After Self", "difficulty": "hard" },
+    { "id": "p3", "title": "Create Sorted Array Through Instructions", "difficulty": "hard" },
+    { "id": "p4", "title": "Count of Range Sum", "difficulty": "hard" },
+    { "id": "p5", "title": "Number of Subarrays With GCD Equal to K", "difficulty": "hard" },
+    { "id": "p6", "title": "Longest Increasing Subsequence", "difficulty": "medium" },
+    { "id": "p7", "title": "Reverse Pairs", "difficulty": "hard" },
+    { "id": "p8", "title": "Count of Smaller Numbers Before Self", "difficulty": "medium" },
+    { "id": "p9", "title": "Queue Reconstruction by Height", "difficulty": "hard" },
+    { "id": "p10", "title": "Count of Range Sum (Coordinate Compression)", "difficulty": "hard" },
+    { "id": "p11", "title": "Binary Indexed Tree Template", "difficulty": "medium" },
+    { "id": "p12", "title": "Maximum Sum of Two Non-Overlapping Subarrays", "difficulty": "medium" },
+    { "id": "p13", "title": "Number of Subsequences That Satisfy Given Sum Condition", "difficulty": "medium" },
+    { "id": "p14", "title": "Maximize Consecutive Elements With k Changes", "difficulty": "hard" },
+    { "id": "p15", "title": "Sum of Subsequence Widths", "difficulty": "hard" },
+    { "id": "p16", "title": "Count of Range Sum Query", "difficulty": "hard" },
+    { "id": "p17", "title": "Implement Fenwick Tree", "difficulty": "medium" },
+    { "id": "p18", "title": "2D Fenwick Tree (Range Update, Point Query)", "difficulty": "hard" },
+    { "id": "p19", "title": "Inversion Count", "difficulty": "medium" },
+    { "id": "p20", "title": "Fenwick Tree vs Segment Tree Comparison", "difficulty": "easy" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "array": [3, 2, -1, 6, 5, 4, -3, 3], "bit": [0, 0, 0, 0, 0, 0, 0, 0, 0], "highlightLines": [1, 2], "description": "Initialize BIT with 8 zeros. Index 0 unused (1-indexed)." },
+    { "step": 1, "action": "build", "array": [3, 2, -1, 6, 5, 4, -3, 3], "bit": [0, 3, 5, -1, 10, 5, 9, -3, 19], "highlightLines": [5, 6, 7], "description": "Build BIT: Each position stores sum of its range of responsibility." },
+    { "step": 2, "action": "query", "index": 4, "result": 10, "path": [4, 0], "highlightLines": [10, 11, 12], "description": "Query prefix sum [1, 4]: sum indices 4 → 0. Result: 3+2+(-1)+6 = 10" },
+    { "step": 3, "action": "query", "index": 7, "result": 16, "path": [7, 6, 4, 0], "highlightLines": [10, 11, 12], "description": "Query prefix sum [1, 7]: sum indices 7 → 6 → 4 → 0. Result: 16" },
+    { "step": 4, "action": "update", "index": 3, "delta": 5, "bit": [0, 3, 5, 4, 15, 5, 9, -3, 24], "path": [3, 4, 8], "highlightLines": [15, 16, 17], "description": "Update index 3 by +5: Propagate to indices 3, 4, 8." },
+    { "step": 5, "action": "query-range", "left": 3, "right": 6, "result": 14, "highlightLines": [20, 21], "description": "Range query [3, 6]: prefix(6) - prefix(2) = 18 - 4 = 14" }
+  ],
+  "minigame": {
+    "type": "bit-visualizer",
+    "title": "Fenwick Tree Visualizer",
+    "description": "Visualize the range of responsibility for each index. See how updates propagate and queries combine using the i & (-i) operation.",
+    "instructions": [
+      "Build BIT from initial array",
+      "Hover over indices to see their ranges",
+      "Perform updates and watch propagation",
+      "Query prefix sums and observe combination"
+    ]
+  }
+}

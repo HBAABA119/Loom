@@ -1,0 +1,75 @@
+{
+  "id": "01-dynamic-arrays",
+  "title": "Dynamic Arrays",
+  "category": "fundamentals",
+  "theory": {
+    "overview": "Dynamic arrays are a fundamental data structure that automatically resize themselves when they reach capacity. Unlike static arrays with fixed size, dynamic arrays grow (typically doubling in size) to accommodate new elements while maintaining amortized O(1) insertion time. This makes them the backbone of modern programming - Python lists, Java ArrayLists, and C++ vectors are all dynamic array implementations.",
+    "keyConcepts": [
+      {
+        "name": "Amortized O(1) Time",
+        "description": "While individual resize operations are O(n), the doubling strategy ensures that over many operations, the average cost per insertion remains constant. This is because resizing becomes exponentially less frequent as the array grows."
+      },
+      {
+        "name": "Growth Factor",
+        "description": "Most implementations use a growth factor of 1.5x or 2x. A 2x factor provides simpler amortized analysis, while 1.5x is more memory-efficient. The choice affects the trade-off between memory usage and copy operations."
+      },
+      {
+        "name": "Capacity vs Size",
+        "description": "Size refers to the actual number of elements stored, while capacity is the total space available. The array only resizes when size equals capacity, leaving headroom for future insertions."
+      },
+      {
+        "name": "Geometric Expansion",
+        "description": "By growing geometrically (multiplying by a constant factor) rather than arithmetically (adding a constant amount), we ensure that the cost of copying elements during resize is spread across many cheap insertions."
+      }
+    ],
+    "complexity": {
+      "access": "O(1)",
+      "search": "O(n)",
+      "insertion": "O(1) amortized",
+      "deletion": "O(n)",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Implement a Vector Class", "difficulty": "easy" },
+    { "id": "p2", "title": "Merge Two Sorted Arrays", "difficulty": "easy" },
+    { "id": "p3", "title": "Find First and Last Position", "difficulty": "easy" },
+    { "id": "p4", "title": "Remove Duplicates", "difficulty": "easy" },
+    { "id": "p5", "title": "Rotate Array", "difficulty": "easy" },
+    { "id": "p6", "title": "Container With Most Water", "difficulty": "medium" },
+    { "id": "p7", "title": "Trapping Rain Water", "difficulty": "hard" },
+    { "id": "p8", "title": "Maximum Subarray (Kadane)", "difficulty": "easy" },
+    { "id": "p9", "title": "Two Sum", "difficulty": "easy" },
+    { "id": "p10", "title": "3Sum", "difficulty": "medium" },
+    { "id": "p11", "title": "Product of Array Except Self", "difficulty": "medium" },
+    { "id": "p12", "title": "Find Minimum in Rotated Array", "difficulty": "medium" },
+    { "id": "p13", "title": "Search in Rotated Array", "difficulty": "medium" },
+    { "id": "p14", "title": "Find Peak Element", "difficulty": "medium" },
+    { "id": "p15", "title": "Median of Two Sorted Arrays", "difficulty": "hard" },
+    { "id": "p16", "title": "Best Time to Buy/Sell Stock", "difficulty": "easy" },
+    { "id": "p17", "title": "Jump Game", "difficulty": "medium" },
+    { "id": "p18", "title": "Jump Game II", "difficulty": "medium" },
+    { "id": "p19", "title": "Gas Station", "difficulty": "medium" },
+    { "id": "p20", "title": "Candy Distribution", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "arrayState": [], "capacity": 4, "activeIndex": null, "highlightLines": [1, 2], "description": "Initialize array with capacity 4" },
+    { "step": 1, "action": "push", "value": 5, "arrayState": [5], "capacity": 4, "activeIndex": 0, "highlightLines": [5, 6], "description": "Push 5 - size < capacity, insert at index 0" },
+    { "step": 2, "action": "push", "value": 3, "arrayState": [5, 3], "capacity": 4, "activeIndex": 1, "highlightLines": [5, 6], "description": "Push 3 - insert at index 1" },
+    { "step": 3, "action": "push", "value": 7, "arrayState": [5, 3, 7], "capacity": 4, "activeIndex": 2, "highlightLines": [5, 6], "description": "Push 7 - insert at index 2" },
+    { "step": 4, "action": "push", "value": 1, "arrayState": [5, 3, 7, 1], "capacity": 4, "activeIndex": 3, "highlightLines": [5, 6], "description": "Push 1 - array is now full" },
+    { "step": 5, "action": "resize", "value": 2, "arrayState": [5, 3, 7, 1, 2], "capacity": 8, "activeIndex": 4, "highlightLines": [9, 10, 11, 12], "description": "Push 2 - capacity reached, resize to 8" },
+    { "step": 6, "action": "push", "value": 9, "arrayState": [5, 3, 7, 1, 2, 9], "capacity": 8, "activeIndex": 5, "highlightLines": [5, 6], "description": "Push 9 - insert after resize" },
+    { "step": 7, "action": "pop", "arrayState": [5, 3, 7, 1, 2], "capacity": 8, "activeIndex": 5, "highlightLines": [15, 16], "description": "Pop - remove last element" }
+  ],
+  "minigame": {
+    "type": "resize-array",
+    "title": "Perfect Timing",
+    "description": "Resize the array exactly when it reaches capacity. Too early wastes memory, too late loses data.",
+    "instructions": [
+      "Push elements until the array is full",
+      "Click 'Resize' exactly when size equals capacity (4)",
+      "Get feedback on your timing"
+    ]
+  }
+}

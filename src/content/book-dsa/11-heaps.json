@@ -1,0 +1,411 @@
+{
+  "id": "11-heaps",
+  "bookId": "book-dsa",
+  "title": "Heaps & Priority Queues",
+  "category": "Trees",
+  "order": 11,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "A heap is a complete binary tree with heap property: in min-heap, parent ≤ children; in max-heap, parent ≥ children. Implemented as array where for index i: parent = (i-1)/2, left = 2i+1, right = 2i+2. Heaps enable $O(\\log n)$ insert and extract-min/max, making them ideal for priority queues. Used in Dijkstra's algorithm, Huffman coding, heap sort, and scheduling. This chapter covers heap operations, heapify, and heap-based problems.",
+    "sections": [
+      {
+        "title": "Heap Properties",
+        "content": "Complete binary tree: all levels filled except possibly last, which is filled left to right. Array representation: index 0 is root. For index i: parent = floor((i-1)/2), left = 2i+1, right = 2i+2. Min-heap: parent ≤ children (root is minimum). Max-heap: parent ≥ children (root is maximum). Heap property maintained through heapify operations.",
+        "formulas": [
+          "parent(i) = floor((i-1)/2)",
+          "left(i) = 2i + 1",
+          "right(i) = 2i + 2"
+        ]
+      },
+      {
+        "title": "Heap Operations",
+        "content": "Insert: add at end, bubble up (swap with parent while violating heap property). $O(\\log n)$. Extract-min/max: remove root, move last element to root, bubble down (swap with smaller/larger child). $O(\\log n)$. Peek: return root. $O(1)$. Build heap: heapify from bottom up. $O(n)$ (not $O(n \\log n)$).",
+        "complexity": {
+          "insert": "$O(\\log n)$",
+          "extract": "$O(\\log n)$",
+          "peek": "$O(1)$",
+          "build": "$O(n)$"
+        }
+      },
+      {
+        "title": "Heapify",
+        "content": "Sift-down (bubble down): compare node with children, swap with smaller (min-heap) or larger (max-heap) child, repeat until heap property satisfied. Sift-up (bubble up): compare with parent, swap if violating, repeat. Build heap: start from last non-leaf (index n/2-1), sift-down each. Bottom-up approach ensures $O(n)$ build time.",
+        "buildHeap": "Start from index n/2-1, sift-down each to end. Total O(n)."
+      },
+      {
+        "title": "Priority Queue",
+        "content": "Priority queue abstracts heap operations: insert (enqueue), extract-min/max (dequeue), peek. Used when elements have priorities. Min-heap for smallest first, max-heap for largest first. Applications: task scheduling, Dijkstra's algorithm (min-heap for closest unvisited node), Huffman coding (min-heap for combining least frequent characters).",
+        "applications": [
+          "Task scheduling by priority",
+          "Dijkstra's shortest path",
+          "Huffman coding",
+          "K-way merge"
+        ]
+      },
+      {
+        "title": "Heap Sort",
+        "content": "In-place sorting using heap. Build max-heap from array. Repeatedly extract max (swap root with last, sift-down new root). Elements accumulate at end in sorted order. Time: $O(n \\log n)$. Space: $O(1)$ (in-place). Not stable but efficient and guaranteed $O(n \\log n)$.",
+        "algorithm": "Build max-heap. For i from n-1 to 1: swap arr[0] with arr[i], sift-down arr[0] in heap of size i."
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Complete Binary Tree",
+        "description": "All levels filled except possibly last, which is filled left to right. Enables compact array representation.",
+        "benefit": "No wasted space, easy index calculations"
+      },
+      {
+        "name": "Heap Property",
+        "description": "Min-heap: parent ≤ children. Max-heap: parent ≥ children. Ensures root is min/max.",
+        "maintenance": "Sift-up on insert, sift-down on extract"
+      },
+      {
+        "name": "Array Representation",
+        "description": "Index 0 is root. For i: parent = (i-1)/2, left = 2i+1, right = 2i+2. No pointer overhead.",
+        "efficiency": "Cache-friendly, O(1) access to parent/children"
+      },
+      {
+        "name": "Build Heap O(n)",
+        "description": "Bottom-up heapify from last non-leaf. Each sift-down is O(h), but most nodes are near bottom, total O(n).",
+        "proof": "Sum of heights × number of nodes at each height = O(n)"
+      }
+    ],
+    "complexity": {
+      "insert": "$O(\\log n)$",
+      "extract": "$O(\\log n)$",
+      "peek": "$O(1)$",
+      "build": "$O(n)$",
+      "space": "$O(1)$ (array-based)"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Insert",
+      "description": "Add element at end of array. Sift-up: compare with parent, swap if violating heap property.",
+      "code": "heap.push(val); i = heap.length - 1; while i > 0 and heap[parent(i)] > heap[i]: swap(i, parent(i)); i = parent(i);",
+      "visualState": { "action": "sift-up", "path": "to root" }
+    },
+    {
+      "step": 2,
+      "title": "Extract Min",
+      "description": "Swap root with last element. Remove last. Sift-down new root: swap with smaller child until heap property satisfied.",
+      "code": "min = heap[0]; heap[0] = heap.pop(); i = 0; while left child exists: swap with smaller child if needed;",
+      "visualState": { "action": "sift-down", "path": "to leaf" }
+    },
+    {
+      "step": 3,
+      "title": "Sift-Down",
+      "description": "Compare node with children. Swap with smaller (min-heap) or larger (max-heap) child. Repeat until heap property satisfied.",
+      "code": "while left(i) < n: smallest = left(i); if right(i) < n and heap[right] < heap[smallest]: smallest = right(i); if heap[i] <= heap[smallest]: break; swap(i, smallest); i = smallest;",
+      "visualState": { "comparison": "with children" }
+    },
+    {
+      "step": 4,
+      "title": "Build Heap",
+      "description": "Start from last non-leaf (n/2-1). Sift-down each node from bottom to top.",
+      "code": "for i from n/2-1 down to 0: sift_down(i, n);",
+      "visualState": { "direction": "bottom-up" }
+    },
+    {
+      "step": 5,
+      "title": "Heap Sort",
+      "description": "Build max-heap. Repeatedly extract max to end of array.",
+      "code": "build_max_heap(); for i from n-1 to 1: swap(arr[0], arr[i]); sift_down(0, i);",
+      "visualState": { "result": "sorted array" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Kth Largest Element",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find kth largest element in unsorted array.",
+      "example": "nums=[3,2,1,5,6,4], k=2. Output: 5",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Min-heap of size k. Push first k elements. For remaining, if > heap[0], replace. Heap[0] is kth largest.",
+      "hints": "Min-heap of size k, keep k largest"
+    },
+    {
+      "id": "p2",
+      "title": "Top K Frequent Elements",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return k most frequent elements.",
+      "example": "nums=[1,1,1,2,2,3], k=2. Output: [1,2]",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(n)$" },
+      "solution": "Count frequencies. Min-heap of size k by (count, element). Keep k most frequent.",
+      "hints": "Count frequencies, min-heap by count"
+    },
+    {
+      "id": "p3",
+      "title": "Merge K Sorted Lists",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Merge k sorted linked lists into one sorted list.",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Min-heap of (value, list, index). Push first node of each list. Extract min, push next from that list.",
+      "hints": "Min-heap of (value, list, index)"
+    },
+    {
+      "id": "p4",
+      "title": "Find Median from Data Stream",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find median of numbers as they arrive (stream).",
+      "complexity": { "addNum": "$O(\\log n)$", "findMedian": "$O(1)$" },
+      "solution": "Two heaps: max-heap for lower half, min-heap for upper half. Balance sizes. Median is average of tops or one top.",
+      "hints": "Max-heap for lower half, min-heap for upper half"
+    },
+    {
+      "id": "p5",
+      "title": "Kth Smallest Element in Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find kth smallest element in sorted matrix (each row/col sorted).",
+      "example": "matrix=[[1,5,9],[10,11,13]], k=8. Output: 13",
+      "complexity": { "time": "$O(k \\log n)$", "space": "$O(n)$" },
+      "solution": "Min-heap of (value, row, col). Initialize with first column. Extract k times, push next from same row.",
+      "hints": "Min-heap, initialize with first column"
+    },
+    {
+      "id": "p6",
+      "title": "Task Scheduler",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find least intervals to execute tasks with cooldown n between same tasks.",
+      "example": "tasks=['A','A','A','B','B','B'], n=2. Output: 8",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Count frequencies. Max-heap by frequency. Execute tasks, track cooldown with queue.",
+      "hints": "Max-heap by frequency, queue for cooldown"
+    },
+    {
+      "id": "p7",
+      "title": "Reorganize String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange string so no two adjacent characters are same.",
+      "example": "s='aab'. Output: 'aba'",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Max-heap by character count. Always pick most frequent not same as previous. If any count > (n+1)/2, impossible.",
+      "hints": "Max-heap by count, track previous"
+    },
+    {
+      "id": "p8",
+      "title": "Ugly Number II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nth ugly number (prime factors only 2,3,5).",
+      "example": "n=10. Output: 12",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Min-heap. Start with 1. Extract min, push min*2, min*3, min*5. Use set to avoid duplicates.",
+      "hints": "Min-heap, multiply by 2,3,5"
+    },
+    {
+      "id": "p9",
+      "title": "Super Ugly Number",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nth super ugly number (prime factors from given list).",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(n)$" },
+      "solution": "Min-heap. Start with 1. Extract min, push min * each prime. Set to avoid duplicates.",
+      "hints": "Min-heap, multiply by each prime"
+    },
+    {
+      "id": "p10",
+      "title": "IPO",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Maximize capital with k projects (each has capital requirement and profit).",
+      "complexity": { "time": "$O((n+k) \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort projects by capital. Min-heap for available projects by profit. Do k times: add all affordable to heap, extract max profit.",
+      "hints": "Sort by capital, min-heap by profit"
+    },
+    {
+      "id": "p11",
+      "title": "Find K Pairs with Smallest Sums",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find k pairs with smallest sums from two sorted arrays.",
+      "complexity": { "time": "$O(k \\log k)$", "space": "$O(k)$" },
+      "solution": "Min-heap of (sum, i, j). Initialize with pairs from first array with nums2[0]. Extract k times, push (i, j+1).",
+      "hints": "Min-heap of (sum, i, j)"
+    },
+    {
+      "id": "p12",
+      "title": "K Closest Points to Origin",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find k closest points to origin (0,0).",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Max-heap of size k by distance squared. If heap full and new point closer, replace.",
+      "hints": "Max-heap of size k by distance"
+    },
+    {
+      "id": "p13",
+      "title": "Kth Smallest Element in Sorted Matrix (Binary Search)",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find kth smallest using binary search on value range.",
+      "complexity": { "time": "$O(n \\log(max-min))$", "space": "$O(1)$" },
+      "solution": "Binary search on value range. Count elements ≤ mid using row/col property. Adjust search based on count.",
+      "hints": "Binary search on value, count ≤ mid"
+    },
+    {
+      "id": "p14",
+      "title": "Sliding Window Maximum",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find max in each sliding window of size k.",
+      "complexity": { "time": "$O(n)$", "space": "$O(k)$" },
+      "solution": "Monotonic decreasing deque (not heap). Store indices. Remove outside window, remove smaller from back.",
+      "hints": "Monotonic deque (not heap)"
+    },
+    {
+      "id": "p15",
+      "title": "Data Stream as Disjoint Intervals",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Maintain disjoint intervals as numbers arrive in stream.",
+      "complexity": { "addNum": "$O(\\log n)$", "getIntervals": "$O(n)$" },
+      "solution": "TreeMap (ordered map) of intervals. On add, find left and right intervals, merge if overlapping.",
+      "hints": "TreeMap for ordered intervals"
+    },
+    {
+      "id": "p16",
+      "title": "Rearrange String k Distance Apart",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange so same characters at least k apart.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Max-heap by frequency. Queue for cooldown. Place most frequent, add to cooldown queue.",
+      "hints": "Max-heap, queue for cooldown"
+    },
+    {
+      "id": "p17",
+      "title": "Minimum Number of Refueling Stops",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum refueling stops to reach target with given stations.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Max-heap of fuel from passed stations. When can't reach next, refuel from heap (max fuel).",
+      "hints": "Max-heap of passed stations' fuel"
+    },
+    {
+      "id": "p18",
+      "title": "Kth Largest Element in a Stream",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Design class to find kth largest in stream.",
+      "complexity": { "add": "$O(\\log k)$", "getKth": "$O(1)$" },
+      "solution": "Min-heap of size k. Maintain k largest elements. Heap[0] is kth largest.",
+      "hints": "Min-heap of size k"
+    },
+    {
+      "id": "p19",
+      "title": "Last Stone Weight",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Smash stones: take two heaviest, smash (difference), add back if non-zero.",
+      "example": "stones=[2,7,4,1,8,1]. Output: 1",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Max-heap. While heap > 1: extract two, smash, add difference if > 0.",
+      "hints": "Max-heap, extract two heaviest"
+    },
+    {
+      "id": "p20",
+      "title": "Furthest Building You Can Reach",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find furthest building reachable with ladders and bricks.",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Use ladders for largest jumps. Min-heap of ladder jumps. When ladder count exceeded, replace largest ladder jump with bricks.",
+      "hints": "Min-heap for ladder jumps"
+    },
+    {
+      "id": "p21",
+      "title": "Consecutive Numbers Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given positive integer n, return number of ways to write as sum of consecutive positive integers.",
+      "complexity": { "time": "$O(\\sqrt{n})$", "space": "$O(1)$" },
+      "solution": "For length k, check if n - k(k-1)/2 is positive and divisible by k.",
+      "hints": "Check each possible length k"
+    },
+    {
+      "id": "p22",
+      "title": "Seat Reservation Manager",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Design seat manager with reserve and unreserve operations.",
+      "complexity": { "reserve": "$O(\\log n)$", "unreserve": "$O(\\log n)$" },
+      "solution": "Min-heap of available seats. On reserve, pop min. On unreserve, push back.",
+      "hints": "Min-heap of available seats"
+    },
+    {
+      "id": "p23",
+      "title": "The k Weakest Rows in a Matrix",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find k weakest rows (sorted by soldier count, then row index).",
+      "complexity": { "time": "$O(m \\log m + m \\log k)$", "space": "$O(m)$" },
+      "solution": "Count soldiers in each row. Min-heap of (count, index). Extract k times.",
+      "hints": "Count soldiers, min-heap by (count, index)"
+    },
+    {
+      "id": "p24",
+      "title": "Find K Closest Elements",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find k closest elements to target in sorted array.",
+      "complexity": { "time": "$O(\\log n + k)$", "space": "$O(k)$" },
+      "solution": "Binary search to find insertion point. Two pointers expand outward. Or max-heap of size k by distance.",
+      "hints": "Binary search + two pointers or max-heap"
+    },
+    {
+      "id": "p25",
+      "title": "Kth Smallest Prime Fraction",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find kth smallest fraction formed by arr[i]/arr[j] where i < j.",
+      "complexity": { "time": "$O(k \\log n)$", "space": "$O(n)$" },
+      "solution": "Min-heap of (value, i, j). Initialize with arr[i]/arr[n-1] for all i. Extract k times, push (i, j-1).",
+      "hints": "Min-heap of (value, i, j)"
+    }
+  ],
+  "minigame": {
+    "id": "heap-visualizer",
+    "title": "Heap Master",
+    "description": "Master heap operations! Insert, extract, and visualize heap structure.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Build", "task": "Build min-heap from [5,3,8,1,2]" },
+      { "name": "Extract", "task": "Extract min 3 times" },
+      { "name": "Sort", "task": "Heap sort [4,10,3,5,1]" }
+    ]
+  },
+  "visualizer": {
+    "type": "heap-operations",
+    "title": "Heap Operations Visualizer",
+    "description": "Visualize heap insert, extract, sift-up, sift-down step by step.",
+    "features": ["Array representation", "Tree view", "Sift animation", "Comparison highlighting"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Min-Heap Implementation",
+        "code": "import heapq\n\nheap = []\nheapq.heappush(heap, 5)\nheapq.heappush(heap, 3)\nheapq.heappush(heap, 8)\n\nmin_val = heapq.heappop(heap)  # Returns 3\nprint(heap[0])  # Peek: 5"
+      },
+      {
+        "title": "Kth Largest",
+        "code": "import heapq\n\ndef find_kth_largest(nums, k):\n    return heapq.nlargest(k, nums)[-1]\n\n# Or with min-heap of size k:\ndef find_kth_largest(nums, k):\n    heap = nums[:k]\n    heapq.heapify(heap)\n    for num in nums[k:]:\n        if num > heap[0]:\n            heapq.heapreplace(heap, num)\n    return heap[0]"
+      },
+      {
+        "title": "Heap Sort",
+        "code": "def heap_sort(arr):\n    n = len(arr)\n    \n    # Build max heap\n    for i in range(n//2 - 1, -1, -1):\n        heapify(arr, n, i)\n    \n    # Extract elements\n    for i in range(n-1, 0, -1):\n        arr[0], arr[i] = arr[i], arr[0]\n        heapify(arr, i, 0)\n    \n    return arr"
+      }
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+﻿{
+  "id": "08-searching",
+  "title": "Searching Algorithms",
+  "category": "fundamentals",
+  "theory": {
+    "overview": "Searching algorithms find the position of a target value within a data structure. Linear Search checks each element sequentially (O(n)). Binary Search repeatedly divides a sorted array in half (O(log n)). More advanced techniques include Interpolation Search for uniformly distributed data, Exponential Search for unbounded arrays, and Ternary Search for finding maxima/minima in unimodal functions.",
+    "keyConcepts": [
+      {
+        "name": "Linear Search",
+        "description": "Check each element from start to end. O(n) time, works on unsorted data. Simple but slow for large datasets."
+      },
+      {
+        "name": "Binary Search",
+        "description": "Divide sorted array in half, eliminate wrong half. O(log n). Requires sorted data, extremely efficient."
+      },
+      {
+        "name": "Lower/Upper Bound",
+        "description": "Find first position ≥ target (lower) or > target (upper). Essential for range queries and insertions."
+      },
+      {
+        "name": "Search Space Reduction",
+        "description": "Technique for optimization problems: define search space, use predicate to binary search for optimal value."
+      }
+    ],
+    "complexity": {
+      "linearSearch": "O(n)",
+      "binarySearch": "O(log n)",
+      "interpolation": "O(log log n) average",
+      "exponential": "O(log n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Binary Search", "difficulty": "easy" },
+    { "id": "p2", "title": "Search Insert Position", "difficulty": "easy" },
+    { "id": "p3", "title": "First Bad Version", "difficulty": "easy" },
+    { "id": "p4", "title": "Guess Number Higher or Lower", "difficulty": "easy" },
+    { "id": "p5", "title": "Find First and Last Position", "difficulty": "medium" },
+    { "id": "p6", "title": "Search in Rotated Sorted Array", "difficulty": "medium" },
+    { "id": "p7", "title": "Find Minimum in Rotated Sorted", "difficulty": "medium" },
+    { "id": "p8", "title": "Search a 2D Matrix", "difficulty": "medium" },
+    { "id": "p9", "title": "Search a 2D Matrix II", "difficulty": "medium" },
+    { "id": "p10", "title": "Find Peak Element", "difficulty": "medium" },
+    { "id": "p11", "title": "Find K Closest Elements", "difficulty": "medium" },
+    { "id": "p12", "title": "Koko Eating Bananas", "difficulty": "medium" },
+    { "id": "p13", "title": "Capacity To Ship Packages", "difficulty": "medium" },
+    { "id": "p14", "title": "Split Array Largest Sum", "difficulty": "hard" },
+    { "id": "p15", "title": "Median of Two Sorted Arrays", "difficulty": "hard" },
+    { "id": "p16", "title": "4Sum II", "difficulty": "medium" },
+    { "id": "p17", "title": "Minimum Size Subarray Sum", "difficulty": "medium" },
+    { "id": "p18", "title": "Longest Increasing Subsequence", "difficulty": "medium" },
+    { "id": "p19", "title": "Russian Doll Envelopes", "difficulty": "hard" },
+    { "id": "p20", "title": "Maximum Subarray Min-Product", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 7, "left": 0, "right": 7, "highlightLines": [1, 2, 3], "description": "Binary search for 7 in sorted array [1,3,5,7,9,11,13,15]" },
+    { "step": 1, "action": "mid", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 7, "left": 0, "right": 7, "mid": 3, "midValue": 7, "highlightLines": [6, 7], "description": "Calculate mid = (0+7)/2 = 3, arr[3] = 7" },
+    { "step": 2, "action": "found", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 7, "index": 3, "highlightLines": [8, 9], "description": "Found target at index 3! Return immediately." },
+    { "step": 3, "action": "new-target", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 11, "left": 0, "right": 7, "highlightLines": [1], "description": "Now search for 11" },
+    { "step": 4, "action": "mid", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 11, "left": 0, "right": 7, "mid": 3, "midValue": 7, "highlightLines": [6, 7], "description": "mid = 3, arr[3] = 7 < 11, search right half" },
+    { "step": 5, "action": "narrow", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 11, "left": 4, "right": 7, "highlightLines": [11, 12], "description": "Update left = mid + 1 = 4, right stays 7" },
+    { "step": 6, "action": "mid", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 11, "left": 4, "right": 7, "mid": 5, "midValue": 11, "highlightLines": [6, 7], "description": "mid = (4+7)/2 = 5, arr[5] = 11" },
+    { "step": 7, "action": "found", "array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 11, "index": 5, "highlightLines": [8, 9], "description": "Found target at index 5!" }
+  ],
+  "minigame": {
+    "type": "binary-search-guess",
+    "title": "Guess the Number",
+    "description": "Play a number guessing game using binary search strategy. The computer picks a number, you guess, it tells you higher or lower.",
+    "instructions": [
+      "Think of a number between 1 and 1000",
+      "The AI will guess using binary search",
+      "Tell it if target is higher or lower",
+      "See binary search in action!"
+    ]
+  }
+}

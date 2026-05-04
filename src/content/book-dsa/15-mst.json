@@ -1,0 +1,411 @@
+{
+  "id": "15-mst",
+  "bookId": "book-dsa",
+  "title": "Minimum Spanning Tree",
+  "category": "Graphs",
+  "order": 15,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Minimum Spanning Tree (MST) of a weighted undirected graph is a subset of edges that connects all vertices with minimum total weight and no cycles. MST has V-1 edges for V vertices. Two classic algorithms: Prim's (greedy, grows tree from vertex) and Kruskal's (greedy, adds edges in weight order, uses Union-Find). MSTs are used in network design, clustering, and approximation algorithms. This chapter covers MST algorithms, their properties, and applications.",
+    "sections": [
+      {
+        "title": "MST Properties",
+        "content": "Cut property: For any cut (partition of vertices), minimum weight edge crossing cut is in some MST. Cycle property: For any cycle, maximum weight edge in cycle is not in any MST. MST is unique if all edge weights are distinct. Multiple MSTs possible if some weights equal. MST minimizes total weight while ensuring connectivity.",
+        "properties": [
+          "Cut property: min edge crossing cut is in MST",
+          "Cycle property: max edge in cycle not in MST",
+          "Unique if all weights distinct",
+          "Has exactly V-1 edges"
+        ]
+      },
+      {
+        "title": "Prim's Algorithm",
+        "content": "Grows MST from starting vertex. Maintain set of vertices in MST. Repeatedly add minimum weight edge connecting MST to non-MST vertex. Uses min-heap for efficiency. Time: $O(E \\log V)$ with heap, $O(V^2)$ without. Space: $O(V+E)$. Similar to Dijkstra but tracks edge weight instead of path weight.",
+        "algorithm": "Initialize MST with any vertex. Min-heap of edges crossing cut. Extract min, add vertex to MST, add new crossing edges to heap. Repeat until V-1 edges.",
+        "complexity": { "time": "$O(E \\log V)$", "space": "$O(V+E)$" }
+      },
+      {
+        "title": "Kruskal's Algorithm",
+        "content": "Sorts all edges by weight. Adds edges in increasing order, skipping edges that would create cycle (detected by Union-Find). Time: $O(E \\log E)$ for sorting, $O(E \\alpha(V))$ for Union-Find. Space: $O(V+E)$. Easier to implement with Union-Find. Good for sparse graphs.",
+        "algorithm": "Sort edges by weight. For each edge in order: if endpoints in different components, add to MST, union components. Stop when V-1 edges added.",
+        "complexity": { "time": "$O(E \\log E)$", "space": "$O(V+E)$" }
+      },
+      {
+        "title": "Union-Find (Disjoint Set)",
+        "content": "Data structure for tracking connected components. Operations: find(x) returns component representative, union(x,y) merges components. Path compression and union by rank ensure near-constant amortized time. Essential for Kruskal's cycle detection.",
+        "operations": [
+          { "name": "find", "complexity": "$O(\\alpha(V))$ amortized", "description": "Find component representative" },
+          { "name": "union", "complexity": "$O(\\alpha(V))$ amortized", "description": "Merge two components" }
+        ]
+      },
+      {
+        "title": "MST Applications",
+        "content": "Network design: minimum cost to connect all locations (cables, roads). Clustering: single-linkage clustering uses MST. Approximation algorithms: MST-based 2-approximation for TSP. Bottleneck MST: minimize maximum edge weight. Used in image segmentation, facility location.",
+        "applications": [
+          "Network design (minimum cost connectivity)",
+          "Clustering (single-linkage)",
+          "TSP approximation",
+          "Image segmentation"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Cut Property",
+        "description": "For any partition of vertices, the minimum weight edge crossing the partition belongs to some MST. Basis for Prim's algorithm.",
+        "use": "Proves correctness of greedy choice"
+      },
+      {
+        "name": "Cycle Detection",
+        "description": "In Kruskal's, edge creates cycle if both endpoints already in same component. Union-Find efficiently tracks components.",
+        "method": "Union-Find find operation"
+      },
+      {
+        "name": "Path Compression",
+        "description": "In Union-Find, flatten tree structure during find. Makes future finds faster. Near-constant amortized time.",
+        "effect": "find becomes $O(\\alpha(V))$ ≈ O(1)"
+      },
+      {
+        "name": "Union by Rank",
+        "description": "In Union-Find, attach smaller tree under larger tree's root. Keeps trees shallow, improves performance.",
+        "effect": "Keeps tree height O(log V)"
+      }
+    ],
+    "complexity": {
+      "prim": "$O(E \\log V)$ time, $O(V+E)$ space",
+      "kruskal": "$O(E \\log E)$ time, $O(V+E)$ space",
+      "unionFind": "$O(\\alpha(V))$ amortized per operation"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Prim's - Initialize",
+      "description": "Start with any vertex. Add all edges from it to min-heap.",
+      "code": "mst = {start}; heap = [(w, start, v) for v, w in neighbors[start]];",
+      "visualState": { "mst": "{start}", "heap": "edges from start" }
+    },
+    {
+      "step": 2,
+      "title": "Extract Min Edge",
+      "description": "Extract minimum weight edge from heap. If both endpoints in MST, skip.",
+      "code": "w, u, v = heappop(heap); if v in mst: continue;",
+      "visualState": { "edge": "extracted", "check": "in MST?" }
+    },
+    {
+      "step": 3,
+      "title": "Add to MST",
+      "description": "Add edge and new vertex to MST. Add all edges from new vertex to heap.",
+      "code": "mst.add(v); total_weight += w; for new_v, new_w in neighbors[v]: heappush(heap, (new_w, v, new_v));",
+      "visualState": { "mst": "expanded", "total": "updated" }
+    },
+    {
+      "step": 4,
+      "title": "Repeat",
+      "description": "Continue until MST has V-1 edges.",
+      "code": "while len(mst) < V: ...",
+      "visualState": { "loop": "until V-1 edges" }
+    },
+    {
+      "step": 5,
+      "title": "Kruskal's - Sort Edges",
+      "description": "Sort all edges by weight. Initialize Union-Find with each vertex as separate component.",
+      "code": "edges.sort(key=lambda x: x[2]); uf = UnionFind(V);",
+      "visualState": { "edges": "sorted", "uf": "initialized" }
+    },
+    {
+      "step": 6,
+      "title": "Process Edges",
+      "description": "For each edge in order: if endpoints in different components, add to MST, union components.",
+      "code": "for u, v, w in edges: if uf.find(u) != uf.find(v): mst.append((u,v,w)); uf.union(u,v); if len(mst) == V-1: break;",
+      "visualState": { "processing": "edges in order" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Connecting Cities With Minimum Cost",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum cost to connect all cities (MST).",
+      "example": "n=3, connections=[[1,2,5],[1,3,6],[2,3,1]]. Output: 6",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(V+E)$" },
+      "solution": "Kruskal's with Union-Find. Sort edges, add if connects different components.",
+      "hints": "Kruskal's, Union-Find"
+    },
+    {
+      "id": "p2",
+      "title": "Optimize Water Distribution",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimize cost to provide water (pipes + wells).",
+      "complexity": { "time": "$O((V+E) \\log (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Add virtual well node with edge to each house (well cost). Run MST on this graph.",
+      "hints": "Add virtual well node, MST"
+    },
+    {
+      "id": "p3",
+      "title": "Min Cost to Connect All Points",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum cost to connect all points (complete graph, edge = Manhattan distance).",
+      "complexity": { "time": "$O(n^2 \\log n)$", "space": "$O(n^2)$" },
+      "solution": "Prim's on complete graph. Or optimize by sorting edges (still O(n² log n)).",
+      "hints": "Prim's on complete graph"
+    },
+    {
+      "id": "p4",
+      "title": "Find Critical and Pseudo-Critical Edges",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find edges that must be in all MSTs (critical) and edges in some MSTs (pseudo-critical).",
+      "complexity": { "time": "$O(E^2 \\log V)$", "space": "$O(V+E)$" },
+      "solution": "For each edge, check if MST without it has same weight (pseudo-critical) or higher weight (critical).",
+      "hints": "Check each edge, compare MST weights"
+    },
+    {
+      "id": "p5",
+      "title": "The Maze II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest distance from start to exit (can break walls at cost).",
+      "complexity": { "time": "$O(m \\times n \\log(m \\times n))$", "space": "$O(m \\times n)$" },
+      "solution": "Dijkstra. Edge to adjacent cell = 1, edge to break wall = cost.",
+      "hints": "Dijkstra, break walls as edges"
+    },
+    {
+      "id": "p6",
+      "title": "Redundant Connection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find edge that can be removed to make tree (n nodes, n edges, one cycle).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find. Add edges one by one. If edge connects already connected components, it's redundant.",
+      "hints": "Union-Find, edge that creates cycle"
+    },
+    {
+      "id": "p7",
+      "title": "Redundant Connection II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find edge to remove in graph with two possible cycles.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find with parent tracking. Handle cases: edge to same node, multiple parents.",
+      "hints": "Union-Find with parent tracking"
+    },
+    {
+      "id": "p8",
+      "title": "Number of Operations to Make Network Connected",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum operations to connect all computers (can add cable between any two).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Count connected components. Need components - 1 cables. If cables < n-1, return -1.",
+      "hints": "Count components, need components - 1 cables"
+    },
+    {
+      "id": "p9",
+      "title": "Maximize Network Quality",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Maximize minimum quality edge in MST (bottleneck MST).",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(V+E)$" },
+      "solution": "Binary search on threshold or use Prim's with max-heap for min edge.",
+      "hints": "Binary search or modified Prim's"
+    },
+    {
+      "id": "p10",
+      "title": "Minimum Spanning Tree (Prim's)",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement Prim's algorithm to find MST weight.",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V+E)$" },
+      "solution": "Start from any vertex. Min-heap of crossing edges. Extract min, add vertex, repeat.",
+      "hints": "Prim's, min-heap"
+    },
+    {
+      "id": "p11",
+      "title": "Minimum Spanning Tree (Kruskal's)",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement Kruskal's algorithm to find MST weight.",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(V+E)$" },
+      "solution": "Sort edges by weight. Union-Find to detect cycles. Add edges until V-1.",
+      "hints": "Kruskal's, Union-Find"
+    },
+    {
+      "id": "p12",
+      "title": "Union-Find Implementation",
+      "difficulty": "easy",
+      "type": "implementation",
+      "description": "Implement Union-Find with path compression and union by rank.",
+      "complexity": { "find": "$O(\\alpha(V))$", "union": "$O(\\alpha(V))$" },
+      "solution": "Array for parent and rank. Find with path compression. Union by rank.",
+      "hints": "Path compression, union by rank"
+    },
+    {
+      "id": "p13",
+      "title": "Accounts Merge",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Merge accounts with same email (each account has list of emails).",
+      "complexity": { "time": "$O(\\sum a_i \\log \\sum a_i)$", "space": "$O(\\sum a_i)$" },
+      "solution": "Union-Find on emails. Accounts with same email connected. Group by root.",
+      "hints": "Union-Find on emails"
+    },
+    {
+      "id": "p14",
+      "title": "Sentence Similarity II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if sentences are similar given similarity pairs (transitive).",
+      "complexity": { "time": "$O(n \\times (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Build graph from pairs. Union-Find on words. Check if each word pair connected.",
+      "hints": "Union-Find on words"
+    },
+    {
+      "id": "p15",
+      "title": "Graph Valid Tree",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if graph is valid tree (n nodes, n-1 edges, connected, no cycles).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Check n-1 edges. Union-Find: if edge connects already connected components, cycle. Check if one component at end.",
+      "hints": "Union-Find, check n-1 edges and one component"
+    },
+    {
+      "id": "p16",
+      "title": "Satisfiability of Equality Equations",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if equality equations are satisfiable (a==b, b==c, a!=c → false).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find for equalities. For inequalities, check if variables in same component.",
+      "hints": "Union-Find for equalities, check inequalities"
+    },
+    {
+      "id": "p17",
+      "title": "Longest Consecutive Sequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest consecutive elements sequence.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Hash set. For each number, if num-1 not in set, it's sequence start. Count consecutive.",
+      "hints": "Hash set, start from sequence starts"
+    },
+    {
+      "id": "p18",
+      "title": "Making A Large Island",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Change one 0 to 1 to maximize island size in binary matrix.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS to label islands with sizes. For each 0, check adjacent islands, sum sizes + 1.",
+      "hints": "Label islands with DFS, check each 0"
+    },
+    {
+      "id": "p19",
+      "title": "Most Stones Removed with Same Row or Column",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find max stones that can be removed (stone removed if shares row/col with another).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find on rows and columns. Each connected component can have one stone left.",
+      "hints": "Union-Find on rows and columns"
+    },
+    {
+      "id": "p20",
+      "title": "Swim in Rising Water",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum time to swim from top-left to bottom-right (water rises over time).",
+      "complexity": { "time": "$O(n^2 \\log n)$", "space": "$O(n^2)$" },
+      "solution": "Dijkstra variant or binary search on time with BFS/DFS.",
+      "hints": "Dijkstra or binary search + BFS"
+    },
+    {
+      "id": "p21",
+      "title": "Path With Minimum Effort",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find path minimizing maximum height difference.",
+      "complexity": { "time": "$O(m \\times n \\log(m \\times n))$", "space": "$O(m \\times n)$" },
+      "solution": "Dijkstra variant: min-heap by max effort.",
+      "hints": "Dijkstra, min-heap by max effort"
+    },
+    {
+      "id": "p22",
+      "title": "Minimum Cost to Make at Least One Valid Path",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum cost to make at least one valid path from 1 to n.",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V+E)$" },
+      "solution": "Dijkstra on modified graph with edge costs for direction changes.",
+      "hints": "Dijkstra on modified graph"
+    },
+    {
+      "id": "p23",
+      "title": "Minimum Score of Path Between Two Cities",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum score path (score = min edge weight on path).",
+      "complexity": { "time": "$O(E \\log V)$", "space": "$O(V)$" },
+      "solution": "Dijkstra variant: max-heap by min edge weight on path.",
+      "hints": "Dijkstra, max-heap by min edge"
+    },
+    {
+      "id": "p24",
+      "title": "Maximum Performance of a Team",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Select k engineers to maximize performance (sum(speed) × min(efficiency)).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort by efficiency descending. Maintain min-heap of k speeds. Calculate performance at each step.",
+      "hints": "Sort by efficiency, min-heap of speeds"
+    },
+    {
+      "id": "p25",
+      "title": "Find Critical Pseudo-Critical Edges",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find critical and pseudo-critical edges in MST.",
+      "complexity": { "time": "$O(E^2 \\log V)$", "space": "$O(V+E)$" },
+      "solution": "For each edge, compute MST without it and with it forced. Compare weights.",
+      "hints": "Compare MST with and without each edge"
+    }
+  ],
+  "minigame": {
+    "id": "mst-builder",
+    "title": "MST Master",
+    "description": "Build Minimum Spanning Trees! Visualize Prim's and Kruskal's algorithms.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Prim's", "task": "Build MST using Prim's algorithm" },
+      { "name": "Kruskal's", "task": "Build MST using Kruskal's algorithm" },
+      { "name": "Union-Find", "task": "Use Union-Find to detect cycles" }
+    ]
+  },
+  "visualizer": {
+    "type": "mst-algorithms",
+    "title": "MST Visualizer",
+    "description": "Visualize Prim's and Kruskal's algorithms step by step.",
+    "features": ["Algorithm selection", "Edge selection animation", "Component tracking", "Weight display"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Union-Find with Path Compression",
+        "code": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.rank = [0] * n\n    \n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # Path compression\n        return self.parent[x]\n    \n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py:\n            return\n        # Union by rank\n        if self.rank[px] < self.rank[py]:\n            self.parent[px] = py\n        elif self.rank[px] > self.rank[py]:\n            self.parent[py] = px\n        else:\n            self.parent[py] = px\n            self.rank[px] += 1"
+      },
+      {
+        "title": "Kruskal's Algorithm",
+        "code": "def kruskal(edges, V):\n    edges.sort(key=lambda x: x[2])  # Sort by weight\n    uf = UnionFind(V)\n    mst = []\n    total_weight = 0\n    \n    for u, v, w in edges:\n        if uf.find(u) != uf.find(v):\n            uf.union(u, v)\n            mst.append((u, v, w))\n            total_weight += w\n            if len(mst) == V - 1:\n                break\n    \n    return total_weight"
+      },
+      {
+        "title": "Prim's Algorithm",
+        "code": "import heapq\n\ndef prim(graph, start):\n    V = len(graph)\n    visited = [False] * V\n    heap = [(0, start, -1)]  # (weight, vertex, parent)\n    mst_weight = 0\n    edges_used = 0\n    \n    while heap and edges_used < V - 1:\n        w, u, parent = heapq.heappop(heap)\n        if visited[u]:\n            continue\n        visited[u] = True\n        mst_weight += w\n        edges_used += 1\n        \n        for v, weight in graph[u]:\n            if not visited[v]:\n                heapq.heappush(heap, (weight, v, u))\n    \n    return mst_weight"
+      }
+    ]
+  }
+}

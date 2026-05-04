@@ -1,0 +1,410 @@
+{
+  "id": "25-math-primes",
+  "bookId": "book-dsa",
+  "title": "Math & Prime Numbers",
+  "category": "Math",
+  "order": 25,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Mathematical algorithms and prime number theory are fundamental in computer science. Topics include GCD, LCM, modular arithmetic, prime testing, prime factorization, sieve of Eratosthenes, and number theory. Used in cryptography, hashing, and competitive programming. This chapter covers essential math algorithms and prime number techniques.",
+    "sections": [
+      {
+        "title": "GCD and LCM",
+        "content": "GCD (Greatest Common Divisor): largest number dividing both. Euclidean algorithm: gcd(a,b) = gcd(b, a mod b). Time: $O(\\log(\\min(a,b)))$. LCM (Least Common Multiple): smallest number divisible by both. lcm(a,b) = a × b / gcd(a,b). Used for fraction simplification and periodicity.",
+        "algorithms": [
+          "Euclidean: gcd(a,b) = gcd(b, a % b)",
+          "LCM: lcm(a,b) = a * b / gcd(a,b)"
+        ]
+      },
+      {
+        "title": "Prime Testing",
+        "content": "Trial division: check divisibility up to $\\sqrt{n}$. Time: $O(\\sqrt{n})$. Miller-Rabin: probabilistic primality test. Time: $O(k \\log^3 n)$ where k is iterations. Deterministic for n < 2^64 with specific bases. Used in cryptography.",
+        "methods": [
+          { "name": "Trial Division", "time": "$O(\\sqrt{n})$" },
+          { "name": "Miller-Rabin", "time": "$O(k \\log^3 n)$", "type": "Probabilistic" }
+        ]
+      },
+      {
+        "title": "Sieve of Eratosthenes",
+        "content": "Find all primes up to n. Mark multiples of each prime starting from 2. Time: $O(n \\log \\log n)$. Space: $O(n)$. Optimizations: start from p², only odd numbers, segmented sieve for large n. Used for prime generation and factorization.",
+        "algorithm": "Initialize boolean array. For p from 2 to √n: if prime, mark multiples as composite.",
+        "complexity": { "time": "$O(n \\log \\log n)$", "space": "$O(n)$" }
+      },
+      {
+        "title": "Modular Arithmetic",
+        "content": "Operations modulo m: (a + b) mod m = (a mod m + b mod m) mod m. Similar for subtraction and multiplication. Modular inverse: a⁻¹ mod m exists if gcd(a,m) = 1. Extended Euclidean algorithm finds inverse. Used in cryptography and hashing.",
+        "operations": [
+          "(a + b) mod m",
+          "(a - b) mod m",
+          "(a × b) mod m",
+          "Modular inverse"
+        ]
+      },
+      {
+        "title": "Prime Factorization",
+        "content": "Factor n into prime factors. Trial division up to √n. After trial division, if n > 1, n is prime. Time: $O(\\sqrt{n})$. For large n, use Pollard's Rho algorithm. Used in RSA and number theory problems.",
+        "algorithm": "Divide by smallest prime repeatedly, move to next prime. Continue until n = 1.",
+        "complexity": { "time": "$O(\\sqrt{n})$" }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Euclidean Algorithm",
+        "description": "Efficient GCD computation. gcd(a,b) = gcd(b, a mod b). Base case: gcd(a,0) = a.",
+        "complexity": "$O(\\log(\\min(a,b)))$"
+      },
+      {
+        "name": "Sieve",
+        "description": "Mark multiples of primes to find all primes up to n. Efficient for bulk prime generation.",
+        "optimization": "Start from p², only odd numbers"
+      },
+      {
+        "name": "Modular Inverse",
+        "description": "a⁻¹ mod m such that a × a⁻¹ ≡ 1 (mod m). Exists iff gcd(a,m) = 1. Found via extended Euclidean.",
+        "use": "Division in modular arithmetic"
+      },
+      {
+        "name": "Coprime",
+        "description": "Two numbers are coprime if gcd(a,b) = 1. Important for modular inverse and Chinese Remainder Theorem.",
+        "property": "gcd(a,b) = 1"
+      }
+    ],
+    "complexity": {
+      "gcd": "$O(\\log(\\min(a,b)))$",
+      "sieve": "$O(n \\log \\log n)$ time, $O(n)$ space",
+      "primeTest": "$O(\\sqrt{n})$ or $O(k \\log^3 n)$ (Miller-Rabin)",
+      "factorization": "$O(\\sqrt{n})$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "GCD",
+      "description": "Compute GCD using Euclidean algorithm.",
+      "code": "def gcd(a, b): while b: a, b = b, a % b; return a;",
+      "visualState": { "gcd": "computed" }
+    },
+    {
+      "step": 2,
+      "title": "LCM",
+      "description": "Compute LCM using GCD.",
+      "code": "def lcm(a, b): return a * b // gcd(a, b);",
+      "visualState": { "lcm": "computed" }
+    },
+    {
+      "step": 3,
+      "title": "Sieve",
+      "description": "Generate primes up to n using sieve.",
+      "code": "is_prime = [True] * (n+1); is_prime[0] = is_prime[1] = False; for p in range(2, int(n**0.5)+1): if is_prime[p]: for multiple in range(p*p, n+1, p): is_prime[multiple] = False;",
+      "visualState": { "primes": "generated" }
+    },
+    {
+      "step": 4,
+      "title": "Prime Test",
+      "description": "Check if n is prime using trial division or Miller-Rabin.",
+      "code": "def is_prime(n): if n < 2: return False; for i in range(2, int(n**0.5)+1): if n % i == 0: return False; return True;",
+      "visualState": { "prime": "checked" }
+    },
+    {
+      "step": 5,
+      "title": "Factorize",
+      "description": "Factor n into prime factors.",
+      "code": "factors = []; p = 2; while p * p <= n: if n % p == 0: factors.append(p); n //= p; else: p += 1; if n > 1: factors.append(n);",
+      "visualState": { "factors": "computed" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Count Primes",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Count primes less than n.",
+      "example": "n=10. Output: 4 (2,3,5,7)",
+      "complexity": { "time": "$O(n \\log \\log n)$", "space": "$O(n)$" },
+      "solution": "Sieve of Eratosthenes. Mark multiples of each prime.",
+      "hints": "Sieve of Eratosthenes"
+    },
+    {
+      "id": "p2",
+      "title": "Ugly Number",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if n is ugly (prime factors only 2,3,5).",
+      "example": "n=6. Output: true (2×3)",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Divide by 2,3,5 repeatedly. If result is 1, ugly.",
+      "hints": "Divide by 2,3,5 repeatedly"
+    },
+    {
+      "id": "p3",
+      "title": "Happy Number",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if n is happy (sum of squares of digits eventually 1).",
+      "example": "n=19. Output: true (1²+9²=82, 8²+2²=68, ... → 1)",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(\\log n)$" },
+      "solution": "Use hash set to detect cycle. Sum squares until 1 or cycle.",
+      "hints": "Hash set to detect cycle"
+    },
+    {
+      "id": "p4",
+      "title": "Power of Three",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if n is power of 3.",
+      "complexity": { "time": "$O(\\log_3 n)$", "space": "$O(1)$" },
+      "solution": "Divide by 3 repeatedly. Or use log: 3^x = n → x = log₃(n).",
+      "hints": "Divide by 3 repeatedly"
+    },
+    {
+      "id": "p5",
+      "title": "Excel Sheet Column Title",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Convert column number to Excel title (1→A, 26→Z, 27→AA).",
+      "example": "n=28. Output: AB",
+      "complexity": { "time": "$O(\\log_{26} n)$", "space": "$O(1)$" },
+      "solution": "Base-26 conversion (1-indexed). n-- before conversion.",
+      "hints": "Base-26, 1-indexed"
+    },
+    {
+      "id": "p6",
+      "title": "Factorial Trailing Zeroes",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count trailing zeros in n!.",
+      "example": "n=5. Output: 1 (5! = 120)",
+      "complexity": { "time": "$O(\\log_5 n)$", "space": "$O(1)$" },
+      "solution": "Count factors of 5: n//5 + n//25 + n//125 + ...",
+      "hints": "Count factors of 5"
+    },
+    {
+      "id": "p7",
+      "title": "Add Digits",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Add digits of num until single digit.",
+      "example": "num=38. Output: 2 (3+8=11, 1+1=2)",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Digital root: 1 + (n-1) % 9. Or iterative sum.",
+      "hints": "Digital root formula"
+    },
+    {
+      "id": "p8",
+      "title": "Nth Digit",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nth digit of infinite sequence 123456789101112...",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Find which number range, which number, which digit.",
+      "hints": "Find number range, then number, then digit"
+    },
+    {
+      "id": "p9",
+      "title": "Fraction to Recurring Decimal",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Convert fraction to decimal string (detect repeating part).",
+      "example": "numerator=2, denominator=3. Output: '0.(6)'",
+      "complexity": { "time": "$O(denominator)$", "space": "$O(denominator)$" },
+      "solution": "Long division. Use hash map to detect repeating remainders.",
+      "hints": "Long division, hash map for remainders"
+    },
+    {
+      "id": "p10",
+      "title": "Super Pow",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate a^b mod 1337 where b is large (array of digits).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Modular exponentiation: (a^b mod m) = ((a^(b/10))^10 × a^(b%10)) mod m.",
+      "hints": "Modular exponentiation"
+    },
+    {
+      "id": "p11",
+      "title": "Sqrt(x)",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Compute integer square root of x.",
+      "example": "x=8. Output: 2",
+      "complexity": { "time": "$O(\\log x)$", "space": "$O(1)$" },
+      "solution": "Binary search on [0, x]. Or Newton's method.",
+      "hints": "Binary search or Newton's method"
+    },
+    {
+      "id": "p12",
+      "title": "Divide Two Integers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Divide without using multiplication, division, or mod operator.",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Bit manipulation: subtract divisor × 2^k from dividend, add 2^k to result.",
+      "hints": "Bit manipulation, subtract powers of 2"
+    },
+    {
+      "id": "p13",
+      "title": "Pow(x, n)",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate x^n (n can be negative).",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(\\log n)$" },
+      "solution": "Fast exponentiation: x^n = (x^(n/2))² if n even, x × x^(n-1) if odd.",
+      "hints": "Fast exponentiation"
+    },
+    {
+      "id": "p14",
+      "title": "Integer Break",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Maximum product of integers that sum to n (at least 2 positive integers).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "DP or math: maximize 3s. If n % 3 == 1, use 2+2 instead of 3+1.",
+      "hints": "Maximize 3s"
+    },
+    {
+      "id": "p15",
+      "title": "Perfect Squares",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Least perfect square numbers that sum to n.",
+      "complexity": { "time": "$O(n \\sqrt{n})$", "space": "$O(n)$" },
+      "solution": "DP. dp[i] = 1 + min(dp[i - j*j]) for all j*j ≤ i.",
+      "hints": "DP, dp[i] = 1 + min(dp[i - j*j])"
+    },
+    {
+      "id": "p16",
+      "title": "Sum of Square Numbers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if n can be expressed as sum of two squares.",
+      "complexity": { "time": "$O(\\sqrt{n})$", "space": "$O(1)$" },
+      "solution": "Two pointers or Fermat's theorem: n = a² + b² iff all prime factors of form (4k+3) have even exponent.",
+      "hints": "Two pointers or Fermat's theorem"
+    },
+    {
+      "id": "p17",
+      "title": "Consecutive Numbers Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of ways to write n as sum of consecutive positive integers.",
+      "complexity": { "time": "$O(\\sqrt{n})$", "space": "$O(1)$" },
+      "solution": "For length k, check if n - k(k-1)/2 is positive and divisible by k.",
+      "hints": "Check each possible length k"
+    },
+    {
+      "id": "p18",
+      "title": "Bulb Switcher",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Bulbs on after n rounds (round i: toggle multiples of i).",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Bulb i is on if i has odd number of divisors (perfect square). Count perfect squares ≤ n.",
+      "hints": "Count perfect squares"
+    },
+    {
+      "id": "p19",
+      "title": "Nth Magical Number",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Nth number divisible by a or b.",
+      "complexity": { "time": "$O(\\log(min(a,b) \\times n))$", "space": "$O(1)$" },
+      "solution": "Binary search. Count numbers divisible by a or b ≤ mid using inclusion-exclusion.",
+      "hints": "Binary search with inclusion-exclusion"
+    },
+    {
+      "id": "p20",
+      "title": "K-th Smallest in Lexicographical Order",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find kth number in lexicographical order from 1 to n.",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Treat as 10-ary tree. Count nodes in subtree, move to appropriate child.",
+      "hints": "10-ary tree traversal"
+    },
+    {
+      "id": "p21",
+      "title": "Reaching Points",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if can reach (sx, sy) from (tx, ty) with moves: (x, y) → (x+y, y) or (x, x+y).",
+      "complexity": { "time": "$O(\\log(max(tx, ty)))$", "space": "$O(1)$" },
+      "solution": "Work backwards from target. If tx > ty, tx -= ty (if divisible) or tx = tx % ty. Check if can reach (sx, sy).",
+      "hints": "Work backwards, use modulo"
+    },
+    {
+      "id": "p22",
+      "title": "K-th Prime Fraction",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find kth smallest fraction formed by arr[i]/arr[j] where i < j.",
+      "complexity": { "time": "$O(k \\log n)$", "space": "$O(n)$" },
+      "solution": "Min-heap of (value, i, j). Initialize with arr[i]/arr[n-1] for all i. Extract k times.",
+      "hints": "Min-heap of (value, i, j)"
+    },
+    {
+      "id": "p23",
+      "title": "Smallest Good Base",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find smallest base k for which all digits of n in base k are 1.",
+      "complexity": { "time": "$O(\\log^2 n)$", "space": "$O(1)$" },
+      "solution": "Try all possible lengths of 1s. For each length, binary search for base.",
+      "hints": "Try each length, binary search base"
+    },
+    {
+      "id": "p24",
+      "title": "Largest Palindrome Product",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Largest palindrome from product of two n-digit numbers.",
+      "complexity": { "time": "$O(10^n)$", "space": "$O(1)$" },
+      "solution": "Generate palindromes from largest to smallest, check if can be factored into two n-digit numbers.",
+      "hints": "Generate palindromes, check factorization"
+    },
+    {
+      "id": "p25",
+      "title": "Prime Arrangements",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count permutations where prime at prime index (1-indexed).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Count primes ≤ n. Answer = primes! × (n-primes)! mod 10^9+7.",
+      "hints": "Count primes, factorial"
+    }
+  ],
+  "minigame": {
+    "id": "math-primes",
+    "title": "Math Master",
+    "description": "Master math and primes! GCD, sieve, and modular arithmetic.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "GCD", "task": "Compute GCD of two numbers" },
+      { "name": "Sieve", "task": "Generate primes up to 100" },
+      { "name": "Modular", "task": "Compute modular inverse" }
+    ]
+  },
+  "visualizer": {
+    "type": "math-primes",
+    "title": "Math & Primes Visualizer",
+    "description": "Visualize GCD, sieve of Eratosthenes, and prime factorization.",
+    "features": ["GCD steps", "Sieve animation", "Prime marking", "Factorization tree"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "GCD (Euclidean)",
+        "code": "def gcd(a, b):\n    while b:\n        a, b = b, a % b\n    return a  # O(log(min(a,b)))"
+      },
+      {
+        "title": "Sieve of Eratosthenes",
+        "code": "def sieve(n):\n    is_prime = [True] * (n + 1)\n    is_prime[0] = is_prime[1] = False\n    \n    for p in range(2, int(n**0.5) + 1):\n        if is_prime[p]:\n            for multiple in range(p * p, n + 1, p):\n                is_prime[multiple] = False\n    \n    return [i for i, prime in enumerate(is_prime) if prime]  # O(n log log n)"
+      },
+      {
+        "title": "Modular Exponentiation",
+        "code": "def pow_mod(a, b, m):\n    result = 1\n    a = a % m\n    while b > 0:\n        if b % 2 == 1:\n            result = (result * a) % m\n        a = (a * a) % m\n        b //= 2\n    return result  # O(log b)"
+      }
+    ]
+  }
+}

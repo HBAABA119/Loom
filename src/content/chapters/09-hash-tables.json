@@ -1,0 +1,75 @@
+﻿{
+  "id": "09-hash-tables",
+  "title": "Hash Tables",
+  "category": "intermediate",
+  "theory": {
+    "overview": "A hash table (hash map) is a data structure that implements an associative array abstract data type, mapping keys to values using a hash function. It provides O(1) average time complexity for insertions, deletions, and lookups. Collisions are handled via chaining (linked lists) or open addressing (probing). Hash tables are fundamental to databases, caches, compilers, and many high-performance applications.",
+    "keyConcepts": [
+      {
+        "name": "Hash Function",
+        "description": "Converts keys to array indices. A good hash function distributes keys uniformly to minimize collisions."
+      },
+      {
+        "name": "Collision Resolution",
+        "description": "Chaining: store colliding elements in a linked list. Open Addressing: find next empty slot via probing."
+      },
+      {
+        "name": "Load Factor",
+        "description": "Ratio of elements to buckets. When it exceeds a threshold (typically 0.75), the table resizes (rehashes)."
+      },
+      {
+        "name": "Rehashing",
+        "description": "Creating a larger table and reinserting all elements when load factor is too high. Expensive but amortized O(1)."
+      }
+    ],
+    "complexity": {
+      "insert": "O(1) average, O(n) worst",
+      "delete": "O(1) average, O(n) worst",
+      "search": "O(1) average, O(n) worst",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Two Sum", "difficulty": "easy" },
+    { "id": "p2", "title": "Contains Duplicate", "difficulty": "easy" },
+    { "id": "p3", "title": "Longest Consecutive Sequence", "difficulty": "medium" },
+    { "id": "p4", "title": "Group Anagrams", "difficulty": "medium" },
+    { "id": "p5", "title": "Top K Frequent Elements", "difficulty": "medium" },
+    { "id": "p6", "title": "Design HashMap", "difficulty": "easy" },
+    { "id": "p7", "title": "Design HashSet", "difficulty": "easy" },
+    { "id": "p8", "title": "LRU Cache", "difficulty": "medium" },
+    { "id": "p9", "title": "LFU Cache", "difficulty": "hard" },
+    { "id": "p10", "title": "Insert Delete GetRandom O(1)", "difficulty": "medium" },
+    { "id": "p11", "title": "Insert Delete GetRandom Duplicates", "difficulty": "hard" },
+    { "id": "p12", "title": "Design Twitter", "difficulty": "medium" },
+    { "id": "p13", "title": "Logger Rate Limiter", "difficulty": "easy" },
+    { "id": "p14", "title": "Minimum Index Sum of Two Lists", "difficulty": "easy" },
+    { "id": "p15", "title": "Intersection of Two Arrays", "difficulty": "easy" },
+    { "id": "p16", "title": "Subarray Sum Equals K", "difficulty": "medium" },
+    { "id": "p17", "title": "Contiguous Array (Equal 0s and 1s)", "difficulty": "medium" },
+    { "id": "p18", "title": "Copy List with Random Pointer", "difficulty": "medium" },
+    { "id": "p19", "title": "All O(1) Data Structure", "difficulty": "hard" },
+    { "id": "p20", "title": "Design Underground System", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "buckets": [[], [], [], [], []], "size": 0, "capacity": 5, "highlightLines": [1, 2], "description": "Initialize hash table with 5 empty buckets (chaining)" },
+    { "step": 1, "action": "hash", "key": "apple", "hash": 3, "highlightLines": [5, 6], "description": "Hash 'apple' → hashCode % 5 = 3, place in bucket 3" },
+    { "step": 2, "action": "insert", "buckets": [[], [], [], [{"key": "apple", "value": 5}], []], "size": 1, "capacity": 5, "highlightLines": [8, 9], "description": "Insert (apple, 5) into bucket 3. No collision." },
+    { "step": 3, "action": "hash", "key": "banana", "hash": 1, "highlightLines": [5, 6], "description": "Hash 'banana' → 1, different bucket from 'apple'" },
+    { "step": 4, "action": "insert", "buckets": [[], [{"key": "banana", "value": 7}], [], [{"key": "apple", "value": 5}], []], "size": 2, "capacity": 5, "highlightLines": [8, 9], "description": "Insert (banana, 7) into bucket 1" },
+    { "step": 5, "action": "hash", "key": "peach", "hash": 3, "highlightLines": [5, 6], "description": "Hash 'peach' → also 3! Collision with 'apple'" },
+    { "step": 6, "action": "chain", "buckets": [[], [{"key": "banana", "value": 7}], [], [{"key": "apple", "value": 5}, {"key": "peach", "value": 3}], []], "size": 3, "capacity": 5, "highlightLines": [12, 13], "description": "Collision resolved by chaining: add to linked list at bucket 3" },
+    { "step": 7, "action": "search", "key": "peach", "bucket": 3, "found": true, "highlightLines": [16, 17, 18], "description": "Search 'peach': Hash to 3, traverse chain, find it!" }
+  ],
+  "minigame": {
+    "type": "hash-collision",
+    "title": "Hash Collision Simulator",
+    "description": "Insert keys and watch where they land. Observe collisions and how chaining resolves them. See when rehashing triggers.",
+    "instructions": [
+      "Insert word keys into hash table",
+      "Watch hash function distribute keys",
+      "Observe collisions when keys hash to same bucket",
+      "See linked list chaining in action"
+    ]
+  }
+}

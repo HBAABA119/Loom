@@ -1,0 +1,74 @@
+﻿{
+  "id": "03-linked-lists",
+  "title": "Linked Lists",
+  "category": "fundamentals",
+  "theory": {
+    "overview": "A linked list is a linear data structure where elements are stored in nodes, and each node points to the next node in the sequence. Unlike arrays, linked lists don't require contiguous memory allocation, allowing for efficient insertion and deletion at any position. Each node contains data and a reference (pointer) to the next node. The first node is called the head, and the last node points to null.",
+    "keyConcepts": [
+      {
+        "name": "Nodes and Pointers",
+        "description": "Each node contains data and a pointer to the next node. The pointer is essentially a memory address referencing the next node's location."
+      },
+      {
+        "name": "Head and Tail",
+        "description": "The head is the first node in the list. The tail is the last node, which has its next pointer set to null."
+      },
+      {
+        "name": "Singly vs Doubly Linked",
+        "description": "Singly linked lists have one pointer (next). Doubly linked lists have two pointers (next and prev), allowing traversal in both directions."
+      },
+      {
+        "name": "Dynamic Size",
+        "description": "Linked lists grow and shrink dynamically. No pre-allocation needed, and no wasted memory from unused capacity."
+      }
+    ],
+    "complexity": {
+      "access": "O(n)",
+      "search": "O(n)",
+      "insertion": "O(1) at head, O(n) elsewhere",
+      "deletion": "O(1) at head, O(n) elsewhere",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Reverse a Linked List", "difficulty": "easy" },
+    { "id": "p2", "title": "Detect Cycle (Floyd's Algorithm)", "difficulty": "medium" },
+    { "id": "p3", "title": "Find Middle Element", "difficulty": "easy" },
+    { "id": "p4", "title": "Merge Two Sorted Lists", "difficulty": "easy" },
+    { "id": "p5", "title": "Remove Nth Node From End", "difficulty": "medium" },
+    { "id": "p6", "title": "Add Two Numbers (Linked List)", "difficulty": "medium" },
+    { "id": "p7", "title": "Copy List with Random Pointer", "difficulty": "hard" },
+    { "id": "p8", "title": "Flatten Multilevel Doubly Linked List", "difficulty": "medium" },
+    { "id": "p9", "title": "LRU Cache Implementation", "difficulty": "medium" },
+    { "id": "p10", "title": "Sort List (Merge Sort)", "difficulty": "medium" },
+    { "id": "p11", "title": "Reorder List (L0→Ln→L1→Ln-1...)", "difficulty": "medium" },
+    { "id": "p12", "title": "Intersection of Two Lists", "difficulty": "easy" },
+    { "id": "p13", "title": "Palindrome Linked List", "difficulty": "easy" },
+    { "id": "p14", "title": "Remove Duplicates", "difficulty": "easy" },
+    { "id": "p15", "title": "Swap Nodes in Pairs", "difficulty": "medium" },
+    { "id": "p16", "title": "Rotate List by K Places", "difficulty": "medium" },
+    { "id": "p17", "title": "Partition List Around Value X", "difficulty": "medium" },
+    { "id": "p18", "title": "Reverse Nodes in K-Group", "difficulty": "hard" },
+    { "id": "p19", "title": "Convert Binary Tree to DLL", "difficulty": "hard" },
+    { "id": "p20", "title": "Design Linked List", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "nodes": [{"id": "head", "value": 10, "next": "n2", "x": 100, "y": 200}, {"id": "n2", "value": 20, "next": "n3", "x": 220, "y": 200}, {"id": "n3", "value": 30, "next": null, "x": 340, "y": 200}], "activeNode": null, "highlightLines": [1, 2, 3], "description": "Initialize linked list with 3 nodes: 10 → 20 → 30" },
+    { "step": 1, "action": "traverse", "nodes": [{"id": "head", "value": 10, "next": "n2", "x": 100, "y": 200}, {"id": "n2", "value": 20, "next": "n3", "x": 220, "y": 200}, {"id": "n3", "value": 30, "next": null, "x": 340, "y": 200}], "activeNode": "head", "highlightLines": [6, 7], "description": "Traverse: Start at head node (value: 10)" },
+    { "step": 2, "action": "traverse", "nodes": [{"id": "head", "value": 10, "next": "n2", "x": 100, "y": 200}, {"id": "n2", "value": 20, "next": "n3", "x": 220, "y": 200}, {"id": "n3", "value": 30, "next": null, "x": 340, "y": 200}], "activeNode": "n2", "highlightLines": [6, 7], "description": "Traverse: Move to next node (value: 20)" },
+    { "step": 3, "action": "traverse", "nodes": [{"id": "head", "value": 10, "next": "n2", "x": 100, "y": 200}, {"id": "n2", "value": 20, "next": "n3", "x": 220, "y": 200}, {"id": "n3", "value": 30, "next": null, "x": 340, "y": 200}], "activeNode": "n3", "highlightLines": [6, 7], "description": "Traverse: At tail node (value: 30), next is null" },
+    { "step": 4, "action": "insert", "nodes": [{"id": "head", "value": 10, "next": "n2", "x": 100, "y": 200}, {"id": "n2", "value": 20, "next": "n3", "x": 220, "y": 200}, {"id": "n3", "value": 30, "next": "n4", "x": 340, "y": 200}, {"id": "n4", "value": 40, "next": null, "x": 460, "y": 200}], "activeNode": "n4", "highlightLines": [10, 11, 12], "description": "Insert: Append 40 at tail. List is now 10 → 20 → 30 → 40" },
+    { "step": 5, "action": "insert-head", "nodes": [{"id": "newHead", "value": 5, "next": "head", "x": 100, "y": 200}, {"id": "head", "value": 10, "next": "n2", "x": 220, "y": 200}, {"id": "n2", "value": 20, "next": "n3", "x": 340, "y": 200}, {"id": "n3", "value": 30, "next": "n4", "x": 460, "y": 200}, {"id": "n4", "value": 40, "next": null, "x": 580, "y": 200}], "activeNode": "newHead", "highlightLines": [15, 16, 17], "description": "Insert at head: Prepend 5. List is now 5 → 10 → 20 → 30 → 40" },
+    { "step": 6, "action": "delete", "nodes": [{"id": "newHead", "value": 5, "next": "n2", "x": 100, "y": 200}, {"id": "n2", "value": 20, "next": "n3", "x": 220, "y": 200}, {"id": "n3", "value": 30, "next": "n4", "x": 340, "y": 200}, {"id": "n4", "value": 40, "next": null, "x": 460, "y": 200}], "activeNode": "head", "highlightLines": [20, 21, 22], "description": "Delete: Remove node with value 10. List is now 5 → 20 → 30 → 40" }
+  ],
+  "minigame": {
+    "type": "reverse-list",
+    "title": "Reverse the List",
+    "description": "Swap node values to reverse the linked list from 5 → 10 → 15 to 15 → 10 → 5",
+    "instructions": [
+      "Click two nodes to swap their values",
+      "Continue until the list is reversed",
+      "Click 'Check Answer' to verify"
+    ]
+  }
+}

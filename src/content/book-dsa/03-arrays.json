@@ -1,0 +1,548 @@
+{
+  "id": "03-arrays",
+  "bookId": "book-dsa",
+  "title": "Arrays & Operations",
+  "category": "Linear Structures",
+  "order": 3,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Arrays are the most fundamental data structure in computing—the building block upon which nearly everything else is constructed. An array is a contiguous block of memory storing elements of the same type, indexed by integers starting from 0. This simple design enables $O(1)$ access via address arithmetic: element $i$ is at address $base + i \\times element\\_size$. But this power comes with trade-offs. Arrays excel at random access and cache-efficient traversal, yet struggle with dynamic resizing and insertion/deletion in the middle. Understanding arrays deeply—how they work in memory, their performance characteristics, and their limitations—is essential before moving to more complex structures. This chapter covers static and dynamic arrays, multidimensional arrays, common operations, and classic array algorithms you'll encounter in interviews and real systems.",
+    "sections": [
+      {
+        "title": "How Arrays Work in Memory",
+        "content": "An array is a contiguous allocation of homogeneous elements. When you declare `int arr[100]`, the compiler allocates 100 × 4 = 400 bytes of contiguous memory. Each element sits right next to its neighbors. The address of element $i$ is calculated as: $Address(i) = Base + i \\times Size$. This arithmetic is why array access is $O(1)$—regardless of array size, we compute the address in constant time. The contiguous layout is also cache-friendly: accessing `arr[i]` typically brings `arr[i+1]`, `arr[i+2]`, etc. into cache, making sequential traversal extremely fast.",
+        "memoryLayout": {
+          "type": "diagram",
+          "baseAddress": "0x1000",
+          "elementSize": 4,
+          "elements": [
+            { "index": 0, "value": 42, "address": "0x1000", "binary": "00101010" },
+            { "index": 1, "value": 17, "address": "0x1004", "binary": "00010001" },
+            { "index": 2, "value": 88, "address": "0x1008", "binary": "01011000" },
+            { "index": 3, "value": 23, "address": "0x100C", "binary": "00010111" },
+            { "index": 4, "value": 91, "address": "0x1010", "binary": "01011011" }
+          ],
+          "formula": "Address(i) = Base + i × sizeof(element)"
+        }
+      },
+      {
+        "title": "Static vs Dynamic Arrays",
+        "content": "Static arrays have fixed size determined at compile time (in C/C++) or allocation time. They cannot grow or shrink. Dynamic arrays (ArrayList, Vector, std::vector) provide the abstraction of a resizable array. They start with some capacity and double when full. This doubling strategy gives amortized $O(1)$ insertion—most appends are $O(1)$, but occasional resizing is $O(n)$. The trade-off is overallocation (up to 50% unused space) and the $O(n)$ copy cost during resize. Understanding the amortized analysis is crucial: $n$ insertions take $O(n)$ total, so average is $O(1)$.",
+        "comparison": [
+          { "feature": "Size", "static": "Fixed at creation", "dynamic": "Grows as needed" },
+          { "feature": "Insertion (end)", "static": "O(1) if space, else impossible", "dynamic": "O(1) amortized" },
+          { "feature": "Memory", "static": "Exact size", "dynamic": "1x to 2x capacity" },
+          { "feature": "Cache locality", "static": "Excellent", "dynamic": "Excellent (when stable)" }
+        ],
+        "growthFormula": "Capacity sequence: 1, 2, 4, 8, 16...\nTotal copies for n insertions: 1 + 2 + 4 + ... + n < 2n = O(n)"
+      },
+      {
+        "title": "Array Operations Complexity",
+        "content": "Arrays support different operations with varying efficiency. Access by index is $O(1)$—the primary advantage. Search is $O(n)$ for unsorted (linear scan), $O(\\log n)$ for sorted (binary search). Insertion at the end is $O(1)$ amortized for dynamic arrays. Insertion at arbitrary position requires shifting all subsequent elements: $O(n)$. Deletion similarly requires shifting to fill the gap: $O(n)$. These characteristics make arrays ideal when reads dominate and elements are added/removed primarily at the end.",
+        "operationsTable": [
+          { "operation": "Access by index", "complexity": "O(1)", "explanation": "Direct address calculation" },
+          { "operation": "Search (unsorted)", "complexity": "O(n)", "explanation": "Linear scan required" },
+          { "operation": "Search (sorted)", "complexity": "O(log n)", "explanation": "Binary search" },
+          { "operation": "Insert at end", "complexity": "O(1) amortized", "explanation": "Usually append, sometimes resize" },
+          { "operation": "Insert at position", "complexity": "O(n)", "explanation": "Shift elements to make room" },
+          { "operation": "Delete from end", "complexity": "O(1)", "explanation": "Simply decrement size" },
+          { "operation": "Delete from position", "complexity": "O(n)", "explanation": "Shift elements to fill gap" }
+        ]
+      },
+      {
+        "title": "Multidimensional Arrays",
+        "content": "Multidimensional arrays can be stored in row-major or column-major order. Row-major (C, Python) stores rows contiguously: `arr[0][0], arr[0][1]... arr[1][0]...`. Column-major (Fortran, MATLAB) stores columns contiguously. This affects cache performance when traversing. Row-major favors row-wise access (inner loop over columns). For an $m \\times n$ matrix, element $(i, j)$ is at: Row-major: $base + (i \\times n + j) \\times size$. Column-major: $base + (j \\times m + i) \\times size$. Memory layout matters for performance—always match traversal order to storage order.",
+        "rowMajorLayout": [
+          [1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9]
+        ],
+        "memoryOrder": "[1, 2, 3, 4, 5, 6, 7, 8, 9] (row by row)",
+        "formula": "Row-major: address[i][j] = base + (i × cols + j) × size"
+      },
+      {
+        "title": "Array Rotation Techniques",
+        "content": "Rotating an array (shifting elements cyclically) appears frequently in interviews. A rotation by $k$ moves the first $k$ elements to the end. Naive approach: use temporary array—$O(n)$ time, $O(n)$ space. Better: juggling algorithm using GCD—$O(n)$ time, $O(1)$ space. Best for understanding: reversal method. Reverse first $k$ elements, reverse remaining $n-k$ elements, then reverse entire array. Each reverse is $O(n)$, total $O(n)$ time, $O(1)$ space. Elegant and efficient.",
+        "reversalMethod": {
+          "original": "[1, 2, 3, 4, 5, 6, 7], k=3",
+          "step1": "Reverse first 3: [3, 2, 1, 4, 5, 6, 7]",
+          "step2": "Reverse rest: [3, 2, 1, 7, 6, 5, 4]",
+          "step3": "Reverse all: [4, 5, 6, 7, 1, 2, 3] ✓"
+        }
+      },
+      {
+        "title": "Sliding Window Technique",
+        "content": "The sliding window technique optimizes problems involving contiguous subarrays. Instead of recalculating from scratch for each window, we maintain state and update incrementally. For sum queries: subtract element leaving window, add element entering window—$O(1)$ per slide vs $O(k)$ recalculation. Maximum sum subarray of size $k$: $O(n)$ with sliding window vs $O(n \\times k)$ naive. Variable-size windows (two pointers) expand/contract based on constraints—useful for 'smallest subarray with sum ≥ target' problems.",
+        "example": {
+          "array": "[4, 2, 1, 7, 8, 1, 2, 8], k=3",
+          "window1": "[4, 2, 1] sum=7",
+          "slide1": "-4 + 7 = [2, 1, 7] sum=10",
+          "slide2": "-2 + 8 = [1, 7, 8] sum=16",
+          "complexity": "O(n) for all windows"
+        }
+      },
+      {
+        "title": "Prefix Sum Arrays",
+        "content": "Prefix sums (cumulative sums) enable $O(1)$ range sum queries after $O(n)$ preprocessing. Given array $A$, prefix array $P$ where $P[i] = \\sum_{j=0}^{i} A[j]$. Sum of range $[l, r]$ is $P[r] - P[l-1]$ (or $P[r]$ if $l=0$). This transforms range sum queries from $O(k)$ where $k$ is range size to $O(1)$. Critical for problems with many range queries. 2D extension: prefix sum matrix for rectangle sum queries.",
+        "construction": {
+          "original": "[3, 1, 4, 1, 5, 9, 2, 6]",
+          "prefix": "[3, 4, 8, 9, 14, 23, 25, 31]",
+          "query": "sum(2, 5) = prefix[5] - prefix[1] = 23 - 4 = 19"
+        }
+      },
+      {
+        "title": "Two Pointer Technique",
+        "content": "Two pointers maintain references to two positions in an array, moving them based on conditions. Common patterns: both start at ends and move toward center (sorted array pair sum); one fast, one slow (cycle detection, removing duplicates); one at each array (merge sorted arrays). Two pointers often reduce $O(n^2)$ brute force to $O(n)$ by avoiding reprocessing. Key insight: each element is visited at most once by each pointer.",
+        "patterns": [
+          { "pattern": "Opposite ends", "useCase": "Pair sum in sorted array", "movement": "Left++ if sum small, Right-- if sum large" },
+          { "pattern": "Fast/Slow", "useCase": "Cycle detection, duplicate removal", "movement": "Fast advances every iteration, slow conditionally" },
+          { "pattern": "Two arrays", "useCase": "Merge sorted arrays", "movement": "Advance pointer with smaller element" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Cache Locality",
+        "description": "Arrays have excellent spatial locality. Sequential access hits cache repeatedly, making iteration much faster than linked list traversal despite same Big O.",
+        "performance": "Can be 10-100x faster than linked lists for large datasets"
+      },
+      {
+        "name": "Amortized Analysis",
+        "description": "Dynamic array doubling gives O(1) amortized append. The expensive O(n) copy happens rarely enough that average cost per operation is constant.",
+        "math": "n operations cost O(n), so amortized O(1) per operation"
+      },
+      {
+        "name": "Index Bounds",
+        "description": "Array access is only O(1) if index is valid. Out-of-bounds access is undefined behavior (C/C++) or exception (Java/Python)—can crash or corrupt memory.",
+        "safety": "Always validate indices or use bounds-checked containers"
+      },
+      {
+        "name": "Sentinel Values",
+        "description": "Special values marking array end or invalid entries. Used in C strings (null terminator) and some array algorithms to simplify loops.",
+        "example": "C string: ['h', 'i', '\\0'] - null marks end"
+      }
+    ],
+    "complexity": {
+      "access": "O(1) by index",
+      "search": "O(n) unsorted, O(log n) sorted",
+      "insertEnd": "O(1) amortized dynamic, O(1) static if space",
+      "insertMiddle": "O(n) - requires shifting",
+      "delete": "O(n) - requires shifting",
+      "space": "O(n) - n elements stored"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Declare Array",
+      "description": "Allocate contiguous memory block. Static: size fixed. Dynamic: initial capacity allocated.",
+      "code": "int arr[100];  // Static\\nvector<int> v;  // Dynamic, capacity=0",
+      "visualState": { "action": "allocate", "size": 100, "addresses": "0x1000-0x1190" }
+    },
+    {
+      "step": 2,
+      "title": "Access Element",
+      "description": "Calculate address and retrieve value. O(1) via arithmetic.",
+      "code": "int x = arr[5];  // Address = base + 5 × 4 = 0x1014",
+      "visualState": { "index": 5, "address": "0x1014", "value": 42 }
+    },
+    {
+      "step": 3,
+      "title": "Insert at End",
+      "description": "Add element at size index, increment size. If at capacity, resize first.",
+      "code": "arr[size++] = value;",
+      "visualState": { "index": 5, "value": 99, "sizeBefore": 5, "sizeAfter": 6 }
+    },
+    {
+      "step": 4,
+      "title": "Insert at Position",
+      "description": "Shift elements from position to end, one step right. Then insert.",
+      "code": "for (i = size; i > pos; i--) arr[i] = arr[i-1];\\narr[pos] = value; size++;",
+      "visualState": { "position": 2, "shifts": 4, "newValue": 77 }
+    },
+    {
+      "step": 5,
+      "title": "Delete Element",
+      "description": "Shift elements after position left to fill gap. Decrement size.",
+      "code": "for (i = pos; i < size-1; i++) arr[i] = arr[i+1];\\nsize--;",
+      "visualState": { "position": 3, "shifts": 2, "sizeAfter": 4 }
+    },
+    {
+      "step": 6,
+      "title": "Resize (Dynamic)",
+      "description": "Allocate new larger array (typically 2x), copy elements, free old.",
+      "code": "new_capacity = capacity × 2;\\nnew_arr = malloc(new_capacity);\\ncopy(old_arr, new_arr);\\nfree(old_arr);",
+      "visualState": { "oldCapacity": 8, "newCapacity": 16, "elementsCopied": 8 }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Two Sum",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Given an array of integers and a target, return indices of two numbers that add up to target. Assume each input has exactly one solution.",
+      "example": "Input: [2,7,11,15], target=9. Output: [0,1] (2+7=9)",
+      "approaches": [
+        { "method": "Brute Force", "complexity": "O(n²)", "space": "O(1)" },
+        { "method": "Hash Map", "complexity": "O(n)", "space": "O(n)", "optimal": true }
+      ],
+      "solution": "Use hash map: for each num, check if target-num exists in map. If yes, return indices. Else store num and index.",
+      "hints": ["What if you stored visited numbers?", "For current num, you need target - num", "Hash map gives O(1) lookup"]
+    },
+    {
+      "id": "p2",
+      "title": "Maximum Subarray (Kadane's)",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find the contiguous subarray with the largest sum and return its sum.",
+      "example": "Input: [-2,1,-3,4,-1,2,1,-5,4]. Output: 6 ([4,-1,2,1])",
+      "approach": "Kadane's Algorithm",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "solution": "Track current_sum and max_sum. For each element: current_sum = max(num, current_sum + num). max_sum = max(max_sum, current_sum).",
+      "hints": ["If current sum becomes negative, start fresh from next element", "Track both local max (ending here) and global max", "Single pass, O(1) space"]
+    },
+    {
+      "id": "p3",
+      "title": "Rotate Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rotate array to the right by k steps. Do this in-place with O(1) extra space.",
+      "example": "Input: [1,2,3,4,5,6,7], k=3. Output: [5,6,7,1,2,3,4]",
+      "approaches": [
+        { "method": "Extra array", "complexity": "O(n)", "space": "O(n)" },
+        { "method": "Reverse 3x", "complexity": "O(n)", "space": "O(1)", "optimal": true }
+      ],
+      "solution": "Reverse first n-k elements, reverse last k elements, reverse entire array. Or use juggling with GCD.",
+      "hints": ["Think about what reversal does", "Reverse [1,2,3] → [3,2,1], reverse [4,5,6,7] → [7,6,5,4]", "Reverse all → [5,6,7,1,2,3,4]"]
+    },
+    {
+      "id": "p4",
+      "title": "Contains Duplicate",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Given an array, determine if any value appears at least twice.",
+      "approaches": [
+        { "method": "Sort then scan", "complexity": "O(n log n)", "space": "O(1) or O(log n)" },
+        { "method": "Hash Set", "complexity": "O(n)", "space": "O(n)", "optimal": true }
+      ],
+      "solution": "Add each element to a set. If element already in set, return true. If loop completes, return false.",
+      "hints": ["What data structure tracks seen elements?", "Set gives O(1) contains check", "Space-time tradeoff: O(n) space for O(n) time"]
+    },
+    {
+      "id": "p5",
+      "title": "Product of Array Except Self",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return array where each element is product of all other elements. Do this without division and in O(n).",
+      "example": "Input: [1,2,3,4]. Output: [24,12,8,6]",
+      "approach": "Prefix and suffix products",
+      "complexity": { "time": "O(n)", "space": "O(1) excluding output" },
+      "solution": "Compute prefix products (left to right), then multiply by suffix products (right to left). Output array stores prefix, then multiply by suffix on second pass.",
+      "hints": ["Result[i] = product of all left × product of all right", "First pass: store left products in result", "Second pass: track running right product, multiply into result"]
+    },
+    {
+      "id": "p6",
+      "title": "Best Time to Buy/Sell Stock",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Given stock prices array, find max profit from one buy and one sell. Must buy before selling.",
+      "example": "Input: [7,1,5,3,6,4]. Output: 5 (buy at 1, sell at 6)",
+      "approaches": [
+        { "method": "Brute Force", "complexity": "O(n²)", "space": "O(1)" },
+        { "method": "One Pass", "complexity": "O(n)", "space": "O(1)", "optimal": true }
+      ],
+      "solution": "Track min_price and max_profit. For each price: update min_price if lower, calculate profit if sold today, update max_profit.",
+      "hints": ["You want minimum price before maximum price", "Track cheapest price seen so far", "At each day, compute profit if sold today"]
+    },
+    {
+      "id": "p7",
+      "title": "Maximum Product Subarray",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find contiguous subarray with maximum product.",
+      "example": "Input: [2,3,-2,4]. Output: 6 ([2,3] or just 6 from [-2,4]×? No, [2,3]=6). Another: [-2,0,-1] → 0",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "solution": "Track both max_ending_here and min_ending_here (negative × negative = positive). Swap when negative number encountered.",
+      "hints": ["Negative numbers complicate things (neg × neg = pos)", "Track both max and min product ending at each position", "When seeing negative, swap max and min"]
+    },
+    {
+      "id": "p8",
+      "title": "Find Minimum in Rotated Sorted Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Array was sorted then rotated. Find minimum element in O(log n).",
+      "example": "Input: [3,4,5,1,2]. Output: 1",
+      "approaches": [
+        { "method": "Linear Scan", "complexity": "O(n)" },
+        { "method": "Modified Binary Search", "complexity": "O(log n)", "optimal": true }
+      ],
+      "solution": "Binary search: if mid > right, min is in right half. If mid < right, min is in left half (including mid). Handle duplicates carefully.",
+      "hints": ["Half the array is still sorted", "Compare middle with rightmost element", "If mid > right, pivot (min) is to the right"]
+    },
+    {
+      "id": "p9",
+      "title": "3Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all unique triplets that sum to zero. No duplicates in output.",
+      "example": "Input: [-1,0,1,2,-1,-4]. Output: [[-1,-1,2], [-1,0,1]]",
+      "complexity": { "time": "O(n²)", "space": "O(1) excluding output" },
+      "solution": "Sort array. For each i, use two pointers (left=i+1, right=n-1) to find pairs that sum to -arr[i]. Skip duplicates.",
+      "hints": ["Sort first to enable two pointers", "Fix one number, find pair that sums to its negative", "Skip duplicates after finding a valid triplet"]
+    },
+    {
+      "id": "p10",
+      "title": "Container With Most Water",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given heights array representing vertical lines, find two lines that form container holding most water.",
+      "example": "Input: [1,8,6,2,5,4,8,3,7]. Output: 49 (lines at index 1 and 8)",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "solution": "Two pointers at ends. Calculate area (width × min height). Move pointer with smaller height inward (since that's the limiting factor). Track max area.",
+      "hints": ["Two pointers from both ends", "Area = distance × min(height[left], height[right])", "Moving larger height won't help (water limited by smaller)"]
+    },
+    {
+      "id": "p11",
+      "title": "Sliding Window Maximum",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Given array and window size k, return max of each window as it slides.",
+      "example": "Input: [1,3,-1,-3,5,3,6,7], k=3. Output: [3,3,5,5,6,7]",
+      "complexity": { "time": "O(n)", "space": "O(k)" },
+      "solution": "Use deque (double-ended queue) storing indices of useful elements. Remove elements outside window from front. Remove smaller elements from back (they won't be needed). Front is always max.",
+      "hints": ["Monotonic deque - elements in decreasing order", "Remove elements that fall out of window", "Remove elements smaller than current from back (they're useless)"]
+    },
+    {
+      "id": "p12",
+      "title": "Subarray Sum Equals K",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count number of contiguous subarrays that sum to k.",
+      "example": "Input: [1,1,1], k=2. Output: 2 ([1,1] at index 0-1 and 1-2)",
+      "complexity": { "time": "O(n)", "space": "O(n)" },
+      "solution": "Use prefix sum + hash map. Count of prefix_sum[i] - prefix_sum[j] = k. Store frequency of prefix sums. For each current sum, add count[current_sum - k] to result.",
+      "hints": ["Use prefix sums: sum(i..j) = prefix[j] - prefix[i-1]", "We want prefix[j] - prefix[i] = k", "So prefix[i] = prefix[j] - k. Use hash map to count occurrences"]
+    },
+    {
+      "id": "p13",
+      "title": "Merge Intervals",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Merge all overlapping intervals in array of intervals.",
+      "example": "Input: [[1,3],[2,6],[8,10],[15,18]]. Output: [[1,6],[8,10],[15,18]]",
+      "complexity": { "time": "O(n log n)", "space": "O(1) or O(n)" },
+      "solution": "Sort by start time. Initialize result with first interval. For each subsequent: if start ≤ current end, merge (update end to max). Else add to result.",
+      "hints": ["Sort by start time first", "Maintain current merged interval", "If next overlaps, extend current; else start new"]
+    },
+    {
+      "id": "p14",
+      "title": "Insert Interval",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Insert new interval into sorted non-overlapping intervals, merging if necessary.",
+      "example": "Input: intervals=[[1,3],[6,9]], newInterval=[2,5]. Output: [[1,5],[6,9]]",
+      "complexity": { "time": "O(n)", "space": "O(1) or O(n)" },
+      "solution": "Add intervals before new (no overlap). Merge overlapping intervals with new. Add remaining intervals after.",
+      "hints": ["First, add all intervals ending before new starts", "Then merge overlapping ones with new interval", "Finally add intervals starting after new ends"]
+    },
+    {
+      "id": "p15",
+      "title": "Remove Duplicates from Sorted Array",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Remove duplicates in-place such that each element appears once. Return new length.",
+      "example": "Input: [0,0,1,1,1,2,2,3,3,4]. After: [0,1,2,3,4,...]. Length: 5",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "solution": "Two pointers: write pointer starts at 1. Read pointer scans array. When read finds new unique element, write it at write pointer, increment write.",
+      "hints": ["Array is sorted - duplicates are consecutive", "Use two pointers: read and write", "Write pointer marks end of deduplicated section"]
+    },
+    {
+      "id": "p16",
+      "title": "Move Zeroes",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Move all zeros to end while maintaining relative order of non-zero elements. Do this in-place.",
+      "example": "Input: [0,1,0,3,12]. Output: [1,3,12,0,0]",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "solution": "Non-zero pointer. Scan array: when non-zero found, swap with non-zero pointer position, increment non-zero pointer.",
+      "hints": ["Maintain position for next non-zero element", "Swap non-zero element to front section", "All elements after non-zero pointer will be zero"]
+    },
+    {
+      "id": "p17",
+      "title": "Next Permutation",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange into lexicographically next greater permutation. If not possible, rearrange into lowest possible order (sorted ascending). Must be in-place.",
+      "example": "Input: [1,2,3]. Output: [1,3,2]. Input: [3,2,1]. Output: [1,2,3]",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "solution": "1) Find first decreasing element from right (pivot). 2) Find smallest element greater than pivot to its right. 3) Swap them. 4) Reverse suffix after pivot.",
+      "hints": ["Find the 'break point' where order changes from increasing to decreasing", "From right, find first i where nums[i] < nums[i+1]", "Swap with next greater element, then reverse suffix"]
+    },
+    {
+      "id": "p18",
+      "title": "Find First and Last Position of Element",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given sorted array, find starting and ending position of target value. Return [-1,-1] if not found.",
+      "example": "Input: [5,7,7,8,8,10], target=8. Output: [3,4]",
+      "complexity": { "time": "O(log n)", "space": "O(1)" },
+      "solution": "Two binary searches: one for leftmost target, one for rightmost. For leftmost: if nums[mid] == target, continue searching left half. For rightmost: continue searching right half.",
+      "hints": ["Two binary searches needed", "First finds left boundary, second finds right", "When found, don't return immediately - check if there's another in that direction"]
+    },
+    {
+      "id": "p19",
+      "title": "Search in Rotated Sorted Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Search for target in rotated sorted array in O(log n).",
+      "example": "Input: [4,5,6,7,0,1,2], target=0. Output: 4",
+      "complexity": { "time": "O(log n)", "space": "O(1)" },
+      "solution": "Modified binary search. Determine which half is sorted. If target in sorted half, search there. Else search other half.",
+      "hints": ["One half is always sorted", "Check if target is in sorted half", "Compare mid with first or last element to determine which half is sorted"]
+    },
+    {
+      "id": "p20",
+      "title": "Median of Two Sorted Arrays",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find median of two sorted arrays as if they were merged. Must be O(log(m+n)).",
+      "example": "nums1=[1,3], nums2=[2]. Output: 2.0",
+      "complexity": { "time": "O(log(min(m,n)))", "space": "O(1)" },
+      "solution": "Binary search on smaller array. Partition both arrays such that left half has half the elements. Ensure all left ≤ all right. Adjust partition based on comparisons.",
+      "hints": ["Binary search on partition point", "Want equal elements on left and right", "max(left1,left2) ≤ min(right1,right2)"]
+    },
+    {
+      "id": "p21",
+      "title": "Trapping Rain Water",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Given elevation map (array of heights), compute how much water can be trapped after raining.",
+      "example": "Input: [0,1,0,2,1,0,1,3,2,1,2,1]. Output: 6",
+      "approaches": [
+        { "method": "Two pointers", "complexity": "O(n)", "space": "O(1)", "optimal": true },
+        { "method": "DP with precomputed max", "complexity": "O(n)", "space": "O(n)" },
+        { "method": "Stack", "complexity": "O(n)", "space": "O(n)" }
+      ],
+      "solution": "Two pointers from ends. Track max_left and max_right. Water at position = min(max_left, max_right) - height. Move pointer with smaller max (since that's the limiting factor).",
+      "hints": ["Water trapped = min(max left, max right) - current height", "Two pointers from both ends", "Move pointer with smaller max (limiting side)"]
+    },
+    {
+      "id": "p22",
+      "title": "Largest Rectangle in Histogram",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Given array of bar heights, find largest rectangle area in histogram.",
+      "example": "Input: [2,1,5,6,2,3]. Output: 10 (5×2 from bars at indices 2-3)",
+      "complexity": { "time": "O(n)", "space": "O(n)" },
+      "solution": "Monotonic stack. For each bar, pop bars taller than current. Calculate area with popped bar as shortest. Push current. At end, pop remaining and calculate.",
+      "hints": ["Use monotonic increasing stack", "When current is smaller, previous taller bars can't extend right", "Calculate area with popped bar × width (current index - stack top - 1)"]
+    },
+    {
+      "id": "p23",
+      "title": "Longest Consecutive Sequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given unsorted array, find length of longest consecutive elements sequence. Must be O(n).",
+      "example": "Input: [100,4,200,1,3,2]. Output: 4 ([1,2,3,4])",
+      "complexity": { "time": "O(n)", "space": "O(n)" },
+      "solution": "Put all in hash set. For each number, if num-1 not in set, it's start of sequence. Count consecutive numbers from there.",
+      "hints": ["Only start of sequence has num-1 not in array", "Use hash set for O(1) lookup", "For each potential start, count how long sequence goes"]
+    },
+    {
+      "id": "p24",
+      "title": "Majority Element",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find element appearing more than n/2 times. Assume majority always exists.",
+      "example": "Input: [2,2,1,1,1,2,2]. Output: 2",
+      "approaches": [
+        { "method": "Hash map count", "complexity": "O(n)", "space": "O(n)" },
+        { "method": "Boyer-Moore Voting", "complexity": "O(n)", "space": "O(1)", "optimal": true }
+      ],
+      "solution": "Boyer-Moore: maintain candidate and count. Increment if same, decrement if different. Candidate survives as majority.",
+      "hints": ["Cancel out pairs of different elements", "Majority element survives the cancellation", "Track candidate and count: +1 for match, -1 for mismatch"]
+    },
+    {
+      "id": "p25",
+      "title": "Shortest Unsorted Continuous Subarray",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find length of shortest continuous subarray that if sorted, entire array becomes sorted.",
+      "example": "Input: [2,6,4,8,10,9,15]. Output: 5 (sort [6,4,8,10,9])",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "solution": "Find first element from left that's greater than min of rest. Find first from right that's less than max of rest. Distance between them is answer. Or: find where order decreases from left, and where order increases from right.",
+      "hints": ["Find leftmost position where array stops increasing", "Find rightmost position where array stops decreasing", "Those boundaries define the window that needs sorting"]
+    }
+  ],
+  "minigame": {
+    "id": "array-visualizer",
+    "title": "Array Operations Visualizer",
+    "description": "Interactive playground for array operations. Watch elements shift during insertion, see memory layout, and test your understanding with challenges.",
+    "type": "interactive",
+    "modes": [
+      {
+        "name": "Free Play",
+        "description": "Create arrays, insert, delete, and access elements. See memory addresses.",
+        "controls": [
+          { "type": "button", "label": "Insert at End", "action": "push" },
+          { "type": "button", "label": "Insert at Index", "action": "insert_at" },
+          { "type": "button", "label": "Delete from Index", "action": "delete_at" },
+          { "type": "button", "label": "Access Index", "action": "access" },
+          { "type": "button", "label": "Clear", "action": "clear" }
+        ]
+      },
+      {
+        "name": "Sorting Race",
+        "description": "Race different sorting algorithms on the same dataset.",
+        "algorithms": ["Bubble", "Selection", "Insertion", "Merge", "Quick"],
+        "visualization": "color-coded bars with swap animations"
+      },
+      {
+        "name": "Search Challenge",
+        "description": "Practice binary search with visual feedback.",
+        "features": ["Step through comparisons", "See range narrowing", "Track mid calculation"]
+      }
+    ],
+    "visualization": {
+      "showMemoryAddresses": true,
+      "showIndexLabels": true,
+      "animationSpeed": "adjustable",
+      "elementColors": {
+        "normal": "#4ecdc4",
+        "highlighted": "#ffe66d",
+        "swapping": "#ff6b6b",
+        "sorted": "#95e1d3"
+      }
+    }
+  },
+  "visualizer": {
+    "type": "array-operations",
+    "title": "Array Operations Visualizer",
+    "description": "See how array operations affect memory and element positions.",
+    "operations": ["access", "insert", "delete", "search", "sort"],
+    "features": [
+      "Memory address display",
+      "Cache line visualization",
+      "Operation step counter",
+      "Time complexity overlay"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Dynamic Array (Python list)",
+        "code": "# Python lists are dynamic arrays\\narr = []  # Initial capacity may be 0 or small\\n\\nfor i in range(1000):\\n    arr.append(i)  # Amortized O(1)\\n    # Occasionally resizes: 0, 4, 8, 16, 25, 35, 46, 58, 72, 88...\\n\\n# O(1) access\\nx = arr[500]\\n\\n# O(n) insertion at arbitrary position\\narr.insert(0, -1)  # Shifts all elements"
+      },
+      {
+        "title": "Two Pointer Pattern",
+        "code": "# Two Sum - sorted array\\ndef two_sum(nums, target):\\n    left, right = 0, len(nums) - 1\\n    while left < right:\\n        current = nums[left] + nums[right]\\n        if current == target:\\n            return [left, right]\\n        elif current < target:\\n            left += 1  # Need larger sum\\n        else:\\n            right -= 1  # Need smaller sum\\n    return []"
+      },
+      {
+        "title": "Sliding Window",
+        "code": "# Maximum sum of subarray size k\\ndef max_sum_subarray(arr, k):\\n    window_sum = sum(arr[:k])\\n    max_sum = window_sum\\n    \\n    for i in range(k, len(arr)):\\n        # Slide window: remove leftmost, add new element\\n        window_sum = window_sum - arr[i-k] + arr[i]\\n        max_sum = max(max_sum, window_sum)\\n    \\n    return max_sum  # O(n) time"
+      }
+    ]
+  }
+}

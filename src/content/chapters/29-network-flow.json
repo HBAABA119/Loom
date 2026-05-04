@@ -1,0 +1,73 @@
+﻿{
+  "id": "29-network-flow",
+  "title": "Network Flow",
+  "category": "advanced",
+  "theory": {
+    "overview": "Network flow problems involve finding the maximum flow through a directed graph from a source to a sink, where edges have capacities. The Ford-Fulkerson method (Edmonds-Karp implementation) uses BFS to find augmenting paths. The Max-Flow Min-Cut Theorem states that maximum flow equals minimum cut capacity. Applications include bipartite matching, circulation problems, and resource allocation.",
+    "keyConcepts": [
+      {
+        "name": "Residual Graph",
+        "description": "Shows remaining capacity on edges and backward edges for flow cancellation. Augmenting paths found in residual graph."
+      },
+      {
+        "name": "Augmenting Paths",
+        "description": "Path from source to sink in residual graph with available capacity. Bottleneck is minimum residual capacity along path."
+      },
+      {
+        "name": "Max-Flow Min-Cut",
+        "description": "Maximum flow equals minimum cut capacity (sum of capacities of edges crossing a source-sink partition)."
+      },
+      {
+        "name": "Edmonds-Karp",
+        "description": "Ford-Fulkerson with BFS for shortest augmenting paths. O(VE²) time. Ensures polynomial time termination."
+      }
+    ],
+    "complexity": {
+      "fordFulkerson": "O(E × max_flow)",
+      "edmondsKarp": "O(VE²)",
+      "dinic": "O(V²E) or O(E√V) for unit networks",
+      "pushRelabel": "O(V³)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Maximum Flow", "difficulty": "hard" },
+    { "id": "p2", "title": "Bipartite Matching", "difficulty": "medium" },
+    { "id": "p3", "title": "Minimum Cut", "difficulty": "hard" },
+    { "id": "p4", "title": "Circulation with Demands", "difficulty": "hard" },
+    { "id": "p5", "title": "Edge-Disjoint Paths", "difficulty": "hard" },
+    { "id": "p6", "title": "Vertex-Disjoint Paths", "difficulty": "hard" },
+    { "id": "p7", "title": "Maximum Bipartite Matching (Hopcroft-Karp)", "difficulty": "hard" },
+    { "id": "p8", "title": "Assignment Problem", "difficulty": "hard" },
+    { "id": "p9", "title": "Minimum Path Cover in DAG", "difficulty": "hard" },
+    { "id": "p10", "title": "Dilworth's Theorem (Chain Decomposition)", "difficulty": "hard" },
+    { "id": "p11", "title": "Maximum Cardinality Matching", "difficulty": "hard" },
+    { "id": "p12", "title": "Minimum Cost Maximum Flow", "difficulty": "hard" },
+    { "id": "p13", "title": "Successive Shortest Paths", "difficulty": "hard" },
+    { "id": "p14", "title": "Cycle Canceling", "difficulty": "hard" },
+    { "id": "p15", "title": "Network Simplex", "difficulty": "hard" },
+    { "id": "p16", "title": "Dinic's Algorithm", "difficulty": "hard" },
+    { "id": "p17", "title": "Push-Relabel Algorithm", "difficulty": "hard" },
+    { "id": "p18", "title": "Max Flow with Vertex Capacities", "difficulty": "hard" },
+    { "id": "p19", "title": "Multi-Source Multi-Sink Flow", "difficulty": "hard" },
+    { "id": "p20", "title": "Baseball Elimination", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "graph": {"S→A": 16, "S→C": 13, "A→C": 10, "A→B": 12, "C→D": 14, "D→A": 4, "D→B": 7, "B→T": 20, "D→T": 4}, "flow": 0, "highlightLines": [1, 2], "description": "Flow network with source S, sink T, capacities on edges" },
+    { "step": 1, "action": "residual", "residual": {"S→A": 16, "S→C": 13, "A→S": 0, "C→S": 0, "A→C": 10, "C→A": 0, "A→B": 12, "B→A": 0, "C→D": 14, "D→C": 0, "D→A": 4, "A→D": 0, "D→B": 7, "B→D": 0, "B→T": 20, "T→B": 0, "D→T": 4, "T→D": 0}, "highlightLines": [5, 6], "description": "Build residual graph. Forward edges show remaining capacity, backward edges allow flow cancellation" },
+    { "step": 2, "action": "bfs", "path": ["S", "C", "D", "T"], "bottleneck": 4, "highlightLines": [8, 9], "description": "BFS finds augmenting path S→C→D→T with bottleneck capacity 4" },
+    { "step": 3, "action": "augment", "path": ["S", "C", "D", "T"], "added": 4, "totalFlow": 4, "highlightLines": [11, 12], "description": "Augment 4 units along path. Update residual capacities" },
+    { "step": 4, "action": "bfs", "path": ["S", "A", "B", "T"], "bottleneck": 12, "highlightLines": [8, 9], "description": "Next BFS finds path S→A→B→T with bottleneck 12" },
+    { "step": 5, "action": "augment", "path": ["S", "A", "B", "T"], "added": 12, "totalFlow": 16, "highlightLines": [11, 12], "description": "Augment 12 units. Total flow now 16. Continue until no augmenting paths" }
+  ],
+  "minigame": {
+    "type": "flow-network",
+    "title": "Flow Network Optimizer",
+    "description": "Build a flow network and find maximum flow using Ford-Fulkerson. Watch residual graph update dynamically.",
+    "instructions": [
+      "Create nodes (source, sink, intermediate)",
+      "Add edges with capacities",
+      "Run Ford-Fulkerson algorithm",
+      "Observe augmenting paths and min-cut"
+    ]
+  }
+}

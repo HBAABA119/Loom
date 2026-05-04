@@ -1,0 +1,408 @@
+{
+  "id": "16-tries",
+  "bookId": "book-dsa",
+  "title": "Tries (Prefix Trees)",
+  "category": "Trees",
+  "order": 16,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "A Trie (prefix tree) is a tree-like data structure for storing strings. Each node represents a character, and paths from root to nodes represent prefixes. Tries enable efficient prefix-based operations: search, insert, delete in $O(L)$ where L is string length. Used in autocomplete, spell checking, IP routing, and word games. This chapter covers Trie structure, operations, and applications.",
+    "sections": [
+      {
+        "title": "Trie Structure",
+        "content": "Root node (empty). Each node has children (one per possible character) and a flag indicating end of word. Children can be array (fixed size, fast access, memory intensive) or hash map (dynamic, memory efficient). Space: $O(N \\times L)$ where N is number of words, L is average length. Common for lowercase letters: 26 children per node.",
+        "node": {
+          "children": "array or hash map of char → node",
+          "isEnd": "boolean, true if word ends here"
+        }
+      },
+      {
+        "title": "Trie Operations",
+        "content": "Insert: traverse/create nodes for each character. Mark end node. $O(L)$. Search: traverse nodes for each character. Return true if end node reached and isEnd=true. $O(L)$. Starts with: traverse nodes, return true if all characters found (regardless of isEnd). $O(L)$. Delete: find node, unmark isEnd. Optionally prune empty nodes.",
+        "complexity": { "insert": "$O(L)$", "search": "$O(L)$", "startsWith": "$O(L)$", "delete": "$O(L)$" }
+      },
+      {
+        "title": "Trie Applications",
+        "content": "Autocomplete: suggest completions as user types. Spell checking: find words with given prefix, check if word exists. IP routing: longest prefix match for routing tables. Word games: Boggle, Scrabble word validation. Pattern matching: search for patterns in text. Tries excel at prefix-based queries.",
+        "applications": [
+          "Autocomplete systems",
+          "Spell checkers",
+          "IP routing tables",
+          "Word games",
+          "Pattern matching"
+        ]
+      },
+      {
+        "title": "Trie Variants",
+        "content": "Compressed Trie (Radix Tree): merge nodes with single child into one node with combined string. Reduces nodes, saves memory. Suffix Trie: trie of all suffixes of a string. Used for substring search. Suffix Tree: compressed suffix trie. Patricia Trie: compressed trie with path compression. Each variant optimizes for specific use cases.",
+        "variants": [
+          { "name": "Compressed Trie", "benefit": "Merges single-child nodes, saves memory" },
+          { "name": "Suffix Trie", "use": "Substring search" },
+          { "name": "Suffix Tree", "use": "Compressed suffix trie, efficient substring search" }
+        ]
+      },
+      {
+        "title": "Trie vs Hash Set",
+        "content": "Trie: $O(L)$ operations, supports prefix queries, memory efficient for shared prefixes. Hash Set: $O(1)$ average operations, no prefix support, stores full strings. Choose Trie for prefix-based operations, Hash Set for exact match when prefix queries not needed.",
+        "comparison": [
+          { "aspect": "Search", "trie": "$O(L)$", "hash": "$O(1)$ avg" },
+          { "aspect": "Prefix queries", "trie": "Yes", "hash": "No" },
+          { "aspect": "Memory", "trie": "Shared prefixes", "hash": "Full strings" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Prefix Sharing",
+        "description": "Common prefixes share nodes. 'apple' and 'app' share 'a', 'p', 'p'. This is key to Trie's memory efficiency.",
+        "benefit": "Reduces storage for words with common prefixes"
+      },
+      {
+        "name": "isEnd Flag",
+        "description": "Marks node where a word ends. Distinguishes 'app' (word) from 'apple' prefix. Essential for distinguishing words from prefixes.",
+        "purpose": "Differentiates words from prefixes"
+      },
+      {
+        "name": "Array vs Hash Map",
+        "description": "Array children: O(1) access, fixed size (26 for lowercase). Hash map: dynamic, memory efficient for sparse children.",
+        "tradeoff": "Array: fast, memory heavy. Hash: slower, memory efficient"
+      },
+      {
+        "name": "Trie Traversal",
+        "description": "DFS to collect all words with given prefix. Useful for autocomplete. Can collect all words or count matches.",
+        "use": "Autocomplete, word suggestions"
+      }
+    ],
+    "complexity": {
+      "insert": "$O(L)$ time, $O(L)$ space",
+      "search": "$O(L)$ time, $O(1)$ space",
+      "startsWith": "$O(L)$ time, $O(1)$ space",
+      "space": "$O(N \\times L)$ where N words, L avg length"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Trie",
+      "description": "Create root node with empty children and isEnd=false.",
+      "code": "root = TrieNode(); root.children = {}; root.isEnd = false;",
+      "visualState": { "root": "empty" }
+    },
+    {
+      "step": 2,
+      "title": "Insert Word",
+      "description": "For each character: if child doesn't exist, create it. Move to child. Mark end node.",
+      "code": "node = root; for char in word: if char not in node.children: node.children[char] = TrieNode(); node = node.children[char]; node.isEnd = true;",
+      "visualState": { "path": "word characters" }
+    },
+    {
+      "step": 3,
+      "title": "Search Word",
+      "description": "Traverse nodes for each character. Return true if end reached and isEnd=true.",
+      "code": "node = root; for char in word: if char not in node.children: return false; node = node.children[char]; return node.isEnd;",
+      "visualState": { "check": "exists and is word" }
+    },
+    {
+      "step": 4,
+      "title": "Starts With",
+      "description": "Traverse nodes for each character. Return true if all characters found.",
+      "code": "node = root; for char in prefix: if char not in node.children: return false; node = node.children[char]; return true;",
+      "visualState": { "check": "prefix exists" }
+    },
+    {
+      "step": 5,
+      "title": "Collect Words",
+      "description": "DFS from prefix node to collect all words with that prefix.",
+      "code": "def collect(node, prefix, results): if node.isEnd: results.append(prefix); for char, child in node.children.items(): collect(child, prefix + char, results);",
+      "visualState": { "results": "all words with prefix" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Implement Trie",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement Trie with insert, search, and startsWith operations.",
+      "complexity": { "all": "$O(L)$ time" },
+      "solution": "TrieNode with children (hash map) and isEnd flag. Insert creates nodes, search checks isEnd, startsWith checks path exists.",
+      "hints": "Hash map for children, isEnd flag"
+    },
+    {
+      "id": "p2",
+      "title": "Design Add and Search Words",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement addWord and search with '.' wildcard (matches any character).",
+      "complexity": { "add": "$O(L)$", "search": "$O(26^L)$ worst" },
+      "solution": "Trie with DFS for wildcard. On '.', try all children recursively.",
+      "hints": "DFS for wildcard, try all children"
+    },
+    {
+      "id": "p3",
+      "title": "Word Search II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all words from dictionary that exist in board (can move in 8 directions).",
+      "complexity": { "time": "$O(m \\times n \\times 4^L)$", "space": "$O(total chars)$" },
+      "solution": "Build Trie from dictionary. DFS from each cell, traverse Trie. Remove word from Trie when found.",
+      "hints": "Trie + DFS"
+    },
+    {
+      "id": "p4",
+      "title": "Replace Words",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Replace words in sentence with shortest prefix from dictionary.",
+      "example": "dict=['cat','bat','rat'], sentence='the cattle was rattled'. Output: 'the cat was rat'",
+      "complexity": { "time": "$O(N \\times L)$", "space": "$O(D \\times L)$" },
+      "solution": "Build Trie from dictionary. For each word, find shortest prefix in Trie. Replace if found.",
+      "hints": "Trie for dictionary, find shortest prefix"
+    },
+    {
+      "id": "p5",
+      "title": "Longest Word in Dictionary",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest word that can be built one character at a time from other words.",
+      "example": "words=['w','wo','wor','worl','world']. Output: 'world'",
+      "complexity": { "time": "$O(N \\times L)$", "space": "$O(N \\times L)$" },
+      "solution": "Trie with isEnd. Sort words by length then lexicographically. Check if all prefixes exist.",
+      "hints": "Trie, check all prefixes exist"
+    },
+    {
+      "id": "p6",
+      "title": "Implement Magic Dictionary",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Build dictionary, search word with exactly one character different.",
+      "complexity": { "build": "$O(N \\times L)$", "search": "$O(N \\times L)$" },
+      "solution": "Trie. For search, try changing each character, check if new word exists (and not same as original).",
+      "hints": "Try changing each character, check in Trie"
+    },
+    {
+      "id": "p7",
+      "title": "Word Squares",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all word squares (k×k grid where row i = column i as words).",
+      "complexity": { "time": "$O(N \\times L!)$", "space": "$O(N \\times L)$" },
+      "solution": "Trie with prefix lookup. Backtracking to build square row by row.",
+      "hints": "Trie + backtracking"
+    },
+    {
+      "id": "p8",
+      "title": "Stream of Characters",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Implement stream checker that checks if any suffix of stream is in word list.",
+      "complexity": { "query": "$O(L)$" },
+      "solution": "Trie of words reversed. Maintain stream, check if any suffix matches in Trie.",
+      "hints": "Trie of reversed words"
+    },
+    {
+      "id": "p9",
+      "title": "Prefix and Suffix Search",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Design WordFilter with f(prefix, suffix) returning word with that prefix and suffix.",
+      "complexity": { "f": "$O(L)$" },
+      "solution": "Trie with all prefix-suffix combinations: {prefix#suffix} for each word.",
+      "hints": "Store prefix#suffix combinations"
+    },
+    {
+      "id": "p10",
+      "title": "Map Sum Pairs",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement insert(key, value) and sum(prefix) returning sum of all keys with prefix.",
+      "complexity": { "insert": "$O(L)$", "sum": "$O(L)$" },
+      "solution": "Trie with sum at each node (sum of all values in subtree). Update sums on insert.",
+      "hints": "Store sum at each node"
+    },
+    {
+      "id": "p11",
+      "title": "Design Search Autocomplete System",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Autocomplete with top 3 historical suggestions for each prefix.",
+      "complexity": { "input": "$O(L)$", "input with #": "$O(L \\log n)$" },
+      "solution": "Trie with top 3 suggestions at each node. On '#', update counts and resort.",
+      "hints": "Store top 3 at each node, update on '#'"
+    },
+    {
+      "id": "p12",
+      "title": "Concatenated Words",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all words that can be formed by concatenating two or more words from list.",
+      "complexity": { "time": "$O(N \\times L^2)$", "space": "$O(N \\times L)$" },
+      "solution": "Trie + DP. For each word, check if can be split into other words using Trie.",
+      "hints": "Trie + DP, check word can be split"
+    },
+    {
+      "id": "p13",
+      "title": "Maximum XOR of Two Numbers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find maximum XOR of any two numbers in array.",
+      "complexity": { "time": "$O(n \\times 32)$", "space": "$O(n \\times 32)$" },
+      "solution": "Bit Trie (32 bits). For each number, find number in Trie that maximizes XOR.",
+      "hints": "Bit Trie, maximize XOR bit by bit"
+    },
+    {
+      "id": "p14",
+      "title": "Maximum XOR With an Element",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "For each query, find max XOR with any number ≤ limit.",
+      "complexity": { "time": "$O(n \\times 32 + m \\times 32)$", "space": "$O(n \\times 32)$" },
+      "solution": "Bit Trie. For each query, search Trie respecting limit constraint.",
+      "hints": "Bit Trie with limit constraint"
+    },
+    {
+      "id": "p15",
+      "title": "Find Maximum XOR Number",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find maximum XOR of two numbers in array (bit Trie variant).",
+      "complexity": { "time": "$O(n \\times 32)$", "space": "$O(n \\times 32)$" },
+      "solution": "Build bit Trie. For each number, find best match for maximum XOR.",
+      "hints": "Bit Trie, greedy bit selection"
+    },
+    {
+      "id": "p16",
+      "title": "Implement Trie (Prefix Tree)",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement Trie with insert, search, delete operations.",
+      "complexity": { "all": "$O(L)$" },
+      "solution": "TrieNode with children and isEnd. Delete: unmark isEnd, optionally prune empty nodes.",
+      "hints": "Unmark isEnd, prune empty nodes"
+    },
+    {
+      "id": "p17",
+      "title": "Add and Search Word",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Add word and search with '.' wildcard.",
+      "complexity": { "add": "$O(L)$", "search": "$O(26^L)$ worst" },
+      "solution": "Trie with DFS for wildcard handling.",
+      "hints": "DFS for '.' wildcard"
+    },
+    {
+      "id": "p18",
+      "title": "Design In-Memory File System",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement ls (list) and mkdir (create directory) with path-like structure.",
+      "complexity": { "ls": "$O(L)$", "mkdir": "$O(L)$" },
+      "solution": "Trie-like structure where nodes are directories/files.",
+      "hints": "Trie-like directory structure"
+    },
+    {
+      "id": "p19",
+      "title": "Design File System",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement createPath and getPath with file content.",
+      "complexity": { "create": "$O(L)$", "get": "$O(L)$" },
+      "solution": "Trie with isFile flag and content.",
+      "hints": "Trie with isFile and content"
+    },
+    {
+      "id": "p20",
+      "title": "Design Add and Search Words Data Structure",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Optimized version with word length grouping.",
+      "complexity": { "add": "$O(L)$", "search": "$O(L)$" },
+      "solution": "Group words by length. For search, only check words of same length.",
+      "hints": "Group by length for efficiency"
+    },
+    {
+      "id": "p21",
+      "title": "Word Break",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if string can be segmented into dictionary words.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "DP. Trie for efficient prefix checking. dp[i] = true if s[0:i] can be segmented.",
+      "hints": "DP + Trie for prefix check"
+    },
+    {
+      "id": "p22",
+      "title": "Word Break II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Return all possible segmentations of string into dictionary words.",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(2^n)$" },
+      "solution": "DP + backtracking. Trie for prefix checking. Memoize results.",
+      "hints": "DP + backtracking + Trie"
+    },
+    {
+      "id": "p23",
+      "title": "Palindrome Pairs",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all pairs of words that concatenate to form palindrome.",
+      "complexity": { "time": "$O(n \\times L^2)$", "space": "$O(n \\times L)$" },
+      "solution": "Trie of reversed words. For each word, check all possible palindrome splits.",
+      "hints": "Trie of reversed words"
+    },
+    {
+      "id": "p24",
+      "title": "Short Encoding of Words",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum length encoding where no word is prefix of another's encoding.",
+      "complexity": { "time": "$O(N \\times L)$", "space": "$O(N \\times L)$" },
+      "solution": "Trie. Words that are prefixes of others don't need separate encoding. Count words that are not prefixes.",
+      "hints": "Trie, count non-prefix words"
+    },
+    {
+      "id": "p25",
+      "title": "Boggle Solver",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all words in Boggle board using dictionary.",
+      "complexity": { "time": "$O(m \\times n \\times 4^L)$", "space": "$O(total chars)$" },
+      "solution": "Trie + DFS. Prune if prefix not in Trie. Mark visited cells.",
+      "hints": "Trie + DFS, prune by prefix"
+    }
+  ],
+  "minigame": {
+    "id": "trie-builder",
+    "title": "Trie Master",
+    "description": "Build and explore Tries! Insert words, search prefixes, and visualize structure.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Build", "task": "Insert ['apple', 'app', 'application']" },
+      { "name": "Search", "task": "Search for 'app' and 'apricot'" },
+      { "name": "Autocomplete", "task": "Find all words starting with 'app'" }
+    ]
+  },
+  "visualizer": {
+    "type": "trie-operations",
+    "title": "Trie Visualizer",
+    "description": "Visualize Trie insert, search, and prefix operations step by step.",
+    "features": ["Tree visualization", "Character path highlighting", "isEnd flag display", "Autocomplete animation"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Trie Implementation",
+        "code": "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n    \n    def insert(self, word):\n        node = self.root\n        for char in word:\n            if char not in node.children:\n                node.children[char] = TrieNode()\n            node = node.children[char]\n        node.is_end = True\n    \n    def search(self, word):\n        node = self.root\n        for char in word:\n            if char not in node.children:\n                return False\n            node = node.children[char]\n        return node.is_end"
+      },
+      {
+        "title": "Search with Wildcard",
+        "code": "def search_with_wildcard(node, word, index):\n    if index == len(word):\n        return node.is_end\n    \n    char = word[index]\n    if char == '.':\n        for child in node.children.values():\n            if search_with_wildcard(child, word, index + 1):\n                return True\n        return False\n    else:\n        if char not in node.children:\n            return False\n        return search_with_wildcard(node.children[char], word, index + 1)"
+      },
+      {
+        "title": "Autocomplete",
+        "code": "def autocomplete(node, prefix):\n    results = []\n    \n    def dfs(current, path):\n        if current.is_end:\n            results.append(path)\n        for char, child in current.children.items():\n            dfs(child, path + char)\n    \n    dfs(node, prefix)\n    return results"
+      }
+    ]
+  }
+}

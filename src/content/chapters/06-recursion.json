@@ -1,0 +1,72 @@
+﻿{
+  "id": "06-recursion",
+  "title": "Recursion",
+  "category": "fundamentals",
+  "theory": {
+    "overview": "Recursion is a problem-solving technique where a function calls itself to solve smaller instances of the same problem. A recursive solution requires a base case (termination condition) and a recursive case that breaks the problem into smaller subproblems. Recursion naturally handles tree/graph traversals, divide-and-conquer algorithms, and problems with recursive mathematical definitions.",
+    "keyConcepts": [
+      {
+        "name": "Base Case",
+        "description": "The condition that stops recursion. Without it, the function calls itself infinitely causing a stack overflow."
+      },
+      {
+        "name": "Recursive Case",
+        "description": "The function calls itself with a smaller input, moving closer to the base case with each call."
+      },
+      {
+        "name": "Call Stack",
+        "description": "Each recursive call adds a stack frame. Understanding stack depth is crucial for avoiding stack overflow."
+      },
+      {
+        "name": "Tail Recursion",
+        "description": "When the recursive call is the last operation. Some compilers optimize this to use constant stack space."
+      }
+    ],
+    "complexity": {
+      "time": "Varies by problem (often exponential without memoization)",
+      "space": "O(n) for call stack depth"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Fibonacci Number", "difficulty": "easy" },
+    { "id": "p2", "title": "Climbing Stairs", "difficulty": "easy" },
+    { "id": "p3", "title": "Maximum Depth of Binary Tree", "difficulty": "easy" },
+    { "id": "p4", "title": "Symmetric Tree", "difficulty": "easy" },
+    { "id": "p5", "title": "Path Sum", "difficulty": "easy" },
+    { "id": "p6", "title": "Invert Binary Tree", "difficulty": "easy" },
+    { "id": "p7", "title": "Merge Two Sorted Lists", "difficulty": "easy" },
+    { "id": "p8", "title": "Subsets (Power Set)", "difficulty": "medium" },
+    { "id": "p9", "title": "Permutations", "difficulty": "medium" },
+    { "id": "p10", "title": "Combinations", "difficulty": "medium" },
+    { "id": "p11", "title": "Generate Parentheses", "difficulty": "medium" },
+    { "id": "p12", "title": "Letter Combinations of Phone Number", "difficulty": "medium" },
+    { "id": "p13", "title": "Combination Sum", "difficulty": "medium" },
+    { "id": "p14", "title": "N-Queens", "difficulty": "hard" },
+    { "id": "p15", "title": "Sudoku Solver", "difficulty": "hard" },
+    { "id": "p16", "title": "Regular Expression Matching", "difficulty": "hard" },
+    { "id": "p17", "title": "Wildcard Matching", "difficulty": "hard" },
+    { "id": "p18", "title": "Word Break II", "difficulty": "hard" },
+    { "id": "p19", "title": "Expression Add Operators", "difficulty": "hard" },
+    { "id": "p20", "title": "Decode Ways", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "call": "fib(5)", "stack": ["fib(5)"], "highlightLines": [1], "description": "Call fib(5) - need to compute fib(4) + fib(3)" },
+    { "step": 1, "action": "recurse", "call": "fib(4)", "stack": ["fib(5)", "fib(4)"], "highlightLines": [3, 4], "description": "fib(5) calls fib(4) - not base case, recurse deeper" },
+    { "step": 2, "action": "recurse", "call": "fib(3)", "stack": ["fib(5)", "fib(4)", "fib(3)"], "highlightLines": [3, 4], "description": "fib(4) calls fib(3) - continue down left branch" },
+    { "step": 3, "action": "recurse", "call": "fib(2)", "stack": ["fib(5)", "fib(4)", "fib(3)", "fib(2)"], "highlightLines": [3, 4], "description": "fib(3) calls fib(2) - approaching base cases" },
+    { "step": 4, "action": "base", "call": "fib(2)=1", "stack": ["fib(5)", "fib(4)", "fib(3)"], "highlightLines": [2], "description": "fib(2) hits base case, returns 1" },
+    { "step": 5, "action": "return", "call": "fib(1)", "stack": ["fib(5)", "fib(4)", "fib(3)"], "highlightLines": [2], "description": "fib(3) calls fib(1), base case returns 1" },
+    { "step": 6, "action": "return", "call": "fib(3)=2", "stack": ["fib(5)", "fib(4)"], "highlightLines": [5], "description": "fib(3) returns 1+1=2, stack frame popped" }
+  ],
+  "minigame": {
+    "type": "stack-visualizer",
+    "title": "Recursion Stack Visualizer",
+    "description": "Watch the call stack grow and shrink as recursive calls execute. See how each call waits for its children to complete.",
+    "instructions": [
+      "Observe recursive calls pushing onto stack",
+      "Watch base cases immediately return",
+      "See stack unwind as results propagate up",
+      "Understand call stack memory usage"
+    ]
+  }
+}

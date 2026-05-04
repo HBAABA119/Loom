@@ -1,0 +1,73 @@
+﻿{
+  "id": "07-sorting",
+  "title": "Sorting Algorithms",
+  "category": "fundamentals",
+  "theory": {
+    "overview": "Sorting is the process of arranging data in a particular order (ascending or descending). It's fundamental to many algorithms and enables efficient searching. Key algorithms include Quick Sort (average O(n log n)), Merge Sort (stable O(n log n)), Heap Sort (in-place O(n log n)), and specialized algorithms like Counting Sort and Radix Sort for integer data. Understanding sorting tradeoffs helps select the right algorithm for specific constraints.",
+    "keyConcepts": [
+      {
+        "name": "Comparison Sorts",
+        "description": "Algorithms like Quick Sort, Merge Sort, Heap Sort that compare elements. Lower bound is O(n log n) comparisons."
+      },
+      {
+        "name": "Linear Time Sorts",
+        "description": "Counting Sort, Radix Sort, Bucket Sort achieve O(n) by exploiting data properties, not comparing."
+      },
+      {
+        "name": "Stability",
+        "description": "Stable sorts preserve relative order of equal elements. Important when sorting by multiple keys."
+      },
+      {
+        "name": "In-Place vs Out-of-Place",
+        "description": "In-place uses O(1) extra space (Quick Sort). Out-of-place needs more space (Merge Sort with O(n))."
+      }
+    ],
+    "complexity": {
+      "quickSort": "O(n log n) avg, O(n²) worst",
+      "mergeSort": "O(n log n) always, O(n) space",
+      "heapSort": "O(n log n) always, O(1) space",
+      "countingSort": "O(n + k) where k is range"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Merge Intervals", "difficulty": "medium" },
+    { "id": "p2", "title": "Insert Interval", "difficulty": "medium" },
+    { "id": "p3", "title": "Largest Number (Custom Sort)", "difficulty": "medium" },
+    { "id": "p4", "title": "Sort Colors (Dutch Flag)", "difficulty": "medium" },
+    { "id": "p5", "title": "Kth Largest Element", "difficulty": "medium" },
+    { "id": "p6", "title": "Top K Frequent Elements", "difficulty": "medium" },
+    { "id": "p7", "title": "Find K Closest Elements", "difficulty": "medium" },
+    { "id": "p8", "title": "Meeting Rooms II", "difficulty": "medium" },
+    { "id": "p9", "title": "Non-overlapping Intervals", "difficulty": "medium" },
+    { "id": "p10", "title": "Car Fleet", "difficulty": "medium" },
+    { "id": "p11", "title": "Contains Duplicate III", "difficulty": "medium" },
+    { "id": "p12", "title": "Magnetic Force Between Balls", "difficulty": "medium" },
+    { "id": "p13", "title": "Maximize Distance to Closest", "difficulty": "medium" },
+    { "id": "p14", "title": "H-Index", "difficulty": "medium" },
+    { "id": "p15", "title": "Wiggle Sort II", "difficulty": "medium" },
+    { "id": "p16", "title": "Maximum Gap (Bucket Sort)", "difficulty": "hard" },
+    { "id": "p17", "title": "Count of Smaller Numbers After Self", "difficulty": "hard" },
+    { "id": "p18", "title": "Create Sorted Array Through Instructions", "difficulty": "hard" },
+    { "id": "p19", "title": "Range Sum of Sorted Subarray Sums", "difficulty": "medium" },
+    { "id": "p20", "title": "Minimize Deviation in Array", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "array": [64, 34, 25, 12, 22, 11, 90], "highlightIndices": [], "highlightLines": [1], "description": "Array before sorting: [64, 34, 25, 12, 22, 11, 90]" },
+    { "step": 1, "action": "partition", "array": [64, 34, 25, 12, 22, 11, 90], "pivot": 22, "highlightIndices": [4], "highlightLines": [3, 4], "description": "Quick Sort: Choose pivot (22), partition around it" },
+    { "step": 2, "action": "swap", "array": [11, 12, 22, 25, 34, 64, 90], "highlightIndices": [0, 6], "highlightLines": [5, 6], "description": "After partitioning: smaller left, larger right of pivot" },
+    { "step": 3, "action": "recurse-left", "array": [11, 12, 22, 25, 34, 64, 90], "range": [0, 1], "highlightLines": [8], "description": "Recursively sort left subarray [11, 12]" },
+    { "step": 4, "action": "recurse-right", "array": [11, 12, 22, 25, 34, 64, 90], "range": [5, 6], "highlightLines": [9], "description": "Recursively sort right subarray [64, 90]" },
+    { "step": 5, "action": "complete", "array": [11, 12, 22, 25, 34, 64, 90], "highlightIndices": [0, 1, 2, 3, 4, 5, 6], "highlightLines": [11], "description": "Array fully sorted: [11, 12, 22, 25, 34, 64, 90]" }
+  ],
+  "minigame": {
+    "type": "sorting-race",
+    "title": "Sorting Algorithm Race",
+    "description": "Compare different sorting algorithms visually. Watch Quick Sort, Merge Sort, and Heap Sort compete to sort the same data.",
+    "instructions": [
+      "Select an array size and pattern",
+      "Watch algorithms race to completion",
+      "Compare number of comparisons and swaps",
+      "Observe space usage differences"
+    ]
+  }
+}

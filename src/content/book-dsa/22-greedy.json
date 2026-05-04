@@ -1,0 +1,405 @@
+{
+  "id": "22-greedy",
+  "bookId": "book-dsa",
+  "title": "Greedy Algorithms",
+  "category": "Algorithms",
+  "order": 22,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Greedy algorithms make locally optimal choices at each step, hoping to find a global optimum. Unlike DP which considers all possibilities, greedy commits to a choice without backtracking. Greedy works when the problem has optimal substructure and greedy choice property. Examples: activity selection, Huffman coding, Dijkstra, Kruskal's MST. This chapter covers greedy strategy, proof techniques, and classic greedy problems.",
+    "sections": [
+      {
+        "title": "Greedy Strategy",
+        "content": "At each step, make the choice that looks best locally. Never reconsider. Simple and efficient but only works for certain problems. Key properties: greedy choice property (local optimal leads to global optimal) and optimal substructure (optimal solution contains optimal solutions to subproblems). Proof by exchange argument: show any optimal solution can be transformed to greedy solution.",
+        "properties": [
+          "Greedy choice property",
+          "Optimal substructure",
+          "No backtracking",
+          "Efficient (often O(n log n))"
+        ]
+      },
+      {
+        "title": "Activity Selection",
+        "content": "Select maximum number of non-overlapping activities. Greedy: sort by finish time, always pick activity with earliest finish that doesn't conflict. Proof: picking earliest finish leaves maximum room for remaining activities. Time: $O(n \\log n)$ for sorting, $O(n)$ for selection.",
+        "algorithm": "Sort by finish time. Pick first activity. For each subsequent, if start ≥ last finish, select.",
+        "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" }
+      },
+      {
+        "title": "Huffman Coding",
+        "content": "Optimal prefix code for data compression. Greedy: repeatedly combine two least frequent characters into new node with combined frequency. Build Huffman tree. More frequent characters get shorter codes. Time: $O(n \\log n)$ with min-heap.",
+        "algorithm": "Count frequencies. Min-heap of (freq, char). Repeatedly extract two min, combine, push back. Build tree from remaining.",
+        "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" }
+      },
+      {
+        "title": "Fractional Knapsack",
+        "content": "Maximize value with weight limit (can take fractions of items). Greedy: sort by value/weight ratio, take as much as possible of highest ratio item. Unlike 0/1 knapsack, greedy works because fractions allowed. Time: $O(n \\log n)$.",
+        "algorithm": "Sort by value/weight descending. Take items until full. Take fraction of last item if needed.",
+        "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" }
+      },
+      {
+        "title": "Greedy vs DP",
+        "content": "Greedy: fast, simple, but only works for problems with greedy choice property. DP: slower, more complex, but works for problems with optimal substructure (even without greedy choice). If greedy works, prefer it. If not, use DP.",
+        "comparison": [
+          { "aspect": "Speed", "greedy": "Fast", "dp": "Slower" },
+          { "aspect": "Correctness", "greedy": "Only if greedy choice property", "dp": "Always with optimal substructure" },
+          { "aspect": "Complexity", "greedy": "Simple", "dp": "Complex" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Greedy Choice Property",
+        "description": "Making locally optimal choice leads to globally optimal solution. Essential for greedy correctness.",
+        "proof": "Exchange argument: transform any optimal solution to greedy solution"
+      },
+      {
+        "name": "Optimal Substructure",
+        "description": "Optimal solution contains optimal solutions to subproblems. Both greedy and DP require this.",
+        "use": "Enables recursive decomposition"
+      },
+      {
+        "name": "Exchange Argument",
+        "description": "Proof technique: show any optimal solution can be transformed to greedy solution without worsening it.",
+        "method": "Exchange greedy choice with optimal choice, show no worse"
+      },
+      {
+        "name": "Sorting",
+        "description": "Most greedy algorithms start with sorting (by finish time, ratio, etc.). Sorting often dominates time complexity.",
+        "complexity": "$O(n \\log n)$ typical"
+      }
+    ],
+    "complexity": {
+      "typical": "$O(n \\log n)$ time, $O(1)$ or $O(n)$ space",
+      "sorting": "$O(n \\log n)$ dominates most greedy algorithms"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Identify Greedy Choice",
+      "description": "Determine what choice to make at each step (earliest finish, highest ratio, etc.).",
+      "code": "choice_criteria = determine_greedy_choice()",
+      "visualState": { "criteria": "identified" }
+    },
+    {
+      "step": 2,
+      "title": "Sort",
+      "description": "Sort input by greedy choice criteria.",
+      "code": "items.sort(key=lambda x: x[criteria])",
+      "visualState": { "sorted": "by criteria" }
+    },
+    {
+      "step": 3,
+      "title": "Iterate and Select",
+      "description": "Iterate through sorted items, make greedy choice at each step.",
+      "code": "for item in sorted_items: if valid_choice(item): select(item);",
+      "visualState": { "selected": "items" }
+    },
+    {
+      "step": 4,
+      "title": "Verify",
+      "description": "Verify solution correctness (often requires proof by exchange argument).",
+      "code": "verify_optimality()",
+      "visualState": { "verified": "optimal" }
+    },
+    {
+      "step": 5,
+      "title": "Return Result",
+      "description": "Return selected items or computed value.",
+      "code": "return result;",
+      "visualState": { "result": "returned" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Assign Cookies",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Max children content with greed factor and cookie size.",
+      "example": "g=[1,2,3], s=[1,1]. Output: 1",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort both, greedy two pointers. Match smallest cookie that satisfies child.",
+      "hints": "Sort both, two pointers"
+    },
+    {
+      "id": "p2",
+      "title": "Maximum Units on a Truck",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Max units on truck with box types (boxes per type, units per box).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort by units per box descending. Take as many as possible of highest.",
+      "hints": "Sort by units per box"
+    },
+    {
+      "id": "p3",
+      "title": "Gas Station",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find starting gas station to complete circular route.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "If total gas < total cost, impossible. Else, find start where cumulative never negative.",
+      "hints": "Check total, find start where cumulative never negative"
+    },
+    {
+      "id": "p4",
+      "title": "Candy",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Distribute candy with ratings (higher rating gets more than neighbors).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Two passes: left to right (if rating[i] > rating[i-1], candy[i] > candy[i-1]), right to left.",
+      "hints": "Two passes, left then right"
+    },
+    {
+      "id": "p5",
+      "title": "Jump Game",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if can reach end of array (value = max jump length).",
+      "example": "nums=[2,3,1,1,4]. Output: true",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Track max reachable index. If i > max, can't reach.",
+      "hints": "Track max reachable index"
+    },
+    {
+      "id": "p6",
+      "title": "Jump Game II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum jumps to reach end.",
+      "example": "nums=[2,3,1,1,4]. Output: 2",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Greedy BFS-like. Track current range, next range. Count jumps.",
+      "hints": "BFS-like greedy, track ranges"
+    },
+    {
+      "id": "p7",
+      "title": "Partition Labels",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Partition string so each letter appears in at most one partition.",
+      "example": "s='ababcbacadefegdehijhklij'. Output: [9,7,8]",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Track last occurrence of each letter. Greedy partition when current index reaches max last seen.",
+      "hints": "Track last occurrence, partition at max"
+    },
+    {
+      "id": "p8",
+      "title": "Task Scheduler",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Least intervals to execute tasks with cooldown n between same tasks.",
+      "example": "tasks=['A','A','A','B','B','B'], n=2. Output: 8",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Count frequencies. Max frequency f, count of max freq tasks m. Result = max(len(tasks), (f-1)*(n+1) + m).",
+      "hints": "Max frequency and count of max"
+    },
+    {
+      "id": "p9",
+      "title": "Reorganize String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange string so no two adjacent characters are same.",
+      "example": "s='aab'. Output: 'aba'",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Max-heap by frequency. Always pick most frequent not same as previous.",
+      "hints": "Max-heap by frequency"
+    },
+    {
+      "id": "p10",
+      "title": "Minimum Number of Arrows to Burst Balloons",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min arrows to burst all balloons (overlapping intervals).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort by end. Greedy shoot at end, skip overlapping.",
+      "hints": "Sort by end, shoot at end"
+    },
+    {
+      "id": "p11",
+      "title": "Non-overlapping Intervals",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Remove minimum intervals to make non-overlapping.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort by end. Greedy keep non-overlapping. Count removals.",
+      "hints": "Sort by end, greedy keep"
+    },
+    {
+      "id": "p12",
+      "title": "Meeting Rooms",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if can attend all meetings (no overlap).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort start and end times. Check if any start < previous end.",
+      "hints": "Sort start and end, check overlap"
+    },
+    {
+      "id": "p13",
+      "title": "Meeting Rooms II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min meeting rooms required.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort start and end times. Two pointers or min-heap for end times.",
+      "hints": "Sort start and end, two pointers or heap"
+    },
+    {
+      "id": "p14",
+      "title": "Car Fleet",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Number of car fleets arriving at destination.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort by position descending. Calculate time to destination. Count fleets (car behind catches up = same fleet).",
+      "hints": "Sort by position, calculate time, count fleets"
+    },
+    {
+      "id": "p15",
+      "title": "Boats to Save People",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min boats to save people (each boat max 2 people, weight limit).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort weights. Two pointers: lightest + heaviest if fits, else heaviest alone.",
+      "hints": "Sort, two pointers"
+    },
+    {
+      "id": "p16",
+      "title": "Advantage Shuffle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange A to maximize advantage over B.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort both. Greedy match: if A[i] > B[j], advantage++; else, use smallest A.",
+      "hints": "Sort both, greedy match"
+    },
+    {
+      "id": "p17",
+      "title": "Lemonade Change",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if can provide change for all customers (bills: 5, 10, 20).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Track count of 5 and 10 bills. Greedy give change with larger bills first.",
+      "hints": "Track bills, greedy change"
+    },
+    {
+      "id": "p18",
+      "title": "Valid Parenthesis String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if string can be made valid with '*' as '(' or ')' or empty.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Track min and max possible open count. Greedy update.",
+      "hints": "Track min and max open count"
+    },
+    {
+      "id": "p19",
+      "title": "Maximum Length of Pair Chain",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Longest chain of pairs (a,b) where b < c for next pair (c,d).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort by end. Greedy pick non-overlapping (activity selection variant).",
+      "hints": "Sort by end, activity selection"
+    },
+    {
+      "id": "p20",
+      "title": "Two City Scheduling",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min cost to send 2N people to two cities (N each).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort by cost difference (costA - costB). First N to A, rest to B.",
+      "hints": "Sort by cost difference"
+    },
+    {
+      "id": "p21",
+      "title": "IPO",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Maximize capital with k projects (each has capital requirement and profit).",
+      "complexity": { "time": "$O((n+k) \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort projects by capital. Min-heap for available projects by profit. Do k times.",
+      "hints": "Sort by capital, min-heap by profit"
+    },
+    {
+      "id": "p22",
+      "title": "Minimum Number of Taps to Open to Water a Garden",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Min taps to water entire garden (each tap waters range).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Convert to intervals. Greedy like jump game II.",
+      "hints": "Convert to intervals, jump game variant"
+    },
+    {
+      "id": "p23",
+      "title": "Video Stitching",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Min clips to cover [0, time] interval.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(1)$" },
+      "solution": "Sort by start. Greedy extend coverage as far as possible.",
+      "hints": "Sort by start, greedy extend"
+    },
+    {
+      "id": "p24",
+      "title": "Split Array into Consecutive Subsequences",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if can split array into consecutive subsequences of length ≥ 3.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Greedy with hash map. Track counts of numbers and sequences ending at each number.",
+      "hints": "Hash map, track sequences"
+    },
+    {
+      "id": "p25",
+      "title": "Divide Array in Sets of K Consecutive Numbers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if can divide array into sets of k consecutive numbers.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort, greedy. For each number, try to form set of k consecutive.",
+      "hints": "Sort, greedy form sets"
+    }
+  ],
+  "minigame": {
+    "id": "greedy-master",
+    "title": "Greedy Master",
+    "description": "Master greedy algorithms! Activity selection, scheduling, and interval problems.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Activity Selection", "task": "Select max non-overlapping activities" },
+      { "name": "Interval Scheduling", "task": "Min arrows to burst balloons" },
+      { "name": "Huffman", "task": "Build Huffman tree" }
+    ]
+  },
+  "visualizer": {
+    "type": "greedy-algorithms",
+    "title": "Greedy Visualizer",
+    "description": "Visualize greedy algorithms: activity selection, interval scheduling, and Huffman coding.",
+    "features": ["Sorting visualization", "Selection animation", "Interval overlap", "Huffman tree building"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Activity Selection",
+        "code": "def activitySelection(activities):\n    # activities: list of (start, end)\n    activities.sort(key=lambda x: x[1])  # Sort by end time\n    \n    count = 0\n    last_end = -float('inf')\n    \n    for start, end in activities:\n        if start >= last_end:\n            count += 1\n            last_end = end\n    \n    return count  # O(n log n)"
+      },
+      {
+        "title": "Fractional Knapsack",
+        "code": "def fractionalKnapsack(items, capacity):\n    # items: list of (value, weight)\n    items.sort(key=lambda x: x[0]/x[1], reverse=True)\n    \n    total_value = 0\n    for value, weight in items:\n        if capacity >= weight:\n            total_value += value\n            capacity -= weight\n        else:\n            total_value += value * (capacity / weight)\n            break\n    \n    return total_value  # O(n log n)"
+      },
+      {
+        "title": "Huffman Coding",
+        "code": "import heapq\n\ndef huffmanCoding(frequencies):\n    heap = [[freq, char] for char, freq in frequencies.items()]\n    heapq.heapify(heap)\n    \n    while len(heap) > 1:\n        freq1, char1 = heapq.heappop(heap)\n        freq2, char2 = heapq.heappop(heap)\n        heapq.heappush(heap, [freq1 + freq2, char1 + char2])\n    \n    return heap[0]  # Huffman tree (as string)"
+      }
+    ]
+  }
+}

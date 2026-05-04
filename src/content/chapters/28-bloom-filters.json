@@ -1,0 +1,73 @@
+﻿{
+  "id": "28-bloom-filters",
+  "title": "Bloom Filters",
+  "category": "advanced",
+  "theory": {
+    "overview": "A Bloom Filter is a space-efficient probabilistic data structure used to test whether an element is a member of a set. It may return false positives (says element is in set when it's not) but never false negatives (if it says not in set, definitely not in set). Uses multiple hash functions to set bits in a bit array. Insertion and lookup are O(k) where k is number of hash functions. Bloom filters are used in databases (Cassandra, HBase), CDNs, cryptocurrency, and network routing.",
+    "keyConcepts": [
+      {
+        "name": "Probabilistic Membership",
+        "description": "Can tell 'possibly in set' or 'definitely not in set'. False positive rate can be tuned by size and hash count."
+      },
+      {
+        "name": "Multiple Hash Functions",
+        "description": "Element is hashed by k independent hash functions. Each hash sets/checks a different bit position."
+      },
+      {
+        "name": "Space Efficiency",
+        "description": "Only stores ~10 bits per element regardless of element size. 1% false positive with 10 bits per element."
+      },
+      {
+        "name": "No Deletion",
+        "description": "Standard Bloom filters don't support deletion. Counting Bloom Filters use counters instead of bits to enable deletion."
+      }
+    ],
+    "complexity": {
+      "insert": "O(k) where k = number of hash functions",
+      "lookup": "O(k)",
+      "space": "O(n × bits_per_element)",
+      "falsePositive": "≈ (1 - e^(-kn/m))^k where m = bits, n = elements"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Implement Bloom Filter", "difficulty": "medium" },
+    { "id": "p2", "title": "Counting Bloom Filter", "difficulty": "medium" },
+    { "id": "p3", "title": "Cuckoo Filter (Alternative)", "difficulty": "hard" },
+    { "id": "p4", "title": "Optimal Hash Count", "difficulty": "easy" },
+    { "id": "p5", "title": "False Positive Rate Calculation", "difficulty": "easy" },
+    { "id": "p6", "title": "Bloom Filter vs Hash Set", "difficulty": "easy" },
+    { "id": "p7", "title": "Scaling Bloom Filter", "difficulty": "hard" },
+    { "id": "p8", "title": "Partitioned Bloom Filter", "difficulty": "hard" },
+    { "id": "p9", "title": "Blocked Bloom Filter", "difficulty": "hard" },
+    { "id": "p10", "title": "Bloomier Filter", "difficulty": "hard" },
+    { "id": "p11", "title": "Spell Checker Using Bloom Filter", "difficulty": "medium" },
+    { "id": "p12", "title": "URL Deduplication", "difficulty": "medium" },
+    { "id": "p13", "title": "Database Query Optimization", "difficulty": "hard" },
+    { "id": "p14", "title": "CDN Cache Filter", "difficulty": "medium" },
+    { "id": "p15", "title": "Bitcoin SPV Verification", "difficulty": "hard" },
+    { "id": "p16", "title": "Two-Phase Commit Optimization", "difficulty": "hard" },
+    { "id": "p17", "title": "Approximate Duplicates Detection", "difficulty": "medium" },
+    { "id": "p18", "title": "HLL vs Bloom Filter", "difficulty": "medium" },
+    { "id": "p19", "title": "Streaming Membership", "difficulty": "hard" },
+    { "id": "p20", "title": "Distributed Bloom Filter", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "m": 10, "bits": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "k": 3, "highlightLines": [1, 2], "description": "Initialize 10-bit array with 3 hash functions" },
+    { "step": 1, "action": "insert", "element": "hello", "hashes": [2, 5, 8], "bits": [0, 0, 1, 0, 0, 1, 0, 0, 1, 0], "highlightLines": [5, 6, 7], "description": "Insert 'hello': hash1=2, hash2=5, hash3=8. Set bits 2,5,8 to 1" },
+    { "step": 2, "action": "insert", "element": "world", "hashes": [1, 5, 9], "bits": [0, 1, 1, 0, 0, 1, 0, 0, 1, 1], "highlightLines": [5, 6, 7], "description": "Insert 'world': hash1=1, hash2=5, hash3=9. Set bits 1,5,9 to 1. Bit 5 already 1." },
+    { "step": 3, "action": "lookup", "element": "hello", "hashes": [2, 5, 8], "result": "MAYBE", "bits": [0, 1, 1, 0, 0, 1, 0, 0, 1, 1], "highlightLines": [10, 11, 12], "description": "Lookup 'hello': check bits 2,5,8. All are 1 → 'MAYBE in set' (possibly true)" },
+    { "step": 4, "action": "lookup", "element": "test", "hashes": [0, 3, 7], "result": "NO", "bits": [0, 1, 1, 0, 0, 1, 0, 0, 1, 1], "highlightLines": [10, 11, 12], "description": "Lookup 'test': check bits 0,3,7. Bit 3=0 → 'DEFINITELY NOT in set' (no false negatives)" },
+    { "step": 5, "action": "false-positive", "element": "xyz", "hashes": [1, 5, 9], "result": "FALSE_POSITIVE", "highlightLines": [15, 16], "description": "Lookup 'xyz': hashes point to bits 1,5,9 (all set by hello/world). FALSE POSITIVE!" }
+  ],
+  "minigame": {
+    "type": "bloom-filter",
+    "title": "Bloom Filter Simulator",
+    "description": "Insert elements and observe bit patterns. Test lookups to see false positives in action. Adjust parameters to control false positive rate.",
+    "instructions": [
+      "Set bit array size and hash count",
+      "Insert elements to set bits",
+      "Test various lookups",
+      "Observe false positive rate"
+    ]
+  }
+}

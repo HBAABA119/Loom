@@ -1,0 +1,73 @@
+﻿{
+  "id": "14-shortest-paths",
+  "title": "Shortest Path Algorithms",
+  "category": "advanced",
+  "theory": {
+    "overview": "Shortest path algorithms find the minimum cost path between nodes in a weighted graph. Dijkstra's algorithm finds shortest paths from a single source with non-negative weights (O(E log V)). Bellman-Ford handles negative weights and detects negative cycles (O(VE)). Floyd-Warshall finds all-pairs shortest paths (O(V³)). A* uses heuristics for faster search in known spaces. These power GPS navigation, network routing, and game AI pathfinding.",
+    "keyConcepts": [
+      {
+        "name": "Dijkstra's Algorithm",
+        "description": "Greedy algorithm using priority queue. Maintains tentative distances, always processes closest unvisited node. Only works with non-negative weights."
+      },
+      {
+        "name": "Relaxation",
+        "description": "Core operation: if path through u improves distance to v, update v's distance. Repeated until no improvements possible."
+      },
+      {
+        "name": "Negative Weights",
+        "description": "Negative weights can create negative cycles (infinite negative distance). Bellman-Ford detects these; Dijkstra fails silently."
+      },
+      {
+        "name": "A* Search",
+        "description": "Dijkstra + heuristic estimate to goal. f(n) = g(n) + h(n). With admissible heuristic, finds optimal path faster."
+      }
+    ],
+    "complexity": {
+      "dijkstra": "O(E log V) with binary heap",
+      "bellmanFord": "O(VE)",
+      "floydWarshall": "O(V³)",
+      "aStar": "O(E) depends on heuristic"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Network Delay Time (Dijkstra)", "difficulty": "medium" },
+    { "id": "p2", "title": "Cheapest Flights Within K Stops", "difficulty": "medium" },
+    { "id": "p3", "title": "Path with Maximum Probability", "difficulty": "medium" },
+    { "id": "p4", "title": "Find the City With Smallest Number of Neighbors", "difficulty": "medium" },
+    { "id": "p5", "title": "Number of Ways to Arrive at Destination", "difficulty": "medium" },
+    { "id": "p6", "title": "Minimum Cost to Reach Destination in Time", "difficulty": "hard" },
+    { "id": "p7", "title": "Shortest Path with Alternating Colors", "difficulty": "medium" },
+    { "id": "p8", "title": "Second Minimum Time to Reach Destination", "difficulty": "hard" },
+    { "id": "p9", "title": "Single-Source Shortest Path (Bellman-Ford)", "difficulty": "medium" },
+    { "id": "p10", "title": "Negative Weight Cycle Detection", "difficulty": "medium" },
+    { "id": "p11", "title": "Minimum Cost to Make at Least One Valid Path", "difficulty": "hard" },
+    { "id": "p12", "title": "Shortest Path in a Grid with Obstacles Elimination", "difficulty": "hard" },
+    { "id": "p13", "title": "Path with Minimum Effort", "difficulty": "medium" },
+    { "id": "p14", "title": "Reachable Nodes With Restrictions", "difficulty": "medium" },
+    { "id": "p15", "title": "Minimum Weighted Subgraph With Required Paths", "difficulty": "hard" },
+    { "id": "p16", "title": "Minimum Score of a Path Between Two Cities", "difficulty": "medium" },
+    { "id": "p17", "title": "Longest Path in a DAG", "difficulty": "medium" },
+    { "id": "p18", "title": "Course Schedule III (Priority Queue)", "difficulty": "hard" },
+    { "id": "p19", "title": "Swim in Rising Water (Binary Search + BFS)", "difficulty": "hard" },
+    { "id": "p20", "title": "Design Graph With Shortest Path Calculator", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "nodes": [{"id": "A", "x": 50, "y": 200}, {"id": "B", "x": 200, "y": 100}, {"id": "C", "x": 200, "y": 300}, {"id": "D", "x": 350, "y": 200}], "edges": [{"from": "A", "to": "B", "w": 4}, {"from": "A", "to": "C", "w": 2}, {"from": "B", "to": "D", "w": 5}, {"from": "C", "to": "D", "w": 1}], "dist": {"A": 0, "B": "∞", "C": "∞", "D": "∞"}, "pq": ["A"], "highlightLines": [1, 2, 3], "description": "Dijkstra: Initialize distances. A is source (distance 0). Priority queue = [A]" },
+    { "step": 1, "action": "process", "node": "A", "neighbors": ["B", "C"], "dist": {"A": 0, "B": 4, "C": 2, "D": "∞"}, "pq": ["C", "B"], "highlightLines": [5, 6, 7], "description": "Process A: Relax neighbors. B=4, C=2. Add to PQ." },
+    { "step": 2, "action": "process", "node": "C", "neighbors": ["D"], "dist": {"A": 0, "B": 4, "C": 2, "D": 3}, "pq": ["B", "D"], "highlightLines": [5, 6, 7], "description": "Process C (closest): Relax D. A→C→D = 2+1 = 3. Better than ∞!" },
+    { "step": 3, "action": "process", "node": "B", "neighbors": ["D"], "dist": {"A": 0, "B": 4, "C": 2, "D": 3}, "pq": ["D"], "highlightLines": [5, 6, 7], "description": "Process B: B→D = 4+5 = 9. Not better than current D=3." },
+    { "step": 4, "action": "process", "node": "D", "neighbors": [], "dist": {"A": 0, "B": 4, "C": 2, "D": 3}, "pq": [], "highlightLines": [10, 11], "description": "Process D: No outgoing edges. Algorithm complete!" },
+    { "step": 5, "action": "result", "paths": {"A": "A", "B": "A→B", "C": "A→C", "D": "A→C→D"}, "totalDist": {"A": 0, "B": 4, "C": 2, "D": 3}, "highlightLines": [13, 14], "description": "Final shortest paths from A: B=4, C=2, D=3 (via C)" }
+  ],
+  "minigame": {
+    "type": "pathfinder",
+    "title": "GPS Pathfinder",
+    "description": "Find the shortest route between cities. Compare Dijkstra's algorithm vs A* with different heuristics.",
+    "instructions": [
+      "Select start and destination cities",
+      "Watch Dijkstra explore in all directions",
+      "Switch to A* to see heuristic-guided search",
+      "Compare number of nodes explored by each"
+    ]
+  }
+}

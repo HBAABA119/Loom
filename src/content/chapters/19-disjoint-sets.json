@@ -1,0 +1,72 @@
+﻿{
+  "id": "19-disjoint-sets",
+  "title": "Disjoint Sets (Union-Find)",
+  "category": "advanced",
+  "theory": {
+    "overview": "The Union-Find (Disjoint Set Union - DSU) data structure manages a collection of disjoint sets. It supports two main operations: Find (determine which set an element belongs to) and Union (merge two sets). With path compression and union by rank/size, both operations achieve nearly constant O(α(n)) amortized time, where α is the inverse Ackermann function (practically < 5). Essential for Kruskal's algorithm, cycle detection, and connected components.",
+    "keyConcepts": [
+      {
+        "name": "Path Compression",
+        "description": "During Find, flatten the structure by making every node point directly to root. Dramatically speeds up future queries."
+      },
+      {
+        "name": "Union by Rank/Size",
+        "description": "Always attach smaller tree under larger tree root. Keeps tree shallow, ensuring O(log n) without compression."
+      },
+      {
+        "name": "Inverse Ackermann",
+        "description": "α(n) grows extremely slowly. For all practical n (up to 10^600), α(n) < 5. Effectively constant time."
+      },
+      {
+        "name": "Applications",
+        "description": "Kruskal's MST, cycle detection in undirected graphs, connected components, image processing, least common ancestor."
+      }
+    ],
+    "complexity": {
+      "find": "O(α(n)) amortized - effectively O(1)",
+      "union": "O(α(n)) amortized",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Number of Provinces", "difficulty": "medium" },
+    { "id": "p2", "title": "Redundant Connection", "difficulty": "medium" },
+    { "id": "p3", "title": "Graph Valid Tree", "difficulty": "medium" },
+    { "id": "p4", "title": "Longest Consecutive Sequence", "difficulty": "medium" },
+    { "id": "p5", "title": "Accounts Merge", "difficulty": "medium" },
+    { "id": "p6", "title": "Number of Islands II (Dynamic)", "difficulty": "hard" },
+    { "id": "p7", "title": "Making a Large Island", "difficulty": "hard" },
+    { "id": "p8", "title": "Largest Component Size by Common Factor", "difficulty": "hard" },
+    { "id": "p9", "title": "Regions Cut By Slashes", "difficulty": "medium" },
+    { "id": "p10", "title": "Evaluate Division", "difficulty": "medium" },
+    { "id": "p11", "title": "Lexicographically Smallest Equivalent String", "difficulty": "medium" },
+    { "id": "p12", "title": "Similar String Groups", "difficulty": "hard" },
+    { "id": "p13", "title": "Last Day Where You Can Still Cross", "difficulty": "hard" },
+    { "id": "p14", "title": "Minimize Malware Spread", "difficulty": "hard" },
+    { "id": "p15", "title": "Minimize Malware Spread II", "difficulty": "hard" },
+    { "id": "p16", "title": "Most Stones Removed with Same Row or Column", "difficulty": "medium" },
+    { "id": "p17", "title": "Detect Cycles in 2D Grid", "difficulty": "hard" },
+    { "id": "p18", "title": "Number of Good Paths", "difficulty": "hard" },
+    { "id": "p19", "title": "Process Restricted Friend Requests", "difficulty": "hard" },
+    { "id": "p20", "title": "Union Find Template", "difficulty": "easy" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "n": 5, "parent": [0, 1, 2, 3, 4], "rank": [0, 0, 0, 0, 0], "highlightLines": [1, 2, 3], "description": "Initialize 5 sets. Each element is its own parent, rank = 0." },
+    { "step": 1, "action": "union", "u": 0, "v": 1, "parent": [0, 0, 2, 3, 4], "rank": [1, 0, 0, 0, 0], "highlightLines": [6, 7, 8], "description": "Union(0, 1): Same rank, attach 1 to 0. New rank of 0 = 1." },
+    { "step": 2, "action": "union", "u": 2, "v": 3, "parent": [0, 0, 2, 2, 4], "rank": [1, 0, 1, 0, 0], "highlightLines": [6, 7, 8], "description": "Union(2, 3): Same rank, attach 3 to 2. New rank of 2 = 1." },
+    { "step": 3, "action": "find", "x": 3, "root": 2, "path": [3, 2], "highlightLines": [11, 12], "description": "Find(3): Path compression. 3's parent is 2 (already root)." },
+    { "step": 4, "action": "union", "u": 1, "v": 2, "parent": [0, 0, 0, 2, 4], "rank": [1, 0, 1, 0, 0], "highlightLines": [6, 7, 8], "description": "Union(0's set, 2's set): Rank equal, attach 2 to 0. Root 0 now rank 2." },
+    { "step": 5, "action": "find", "x": 3, "compressed": true, "parent": [0, 0, 0, 0, 4], "highlightLines": [11, 12, 13], "description": "Find(3): Path compression! 3 now points directly to root 0." }
+  ],
+  "minigame": {
+    "type": "union-find",
+    "title": "Union-Find Visualizer",
+    "description": "Perform union and find operations. Watch path compression flatten trees and union by rank keep trees shallow.",
+    "instructions": [
+      "Initialize sets",
+      "Perform unions to merge sets",
+      "Use find with path compression",
+      "Observe how trees stay flat"
+    ]
+  }
+}

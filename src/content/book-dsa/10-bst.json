@@ -1,0 +1,406 @@
+{
+  "id": "10-bst",
+  "bookId": "book-dsa",
+  "title": "Binary Search Trees",
+  "category": "Trees",
+  "order": 10,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Binary Search Tree (BST) is a binary tree where for each node, all values in left subtree are less than node's value, and all values in right subtree are greater. This property enables efficient search, insert, and delete operations in $O(\\log n)$ average time (balanced tree) or $O(n)$ worst case (skewed tree). BSTs are fundamental data structures used in databases, file systems, and as building blocks for balanced trees (AVL, Red-Black). This chapter covers BST operations, traversal, and common problems.",
+    "sections": [
+      {
+        "title": "BST Properties",
+        "content": "BST invariant: for any node, left subtree values < node value < right subtree values. This enables binary search: compare target with root, go left if smaller, right if larger. In-order traversal yields sorted order. Height determines performance: balanced tree height $O(\\log n)$, skewed tree height $O(n)$. BST is not guaranteed to be balanced—insertion order affects shape.",
+        "invariant": "left < node < right for all nodes",
+        "traversal": "In-order → sorted order"
+      },
+      {
+        "title": "BST Operations",
+        "content": "Search: $O(h)$ where h is height. Compare with root, go left/right recursively. Insert: $O(h)$. Search for position, insert as leaf. Delete: $O(h)$. Three cases: leaf (just remove), one child (replace with child), two children (replace with inorder successor or predecessor, then delete that node).",
+        "complexity": { "search": "$O(h)$", "insert": "$O(h)$", "delete": "$O(h)$" },
+        "deleteCases": ["Leaf: remove", "One child: replace with child", "Two children: replace with inorder successor"]
+      },
+      {
+        "title": "BST Traversals",
+        "content": "In-order (left, root, right): yields sorted order. Pre-order (root, left, right): useful for copying tree. Post-order (left, right, root): useful for deleting tree (delete children before parent). Level-order (BFS): process level by level. All traversals are $O(n)$ time, $O(h)$ space for recursion stack.",
+        "traversals": [
+          { "name": "In-order", "order": "left-root-right", "use": "Sorted order" },
+          { "name": "Pre-order", "order": "root-left-right", "use": "Copy tree" },
+          { "name": "Post-order", "order": "left-right-root", "use": "Delete tree" },
+          { "name": "Level-order", "order": "BFS by level", "use": "Level processing" }
+        ]
+      },
+      {
+        "title": "BST Applications",
+        "content": "Database indexes: B-trees (generalization of BST) for efficient range queries. Symbol tables: compilers use BSTs for variable lookup. Priority queues: BST can implement (though heaps are more efficient). Sorting: in-order traversal of BST built from unsorted data. Range queries: find all values in range [a, b].",
+        "applications": [
+          "Database indexes (B-trees)",
+          "Symbol tables",
+          "Range queries",
+          "Sorting via insertion + traversal"
+        ]
+      },
+      {
+        "title": "BST vs Balanced Trees",
+        "content": "BST: $O(\\log n)$ average, $O(n)$ worst. No guaranteed balance. Simple implementation. AVL tree: $O(\\log n)$ guaranteed. Maintains balance factor (height difference ≤ 1). Rotations on insert/delete. Red-Black tree: $O(\\log n)$ guaranteed. Color-based balancing. Simpler than AVL. Used in many standard libraries.",
+        "comparison": [
+          { "aspect": "Worst case", "bst": "$O(n)$", "avl": "$O(\\log n)$", "rb": "$O(\\log n)$" },
+          { "aspect": "Balance", "bst": "No guarantee", "avl": "Height difference ≤ 1", "rb": "Color properties" },
+          { "aspect": "Complexity", "bst": "Simple", "avl": "Moderate", "rb": "Moderate" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "BST Invariant",
+        "description": "For every node: left subtree values < node value < right subtree values. This property enables binary search.",
+        "check": "In-order traversal yields sorted order"
+      },
+      {
+        "name": "Height",
+        "description": "Height of tree = length of longest path from root to leaf. Balanced BST height = $O(\\log n)$, skewed = $O(n)$. Performance depends on height.",
+        "formula": "Height of balanced tree with n nodes ≈ $\\log_2 n$"
+      },
+      {
+        "name": "Inorder Successor",
+        "description": "Next node in in-order traversal. For node with right child: leftmost in right subtree. Without right child: first ancestor where node is in left subtree.",
+        "use": "Delete operation, finding next greater element"
+      },
+      {
+        "name": "Recursion",
+        "description": "BST operations naturally recursive. Base case: null node. Recursive case: operate on left/right subtree. Stack depth = tree height.",
+        "pattern": "Operation(node) = combine(Operation(node.left), node, Operation(node.right))"
+      }
+    ],
+    "complexity": {
+      "search": "$O(h)$ where h is height",
+      "insert": "$O(h)$",
+      "delete": "$O(h)$",
+      "traversal": "$O(n)$ time, $O(h)$ space",
+      "minMax": "$O(h)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Search",
+      "description": "Compare target with root. If equal, return. If target < root, search left. Else search right.",
+      "code": "if root == null: return null; if target == root.val: return root; if target < root.val: return search(root.left); return search(root.right);",
+      "visualState": { "current": "root", "direction": "left or right" }
+    },
+    {
+      "step": 2,
+      "title": "Insert",
+      "description": "Search for insertion point (null). Insert as new node at that position.",
+      "code": "if root == null: return new Node(val); if val < root.val: root.left = insert(root.left, val); else: root.right = insert(root.right, val); return root;",
+      "visualState": { "position": "leaf", "newNode": true }
+    },
+    {
+      "step": 3,
+      "title": "Find Min/Max",
+      "description": "Min: go left until null. Max: go right until null.",
+      "code": "def find_min(node): while node.left: node = node.left; return node;",
+      "visualState": { "path": "all left or all right" }
+    },
+    {
+      "step": 4,
+      "title": "Delete - Two Children",
+      "description": "Find inorder successor (min in right subtree). Replace node with successor. Delete successor from right subtree.",
+      "code": "successor = find_min(root.right); root.val = successor.val; root.right = delete(root.right, successor.val);",
+      "visualState": { "action": "replace with successor" }
+    },
+    {
+      "step": 5,
+      "title": "Traverse",
+      "description": "In-order: traverse left, visit root, traverse right. Yields sorted order.",
+      "code": "def inorder(node): if node: inorder(node.left); visit(node); inorder(node.right);",
+      "visualState": { "order": "left-root-right" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Validate BST",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if binary tree is valid BST.",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "In-order traversal with min/max bounds. For each node, check if value in (min, max). Recurse with updated bounds.",
+      "hints": "Pass min/max bounds, check if node value in range"
+    },
+    {
+      "id": "p2",
+      "title": "Search in BST",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Search for value in BST, return node or null.",
+      "complexity": { "time": "$O(h)$", "space": "$O(h)$" },
+      "solution": "Recursive or iterative. Compare with root, go left if smaller, right if larger.",
+      "hints": "Binary search: compare, go left or right"
+    },
+    {
+      "id": "p3",
+      "title": "Insert into BST",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Insert value into BST, return root.",
+      "complexity": { "time": "$O(h)$", "space": "$O(h)$" },
+      "solution": "Search for null position, insert as leaf. Recursive or iterative.",
+      "hints": "Find null position, insert as leaf"
+    },
+    {
+      "id": "p4",
+      "title": "Delete from BST",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Delete node with given value from BST.",
+      "complexity": { "time": "$O(h)$", "space": "$O(h)$" },
+      "solution": "Three cases: leaf (remove), one child (replace with child), two children (replace with inorder successor).",
+      "hints": "Handle three cases: leaf, one child, two children"
+    },
+    {
+      "id": "p5",
+      "title": "Kth Smallest Element",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find kth smallest element in BST.",
+      "complexity": { "time": "$O(h + k)$", "space": "$O(h)$" },
+      "solution": "In-order traversal, count nodes. Return when count == k. Or use augmented nodes with left subtree size.",
+      "hints": "In-order traversal, count until k"
+    },
+    {
+      "id": "p6",
+      "title": "Lowest Common Ancestor",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find LCA of two nodes in BST.",
+      "complexity": { "time": "$O(h)$", "space": "$O(h)$" },
+      "solution": "If both nodes < root, LCA in left. If both > root, LCA in right. Else root is LCA.",
+      "hints": "Use BST property to narrow search"
+    },
+    {
+      "id": "p7",
+      "title": "Convert Sorted Array to BST",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Convert sorted array to height-balanced BST.",
+      "complexity": { "time": "$O(n)$", "space": "$O(\\log n)$" },
+      "solution": "Recursively pick middle as root, build left from left half, right from right half.",
+      "hints": "Middle element as root, recurse on halves"
+    },
+    {
+      "id": "p8",
+      "title": "Balanced BST",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if BST is height-balanced (|height(left) - height(right)| ≤ 1 for all nodes).",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Recursively check balance, return height. If any subtree unbalanced, propagate -1.",
+      "hints": "Return height, check balance at each node"
+    },
+    {
+      "id": "p9",
+      "title": "Inorder Successor",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find inorder successor of given node in BST.",
+      "complexity": { "time": "$O(h)$", "space": "$O(1)$" },
+      "solution": "If right child exists: leftmost in right subtree. Else: traverse up until node is left child of parent.",
+      "hints": "Right child: leftmost in right. No right: first ancestor where node is left child"
+    },
+    {
+      "id": "p10",
+      "title": "Range Sum of BST",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Sum of all node values in range [low, high].",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "In-order traversal. If node value < low, only go right. If > high, only go left. Else sum node and recurse both sides.",
+      "hints": "Prune: if value < low, skip left; if > high, skip right"
+    },
+    {
+      "id": "p11",
+      "title": "Two Sum IV - Input is BST",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find if two elements in BST sum to k.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Hash set during traversal. For each node, check if k - node.val in set. Add node.val to set.",
+      "hints": "Hash set, check complement during traversal"
+    },
+    {
+      "id": "p12",
+      "title": "Minimum Absolute Difference",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find minimum absolute difference between any two nodes in BST.",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "In-order traversal (sorted). Track previous value, compute min difference with current.",
+      "hints": "In-order gives sorted order, compare consecutive"
+    },
+    {
+      "id": "p13",
+      "title": "Find Mode in BST",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find mode(s) (most frequent value) in BST.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "In-order traversal. Track current value count, max count, and modes list.",
+      "hints": "In-order, track count of current value"
+    },
+    {
+      "id": "p14",
+      "title": "Convert BST to Greater Tree",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Convert BST so each node value = sum of all values greater than or equal to original.",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Reverse in-order (right-root-left). Maintain running sum, add to each node.",
+      "hints": "Reverse in-order, maintain running sum"
+    },
+    {
+      "id": "p15",
+      "title": "Binary Tree Inorder Traversal",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Iterative in-order traversal (no recursion).",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Stack. Push all left nodes. Pop, visit, push right subtree's left nodes.",
+      "hints": "Stack simulates recursion, push all left first"
+    },
+    {
+      "id": "p16",
+      "title": "Binary Tree Preorder Traversal",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Iterative preorder traversal.",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Stack. Push root. While stack: pop, visit, push right then left (left processed first).",
+      "hints": "Stack: push right then left (LIFO)"
+    },
+    {
+      "id": "p17",
+      "title": "Binary Tree Postorder Traversal",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Iterative postorder traversal.",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Two stacks or one stack with visited flag. Or modify tree (reverse preorder then reverse result).",
+      "hints": "Two stacks or reverse preorder"
+    },
+    {
+      "id": "p18",
+      "title": "Binary Tree Level Order",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Level order traversal (BFS).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Queue. Enqueue root. While queue: process level (all nodes in queue), enqueue children.",
+      "hints": "Queue for BFS, process all nodes at current level"
+    },
+    {
+      "id": "p19",
+      "title": "Binary Tree Right Side View",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return right side view of binary tree (nodes visible from right).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "BFS, take last node of each level. Or DFS with depth, take first node at each depth from right.",
+      "hints": "BFS: last node of each level. DFS: rightmost at each depth"
+    },
+    {
+      "id": "p20",
+      "title": "Binary Tree Vertical Order",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return vertical order traversal (group nodes by column index).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "BFS with column index. Hash map: column → list of (row, value). Sort by row within each column.",
+      "hints": "BFS with column index, hash map by column"
+    },
+    {
+      "id": "p21",
+      "title": "Binary Tree Zigzag Level Order",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Zigzag level order (left to right, then right to left, alternating).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "BFS with direction flag. Reverse every other level's result.",
+      "hints": "BFS, reverse every other level"
+    },
+    {
+      "id": "p22",
+      "title": "Maximum Depth of Binary Tree",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find maximum depth (height) of binary tree.",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Recursive: 1 + max(depth(left), depth(right)). Or BFS counting levels.",
+      "hints": "Recursive: 1 + max of children depths"
+    },
+    {
+      "id": "p23",
+      "title": "Minimum Depth of Binary Tree",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find minimum depth (shortest path to leaf).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "BFS. Return level when first leaf found. Or recursive with null child handling.",
+      "hints": "BFS returns first leaf level"
+    },
+    {
+      "id": "p24",
+      "title": "Symmetric Tree",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if tree is symmetric (mirror of itself).",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Recursive: compare left.left with right.right, left.right with right.left.",
+      "hints": "Compare mirror positions recursively"
+    },
+    {
+      "id": "p25",
+      "title": "Path Sum",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if root-to-leaf path sums to target.",
+      "complexity": { "time": "$O(n)$", "space": "$O(h)$" },
+      "solution": "Recursive: subtract node value from target, check if leaf with target 0.",
+      "hints": "Subtract value, check leaf with target 0"
+    }
+  ],
+  "minigame": {
+    "id": "bst-builder",
+    "title": "BST Master",
+    "description": "Build and manipulate BSTs! Insert, search, and traverse interactively.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Build", "task": "Insert [5,3,7,2,4,6,8] into BST" },
+      { "name": "Search", "task": "Find value 6 in BST" },
+      { "name": "Traverse", "task": "Perform in-order traversal" }
+    ]
+  },
+  "visualizer": {
+    "type": "bst-operations",
+    "title": "BST Operations Visualizer",
+    "description": "Visualize BST insert, search, delete, and traversal step by step.",
+    "features": ["Tree visualization", "Path highlighting", "Animation of operations"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "BST Node Definition",
+        "code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right"
+      },
+      {
+        "title": "BST Search",
+        "code": "def search(root, val):\n    if not root or root.val == val:\n        return root\n    if val < root.val:\n        return search(root.left, val)\n    return search(root.right, val)  # O(h) time"
+      },
+      {
+        "title": "BST Insert",
+        "code": "def insert(root, val):\n    if not root:\n        return TreeNode(val)\n    if val < root.val:\n        root.left = insert(root.left, val)\n    else:\n        root.right = insert(root.right, val)\n    return root  # O(h) time"
+      }
+    ]
+  }
+}

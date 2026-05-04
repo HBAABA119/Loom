@@ -1,0 +1,73 @@
+﻿{
+  "id": "10-bst",
+  "title": "Binary Search Trees",
+  "category": "intermediate",
+  "theory": {
+    "overview": "A Binary Search Tree (BST) is a node-based binary tree data structure with the property that for each node, all values in the left subtree are smaller, and all values in the right subtree are larger. This ordering enables efficient O(log n) search, insertion, and deletion in a balanced tree. BSTs are the foundation for ordered maps, sets, and database indexing structures.",
+    "keyConcepts": [
+      {
+        "name": "BST Property",
+        "description": "For any node: left subtree values < node.value < right subtree values. This must hold for ALL nodes, not just immediate children."
+      },
+      {
+        "name": "Tree Traversals",
+        "description": "Inorder (left-root-right) gives sorted order. Preorder (root-left-right) for copying. Postorder (left-right-root) for deletion."
+      },
+      {
+        "name": "Balanced vs Unbalanced",
+        "description": "Balanced BSTs (AVL, Red-Black) guarantee O(log n) operations. Unbalanced can degrade to O(n) linked list."
+      },
+      {
+        "name": "Successor/Predecessor",
+        "description": "Inorder successor is minimum of right subtree (or parent where we went left). Predecessor is maximum of left subtree."
+      }
+    ],
+    "complexity": {
+      "search": "O(log n) balanced, O(n) worst",
+      "insert": "O(log n) balanced, O(n) worst",
+      "delete": "O(log n) balanced, O(n) worst",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Validate Binary Search Tree", "difficulty": "medium" },
+    { "id": "p2", "title": "Kth Smallest Element in BST", "difficulty": "medium" },
+    { "id": "p3", "title": "Lowest Common Ancestor of BST", "difficulty": "easy" },
+    { "id": "p4", "title": "Lowest Common Ancestor of BT", "difficulty": "medium" },
+    { "id": "p5", "title": "Convert Sorted Array to BST", "difficulty": "easy" },
+    { "id": "p6", "title": "Convert BST to Greater Tree", "difficulty": "medium" },
+    { "id": "p7", "title": "Delete Node in BST", "difficulty": "medium" },
+    { "id": "p8", "title": "Insert into BST", "difficulty": "medium" },
+    { "id": "p9", "title": "Search in BST", "difficulty": "easy" },
+    { "id": "p10", "title": "Range Sum of BST", "difficulty": "easy" },
+    { "id": "p11", "title": "Two Sum IV - Input is BST", "difficulty": "easy" },
+    { "id": "p12", "title": "Binary Search Tree Iterator", "difficulty": "medium" },
+    { "id": "p13", "title": "Closest Binary Search Tree Value", "difficulty": "easy" },
+    { "id": "p14", "title": "Closest Binary Search Tree Value II", "difficulty": "hard" },
+    { "id": "p15", "title": "Recover Binary Search Tree", "difficulty": "hard" },
+    { "id": "p16", "title": "Unique Binary Search Trees (Catalan)", "difficulty": "medium" },
+    { "id": "p17", "title": "Unique Binary Search Trees II", "difficulty": "medium" },
+    { "id": "p18", "title": "Balance a Binary Search Tree", "difficulty": "medium" },
+    { "id": "p19", "title": "Serialize and Deserialize BST", "difficulty": "medium" },
+    { "id": "p20", "title": "All Elements in Two BSTs", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "nodes": [{"id": "root", "value": 50, "left": null, "right": null, "parent": null, "x": 350, "y": 50}], "activeNode": "root", "comparingNode": null, "highlightLines": [1, 2], "description": "Initialize BST with root node (50)" },
+    { "step": 1, "action": "insert", "nodes": [{"id": "root", "value": 50, "left": "n30", "right": null, "parent": null, "x": 350, "y": 50}, {"id": "n30", "value": 30, "left": null, "right": null, "parent": "root", "x": 200, "y": 150}], "activeNode": "n30", "comparingNode": "root", "highlightLines": [5, 6, 7, 8], "description": "Insert 30: 30 < 50, go left. Add as left child of 50" },
+    { "step": 2, "action": "insert", "nodes": [{"id": "root", "value": 50, "left": "n30", "right": "n70", "parent": null, "x": 350, "y": 50}, {"id": "n30", "value": 30, "left": null, "right": null, "parent": "root", "x": 200, "y": 150}, {"id": "n70", "value": 70, "left": null, "right": null, "parent": "root", "x": 500, "y": 150}], "activeNode": "n70", "comparingNode": "root", "highlightLines": [5, 6, 9, 10], "description": "Insert 70: 70 > 50, go right. Add as right child of 50" },
+    { "step": 3, "action": "insert", "nodes": [{"id": "root", "value": 50, "left": "n30", "right": "n70", "parent": null, "x": 350, "y": 50}, {"id": "n30", "value": 30, "left": "n20", "right": null, "parent": "root", "x": 200, "y": 150}, {"id": "n70", "value": 70, "left": null, "right": null, "parent": "root", "x": 500, "y": 150}, {"id": "n20", "value": 20, "left": null, "right": null, "parent": "n30", "x": 125, "y": 250}], "activeNode": "n20", "comparingNode": "n30", "highlightLines": [5, 6, 7, 8], "description": "Insert 20: 20 < 50 → 20 < 30, go left. Add as left child of 30" },
+    { "step": 4, "action": "insert", "nodes": [{"id": "root", "value": 50, "left": "n30", "right": "n70", "parent": null, "x": 350, "y": 50}, {"id": "n30", "value": 30, "left": "n20", "right": "n40", "parent": "root", "x": 200, "y": 150}, {"id": "n70", "value": 70, "left": null, "right": null, "parent": "root", "x": 500, "y": 150}, {"id": "n20", "value": 20, "left": null, "right": null, "parent": "n30", "x": 125, "y": 250}, {"id": "n40", "value": 40, "left": null, "right": null, "parent": "n30", "x": 275, "y": 250}], "activeNode": "n40", "comparingNode": "n30", "highlightLines": [5, 6, 9, 10], "description": "Insert 40: 40 < 50 → 40 > 30, go right. Add as right child of 30" },
+    { "step": 5, "action": "search", "nodes": [{"id": "root", "value": 50, "left": "n30", "right": "n70", "parent": null, "x": 350, "y": 50}, {"id": "n30", "value": 30, "left": "n20", "right": "n40", "parent": "root", "x": 200, "y": 150}, {"id": "n70", "value": 70, "left": null, "right": null, "parent": "root", "x": 500, "y": 150}, {"id": "n20", "value": 20, "left": null, "right": null, "parent": "n30", "x": 125, "y": 250}, {"id": "n40", "value": 40, "left": null, "right": null, "parent": "n30", "x": 275, "y": 250}], "activeNode": "n40", "comparingNode": "n30", "highlightLines": [13, 14, 15, 16], "description": "Search 40: 40 < 50 → 40 > 30 → Found at right child of 30!" }
+  ],
+  "minigame": {
+    "type": "bst-build",
+    "title": "Build a Valid BST",
+    "description": "Insert nodes to build a valid Binary Search Tree. The tree must maintain BST property: left < parent < right at every node.",
+    "instructions": [
+      "Insert values one by one",
+      "Observe automatic placement based on BST property",
+      "Tree structure emerges from value comparisons",
+      "Try inserting in different orders to see different shapes"
+    ]
+  }
+}

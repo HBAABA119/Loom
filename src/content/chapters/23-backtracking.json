@@ -1,0 +1,72 @@
+﻿{
+  "id": "23-backtracking",
+  "title": "Backtracking",
+  "category": "advanced",
+  "theory": {
+    "overview": "Backtracking is a systematic way of trying out different sequences of decisions until a solution is found. It builds candidates incrementally and abandons a candidate ('backtracks') as soon as it determines the candidate cannot possibly lead to a valid solution. Think of it as a refined brute force that prunes invalid branches early. Classic applications include N-Queens, Sudoku, permutation generation, and constraint satisfaction problems.",
+    "keyConcepts": [
+      {
+        "name": "State Space Tree",
+        "description": "Visualize all possible solutions as a tree. Each level represents a decision, each branch a choice. Search this tree depth-first."
+      },
+      {
+        "name": "Pruning",
+        "description": "Abandon partial candidates when they violate constraints. Reduces exponential search space dramatically."
+      },
+      {
+        "name": "Constraint Propagation",
+        "description": "After each choice, propagate constraints to reduce future choices. Used in Sudoku solvers and constraint satisfaction."
+      },
+      {
+        "name": "Heuristics",
+        "description": "Most Constrained Variable: choose variable with fewest valid options first. Least Constraining Value: choose value that rules out fewest options."
+      }
+    ],
+    "complexity": {
+      "time": "O(b^d) without pruning - exponential",
+      "space": "O(d) for recursion stack where d is depth",
+      "pruned": "Dramatically reduced with good constraints"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "N-Queens", "difficulty": "hard" },
+    { "id": "p2", "title": "N-Queens II", "difficulty": "hard" },
+    { "id": "p3", "title": "Sudoku Solver", "difficulty": "hard" },
+    { "id": "p4", "title": "Combination Sum", "difficulty": "medium" },
+    { "id": "p5", "title": "Combination Sum II", "difficulty": "medium" },
+    { "id": "p6", "title": "Combination Sum III", "difficulty": "medium" },
+    { "id": "p7", "title": "Permutations", "difficulty": "medium" },
+    { "id": "p8", "title": "Permutations II (with duplicates)", "difficulty": "medium" },
+    { "id": "p9", "title": "Subsets", "difficulty": "medium" },
+    { "id": "p10", "title": "Subsets II (with duplicates)", "difficulty": "medium" },
+    { "id": "p11", "title": "Generate Parentheses", "difficulty": "medium" },
+    { "id": "p12", "title": "Letter Combinations of Phone Number", "difficulty": "medium" },
+    { "id": "p13", "title": "Palindrome Partitioning", "difficulty": "medium" },
+    { "id": "p14", "title": "Restore IP Addresses", "difficulty": "medium" },
+    { "id": "p15", "title": "Word Break II", "difficulty": "hard" },
+    { "id": "p16", "title": "Expression Add Operators", "difficulty": "hard" },
+    { "id": "p17", "title": "Beautiful Arrangement", "difficulty": "medium" },
+    { "id": "p18", "title": "Matchsticks to Square", "difficulty": "medium" },
+    { "id": "p19", "title": "Partition to K Equal Sum Subsets", "difficulty": "medium" },
+    { "id": "p20", "title": "Strobogrammatic Number II", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "board": [[".", ".", "."], [".", ".", "."], [".", ".", "."]], "n": 3, "highlightLines": [1, 2], "description": "3-Queens: Empty 3x3 board. Place 3 queens so none attack each other." },
+    { "step": 1, "action": "place", "row": 0, "col": 0, "board": [["Q", ".", "."], [".", ".", "."], [".", ".", "."]], "highlightLines": [5, 6], "description": "Place queen at (0,0). Mark row 0, col 0, diagonals." },
+    { "step": 2, "action": "try", "row": 1, "col": 0, "valid": false, "highlightLines": [8, 9], "description": "Row 1, Col 0: Invalid - same diagonal as (0,0)." },
+    { "step": 3, "action": "try", "row": 1, "col": 2, "valid": true, "board": [["Q", ".", "."], [".", ".", "Q"], [".", ".", "."]], "highlightLines": [8, 9], "description": "Row 1, Col 2: Valid! Place queen." },
+    { "step": 4, "action": "backtrack", "row": 2, "validPositions": 0, "highlightLines": [12, 13], "description": "Row 2: No valid positions! Backtrack - remove queen from (1,2)." },
+    { "step": 5, "action": "place", "row": 1, "col": 1, "valid": false, "highlightLines": [8, 9], "description": "Row 1, Col 1: Invalid - same diagonal as (0,0). Try next." }
+  ],
+  "minigame": {
+    "type": "n-queens",
+    "title": "N-Queens Puzzle",
+    "description": "Place N queens on N×N board so no two attack each other. Watch backtracking in action as it tries, fails, and backtracks.",
+    "instructions": [
+      "Select board size N",
+      "Watch backtracking algorithm try positions",
+      "See invalid placements trigger backtracking",
+      "Observe pruning reducing search space"
+    ]
+  }
+}

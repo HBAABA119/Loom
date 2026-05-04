@@ -1,0 +1,411 @@
+{
+  "id": "26-suffix-trees",
+  "bookId": "book-dsa",
+  "title": "Suffix Trees & Arrays",
+  "category": "Strings",
+  "order": 26,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Suffix trees and suffix arrays are powerful data structures for string processing. Suffix tree is a compressed trie of all suffixes of a string, enabling efficient substring search, pattern matching, and longest common substring. Suffix array is a sorted array of all suffix indices, more space-efficient than suffix tree. Used in bioinformatics (DNA analysis), text editors, and search engines. This chapter covers suffix tree construction, suffix array, and their applications.",
+    "sections": [
+      {
+        "title": "Suffix Tree",
+        "content": "Compressed trie containing all suffixes of string. Each edge labeled with substring. Internal nodes represent common prefixes. All suffixes end at leaves (or marked). Construction: Ukkonen's algorithm in $O(n)$ time. Space: $O(n)$. Enables $O(m)$ substring search where m is pattern length.",
+        "properties": [
+          "All suffixes in one tree",
+          "Compressed (no single-child nodes)",
+          "Substring search in O(m)",
+          "Space O(n)"
+        ]
+      },
+      {
+        "title": "Suffix Array",
+        "content": "Sorted array of suffix starting indices. For string 'banana': [5,3,1,0,4,2] (a, ana, anana, banana, na, nana). Construction: naive $O(n^2 \\log n)$, SA-IS $O(n)$, prefix doubling $O(n \\log^2 n)$. Space: $O(n)$. Used with LCP array for efficient substring operations.",
+        "construction": [
+          "Naive: sort suffixes, $O(n^2 \\log n)$",
+          "Prefix doubling: $O(n \\log^2 n)$",
+          "SA-IS: $O(n)$"
+        ]
+      },
+      {
+        "title": "LCP Array",
+        "content": "Longest Common Prefix array. LCP[i] = longest common prefix of suffixes at SA[i] and SA[i-1]. Kasai's algorithm computes LCP in $O(n)$. Used with suffix array for substring search, longest repeated substring, and longest common substring of two strings.",
+        "algorithm": "Kasai's algorithm: compute LCP in O(n) using rank array.",
+        "complexity": { "time": "$O(n)$", "space": "$O(n)$" }
+      },
+      {
+        "title": "Applications",
+        "content": "Substring search: find pattern in text using suffix array + LCP. Longest repeated substring: max LCP value. Longest common substring of two strings: concatenate with separator, build suffix array, find max LCP across separator. Pattern matching in genome sequences.",
+        "applications": [
+          "Substring search",
+          "Longest repeated substring",
+          "Longest common substring",
+          "Pattern matching"
+        ]
+      },
+      {
+        "title": "Suffix Tree vs Suffix Array",
+        "content": "Suffix tree: $O(n)$ construction (Ukkonen), $O(m)$ search, $O(n)$ space. More complex to implement. Suffix array: $O(n)$ or $O(n \\log^2 n)$ construction, $O(m \\log n)$ search with binary search, $O(n)$ space. Simpler, more space-efficient. Choose based on use case.",
+        "comparison": [
+          { "aspect": "Construction", "tree": "$O(n)$", "array": "$O(n \\log^2 n)$" },
+          { "aspect": "Search", "tree": "$O(m)$", "array": "$O(m \\log n)$" },
+          { "aspect": "Space", "tree": "$O(n)$", "array": "$O(n)$" },
+          { "aspect": "Complexity", "tree": "High", "array": "Moderate" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Compressed Trie",
+        "description": "Trie with no single-child nodes (edges merged). Reduces space and improves efficiency.",
+        "benefit": "Linear space for suffixes"
+      },
+      {
+        "name": "Ukkonen's Algorithm",
+        "description": "Linear-time suffix tree construction. Builds tree incrementally, maintaining active point and suffix links.",
+        "complexity": "$O(n)$ time"
+      },
+      {
+        "name": "LCP",
+        "description": "Longest Common Prefix between consecutive suffixes in sorted order. Enables efficient substring operations.",
+        "use": "With suffix array for substring search"
+      },
+      {
+        "name": "Rank Array",
+        "description": "Inverse of suffix array: rank[i] = position of suffix starting at i in suffix array. Used in LCP computation.",
+        "relation": "rank[SA[i]] = i"
+      }
+    ],
+    "complexity": {
+      "suffixTree": "$O(n)$ construction, $O(m)$ search, $O(n)$ space",
+      "suffixArray": "$O(n \\log^2 n)$ construction, $O(m \\log n)$ search, $O(n)$ space",
+      "lcp": "$O(n)$ computation"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Generate Suffixes",
+      "description": "Generate all suffixes of string (indices or actual strings).",
+      "code": "suffixes = [(s[i:], i) for i in range(len(s))];",
+      "visualState": { "suffixes": "generated" }
+    },
+    {
+      "step": 2,
+      "title": "Sort Suffixes",
+      "description": "Sort suffixes lexicographically to build suffix array.",
+      "code": "suffixes.sort(key=lambda x: x[0]); sa = [i for _, i in suffixes];",
+      "visualState": { "sorted": "lexicographically" }
+    },
+    {
+      "step": 3,
+      "title": "Compute LCP",
+      "description": "Compute LCP array using Kasai's algorithm (rank array + suffix array).",
+      "code": "rank = [0] * n; for i, idx in enumerate(sa): rank[idx] = i; lcp = kasai(s, sa, rank);",
+      "visualState": { "lcp": "computed" }
+    },
+    {
+      "step": 4,
+      "title": "Search",
+      "description": "Binary search in suffix array to find pattern. Use LCP to narrow search.",
+      "code": "binary_search(sa, s, pattern);",
+      "visualState": { "found": "pattern positions" }
+    },
+    {
+      "step": 5,
+      "title": "Query",
+      "description": "Answer queries: longest repeated substring, longest common substring, etc.",
+      "code": "max_lcp = max(lcp); return s[sa[lcp_index]:sa[lcp_index]+max_lcp];",
+      "visualState": { "result": "computed" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Longest Repeated Substring",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest substring that appears at least twice.",
+      "example": "s='banana'. Output: 'ana'",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Suffix array + LCP. Longest repeated substring = suffix with max LCP.",
+      "hints": "Suffix array + LCP, max LCP"
+    },
+    {
+      "id": "p2",
+      "title": "Longest Common Substring",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find longest common substring of two strings.",
+      "complexity": { "time": "$O((n+m) \\log (n+m))$", "space": "$O(n+m)$" },
+      "solution": "Concatenate with separator, build suffix array, find max LCP across separator.",
+      "hints": "Concatenate with separator, find max LCP across separator"
+    },
+    {
+      "id": "p3",
+      "title": "Shortest Palindrome",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Shortest palindrome by adding characters in front.",
+      "example": "s='aacecaaa'. Output: 'aaacecaaa'",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "KMP on s + '#' + reverse(s). Find longest prefix of reverse that matches suffix of s.",
+      "hints": "KMP on s + '#' + reverse(s)"
+    },
+    {
+      "id": "p4",
+      "title": "Repeated Substring Pattern",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if string can be constructed by repeating a substring.",
+      "example": "s='abab'. Output: true ('ab' repeated)",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "KMP LPS array. If n % (n - lps[n-1]) == 0 and lps[n-1] > 0, true.",
+      "hints": "KMP LPS array"
+    },
+    {
+      "id": "p5",
+      "title": "Implement strStr()",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find first occurrence of needle in haystack.",
+      "complexity": { "time": "$O(n+m)$", "space": "$O(m)$" },
+      "solution": "KMP algorithm. Build LPS array for needle, then search.",
+      "hints": "KMP algorithm"
+    },
+    {
+      "id": "p6",
+      "title": "Repeated DNA Sequences",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all 10-letter sequences occurring more than once in DNA.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Rolling hash or hash set. Slide window of size 10.",
+      "hints": "Rolling hash or hash set"
+    },
+    {
+      "id": "p7",
+      "title": "Add and Search Word",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Add word and search with '.' wildcard.",
+      "complexity": { "add": "$O(m)$", "search": "$O(26^m)$ worst" },
+      "solution": "Trie. For search with '.', try all children recursively.",
+      "hints": "Trie with DFS for wildcard"
+    },
+    {
+      "id": "p8",
+      "title": "Word Search II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all words from dictionary in board.",
+      "complexity": { "time": "$O(m \\times n \\times 4^L)$", "space": "$O(total chars)$" },
+      "solution": "Trie + DFS. Build Trie from dictionary. DFS from each cell.",
+      "hints": "Trie + DFS"
+    },
+    {
+      "id": "p9",
+      "title": "Word Break",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if string can be segmented into dictionary words.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "DP. dp[i] = true if s[0:i] can be segmented. Trie for prefix check.",
+      "hints": "DP + Trie for prefix check"
+    },
+    {
+      "id": "p10",
+      "title": "Word Squares",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all word squares (k×k grid where row i = column i as words).",
+      "complexity": { "time": "$O(n \\times L!)$", "space": "$O(n \\times L)$" },
+      "solution": "Trie + backtracking. Build square row by row.",
+      "hints": "Trie + backtracking"
+    },
+    {
+      "id": "p11",
+      "title": "Stream of Characters",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if any suffix of stream is in word list.",
+      "complexity": { "query": "$O(L)$" },
+      "solution": "Trie of reversed words. Maintain stream, check if any suffix matches.",
+      "hints": "Trie of reversed words"
+    },
+    {
+      "id": "p12",
+      "title": "Design Add and Search Words",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Optimized version with word length grouping.",
+      "complexity": { "add": "$O(L)$", "search": "$O(L)$" },
+      "solution": "Group words by length. For search, only check words of same length.",
+      "hints": "Group by length"
+    },
+    {
+      "id": "p13",
+      "title": "Replace Words",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Replace words with shortest prefix from dictionary.",
+      "complexity": { "time": "$O(N \\times L)$", "space": "$O(D \\times L)$" },
+      "solution": "Trie for dictionary. For each word, find shortest prefix.",
+      "hints": "Trie for dictionary"
+    },
+    {
+      "id": "p14",
+      "title": "Longest Word in Dictionary",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Longest word that can be built one character at a time from other words.",
+      "complexity": { "time": "$O(N \\times L)$", "space": "$O(N \\times L)$" },
+      "solution": "Trie with isEnd. Sort words by length then lexicographically. Check if all prefixes exist.",
+      "hints": "Trie, check all prefixes exist"
+    },
+    {
+      "id": "p15",
+      "title": "Implement Magic Dictionary",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Search word with exactly one character different.",
+      "complexity": { "build": "$O(N \\times L)$", "search": "$O(L)$" },
+      "solution": "Trie. For search, try changing each character, check if new word exists.",
+      "hints": "Trie, try changing each character"
+    },
+    {
+      "id": "p16",
+      "title": "Design Search Autocomplete System",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Autocomplete with top 3 historical suggestions.",
+      "complexity": { "input": "$O(L)$", "input#": "$O(L \\log n)$" },
+      "solution": "Trie with top 3 suggestions at each node. Update on '#'.",
+      "hints": "Trie with top 3 at each node"
+    },
+    {
+      "id": "p17",
+      "title": "Concatenated Words",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all words that can be formed by concatenating two or more words.",
+      "complexity": { "time": "$O(N \\times L^2)$", "space": "$O(N \\times L)$" },
+      "solution": "Trie + DP. For each word, check if can be split into other words using Trie.",
+      "hints": "Trie + DP"
+    },
+    {
+      "id": "p18",
+      "title": "Maximum XOR of Two Numbers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find maximum XOR of any two numbers in array.",
+      "complexity": { "time": "$O(n \\times 32)$", "space": "$O(n)$" },
+      "solution": "Bit Trie (32 bits). For each number, find best match for maximum XOR.",
+      "hints": "Bit Trie"
+    },
+    {
+      "id": "p19",
+      "title": "Prefix and Suffix Search",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Design WordFilter with f(prefix, suffix) returning word.",
+      "complexity": { "f": "$O(L)$" },
+      "solution": "Trie with all prefix#suffix combinations for each word.",
+      "hints": "Store prefix#suffix combinations"
+    },
+    {
+      "id": "p20",
+      "title": "Map Sum Pairs",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Insert(key, value) and sum(prefix) returning sum of all keys with prefix.",
+      "complexity": { "insert": "$O(L)$", "sum": "$O(L)$" },
+      "solution": "Trie with sum at each node. Update sums on insert.",
+      "hints": "Trie with sum at each node"
+    },
+    {
+      "id": "p21",
+      "title": "Design Add and Search Words Data Structure",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Optimized version with word length grouping.",
+      "complexity": { "add": "$O(L)$", "search": "$O(L)$" },
+      "solution": "Group words by length for efficiency.",
+      "hints": "Group by length"
+    },
+    {
+      "id": "p22",
+      "title": "Design In-Memory File System",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement ls (list) and mkdir (create directory).",
+      "complexity": { "ls": "$O(L)$", "mkdir": "$O(L)$" },
+      "solution": "Trie-like structure where nodes are directories/files.",
+      "hints": "Trie-like directory structure"
+    },
+    {
+      "id": "p23",
+      "title": "Design File System",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement createPath and getPath with file content.",
+      "complexity": { "create": "$O(L)$", "get": "$O(L)$" },
+      "solution": "Trie with isFile flag and content.",
+      "hints": "Trie with isFile and content"
+    },
+    {
+      "id": "p24",
+      "title": "Palindrome Pairs",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all pairs of words that concatenate to form palindrome.",
+      "complexity": { "time": "$O(n \\times L^2)$", "space": "$O(n \\times L)$" },
+      "solution": "Trie of reversed words. For each word, check all possible palindrome splits.",
+      "hints": "Trie of reversed words"
+    },
+    {
+      "id": "p25",
+      "title": "Short Encoding of Words",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum length encoding where no word is prefix of another's encoding.",
+      "complexity": { "time": "$O(N \\times L)$", "space": "$O(N \\times L)$" },
+      "solution": "Trie. Words that are prefixes of others don't need separate encoding.",
+      "hints": "Trie, count non-prefix words"
+    }
+  ],
+  "minigame": {
+    "id": "suffix-trees",
+    "title": "Suffix Master",
+    "description": "Master suffix trees and arrays! Visualize suffix array construction and LCP.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Suffix Array", "task": "Build suffix array for 'banana'" },
+      { "name": "LCP", "task": "Compute LCP array" },
+      { "name": "Search", "task": "Find pattern using suffix array" }
+    ]
+  },
+  "visualizer": {
+    "type": "suffix-structures",
+    "title": "Suffix Tree/Array Visualizer",
+    "description": "Visualize suffix tree construction, suffix array sorting, and LCP computation.",
+    "features": ["Suffix tree visualization", "Suffix array sorting", "LCP array", "Substring search"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Suffix Array (Naive)",
+        "code": "def suffix_array(s):\n    n = len(s)\n    suffixes = [(s[i:], i) for i in range(n)]\n    suffixes.sort(key=lambda x: x[0])\n    return [i for _, i in suffixes]  # O(n^2 log n)"
+      },
+      {
+        "title": "LCP Array (Kasai)",
+        "code": "def lcp_array(s, sa):\n    n = len(s)\n    rank = [0] * n\n    for i, idx in enumerate(sa):\n        rank[idx] = i\n    \n    lcp = [0] * n\n    k = 0\n    for i in range(n):\n        if rank[i] == 0:\n            k = 0\n            continue\n        j = sa[rank[i] - 1]\n        while i + k < n and j + k < n and s[i+k] == s[j+k]:\n            k += 1\n        lcp[rank[i]] = k\n        if k > 0:\n            k -= 1\n    \n    return lcp  # O(n)"
+      },
+      {
+        "title": "Longest Repeated Substring",
+        "code": "def longest_repeated_substring(s):\n    sa = suffix_array(s)\n    lcp = lcp_array(s, sa)\n    \n    max_lcp = max(lcp)\n    idx = lcp.index(max_lcp)\n    \n    return s[sa[idx]:sa[idx]+max_lcp]  # O(n log n)"
+      }
+    ]
+  }
+}

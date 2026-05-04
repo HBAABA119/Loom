@@ -1,0 +1,429 @@
+{
+  "id": "09-hash-tables",
+  "bookId": "book-dsa",
+  "title": "Hash Tables",
+  "category": "Data Structures",
+  "order": 9,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Hash tables (hash maps) provide $O(1)$ average-case lookup, insert, and delete by mapping keys to array indices using a hash function. The core idea: compute hash(key) → index, store value at that index. When collisions occur (multiple keys map to same index), use collision resolution (chaining or open addressing). Hash tables are ubiquitous—used in databases, caches, symbol tables, and many algorithms. Understanding hash functions, collision resolution, and load factor is crucial for effective use.",
+    "sections": [
+      {
+        "title": "Hash Functions",
+        "content": "A good hash function distributes keys uniformly across indices, minimizes collisions, and is fast to compute. Properties: deterministic (same key → same hash), uniform distribution, avalanche effect (small input change → large output change). Common functions: division method (hash = key % m), multiplication method (hash = floor(m * (key * A mod 1))), universal hashing (random function from family). For strings: polynomial rolling hash: hash = Σ(s[i] × p^i) mod m.",
+        "properties": [
+          "Deterministic: same key always produces same hash",
+          "Uniform distribution: keys spread evenly across buckets",
+          "Fast computation: O(1) time to compute",
+          "Avalanche effect: small input change → large output change"
+        ]
+      },
+      {
+        "title": "Collision Resolution",
+        "content": "Chaining: each bucket is a linked list of key-value pairs. When collision, add to list. Lookup: hash to bucket, traverse list. Load factor α = n/m (n elements, m buckets). With chaining, expected chain length = α. Open addressing: all elements stored in array. On collision, probe next slot (linear, quadratic, double hashing). Linear probing: next = (hash + i) % m. Quadratic: next = (hash + c1×i + c2×i²) % m. Double hashing: next = (hash + i×hash2(key)) % m.",
+        "methods": [
+          { "name": "Chaining", "description": "Linked list per bucket", "lookup": "O(1 + α)" },
+          { "name": "Linear Probing", "description": "Probe next slot sequentially", "lookup": "O(1/(1-α))" },
+          { "name": "Quadratic Probing", "description": "Probe with quadratic function", "lookup": "O(1/(1-α))" },
+          { "name": "Double Hashing", "description": "Two hash functions", "lookup": "O(1/(1-α))" }
+        ]
+      },
+      {
+        "title": "Load Factor and Resizing",
+        "content": "Load factor α = n/m (elements / buckets). As α increases, collisions increase, performance degrades. For chaining, α > 1 means average chain > 1. For open addressing, α must be < 1. When α exceeds threshold (typically 0.7-0.75), resize: allocate larger array (usually 2×), rehash all elements. Resizing is $O(n)$ but amortized $O(1)$ per operation. Choosing good initial size and threshold balances memory and performance.",
+        "thresholds": [
+          { "method": "Chaining", "threshold": "0.75", "reason": "Keep average chain short" },
+          { "method": "Open Addressing", "threshold": "0.5-0.7", "reason": "Must stay < 1" }
+        ]
+      },
+      {
+        "title": "Hash Table Applications",
+        "content": "Caching: LRU cache uses hash map + doubly linked list. Symbol tables: compilers use hash tables for variable lookup. Databases: hash indexes for fast key lookup. Counting/frequency: count occurrences of elements. Two-sum problem: find pair summing to target. Grouping: group anagrams, group by category. Deduplication: remove duplicates from collection.",
+        "applications": [
+          "Caching (LRU cache)",
+          "Symbol tables (compilers)",
+          "Database indexes",
+          "Frequency counting",
+          "Two-sum and similar problems"
+        ]
+      },
+      {
+        "title": "Hash Table vs Other Structures",
+        "content": "Hash table: $O(1)$ average lookup/insert/delete, no order, requires hashable keys. Binary search tree: $O(\\log n)$ lookup/insert/delete, maintains order, no hash function needed. Array: $O(1)$ index access, $O(n)$ search, ordered. Linked list: $O(n)$ search, ordered, dynamic size. Choose hash table for fast lookups when order doesn't matter.",
+        "comparison": [
+          { "aspect": "Lookup", "hash": "$O(1)$ avg", "bst": "$O(\\log n)$", "array": "$O(n)$" },
+          { "aspect": "Order", "hash": "No", "bst": "Yes", "array": "Yes" },
+          { "aspect": "Memory", "hash": "Overhead for buckets", "bst": "Pointers per node", "array": "Contiguous" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Hash Function",
+        "description": "Maps key to bucket index. Must be deterministic, fast, and distribute uniformly. Poor hash function → many collisions → poor performance.",
+        "example": "hash(key) = key % m (division method)"
+      },
+      {
+        "name": "Collision",
+        "description": "Two different keys hash to same index. Inevitable due to pigeonhole principle (infinite keys, finite buckets). Resolution strategies: chaining or open addressing.",
+        "pigeonhole": "More keys than buckets guarantees collisions"
+      },
+      {
+        "name": "Load Factor",
+        "description": "α = n/m. Measures how full hash table is. Higher α = more collisions = slower operations. Resize when α exceeds threshold.",
+        "threshold": "Typically 0.7-0.75 for chaining, 0.5-0.7 for open addressing"
+      },
+      {
+        "name": "Rehashing",
+        "description": "When resizing, compute new hash for all elements using new bucket count. Required because hash depends on bucket count.",
+        "cost": "$O(n)$ for all elements, amortized $O(1)$ per operation"
+      }
+    ],
+    "complexity": {
+      "lookup": "$O(1)$ average, $O(n)$ worst",
+      "insert": "$O(1)$ average, $O(n)$ worst",
+      "delete": "$O(1)$ average, $O(n)$ worst",
+      "space": "$O(n)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Compute Hash",
+      "description": "Apply hash function to key: index = hash(key) % capacity.",
+      "code": "index = hash(key) % capacity;",
+      "visualState": { "key": "apple", "hash": 42, "index": 5 }
+    },
+    {
+      "step": 2,
+      "title": "Check Collision",
+      "description": "Check if bucket at index is empty. If empty, insert. If occupied, handle collision.",
+      "code": "if buckets[index] == null: insert; else: resolve_collision();",
+      "visualState": { "bucket": "occupied", "collision": true }
+    },
+    {
+      "step": 3,
+      "title": "Resolve Collision (Chaining)",
+      "description": "Add to linked list at bucket. If key exists, update value. Else append new node.",
+      "code": "node = buckets[index]; while node: if node.key == key: update; node = node.next; append;",
+      "visualState": { "chain": "key1→key2→key3" }
+    },
+    {
+      "step": 4,
+      "title": "Resize if Needed",
+      "description": "If load factor > threshold, resize to 2× capacity, rehash all elements.",
+      "code": "if (size / capacity) > threshold: resize();",
+      "visualState": { "oldCapacity": 8, "newCapacity": 16 }
+    },
+    {
+      "step": 5,
+      "title": "Return",
+      "description": "Return inserted/updated value or found value for lookup.",
+      "code": "return value;",
+      "visualState": { "result": "success" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Two Sum",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find two numbers that sum to target in array.",
+      "example": "nums=[2,7,11,15], target=9. Output: [0,1]",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Hash map: value → index. For each num, check if target - num in map. If yes, return indices. Else add num to map.",
+      "hints": ["Hash map stores value → index", "Check if complement exists", "Return indices when found"]
+    },
+    {
+      "id": "p2",
+      "title": "Valid Anagram",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if two strings are anagrams using hash map.",
+      "example": "s='anagram', t='nagaram'. Output: true",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$ (fixed alphabet)" },
+      "solution": "Count characters in s. Decrement for t. If any count non-zero, not anagram. Or use array of size 26.",
+      "hints": ["Count characters in first string", "Decrement for second string", "All counts must be zero"]
+    },
+    {
+      "id": "p3",
+      "title": "Group Anagrams",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Group anagrams together from array of strings.",
+      "example": "Input: ['eat','tea','tan']. Output: [['eat','tea'],['tan']]",
+      "complexity": { "time": "$O(n \\times k \\log k)$", "space": "$O(n \\times k)$" },
+      "solution": "For each string, sort characters to get key. Hash map: key → list of strings. Return all values.",
+      "hints": ["Sorted string as hash key", "Hash map groups anagrams", "Or use character count as key"]
+    },
+    {
+      "id": "p4",
+      "title": "Top K Frequent Elements",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return k most frequent elements in array.",
+      "example": "nums=[1,1,1,2,2,3], k=2. Output: [1,2]",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(n)$" },
+      "solution": "Count frequencies with hash map. Use min-heap of size k to keep top k. Or bucket sort by frequency.",
+      "hints": ["Hash map for frequency count", "Min-heap of size k for top k", "Or bucket sort by frequency"]
+    },
+    {
+      "id": "p5",
+      "title": "Product of Array Except Self",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return array where output[i] = product of all elements except nums[i].",
+      "example": "nums=[1,2,3,4]. Output: [24,12,8,6]",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$ excluding output" },
+      "solution": "Two passes: left products and right products. Or single pass with running product and hash map.",
+      "hints": ["Calculate left and right products", "Multiply for each position", "O(1) space with output array"]
+    },
+    {
+      "id": "p6",
+      "title": "Longest Consecutive Sequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find length of longest consecutive elements sequence.",
+      "example": "nums=[100,4,200,1,3,2]. Output: 4 ([1,2,3,4])",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Hash set of all numbers. For each number, if num-1 not in set, it's sequence start. Count consecutive numbers. Track max.",
+      "hints": ["Hash set for O(1) lookup", "Only start counting from sequence starts", "Track maximum length"]
+    },
+    {
+      "id": "p7",
+      "title": "Isomorphic Strings",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if two strings are isomorphic (characters can be replaced to get other).",
+      "example": "s='egg', t='add'. Output: true",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Two hash maps: s→t and t→s. Check mappings are consistent. No two characters map to same character.",
+      "hints": ["Two hash maps for bidirectional mapping", "Check consistency", "No two characters map to same"]
+    },
+    {
+      "id": "p8",
+      "title": "Word Pattern",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if string follows pattern (pattern='abba', str='dog cat cat dog' → true).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Hash map: pattern char → word. Check consistency. Also ensure no two pattern chars map to same word.",
+      "hints": ["Hash map pattern char → word", "Check mapping consistency", "Ensure injective mapping"]
+    },
+    {
+      "id": "p9",
+      "title": "Find Duplicate Number",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find duplicate in array of n+1 integers where each is 1 to n.",
+      "example": "nums=[1,3,4,2,2]. Output: 2",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Floyd's cycle detection (treat array as linked list). Or use hash set (O(n) space).",
+      "hints": ["Treat as linked list: index → value", "Floyd's cycle detection", "Or hash set (simpler, O(n) space)"]
+    },
+    {
+      "id": "p10",
+      "title": "Contains Duplicate II",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if two distinct indices i,j with nums[i]==nums[j] and |i-j|≤k.",
+      "example": "nums=[1,2,3,1], k=3. Output: true",
+      "complexity": { "time": "$O(n)$", "space": "$O(min(n,k))$" },
+      "solution": "Sliding window with hash set. Maintain set of last k elements. If current in set, return true.",
+      "hints": ["Sliding window of size k", "Hash set for window elements", "Check if current in set"]
+    },
+    {
+      "id": "p11",
+      "title": "Contains Duplicate III",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if i,j with |i-j|≤k and |nums[i]-nums[j]|≤t.",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Sliding window with ordered set (TreeSet). For each element, check if any in window within t range.",
+      "hints": ["Ordered set for range queries", "Sliding window of size k", "Check ceiling and floor"]
+    },
+    {
+      "id": "p12",
+      "title": "LRU Cache",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement LRU cache with get and put operations.",
+      "complexity": { "get": "$O(1)$", "put": "$O(1)$" },
+      "solution": "Hash map + doubly linked list. Map key → node. DLL maintains access order (MRU at head, LRU at tail).",
+      "hints": ["Hash map for O(1) lookup", "DLL for O(1) move/delete", "MRU at head, LRU at tail"]
+    },
+    {
+      "id": "p13",
+      "title": "Insert Delete GetRandom O(1)",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Design data structure with insert, delete, getRandom in O(1).",
+      "complexity": { "all": "$O(1)$" },
+      "solution": "Array + hash map. Array stores values. Hash map: value → index. Delete: swap with last, update map, pop last.",
+      "hints": ["Array for random access", "Hash map for O(1) delete", "Swap with last for O(1) deletion"]
+    },
+    {
+      "id": "p14",
+      "title": "Design Twitter",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Design simplified Twitter with postTweet, getNewsFeed, follow, unfollow.",
+      "complexity": { "post": "$O(1)$", "feed": "$O(k \\log n)$" },
+      "solution": "Hash map: user → tweets (list) and following. For feed, merge tweets from followees using heap.",
+      "hints": ["Hash map for user data", "Tweets with timestamp", "Merge k sorted lists for feed"]
+    },
+    {
+      "id": "p15",
+      "title": "Random Pick Index",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given array with possible duplicates, pick random index of target.",
+      "complexity": { "pick": "$O(1)$ space, O(n) time" },
+      "solution": "Hash map: value → list of indices. Pick random from list. Or reservoir sampling (O(1) space).",
+      "hints": ["Hash map: value → indices", "Random pick from list", "Or reservoir sampling (O(1) space)"]
+    },
+    {
+      "id": "p16",
+      "title": "Design Underground System",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Track customer travel times between stations.",
+      "complexity": { "checkIn": "$O(1)$", "checkOut": "$O(1)$", "getAverage": "$O(1)$" },
+      "solution": "Two hash maps: customer → (station, time) and station pair → (total time, count).",
+      "hints": ["Map customer to current trip", "Map station pair to stats", "Update on check out"]
+    },
+    {
+      "id": "p17",
+      "title": "First Unique Character",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find first non-repeating character in string.",
+      "example": "s='leetcode'. Output: 0 ('l')",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Two passes: first count characters, second find first with count 1. Or use ordered hash map.",
+      "hints": ["Count character frequencies", "Find first with count 1", "Two passes O(n)"]
+    },
+    {
+      "id": "p18",
+      "title": "Subarray Sum Equals K",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find number of subarrays summing to k.",
+      "example": "nums=[1,1,1], k=2. Output: 2",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Hash map: prefix sum → count. For each prefix sum, check if prefix - k in map. Add count to result.",
+      "hints": ["Prefix sum approach", "Hash map: sum → count", "Check if prefix - k exists"]
+    },
+    {
+      "id": "p19",
+      "title": "Contiguous Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find max length subarray with equal number of 0s and 1s.",
+      "example": "nums=[0,1,0]. Output: 2",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Treat 0 as -1. Track prefix sum. Hash map: sum → first index. When sum repeats, subarray between has equal 0s and 1s.",
+      "hints": ["Treat 0 as -1", "Prefix sum", "When sum repeats, subarray is valid"]
+    },
+    {
+      "id": "p20",
+      "title": "Longest Harmonious Subsequence",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find longest subsequence where max - min = 1.",
+      "example": "nums=[1,3,2,2,5,2,3,7]. Output: 5 ([3,2,2,2,3])",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Count frequencies with hash map. For each value, check if value+1 exists. Sum frequencies of value and value+1.",
+      "hints": ["Count frequencies", "Check consecutive values", "Sum frequencies of value and value+1"]
+    },
+    {
+      "id": "p21",
+      "title": "Maximum Size Subarray Sum Equals k",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find max length subarray summing to k.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Prefix sum with hash map. Map: sum → earliest index. When sum - k found, update max length.",
+      "hints": ["Prefix sum", "Hash map: sum → earliest index", "Update max length when sum - k found"]
+    },
+    {
+      "id": "p22",
+      "title": "Find the Difference",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find added character in t (t is s shuffled plus one char).",
+      "example": "s='abcd', t='abcde'. Output: 'e'",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "XOR all characters. Result is the extra character. Or count characters.",
+      "hints": ["XOR all characters", "Pairs cancel out", "Result is extra character"]
+    },
+    {
+      "id": "p23",
+      "title": "Ransom Note",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if ransom note can be constructed from magazine letters.",
+      "example": "ransomNote='a', magazine='b'. Output: false",
+      "complexity": { "time": "$O(n+m)$", "space": "$O(1)$" },
+      "solution": "Count magazine letters. Decrement for ransom note. If any count < 0, impossible.",
+      "hints": ["Count magazine letters", "Decrement for note", "No negative counts"]
+    },
+    {
+      "id": "p24",
+      "title": "Jewels and Stones",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Count how many stones are jewels (jewels are characters in J).",
+      "example": "J='aA', S='aAAbbbb'. Output: 3",
+      "complexity": { "time": "$O(J+S)$", "space": "$O(J)$" },
+      "solution": "Hash set of jewels. Count stones in set.",
+      "hints": ["Hash set of jewels", "Count stones in set", "Simple membership check"]
+    },
+    {
+      "id": "p25",
+      "title": "Uncommon Words from Two Sentences",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find words that appear exactly once in either sentence.",
+      "example": "s1='this apple is sweet', s2='this apple is sour'. Output: ['sweet','sour']",
+      "complexity": { "time": "$O(n+m)$", "space": "$O(n+m)$" },
+      "solution": "Hash map: word → count. Count words from both sentences. Return words with count 1.",
+      "hints": ["Hash map word → count", "Count from both sentences", "Return count == 1"]
+    }
+  ],
+  "minigame": {
+    "id": "hash-table-simulator",
+    "title": "Hash Table Master",
+    "description": "Visualize hash table operations! Watch collisions, chaining, and resizing in action.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Insert", "task": "Insert 10 elements, observe collisions" },
+      { "name": "Lookup", "task": "Find specific keys in hash table" },
+      { "name": "Resize", "task": "Trigger resize by exceeding load factor" }
+    ]
+  },
+  "visualizer": {
+    "type": "hash-table",
+    "title": "Hash Table Visualizer",
+    "description": "Visualize hash function, collisions, chaining, and resizing step by step.",
+    "features": ["Hash function animation", "Collision visualization", "Chaining display", "Load factor indicator"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Simple Hash Map with Chaining",
+        "code": "class HashMap:\n    def __init__(self, capacity=16):\n        self.capacity = capacity\n        self.buckets = [[] for _ in range(capacity)]\n        self.size = 0\n    \n    def _hash(self, key):\n        return hash(key) % self.capacity\n    \n    def put(self, key, value):\n        index = self._hash(key)\n        bucket = self.buckets[index]\n        for i, (k, v) in enumerate(bucket):\n            if k == key:\n                bucket[i] = (key, value)\n                return\n        bucket.append((key, value))\n        self.size += 1"
+      },
+      {
+        "title": "Two Sum",
+        "code": "def two_sum(nums, target):\n    seen = {}  # value → index\n    \n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i\n    \n    return []  # O(n) time, O(n) space"
+      },
+      {
+        "title": "Longest Consecutive Sequence",
+        "code": "def longest_consecutive(nums):\n    num_set = set(nums)\n    longest = 0\n    \n    for num in num_set:\n        if num - 1 not in num_set:  # Start of sequence\n            current = num\n            streak = 1\n            while current + 1 in num_set:\n                current += 1\n                streak += 1\n            longest = max(longest, streak)\n    \n    return longest  # O(n) time"
+      }
+    ]
+  }
+}

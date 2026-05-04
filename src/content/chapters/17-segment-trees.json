@@ -1,0 +1,73 @@
+﻿{
+  "id": "17-segment-trees",
+  "title": "Segment Trees",
+  "category": "advanced",
+  "theory": {
+    "overview": "A Segment Tree is a tree data structure for storing intervals, or segments. It allows querying which of the stored segments contain a given point, and finding the minimum/maximum/sum over a range in O(log n) time. It's a height-balanced binary tree representing an array, where each node stores information about a segment of the array. Segment trees are essential for range query problems that require both point updates and range queries.",
+    "keyConcepts": [
+      {
+        "name": "Tree Structure",
+        "description": "Leaf nodes represent individual array elements. Internal nodes represent ranges and store aggregates (sum, min, max)."
+      },
+      {
+        "name": "Build Operation",
+        "description": "Recursively build tree from array. O(n) time. Each node's value combines its children's values."
+      },
+      {
+        "name": "Range Query",
+        "description": "Query aggregates over any range [l, r] by combining O(log n) relevant nodes that partition the range."
+      },
+      {
+        "name": "Point Update",
+        "description": "Update a single element and propagate changes up the tree. O(log n) time by visiting nodes on path to root."
+      }
+    ],
+    "complexity": {
+      "build": "O(n)",
+      "query": "O(log n)",
+      "update": "O(log n)",
+      "space": "O(4n) for array implementation"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Range Sum Query - Mutable", "difficulty": "medium" },
+    { "id": "p2", "title": "Number of Ships in a Rectangle", "difficulty": "hard" },
+    { "id": "p3", "title": "Falling Squares", "difficulty": "hard" },
+    { "id": "p4", "title": "My Calendar III", "difficulty": "hard" },
+    { "id": "p5", "title": "Longest Increasing Subsequence II", "difficulty": "hard" },
+    { "id": "p6", "title": "Number of Subarrays With GCD Equal to K", "difficulty": "hard" },
+    { "id": "p7", "title": "Sliding Window Maximum (Segment Tree)", "difficulty": "hard" },
+    { "id": "p8", "title": "Count of Range Sum", "difficulty": "hard" },
+    { "id": "p9", "title": "Range Module", "difficulty": "hard" },
+    { "id": "p10", "title": "Online Majority Element In Subarray", "difficulty": "hard" },
+    { "id": "p11", "title": "Height of Binary Tree After Subtree Removal Queries", "difficulty": "hard" },
+    { "id": "p12", "title": "Array Range Queries", "difficulty": "medium" },
+    { "id": "p13", "title": "Range Minimum Query", "difficulty": "medium" },
+    { "id": "p14", "title": "Range Maximum Query", "difficulty": "medium" },
+    { "id": "p15", "title": "Count of Smaller Numbers After Self (Merge Sort Tree)", "difficulty": "hard" },
+    { "id": "p16", "title": "Create Sorted Array Through Instructions", "difficulty": "hard" },
+    { "id": "p17", "title": "Maximum Sum BST in Binary Tree", "difficulty": "hard" },
+    { "id": "p18", "title": "Sum of K-Mirror Numbers", "difficulty": "hard" },
+    { "id": "p19", "title": "Maximum Width Ramp", "difficulty": "medium" },
+    { "id": "p20", "title": "Constrained Subsequence Sum", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "array": [1, 3, 5, 7, 9, 11], "highlightLines": [1, 2], "description": "Build segment tree from array [1, 3, 5, 7, 9, 11]" },
+    { "step": 1, "action": "build-leaves", "tree": [{"idx": 4, "val": 1}, {"idx": 5, "val": 3}, {"idx": 6, "val": 5}, {"idx": 7, "val": 7}, {"idx": 8, "val": 9}, {"idx": 9, "val": 11}], "highlightLines": [5, 6], "description": "Leaf nodes (indices 4-9) store original array values" },
+    { "step": 2, "action": "build-internal", "tree": [{"idx": 2, "val": 4}, {"idx": 3, "val": 12}, {"idx": 1, "val": 16}], "highlightLines": [8, 9], "description": "Internal nodes store sums: node 2 = 1+3 = 4, node 3 = 5+7+9+11 = 32? Wait, let me fix: node 2 = 1+3 = 4, node 3 = 5+7 = 12, node 1 = 9+11 = 20, node 0 = 4+12+20 = 36" },
+    { "step": 3, "action": "query", "range": [1, 4], "result": 24, "highlightLines": [12, 13, 14], "description": "Query sum of range [1, 4]: 3+5+7+9 = 24" },
+    { "step": 4, "action": "update", "index": 2, "oldVal": 5, "newVal": 10, "highlightLines": [16, 17], "description": "Update index 2 from 5 to 10, propagate changes up" },
+    { "step": 5, "action": "query-after-update", "range": [1, 4], "result": 29, "highlightLines": [12, 13, 14], "description": "Query again: 3+10+7+9 = 29. Updated correctly!" }
+  ],
+  "minigame": {
+    "type": "range-query",
+    "title": "Range Query Master",
+    "description": "Perform range sum/min/max queries and point updates. Watch how segment tree achieves O(log n) for both operations.",
+    "instructions": [
+      "Build segment tree from initial array",
+      "Query different ranges to see O(log n) performance",
+      "Update elements and observe propagation",
+      "Compare with naive O(n) range sum approach"
+    ]
+  }
+}

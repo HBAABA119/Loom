@@ -1,0 +1,73 @@
+﻿{
+  "id": "27-kd-trees",
+  "title": "KD Trees",
+  "category": "advanced",
+  "theory": {
+    "overview": "A KD-Tree (K-dimensional tree) is a space-partitioning data structure for organizing points in k-dimensional space. It's a binary tree where each node is a k-dimensional point. Each level of the tree splits space along one dimension, cycling through dimensions. KD-Trees enable efficient nearest neighbor searches and range queries in low-dimensional spaces (typically k < 20). They're widely used in computer graphics, ray tracing, and spatial databases.",
+    "keyConcepts": [
+      {
+        "name": "Construction",
+        "description": "Find median along splitting dimension, make it root. Recursively build left/right subtrees from points before/after median. O(n log n) for balanced tree."
+      },
+      {
+        "name": "Splitting Dimensions",
+        "description": "Cycle through dimensions at each level. For 2D: x, y, x, y, ... For 3D: x, y, z, x, y, z, ..."
+      },
+      {
+        "name": "Nearest Neighbor Search",
+        "description": "Traverse tree to find candidate. Check if hyperplane could contain closer point. Prune subtrees that cannot contain closer points. O(log n) average."
+      },
+      {
+        "name": "Range Search",
+        "description": "Find all points within a query region. Recursively check subtrees that intersect the query region. O(n^(1-1/k) + m) where m is result size."
+      }
+    ],
+    "complexity": {
+      "build": "O(n log n)",
+      "nearestNeighbor": "O(log n) avg, O(n) worst",
+      "rangeQuery": "O(n^(1-1/k) + m)",
+      "space": "O(n)"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "K Closest Points to Origin", "difficulty": "medium" },
+    { "id": "p2", "title": "K Closest Points to Origin (Heap)", "difficulty": "medium" },
+    { "id": "p3", "title": "Range Search in KD-Tree", "difficulty": "hard" },
+    { "id": "p4", "title": "Nearest Point on a Grid", "difficulty": "medium" },
+    { "id": "p5", "title": "2D Range Sum Query", "difficulty": "hard" },
+    { "id": "p6", "title": "Find Duplicate in Array (Floyd's)", "difficulty": "medium" },
+    { "id": "p7", "title": "Search 2D Matrix", "difficulty": "medium" },
+    { "id": "p8", "title": "Search 2D Matrix II", "difficulty": "medium" },
+    { "id": "p9", "title": "Rectangle Area", "difficulty": "easy" },
+    { "id": "p10", "title": "Rectangle Overlap", "difficulty": "easy" },
+    { "id": "p11", "title": "Minimum Area Rectangle", "difficulty": "medium" },
+    { "id": "p12", "title": "Best Meeting Point", "difficulty": "hard" },
+    { "id": "p13", "title": "Shortest Distance from All Buildings", "difficulty": "hard" },
+    { "id": "p14", "title": "Robot Room Cleaner", "difficulty": "hard" },
+    { "id": "p15", "title": "The Skyline Problem", "difficulty": "hard" },
+    { "id": "p16", "title": "Max Points on a Line", "difficulty": "hard" },
+    { "id": "p17", "title": "Line Reflection", "difficulty": "medium" },
+    { "id": "p18", "title": "Mirror Reflection", "difficulty": "medium" },
+    { "id": "p19", "title": "Valid Square", "difficulty": "medium" },
+    { "id": "p20", "title": "Implement KD-Tree", "difficulty": "hard" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "points": [[3, 6], [17, 15], [13, 15], [6, 12], [9, 1], [2, 7], [10, 19]], "highlightLines": [1, 2], "description": "Initialize 7 2D points for KD-Tree construction" },
+    { "step": 1, "action": "split-x", "median": [13, 15], "left": [[3, 6], [6, 12], [9, 1], [2, 7]], "right": [[17, 15], [10, 19]], "highlightLines": [5, 6], "description": "Root level (x-dim): Median x=13. Left: x < 13, Right: x > 13" },
+    { "step": 2, "action": "split-y", "node": [6, 12], "left": [[3, 6], [2, 7]], "right": [[9, 1]], "highlightLines": [8, 9], "description": "Left subtree (y-dim): Median y=12. Split by y-coordinate" },
+    { "step": 3, "action": "build", "structure": "balanced", "height": 3, "highlightLines": [11, 12], "description": "Recursively build until all points are leaves. Balanced tree of height 3." },
+    { "step": 4, "action": "search", "query": [7, 14], "nearest": [6, 12], "distance": 2.24, "highlightLines": [15, 16, 17], "description": "Nearest neighbor to (7,14): Search tree, find (6,12) distance ≈ 2.24" },
+    { "step": 5, "action": "range", "query": [[5, 15], [10, 20]], "results": [[6, 12], [13, 15], [10, 19]], "highlightLines": [20, 21], "description": "Range query [5,15]×[10,20]: Return 3 points in region" }
+  ],
+  "minigame": {
+    "type": "spatial-search",
+    "title": "Spatial Search Simulator",
+    "description": "Build a KD-Tree from 2D points and perform nearest neighbor and range queries. Compare with brute force.",
+    "instructions": [
+      "Add points to the 2D plane",
+      "Build KD-Tree by cycling x/y splits",
+      "Query nearest neighbor",
+      "Query points within rectangle"
+    ]
+  }
+}

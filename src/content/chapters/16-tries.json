@@ -1,0 +1,73 @@
+﻿{
+  "id": "16-tries",
+  "title": "Trie (Prefix Tree)",
+  "category": "advanced",
+  "theory": {
+    "overview": "A Trie, also called a prefix tree or digital tree, is a tree data structure used for efficient retrieval of a key in a dataset of strings. Unlike binary search trees, no node in the trie stores the key associated with that node; instead, its position in the tree defines the key. All descendants of a node have a common prefix of the string associated with that node. Tries enable O(m) lookups where m is key length, making them ideal for autocomplete, spell checking, and IP routing.",
+    "keyConcepts": [
+      {
+        "name": "Node Structure",
+        "description": "Each node has children (array or hash map) and a flag indicating if it's the end of a word. No single node stores the entire key."
+      },
+      {
+        "name": "Prefix Search",
+        "description": "All descendants of a node share the prefix defined by the path to that node. Enables efficient prefix-based queries."
+      },
+      {
+        "name": "Space Optimization",
+        "description": "Compressed Trie (Radix Tree) merges nodes with single children. Saves space for sparse datasets."
+      },
+      {
+        "name": "Applications",
+        "description": "Autocomplete, spell checking, IP routing (longest prefix match), predictive text, and dictionary implementations."
+      }
+    ],
+    "complexity": {
+      "insert": "O(m) where m = key length",
+      "search": "O(m)",
+      "delete": "O(m)",
+      "space": "O(ALPHABET_SIZE × m × n) worst case"
+    }
+  },
+  "problems": [
+    { "id": "p1", "title": "Implement Trie (Prefix Tree)", "difficulty": "medium" },
+    { "id": "p2", "title": "Add and Search Word (Data Structure Design)", "difficulty": "medium" },
+    { "id": "p3", "title": "Word Search II", "difficulty": "hard" },
+    { "id": "p4", "title": "Replace Words", "difficulty": "medium" },
+    { "id": "p5", "title": "Longest Word in Dictionary", "difficulty": "easy" },
+    { "id": "p6", "title": "Maximum XOR of Two Numbers in Array", "difficulty": "medium" },
+    { "id": "p7", "title": "Map Sum Pairs", "difficulty": "medium" },
+    { "id": "p8", "title": "Concatenated Words", "difficulty": "hard" },
+    { "id": "p9", "title": "Palindrome Pairs", "difficulty": "hard" },
+    { "id": "p10", "title": "Stream of Characters", "difficulty": "hard" },
+    { "id": "p11", "title": "Prefix and Suffix Search", "difficulty": "hard" },
+    { "id": "p12", "title": "Search Suggestions System", "difficulty": "medium" },
+    { "id": "p13", "title": "Top K Frequent Words", "difficulty": "medium" },
+    { "id": "p14", "title": "Short Encoding of Words", "difficulty": "medium" },
+    { "id": "p15", "title": "Longest Common Prefix", "difficulty": "easy" },
+    { "id": "p16", "title": "Index Pairs of a String", "difficulty": "easy" },
+    { "id": "p17", "title": "Remove Sub-Folders from Filesystem", "difficulty": "medium" },
+    { "id": "p18", "title": "Design File System", "difficulty": "medium" },
+    { "id": "p19", "title": "Camelcase Matching", "difficulty": "medium" },
+    { "id": "p20", "title": "Number of Matching Subsequences", "difficulty": "medium" }
+  ],
+  "algorithmSteps": [
+    { "step": 0, "action": "init", "trie": {"root": {}}, "highlightLines": [1, 2], "description": "Initialize empty trie with root node" },
+    { "step": 1, "action": "insert-cat", "word": "cat", "trie": {"root": {"c": {"a": {"t": {"isEnd": true}}}}}, "highlightLines": [5, 6, 7], "description": "Insert 'cat': Create path c→a→t, mark 't' as word end" },
+    { "step": 2, "action": "insert-car", "word": "car", "trie": {"root": {"c": {"a": {"t": {"isEnd": true}, "r": {"isEnd": true}}}}}, "highlightLines": [5, 6, 7], "description": "Insert 'car': Reuse c→a, add new branch r, mark 'r' as end" },
+    { "step": 3, "action": "insert-card", "word": "card", "trie": {"root": {"c": {"a": {"t": {"isEnd": true}, "r": {"isEnd": true, "d": {"isEnd": true}}}}}}, "highlightLines": [5, 6, 7], "description": "Insert 'card': Extend from existing 'car' with new node d" },
+    { "step": 4, "action": "search", "word": "car", "found": true, "path": ["c", "a", "r"], "highlightLines": [10, 11, 12], "description": "Search 'car': Traverse c→a→r, node exists and isEnd=true. Found!" },
+    { "step": 5, "action": "search-prefix", "prefix": "ca", "words": ["cat", "car", "card"], "highlightLines": [15, 16], "description": "Prefix search 'ca': Returns all words with prefix 'ca'" }
+  ],
+  "minigame": {
+    "type": "autocomplete",
+    "title": "Autocomplete Challenge",
+    "description": "Build a trie and type prefixes to see autocomplete suggestions in real-time.",
+    "instructions": [
+      "Insert words into the trie",
+      "Type prefixes character by character",
+      "Watch suggestions appear instantly",
+      "Understand why O(m) lookup beats O(n) scanning"
+    ]
+  }
+}

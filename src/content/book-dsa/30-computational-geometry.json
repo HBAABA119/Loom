@@ -1,0 +1,398 @@
+{
+  "id": "30-computational-geometry",
+  "bookId": "book-dsa",
+  "title": "Computational Geometry",
+  "category": "Geometry",
+  "order": 30,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Computational Geometry deals with algorithms for geometric problems: point location, convex hull, line intersection, closest pair of points, polygon operations, and spatial queries. Used in computer graphics, CAD, GIS, robotics, and pattern recognition. This chapter covers fundamental geometric algorithms and their applications.",
+    "sections": [
+      {
+        "title": "Convex Hull",
+        "content": "Smallest convex polygon containing all points. Graham scan: sort by angle, scan maintaining hull. Monotone chain: sort by x, build upper and lower hull. Time: $O(n \\log n)$ for sorting, $O(n)$ for scan. Space: $O(n)$. Used in collision detection, shape analysis.",
+        "algorithms": [
+          "Graham scan: sort by polar angle, scan",
+          "Monotone chain: sort by x, build upper/lower hull"
+        ],
+        "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" }
+      },
+      {
+        "title": "Line Intersection",
+        "content": "Check if two line segments intersect. Compute orientation (clockwise/counterclockwise) of point triples. Segments intersect if orientations differ and bounding boxes overlap. Time: $O(1)$ per pair. Used in collision detection and graphics.",
+        "algorithm": "Compute orientation of (p1, p2, p3). Segments (p1,p2) and (p3,p4) intersect if orientations differ and bounding boxes overlap.",
+        "complexity": { "time": "$O(1)$" }
+      },
+      {
+        "title": "Closest Pair of Points",
+        "content": "Find pair of points with minimum distance. Divide and conquer: sort by x, divide, recurse on halves, combine by checking strip of width 2d around midline. Time: $O(n \\log n)$. Space: $O(n)$. Used in clustering and pattern matching.",
+        "algorithm": "Sort by x. Divide at midline. Recurse on halves. Check strip of width 2d around midline. Sort strip by y, check adjacent points.",
+        "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" }
+      },
+      {
+        "title": "Point in Polygon",
+        "content": "Check if point is inside polygon. Ray casting: cast ray from point, count intersections with polygon edges. Odd count = inside, even = outside. Time: $O(n)$ where n is polygon vertices. Winding number alternative.",
+        "algorithm": "Cast horizontal ray to right. Count intersections with edges. Odd = inside.",
+        "complexity": { "time": "$O(n)$", "space": "$O(1)$" }
+      },
+      {
+        "title": "Polygon Area",
+        "content": "Calculate area of polygon (can be non-convex). Shoelace formula: sum over edges (x_i * y_{i+1} - x_{i+1} * y_i), take absolute, divide by 2. Time: $O(n)$. Used in GIS and graphics.",
+        "formula": "Area = |Σ(x_i * y_{i+1} - x_{i+1} * y_i)| / 2",
+        "complexity": { "time": "$O(n)$", "space": "$O(1)$" }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Orientation",
+        "description": "Determines if three points are clockwise, counterclockwise, or collinear. Cross product of vectors.",
+        "formula": "cross(p2-p1, p3-p1) = (x2-x1)(y3-y1) - (y2-y1)(x3-x1)"
+      },
+      {
+        "name": "Convex Hull",
+        "description": "Smallest convex polygon containing all points. Graham scan or monotone chain algorithm.",
+        "time": "$O(n \\log n)$"
+      },
+      {
+        "name": "Divide and Conquer",
+        "description": "Split problem, solve recursively, combine results. Used for closest pair.",
+        "pattern": "Divide → Recurse → Combine"
+      },
+      {
+        "name": "Ray Casting",
+        "description": "Point in polygon test. Cast ray, count intersections. Odd = inside.",
+        "use": "Point in polygon test"
+      }
+    ],
+    "complexity": {
+      "convexHull": "$O(n \\log n)$",
+      "lineIntersection": "$O(1)$",
+      "closestPair": "$O(n \\log n)$",
+      "pointInPolygon": "$O(n)$",
+      "polygonArea": "$O(n)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Sort Points",
+      "description": "Sort points by x-coordinate (or angle for Graham scan).",
+      "code": "points.sort(key=lambda p: (p.x, p.y));",
+      "visualState": { "sorted": "by coordinate" }
+    },
+    {
+      "step": 2,
+      "title": "Build Lower Hull",
+      "description": "For monotone chain: build lower hull by adding points and removing non-left turns.",
+      "code": "for p in points: while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0: lower.pop(); lower.append(p);",
+      "visualState": { "lower": "built" }
+    },
+    {
+      "step": 3,
+      "title": "Build Upper Hull",
+      "description": "Build upper hull similarly (reverse order).",
+      "code": "for p in reversed(points): while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0: upper.pop(); upper.append(p);",
+      "visualState": { "upper": "built" }
+    },
+    {
+      "step": 4,
+      "title": "Combine Hulls",
+      "description": "Combine lower and upper hulls (remove duplicate endpoints).",
+      "code": "hull = lower[:-1] + upper[:-1];",
+      "visualState": { "hull": "combined" }
+    },
+    {
+      "step": 5,
+      "title": "Return Result",
+      "description": "Return convex hull points in order.",
+      "code": "return hull;",
+      "visualState": { "result": "returned" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Convex Hull",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find convex hull of set of points.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Monotone chain algorithm. Sort by x, build upper and lower hulls.",
+      "hints": "Monotone chain, sort by x"
+    },
+    {
+      "id": "p2",
+      "title": "Max Points on a Line",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find maximum points on same line.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "For each point, calculate slope to all other points. Use hash map to count same slopes.",
+      "hints": "Calculate slopes, hash map count"
+    },
+    {
+      "id": "p3",
+      "title": "Rectangle Overlap",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if two rectangles overlap.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Check if one rectangle is to left/right/above/below the other.",
+      "hints": "Check position relative to each other"
+    },
+    {
+      "id": "p4",
+      "title": "Rectangle Area",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Total area covered by rectangles (may overlap).",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "Sweep line or divide plane into regions. Count area of each region.",
+      "hints": "Sweep line or divide plane"
+    },
+    {
+      "id": "p5",
+      "title": "Triangle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum path sum from top to bottom of triangle.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "DP from bottom up. dp[j] = triangle[i][j] + min(dp[j], dp[j+1]).",
+      "hints": "DP from bottom up"
+    },
+    {
+      "id": "p6",
+      "title": "Valid Triangle Number",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count triangles that can be formed from array (triangle inequality).",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(1)$" },
+      "solution": "Sort array. For each pair (i,j), find k where nums[i] + nums[j] > nums[k].",
+      "hints": "Sort, two pointers"
+    },
+    {
+      "id": "p7",
+      "title": "Largest Triangle Area",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find largest triangle area from points.",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(1)$" },
+      "solution": "Try all triplets, calculate area using shoelace formula.",
+      "hints": "Try all triplets, shoelace formula"
+    },
+    {
+      "id": "p8",
+      "title": "Triangle Validity",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if three sides can form triangle.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Triangle inequality: a + b > c, a + c > b, b + c > a.",
+      "hints": "Triangle inequality"
+    },
+    {
+      "id": "p9",
+      "title": "Angle Between Hands",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate angle between hour and minute hands.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Hour angle = 30*h + 0.5*m. Minute angle = 6*m. Difference = |hour - minute|.",
+      "hints": "Calculate each hand angle"
+    },
+    {
+      "id": "p10",
+      "title": "Point in Rectangle",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if point is inside axis-aligned rectangle.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Check if point.x between left and right, point.y between bottom and top.",
+      "hints": "Check bounds"
+    },
+    {
+      "id": "p11",
+      "title": "Point in Circle",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if point is inside circle.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Distance from center ≤ radius.",
+      "hints": "Check distance ≤ radius"
+    },
+    {
+      "id": "p12",
+      "title": "Overlap Circle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if two circles overlap.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Distance between centers ≤ r1 + r2 and ≥ |r1 - r2|.",
+      "hints": "Check distance between centers"
+    },
+    {
+      "id": "p13",
+      "title": "Circle and Rectangle Overlap",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if circle overlaps axis-aligned rectangle.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Find closest point on rectangle to circle center. Check distance ≤ radius.",
+      "hints": "Find closest point on rectangle"
+    },
+    {
+      "id": "p14",
+      "title": "Line Reflection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if points are symmetric about a line.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "For each point, find its reflection. Check if reflection exists in set.",
+      "hints": "Check reflections exist"
+    },
+    {
+      "id": "p15",
+      "title": "Minimum Area Rectangle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum area rectangle from points (sides parallel to axes).",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "Group points by x-coordinate. For each pair of x's, find matching y pairs.",
+      "hints": "Group by x, find matching y pairs"
+    },
+    {
+      "id": "p16",
+      "title": "Minimum Area Rectangle II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum area rectangle (any orientation).",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "For each pair of points as diagonal, check if other two points exist.",
+      "hints": "Check diagonal pairs"
+    },
+    {
+      "id": "p17",
+      "title": "Rectangle Overlap II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if any rectangle overlaps with any other.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "Sweep line. Sort by x, process events, check for overlaps.",
+      "hints": "Sweep line algorithm"
+    },
+    {
+      "id": "p18",
+      "title": "Perfect Rectangle",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Check if rectangles form exact cover of rectangular region.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Check total area matches. All corners except four outer corners should appear even times.",
+      "hints": "Check area and corner counts"
+    },
+    {
+      "id": "p19",
+      "title": "Number of Boomerangs",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count boomerangs (i, j, k where dist(i,j) = dist(i,k) and i ≠ j ≠ k).",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n)$" },
+      "solution": "For each point i, calculate distances to all other points. Count same distances.",
+      "hints": "Count same distances from each point"
+    },
+    {
+      "id": "p20",
+      "title": " Erect the Fence",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find convex hull of points (return in order).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Monotone chain algorithm. Handle collinear points.",
+      "hints": "Monotone chain, handle collinear"
+    },
+    {
+      "id": "p21",
+      "title": "Tangent Line to Circle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find tangent lines from point to circle.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Calculate using geometry. Distance from point to center, angle calculations.",
+      "hints": "Geometry calculations"
+    },
+    {
+      "id": "p22",
+      "title": "Circle and Line Intersection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find intersection points of line and circle.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Substitute line equation into circle equation, solve quadratic.",
+      "hints": "Solve quadratic equation"
+    },
+    {
+      "id": "p23",
+      "title": "Two Circles Intersection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find intersection points of two circles.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Calculate distance between centers. Use geometry to find intersection points.",
+      "hints": "Geometry, distance between centers"
+    },
+    {
+      "id": "p24",
+      "title": "Polygon Perimeter",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Calculate perimeter of polygon.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Sum distances between consecutive vertices (including last to first).",
+      "hints": "Sum edge lengths"
+    },
+    {
+      "id": "p25",
+      "title": "Polygon Centroid",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate centroid of polygon.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Use formula: Cx = (1/6A) * Σ((xi + xi+1) * (xi * yi+1 - xi+1 * yi)).",
+      "hints": "Use centroid formula"
+    }
+  ],
+  "minigame": {
+    "id": "computational-geometry",
+    "title": "Geometry Master",
+    "description": "Master computational geometry! Convex hull, line intersection, and polygon operations.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Convex Hull", "task": "Build convex hull of points" },
+      { "name": "Intersection", "task": "Check line segment intersection" },
+      { "name": "Area", "task": "Calculate polygon area" }
+    ]
+  },
+  "visualizer": {
+    "type": "computational-geometry",
+    "title": "Computational Geometry Visualizer",
+    "description": "Visualize convex hull, line intersection, and polygon operations.",
+    "features": ["Point visualization", "Convex hull animation", "Line intersection", "Polygon area calculation"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Convex Hull (Monotone Chain)",
+        "code": "def convex_hull(points):\n    points = sorted(points)\n    \n    def cross(o, a, b):\n        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])\n    \n    lower = []\n    for p in points:\n        while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:\n            lower.pop()\n        lower.append(p)\n    \n    upper = []\n    for p in reversed(points):\n        while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:\n            upper.pop()\n        upper.append(p)\n    \n    return lower[:-1] + upper[:-1]  # O(n log n)"
+      },
+      {
+        "title": "Line Segment Intersection",
+        "code": "def on_segment(p, q, r):\n    return min(p[0], q[0]) <= r[0] <= max(p[0], q[0]) and min(p[1], q[1]) <= r[1] <= max(p[1], q[1])\n\ndef orientation(p, q, r):\n    val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])\n    if val == 0: return 0  # collinear\n    return 1 if val > 0 else 2  # clockwise or counterclockwise\n\ndef segments_intersect(p1, q1, p2, q2):\n    o1 = orientation(p1, q1, p2)\n    o2 = orientation(p1, q1, q2)\n    o3 = orientation(p2, q2, p1)\n    o4 = orientation(p2, q2, q1)\n    \n    if o1 != o2 and o3 != o4:\n        return True\n    return False  # O(1)"
+      },
+      {
+        "title": "Polygon Area (Shoelace)",
+        "code": "def polygon_area(vertices):\n    n = len(vertices)\n    area = 0\n    for i in range(n):\n        j = (i + 1) % n\n        area += vertices[i][0] * vertices[j][1]\n        area -= vertices[j][0] * vertices[i][1]\n    return abs(area) / 2  # O(n)"
+      }
+    ]
+  }
+}

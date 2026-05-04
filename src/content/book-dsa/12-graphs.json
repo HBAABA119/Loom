@@ -1,0 +1,411 @@
+{
+  "id": "12-graphs",
+  "bookId": "book-dsa",
+  "title": "Graph Fundamentals",
+  "category": "Graphs",
+  "order": 12,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Graphs model relationships between objects using vertices (nodes) and edges. They're ubiquitous: social networks (people as vertices, friendships as edges), road networks (intersections as vertices, roads as edges), web pages (pages as vertices, links as edges). Graphs can be directed (edges have direction) or undirected, weighted (edges have weights) or unweighted. This chapter covers graph representation, traversal (BFS, DFS), and fundamental graph algorithms.",
+    "sections": [
+      {
+        "title": "Graph Representation",
+        "content": "Adjacency matrix: n×n matrix where matrix[i][j] = 1 if edge i→j exists. Space: $O(V^2)$. Good for dense graphs, O(1) edge check. Adjacency list: array of lists, each vertex has list of neighbors. Space: $O(V+E)$. Good for sparse graphs, efficient for iteration. Edge list: list of (u, v) pairs. Space: $O(E)$. Simple but inefficient for most operations.",
+        "representations": [
+          { "type": "Adjacency Matrix", "space": "$O(V^2)$", "edgeCheck": "$O(1)$", "best": "Dense graphs" },
+          { "type": "Adjacency List", "space": "$O(V+E)$", "edgeCheck": "$O(degree)$", "best": "Sparse graphs" },
+          { "type": "Edge List", "space": "$O(E)$", "edgeCheck": "$O(E)$", "best": "Simple storage" }
+        ]
+      },
+      {
+        "title": "Graph Traversal - BFS",
+        "content": "Breadth-First Search explores level by level from source. Uses queue. Visits all vertices at distance k before distance k+1. Time: $O(V+E)$. Space: $O(V)$ for queue and visited. Applications: shortest path in unweighted graph, connected components, bipartite check. BFS tree has property that path from source to any vertex is shortest.",
+        "algorithm": "Queue = [source], visited = {source}. While queue: v = dequeue, for each neighbor u: if not visited, mark visited, enqueue u.",
+        "applications": ["Shortest path (unweighted)", "Connected components", "Bipartite check"]
+      },
+      {
+        "title": "Graph Traversal - DFS",
+        "content": "Depth-First Search explores as far as possible along each branch before backtracking. Uses stack (explicit or recursion). Time: $O(V+E)$. Space: $O(V)$ for recursion stack. Applications: cycle detection, topological sort, connected components, maze solving. DFS tree has back edges (to ancestors) and cross edges.",
+        "algorithm": "DFS(v): mark visited, for each neighbor u: if not visited, DFS(u).",
+        "applications": ["Cycle detection", "Topological sort", "Connected components", "Maze solving"]
+      },
+      {
+        "title": "Graph Properties",
+        "content": "Degree: number of edges incident to vertex. In directed: in-degree (edges to vertex), out-degree (edges from vertex). Path: sequence of vertices where consecutive vertices are adjacent. Cycle: path that starts and ends at same vertex. Connected: path exists between any two vertices. Complete: edge exists between every pair of vertices. Bipartite: vertices can be divided into two sets with no edges within each set.",
+        "properties": [
+          "Degree: edges incident to vertex",
+          "Path: sequence of adjacent vertices",
+          "Cycle: path starting and ending at same vertex",
+          "Connected: path between any two vertices",
+          "Bipartite: two colorable, no odd cycles"
+        ]
+      },
+      {
+        "title": "Graph Types",
+        "content": "Directed vs undirected: edges have direction or not. Weighted vs unweighted: edges have weights or not. Simple vs multigraph: no multiple edges vs allow multiple edges. Cyclic vs acyclic: contains cycles or not. Tree: connected acyclic graph. DAG (Directed Acyclic Graph): directed with no cycles. Complete graph: edge between every pair.",
+        "types": [
+          "Directed/Undirected",
+          "Weighted/Unweighted",
+          "Simple/Multigraph",
+          "Cyclic/Acyclic",
+          "Tree, DAG, Complete"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Adjacency List",
+        "description": "Most common representation. Array of lists. Space O(V+E). Efficient for sparse graphs (most real-world graphs are sparse).",
+        "advantage": "Space-efficient for sparse graphs, fast neighbor iteration"
+      },
+      {
+        "name": "BFS Level Order",
+        "description": "Explores by distance from source. Queue ensures level-by-level processing. Shortest path in unweighted graphs.",
+        "property": "First time visiting vertex = shortest path from source"
+      },
+      {
+        "name": "DFS Backtracking",
+        "description": "Explores deep before wide. Recursion stack or explicit stack. Useful for exploring all paths, cycle detection.",
+        "use": "Topological sort, cycle detection, maze solving"
+      },
+      {
+        "name": "Visited Set",
+        "description": "Track visited vertices to avoid revisiting and infinite loops in cycles. Essential for both BFS and DFS.",
+        "implementation": "Hash set or boolean array"
+      }
+    ],
+    "complexity": {
+      "bfs": "$O(V+E)$ time, $O(V)$ space",
+      "dfs": "$O(V+E)$ time, $O(V)$ space",
+      "adjacencyMatrix": "$O(V^2)$ space",
+      "adjacencyList": "$O(V+E)$ space"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize",
+      "description": "Create visited set, queue (BFS) or stack (DFS). Add source vertex.",
+      "code": "visited = set(); queue = [source]; visited.add(source);",
+      "visualState": { "visited": "{source}", "queue": "[source]" }
+    },
+    {
+      "step": 2,
+      "title": "Process Vertex",
+      "description": "Dequeue (BFS) or pop (DFS) vertex. Process it (mark, record distance, etc.).",
+      "code": "v = queue.popleft(); process(v);",
+      "visualState": { "current": "v", "processed": true }
+    },
+    {
+      "step": 3,
+      "title": "Explore Neighbors",
+      "description": "For each neighbor of current vertex: if not visited, mark visited, add to queue/stack.",
+      "code": "for u in neighbors[v]: if u not in visited: visited.add(u); queue.append(u);",
+      "visualState": { "neighbors": "being explored" }
+    },
+    {
+      "step": 4,
+      "title": "Repeat",
+      "description": "Continue until queue/stack empty. All reachable vertices visited.",
+      "code": "while queue: ...",
+      "visualState": { "loop": "until empty" }
+    },
+    {
+      "step": 5,
+      "title": "Handle Disconnected",
+      "description": "For disconnected graphs, repeat BFS/DFS from each unvisited vertex.",
+      "code": "for v in vertices: if v not in visited: BFS(v);",
+      "visualState": { "components": "all visited" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Number of Islands",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count islands (connected '1's) in 2D grid using DFS/BFS.",
+      "example": "grid=[['1','1','0','0','0']]. Output: 1",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(min(m,n))$" },
+      "solution": "Iterate all cells. When '1' found, increment count, BFS/DFS to mark all connected '1's as visited.",
+      "hints": "BFS/DFS from each unvisited '1', mark visited"
+    },
+    {
+      "id": "p2",
+      "title": "Clone Graph",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Deep clone a graph with node references.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "BFS/DFS with hash map: original → clone. When visiting node, create clone if not exists, add neighbors.",
+      "hints": "Hash map original → clone, BFS/DFS"
+    },
+    {
+      "id": "p3",
+      "title": "Course Schedule",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Determine if can finish all courses given prerequisites (detect cycle in DAG).",
+      "example": "numCourses=2, prerequisites=[[1,0]]. Output: true",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Topological sort using DFS (cycle detection) or BFS (Kahn's algorithm). If cycle exists, impossible.",
+      "hints": "Topological sort, cycle detection"
+    },
+    {
+      "id": "p4",
+      "title": "Course Schedule II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return ordering of courses to finish all (topological sort).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Topological sort using DFS (post-order) or BFS (Kahn's). Return order if no cycle.",
+      "hints": "Topological sort, return order"
+    },
+    {
+      "id": "p5",
+      "title": "Graph Valid Tree",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if graph is valid tree (n nodes, n-1 edges, connected, no cycles).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Check n-1 edges. BFS/DFS from any node, check if all visited and no cycles (edge to visited non-parent).",
+      "hints": "n-1 edges, connected, no cycles"
+    },
+    {
+      "id": "p6",
+      "title": "Number of Connected Components",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count connected components in undirected graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "BFS/DFS from each unvisited vertex. Count how many times we start new traversal.",
+      "hints": "BFS/DFS from each unvisited, count traversals"
+    },
+    {
+      "id": "p7",
+      "title": "Surrounded Regions",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Capture 'O' regions surrounded by 'X' (not on border).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "Mark 'O's connected to border as safe (BFS/DFS from border). Convert remaining 'O' to 'X'.",
+      "hints": "Mark border-connected 'O' as safe, convert rest"
+    },
+    {
+      "id": "p8",
+      "title": "Rotting Oranges",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minutes until no fresh oranges remain (2 rots adjacent 1s).",
+      "example": "grid=[[2,1,1],[1,1,0],[0,1,1]]. Output: 4",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from all initially rotten oranges. Queue stores positions. Count minutes until queue empty.",
+      "hints": "Multi-source BFS from all rotten oranges"
+    },
+    {
+      "id": "p9",
+      "title": "Word Ladder",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest transformation sequence from beginWord to endWord, changing one letter at a time.",
+      "complexity": { "time": "$O(n \\times m^2)$", "space": "$O(n \\times m^2)$" },
+      "solution": "BFS from beginWord. For each word, try all one-letter mutations. If in dict and not visited, add to queue.",
+      "hints": "BFS, generate all one-letter mutations"
+    },
+    {
+      "id": "p10",
+      "title": "Pacific Atlantic Water Flow",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find cells where water can flow to both Pacific and Atlantic oceans.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS/DFS from Pacific border (left/top) and Atlantic border (right/bottom). Mark reachable cells. Intersection is answer.",
+      "hints": "Two BFS/DFS from oceans, find intersection"
+    },
+    {
+      "id": "p11",
+      "title": "Redundant Connection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find edge that can be removed to make tree (n nodes, n edges, one cycle).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find. Add edges one by one. If edge connects already connected components, it's redundant.",
+      "hints": "Union-Find, edge that creates cycle"
+    },
+    {
+      "id": "p12",
+      "title": "Graph Bipartite Check",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if graph is bipartite (can be colored with 2 colors, no adjacent same color).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "BFS/DFS with 2-coloring. Start with color 0, neighbors get color 1. If conflict, not bipartite.",
+      "hints": "2-coloring, BFS/DFS, check for conflicts"
+    },
+    {
+      "id": "p13",
+      "title": "Is Graph Bipartite",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if undirected graph is bipartite.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "BFS with coloring. For each component, 2-color. If edge connects same color, not bipartite.",
+      "hints": "2-coloring, check edge conflicts"
+    },
+    {
+      "id": "p14",
+      "title": "Possible Bipartition",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given dislikes between people, can we split into two groups where no one dislikes their group?",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Graph where edge = dislike. Check if bipartite.",
+      "hints": "Graph with dislike edges, check bipartite"
+    },
+    {
+      "id": "p15",
+      "title": "Find Eventual Safe States",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nodes that eventually reach terminal node (no outgoing edges) in directed graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Reverse graph, BFS from terminal nodes. Nodes reachable in reverse graph are safe.",
+      "hints": "Reverse graph, BFS from terminals"
+    },
+    {
+      "id": "p16",
+      "title": "Keys and Rooms",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if can visit all rooms starting from room 0 (each room has keys to other rooms).",
+      "complexity": { "time": "$O(n + k)$", "space": "$O(n)$" },
+      "solution": "BFS/DFS from room 0. Collect keys, visit rooms. Check if all rooms visited.",
+      "hints": "BFS/DFS from room 0, collect keys"
+    },
+    {
+      "id": "p17",
+      "title": "Reorder Routes",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum edges to reverse so every node can reach node 0.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "BFS from node 0. Count edges that go opposite direction of traversal.",
+      "hints": "BFS from node 0, count wrong-direction edges"
+    },
+    {
+      "id": "p18",
+      "title": "Find if Path Exists in Graph",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if path exists from source to destination in undirected graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "BFS/DFS from source. Check if destination reached.",
+      "hints": "BFS/DFS from source"
+    },
+    {
+      "id": "p19",
+      "title": "All Paths from Source to Target",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all paths from source to target in DAG.",
+      "complexity": { "time": "$O(2^V \\times V + E)$", "space": "$O(V)$" },
+      "solution": "DFS with backtracking. Track current path. When target reached, add path to result.",
+      "hints": "DFS with backtracking, track path"
+    },
+    {
+      "id": "p20",
+      "title": "Longest Increasing Path in Matrix",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find longest increasing path (adjacent, strictly increasing) in matrix.",
+      "example": "matrix=[[9,9,4],[6,6,8],[2,1,1]]. Output: 4",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS with memoization. For each cell, find longest increasing path starting there. Cache results.",
+      "hints": "DFS with memoization, longest from each cell"
+    },
+    {
+      "id": "p21",
+      "title": "Critical Connections",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find critical connections (bridges) in network (edges whose removal disconnects graph).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Tarjan's algorithm. Track discovery time and low time. Edge is bridge if low[child] > disc[node].",
+      "hints": "Tarjan's algorithm, discovery and low times"
+    },
+    {
+      "id": "p22",
+      "title": "Accounts Merge",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Merge accounts with same email (each account has list of emails).",
+      "complexity": { "time": "$O(\\sum a_i \\log \\sum a_i)$", "space": "$O(\\sum a_i)$" },
+      "solution": "Union-Find on emails. Accounts with same email connected. Group by root, sort emails.",
+      "hints": "Union-Find on emails"
+    },
+    {
+      "id": "p23",
+      "title": "Evaluate Division",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate division results from equations (a/b = 2.0, b/c = 3.0 → a/c = 6.0).",
+      "complexity": { "time": "$O(Q \\times (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Build graph where edge weight = division value. BFS/DFS to find path product.",
+      "hints": "Graph with edge weights, BFS/DFS for path product"
+    },
+    {
+      "id": "p24",
+      "title": "Sentence Similarity II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if sentences are similar given similarity pairs (transitive).",
+      "complexity": { "time": "$O(n \\times (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Build graph from similarity pairs. For each word pair, check if connected (BFS/DFS).",
+      "hints": "Graph from pairs, check connectivity"
+    },
+    {
+      "id": "p25",
+      "title": "Path With Minimum Effort",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find path from top-left to bottom-right minimizing maximum height difference.",
+      "complexity": { "time": "$O(m \\times n \\log(m \\times n))$", "space": "$O(m \\times n)$" },
+      "solution": "Dijkstra's variant. Min-heap by max effort. Track minimum max effort to each cell.",
+      "hints": "Dijkstra, min-heap by max effort"
+    }
+  ],
+  "minigame": {
+    "id": "graph-explorer",
+    "title": "Graph Master",
+    "description": "Explore graphs! BFS, DFS, and visualize traversal step by step.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "BFS", "task": "Find shortest path from A to E" },
+      { "name": "DFS", "task": "Find all paths from A to D" },
+      { "name": "Components", "task": "Count connected components" }
+    ]
+  },
+  "visualizer": {
+    "type": "graph-traversal",
+    "title": "Graph Traversal Visualizer",
+    "description": "Visualize BFS and DFS traversal on graphs step by step.",
+    "features": ["Graph visualization", "Traversal animation", "Visited highlighting", "Queue/stack display"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Adjacency List BFS",
+        "code": "from collections import deque, defaultdict\n\ndef bfs(graph, start):\n    visited = set()\n    queue = deque([start])\n    visited.add(start)\n    \n    while queue:\n        node = queue.popleft()\n        print(node)\n        \n        for neighbor in graph[node]:\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)"
+      },
+      {
+        "title": "DFS Recursive",
+        "code": "def dfs(graph, node, visited):\n    if node in visited:\n        return\n    \n    visited.add(node)\n    print(node)\n    \n    for neighbor in graph[node]:\n        dfs(graph, neighbor, visited)"
+      },
+      {
+        "title": "Number of Islands",
+        "code": "def numIslands(grid):\n    if not grid:\n        return 0\n    \n    rows, cols = len(grid), len(grid[0])\n    count = 0\n    \n    for i in range(rows):\n        for j in range(cols):\n            if grid[i][j] == '1':\n                count += 1\n                dfs(grid, i, j)\n    \n    return count"
+      }
+    ]
+  }
+}

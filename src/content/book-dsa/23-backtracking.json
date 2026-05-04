@@ -1,0 +1,408 @@
+{
+  "id": "23-backtracking",
+  "bookId": "book-dsa",
+  "title": "Backtracking",
+  "category": "Algorithms",
+  "order": 23,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Backtracking is a systematic way to explore all possible solutions by building candidates incrementally and abandoning candidates that cannot lead to valid solutions (pruning). It's essentially depth-first search with pruning. Used for combinatorial problems: permutations, combinations, subsets, N-Queens, Sudoku, etc. This chapter covers backtracking patterns, pruning techniques, and classic backtracking problems.",
+    "sections": [
+      {
+        "title": "Backtracking Pattern",
+        "content": "Define state (current partial solution). Base case: if complete, record solution. Recursive case: try all valid choices, recurse, backtrack (undo choice). Pruning: skip choices that cannot lead to solution. Time complexity: often exponential, but pruning reduces search space.",
+        "pattern": "def backtrack(state): if complete: record; return; for choice in valid_choices(state): make_choice(state, choice); backtrack(state); undo_choice(state, choice);",
+        "complexity": "Exponential in worst case, pruning helps"
+      },
+      {
+        "title": "Permutations",
+        "content": "Generate all permutations of array. State: current permutation, used elements. For each unused element, add to permutation, recurse, remove. Time: $O(n! \\times n)$. Space: $O(n)$ for recursion stack.",
+        "algorithm": "For each position, try each unused element. Recurse. Backtrack by marking unused.",
+        "complexity": { "time": "$O(n! \\times n)$", "space": "$O(n)$" }
+      },
+      {
+        "title": "Combinations",
+        "content": "Generate all combinations of k elements from n. State: current combination, start index. Only consider elements from start index onward (avoid duplicates). Time: $O(C(n,k) \\times k)$. Space: $O(k)$.",
+        "algorithm": "For i from start to n-k+len(combination): add nums[i], recurse with i+1, remove.",
+        "complexity": { "time": "$O(C(n,k) \\times k)$", "space": "$O(k)$" }
+      },
+      {
+        "title": "Subsets",
+        "content": "Generate all subsets (power set). State: current subset, index. For each element, two choices: include or exclude. Time: $O(2^n \\times n)$. Space: $O(n)$. Can also generate iteratively.",
+        "algorithm": "For each index, two branches: include nums[i] or exclude. Recurse to next index.",
+        "complexity": { "time": "$O(2^n \\times n)$", "space": "$O(n)$" }
+      },
+      {
+        "title": "Pruning Techniques",
+        "content": "Early termination: stop if current partial cannot lead to solution. Constraint checking: only make valid choices. Ordering: process choices in promising order first. Memoization: cache subproblem results to avoid recomputation. These techniques dramatically reduce search space.",
+        "techniques": [
+          "Early termination",
+          "Constraint checking",
+          "Ordering by promise",
+          "Memoization"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "State",
+        "description": "Current partial solution. Must capture all information needed to continue search.",
+        "example": "Current permutation, used elements set, current position"
+      },
+      {
+        "name": "Backtrack",
+        "description": "Undo choice after recursion to restore state for next iteration. Essential for exploring all possibilities.",
+        "action": "Remove element, unmark used, decrement index"
+      },
+      {
+        "name": "Pruning",
+        "description": "Skip branches that cannot lead to valid solution. Reduces exponential search space.",
+        "benefit": "Dramatically speed up search"
+      },
+      {
+        "name": "Base Case",
+        "description": "Condition when partial solution is complete. Record solution and return.",
+        "check": "Permutation length = n, combination length = k, etc."
+      }
+    ],
+    "complexity": {
+      "permutations": "$O(n! \\times n)$ time, $O(n)$ space",
+      "combinations": "$O(C(n,k) \\times k)$ time, $O(k)$ space",
+      "subsets": "$O(2^n \\times n)$ time, $O(n)$ space"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Define State",
+      "description": "Define what represents current partial solution (array, index, used set, etc.).",
+      "code": "state = {current: [], used: set(), index: 0}",
+      "visualState": { "state": "defined" }
+    },
+    {
+      "step": 2,
+      "title": "Base Case",
+      "description": "Check if current solution is complete. If yes, record and return.",
+      "code": "if len(current) == n: results.append(current.copy()); return;",
+      "visualState": { "complete": "recorded" }
+    },
+    {
+      "step": 3,
+      "title": "Generate Choices",
+      "description": "Generate all valid choices from current state.",
+      "code": "for choice in valid_choices(state):",
+      "visualState": { "choices": "generated" }
+    },
+    {
+      "step": 4,
+      "title": "Make Choice and Recurse",
+      "description": "Apply choice, recurse, then backtrack (undo choice).",
+      "code": "make_choice(state, choice); backtrack(state); undo_choice(state, choice);",
+      "visualState": { "recursed": "and backtracked" }
+    },
+    {
+      "step": 5,
+      "title": "Return Results",
+      "description": "Return all recorded solutions.",
+      "code": "return results;",
+      "visualState": { "results": "returned" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Subsets",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all subsets (power set) of array.",
+      "example": "nums=[1,2,3]. Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]",
+      "complexity": { "time": "$O(2^n \\times n)$", "space": "$O(n)$" },
+      "solution": "Backtrack: for each element, include or exclude. Or iterative: start with [[]], for each num, add to all existing subsets.",
+      "hints": "Include or exclude each element"
+    },
+    {
+      "id": "p2",
+      "title": "Subsets II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all subsets with duplicates (no duplicate subsets).",
+      "complexity": { "time": "$O(2^n \\times n)$", "space": "$O(n)$" },
+      "solution": "Sort array. Skip duplicates at same level: if i > start and nums[i] == nums[i-1], skip.",
+      "hints": "Sort, skip duplicates at same level"
+    },
+    {
+      "id": "p3",
+      "title": "Permutations",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all permutations of array.",
+      "example": "nums=[1,2,3]. Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]",
+      "complexity": { "time": "$O(n! \\times n)$", "space": "$O(n)$" },
+      "solution": "Backtrack with used set. For each unused element, add, recurse, remove.",
+      "hints": "Used set to track elements"
+    },
+    {
+      "id": "p4",
+      "title": "Permutations II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all permutations with duplicates (no duplicate permutations).",
+      "complexity": { "time": "$O(n! \\times n)$", "space": "$O(n)$" },
+      "solution": "Sort array. Skip duplicates: if used[i] or (i > 0 and nums[i] == nums[i-1] and not used[i-1]), skip.",
+      "hints": "Sort, skip duplicates with used check"
+    },
+    {
+      "id": "p5",
+      "title": "Combinations",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all combinations of k elements from 1 to n.",
+      "example": "n=4, k=2. Output: [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]",
+      "complexity": { "time": "$O(C(n,k) \\times k)$", "space": "$O(k)$" },
+      "solution": "Backtrack with start index. Only consider elements from start onward.",
+      "hints": "Start index to avoid duplicates"
+    },
+    {
+      "id": "p6",
+      "title": "Combination Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all combinations that sum to target (unlimited use of candidates).",
+      "example": "candidates=[2,3,6,7], target=7. Output: [[2,2,3],[7]]",
+      "complexity": { "time": "$O(2^{target/min})$", "space": "$O(target/min)$" },
+      "solution": "Backtrack. Start from each candidate, recurse with remaining target. Allow reuse by not incrementing index.",
+      "hints": "Allow reuse, don't increment index"
+    },
+    {
+      "id": "p7",
+      "title": "Combination Sum II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find combinations that sum to target (each candidate used once, duplicates in candidates).",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(n)$" },
+      "solution": "Sort candidates. Skip duplicates at same level. Increment index to avoid reuse.",
+      "hints": "Sort, skip duplicates, increment index"
+    },
+    {
+      "id": "p8",
+      "title": "Palindrome Partitioning",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Partition string into substrings that are all palindromes.",
+      "example": "s='aab'. Output: [['a','a','b'],['aa','b']]",
+      "complexity": { "time": "$O(n \\times 2^n)$", "space": "$O(n)$" },
+      "solution": "Backtrack. For each position, try all substrings starting there. If palindrome, add and recurse.",
+      "hints": "Check palindrome, recurse"
+    },
+    {
+      "id": "p9",
+      "title": "Letter Combinations of Phone Number",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all letter combinations for phone number digits.",
+      "example": "digits='23'. Output: ['ad','ae','af','bd','be','bf','cd','ce','cf']",
+      "complexity": { "time": "$O(4^n \\times n)$", "space": "$O(n)$" },
+      "solution": "Backtrack. For each digit, try all corresponding letters.",
+      "hints": "Map digits to letters, backtrack"
+    },
+    {
+      "id": "p10",
+      "title": "N-Queens",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Place n queens on n×n chessboard so no two attack each other.",
+      "complexity": { "time": "$O(n!)$", "space": "$O(n)$" },
+      "solution": "Backtrack row by row. Check column and diagonals for conflicts.",
+      "hints": "Check column and both diagonals"
+    },
+    {
+      "id": "p11",
+      "title": "N-Queens II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count number of distinct solutions to N-Queens.",
+      "complexity": { "time": "$O(n!)$", "space": "$O(n)$" },
+      "solution": "Same as N-Queens but count instead of return solutions.",
+      "hints": "Count instead of return"
+    },
+    {
+      "id": "p12",
+      "title": "Sudoku Solver",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Solve Sudoku puzzle.",
+      "complexity": { "time": "$O(9^{empty})$", "space": "$O(1)$" },
+      "solution": "Backtrack. Find empty cell, try digits 1-9, check validity, recurse.",
+      "hints": "Check row, column, 3x3 box"
+    },
+    {
+      "id": "p13",
+      "title": "Word Search",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if word exists in board (can move in 4 directions, each cell once).",
+      "complexity": { "time": "$O(m \\times n \\times 4^L)$", "space": "$O(L)$" },
+      "solution": "DFS/backtrack from each cell. Mark visited, unmark on backtrack.",
+      "hints": "Mark visited, unmark on backtrack"
+    },
+    {
+      "id": "p14",
+      "title": "Restore IP Addresses",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Restore all valid IP addresses from string.",
+      "example": "s='25525511135'. Output: ['255.255.11.135','255.255.111.35']",
+      "complexity": { "time": "$O(3^n)$", "space": "$O(n)$" },
+      "solution": "Backtrack. Try placing dots at valid positions (0-255, no leading zeros unless 0).",
+      "hints": "Try all valid segment positions"
+    },
+    {
+      "id": "p15",
+      "title": "Generate Parentheses",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all combinations of n pairs of well-formed parentheses.",
+      "example": "n=3. Output: ['((()))','(()())','(())()','()(())','()()()']",
+      "complexity": { "time": "$O(4^n / \\sqrt{n})$", "space": "$O(n)$" },
+      "solution": "Backtrack. Track open and close count. Add '(' if open < n, add ')' if close < open.",
+      "hints": "Track open and close counts"
+    },
+    {
+      "id": "p16",
+      "title": "Word Search II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all words from dictionary in board.",
+      "complexity": { "time": "$O(m \\times n \\times 4^L)$", "space": "$O(total chars)$" },
+      "solution": "Trie + backtracking. Build Trie from dictionary. DFS from each cell, traverse Trie.",
+      "hints": "Trie + backtracking"
+    },
+    {
+      "id": "p17",
+      "title": "Partition to K Equal Sum Subsets",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if array can be partitioned into k subsets with equal sum.",
+      "complexity": { "time": "$O(k \\times 2^n)$", "space": "$O(n)$" },
+      "solution": "Backtracking with memoization. Sort descending for better pruning.",
+      "hints": "Sort descending, backtracking with memo"
+    },
+    {
+      "id": "p18",
+      "title": "Split Array into Fibonacci Sequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if array can be split into Fibonacci sequence.",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(n)$" },
+      "solution": "Backtrack. Try all possible first two numbers, check if rest follows Fibonacci.",
+      "hints": "Try all first two numbers"
+    },
+    {
+      "id": "p19",
+      "title": "Beautiful Arrangement",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count beautiful arrangements (nums[i] divisible by i+1 or vice versa).",
+      "complexity": { "time": "$O(n!)$", "space": "$O(n)$" },
+      "solution": "Backtrack. At position i, try all unused numbers that satisfy condition.",
+      "hints": "Check divisibility condition"
+    },
+    {
+      "id": "p20",
+      "title": "Binary Watch",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Return all possible times given number of LEDs lit.",
+      "example": "turnedOn=1. Output: ['1:00','2:00','4:00','8:00','0:01','0:02','0:04','0:08','0:16','0:32']",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Backtrack or iterate all 10 bits combinations. Check valid time.",
+      "hints": "Try all bit combinations"
+    },
+    {
+      "id": "p21",
+      "title": "Gray Code",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate n-bit Gray code sequence.",
+      "example": "n=2. Output: [0,1,3,2]",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(2^n)$" },
+      "solution": "Backtrack or iterative: G(n) = G(n-1) + reverse(G(n-1)) with leading bit.",
+      "hints": "Recursive: add 0 to G(n-1), add 1 to reverse"
+    },
+    {
+      "id": "p22",
+      "title": "Strobogrammatic Number II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all strobogrammatic numbers of length n.",
+      "complexity": { "time": "$O(5^{n/2})$", "space": "$O(5^{n/2})$" },
+      "solution": "Backtrack. Build from outside in. Valid pairs: 0-0, 1-1, 6-9, 8-8, 9-6.",
+      "hints": "Build from outside, valid pairs"
+    },
+    {
+      "id": "p23",
+      "title": "Generalized Abbreviation",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate all possible abbreviations of word.",
+      "example": "word='word'. Output: ['word','1ord','w1rd','wo1d','wor1','2rd','w2d','wo2','1o1d','1or1','w1r1','1o2','2r1','3d','w3','4']",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(2^n)$" },
+      "solution": "Backtrack. For each position, either keep character or abbreviate (count consecutive abbreviations).",
+      "hints": "Keep or abbreviate each position"
+    },
+    {
+      "id": "p24",
+      "title": "Expression Add Operators",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Add operators (+, -, *) to make expression equal target.",
+      "complexity": { "time": "$O(4^n)$", "space": "$O(n)$" },
+      "solution": "Backtrack. Track current value, previous operand, and expression string.",
+      "hints": "Track value, previous operand, expression"
+    },
+    {
+      "id": "p25",
+      "title": "Word Squares",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all word squares (k×k grid where row i = column i as words).",
+      "complexity": { "time": "$O(n \\times L!)$", "space": "$O(n \\times L)$" },
+      "solution": "Trie + backtracking. Build square row by row, use Trie to validate prefixes.",
+      "hints": "Trie + backtracking"
+    }
+  ],
+  "minigame": {
+    "id": "backtracking-master",
+    "title": "Backtracking Master",
+    "description": "Master backtracking! Permutations, combinations, N-Queens, and Sudoku.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Permutations", "task": "Generate all permutations of [1,2,3]" },
+      { "name": "N-Queens", "task": "Solve 4-Queens problem" },
+      { "name": "Sudoku", "task": "Solve Sudoku puzzle" }
+    ]
+  },
+  "visualizer": {
+    "type": "backtracking",
+    "title": "Backtracking Visualizer",
+    "description": "Visualize backtracking: state tree, pruning, and solution exploration.",
+    "features": ["State tree visualization", "Choice animation", "Pruning display", "Solution highlighting"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Subsets",
+        "code": "def subsets(nums):\n    result = []\n    \n    def backtrack(start, current):\n        result.append(current.copy())\n        for i in range(start, len(nums)):\n            current.append(nums[i])\n            backtrack(i + 1, current)\n            current.pop()\n    \n    backtrack(0, [])\n    return result  # O(2^n * n)"
+      },
+      {
+        "title": "Permutations",
+        "code": "def permute(nums):\n    result = []\n    used = [False] * len(nums)\n    \n    def backtrack(current):\n        if len(current) == len(nums):\n            result.append(current.copy())\n            return\n        for i in range(len(nums)):\n            if not used[i]:\n                used[i] = True\n                current.append(nums[i])\n                backtrack(current)\n                current.pop()\n                used[i] = False\n    \n    backtrack([])\n    return result  # O(n! * n)"
+      },
+      {
+        "title": "N-Queens",
+        "code": "def solveNQueens(n):\n    result = []\n    board = [['.'] * n for _ in range(n)]\n    \n    def is_valid(row, col):\n        for i in range(row):\n            if board[i][col] == 'Q':\n                return False\n            diag = col - (row - i)\n            if diag >= 0 and board[i][diag] == 'Q':\n                return False\n            diag2 = col + (row - i)\n            if diag2 < n and board[i][diag2] == 'Q':\n                return False\n        return True\n    \n    def backtrack(row):\n        if row == n:\n            result.append([''.join(row) for row in board])\n            return\n        for col in range(n):\n            if is_valid(row, col):\n                board[row][col] = 'Q'\n                backtrack(row + 1)\n                board[row][col] = '.'\n    \n    backtrack(0)\n    return result"
+      }
+    ]
+  }
+}
