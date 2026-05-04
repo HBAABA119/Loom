@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Loom
 
-## Getting Started
+Loom is an interactive learning platform that weaves together complex computer science concepts through playable visualizations. Think of it as a living textbook where algorithms don't just sit on the page—they move, respond, and let you experiment with them in real-time.
 
-First, run the development server:
+## What Loom Does
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Every chapter comes with three layers of engagement:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Visualizers** - Interactive animations that break down algorithms step-by-step. Scrub through timelines, adjust parameters, and watch data structures transform
+- **Minigames** - Gamified challenges where you apply what you've learned through interactive puzzles
+- **Practice Problems** - Hands-on exercises to reinforce understanding with immediate feedback
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## The Library
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Loom spans six comprehensive books:
 
-## Learn More
+### Data Structures & Algorithms
+30 chapters covering Big O notation, arrays, strings, linked lists, stacks, queues, trees, graphs, dynamic programming, greedy algorithms, backtracking, and advanced structures like segment trees, Fenwick trees, and Bloom filters.
 
-To learn more about Next.js, take a look at the following resources:
+### The Neural Network Atlas
+15 chapters on AI and machine learning. From perceptrons and backpropagation to CNNs, RNNs, transformers, GANs, and reinforcement learning.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### The Silicon Blueprint
+12 chapters on computer architecture. Binary systems, logic gates, CPU architecture, memory management, caching, pipelining, and assembly language.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### The Quantum Canvas
+15 chapters on quantum computing. Qubits, superposition, Bloch spheres, quantum gates, entanglement, and algorithms like Deutsch-Jozsa, Grover's search, and Shor's factoring.
 
-## Deploy on Vercel
+### The Cryptographic Vault
+15 chapters on cybersecurity. Classical ciphers, AES, RSA, elliptic curve cryptography, hash functions, TLS handshakes, and zero-knowledge proofs.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### The Engine Room
+15 chapters on game physics and math. Vectors, matrices, collision detection (AABB, circle, SAT), raycasting, inverse kinematics, Verlet integration, and particle systems.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## How It Works
+
+Each chapter follows a consistent flow:
+1. **Learn** - Read explanations with LaTeX-rendered mathematical notation
+2. **Visualize** - Interact with a custom-built visualizer with timeline scrubbing
+3. **Play** - Apply knowledge in a minigame that challenges your understanding
+4. **Practice** - Solve problems to reinforce what you've learned
+
+## Features
+
+- **Timeline Scrubbing** - Scrub through any point in the algorithm's execution
+- **Code Synchronization** - Code highlights in real-time as the visualizer progresses
+- **Dark/Light Themes** - Toggle between themes for comfortable reading
+- **Chapter Navigation** - Progress through books with a sidebar that tracks your journey
+- **Responsive Design** - Works on desktop and tablet screens
+- **Smooth Animations** - Powered by Framer Motion
+
+## Tech Stack
+
+- **Next.js 15** - React framework with App Router
+- **React 19** - Latest React with concurrent rendering
+- **TypeScript** - Type safety across the codebase
+- **Tailwind CSS 4** - Utility-first CSS styling
+- **Framer Motion** - Smooth animations
+- **Zustand** - Lightweight state management
+- **KaTeX** - LaTeX mathematical notation rendering
+- **Lucide React** - Icon system
+- **Geist** - Modern typeface
+
+## Philosophy
+
+Loom exists because computer science concepts are often taught abstractly. By making things interactive, we bridge the gap between theory and intuition. When you can *see* a quicksort partition an array, or *watch* a gradient descent find its minimum, the understanding becomes visceral rather than theoretical.
+
+This isn't about replacing traditional learning—it's about augmenting it. Read the textbook, then come to Loom to see it in action.
