@@ -11,6 +11,7 @@ import Timeline from "@/components/Timeline";
 import ThemeToggle from "@/components/ThemeToggle";
 import { initTimelineSync, destroyTimelineSync } from "@/lib/engine/timelineSync";
 import { ExpandablePanel } from "@/components/ExpandablePanel";
+import { ErrorBoundary, VisualizerErrorFallback, MinigameErrorFallback } from "@/components/ErrorBoundary";
 
 // Dynamic imports for chapter visualizers
 const chapterVisualizers: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
@@ -340,9 +341,11 @@ export default function ChapterPageClient({ chapterId, chapterData }: ChapterPag
           subtitle={chapterData.title}
         >
           {VisualizerComponent ? (
-            <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading visualizer...</div>}>
-              <VisualizerComponent />
-            </Suspense>
+            <ErrorBoundary fallback={<VisualizerErrorFallback />}>
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading visualizer...</div>}>
+                <VisualizerComponent />
+              </Suspense>
+            </ErrorBoundary>
           ) : (
             <div className="flex h-full flex-col items-center justify-center p-8">
               <Eye size={64} className="mx-auto mb-4 text-[#58a6ff]" />
@@ -359,9 +362,11 @@ export default function ChapterPageClient({ chapterId, chapterData }: ChapterPag
           subtitle={chapterData.title}
         >
           {MinigameComponent ? (
-            <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading minigame...</div>}>
-              <MinigameComponent />
-            </Suspense>
+            <ErrorBoundary fallback={<MinigameErrorFallback />}>
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading minigame...</div>}>
+                <MinigameComponent />
+              </Suspense>
+            </ErrorBoundary>
           ) : (
             <div className="flex h-full flex-col items-center justify-center p-8">
               <Gamepad2 size={64} className="mx-auto mb-4 text-[#f0883e]" />

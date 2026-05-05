@@ -395,10 +395,10 @@ const generateSteps = (): Step[] => {
 };
 
 // Render tree recursively
-const renderTree = (node: TreeNode | undefined, parentX?: number, parentY?: number): JSX.Element[] => {
+const renderTree = (node: TreeNode | undefined, parentX?: number, parentY?: number): React.ReactElement[] => {
   if (!node) return [];
   
-  const elements: JSX.Element[] = [];
+  const elements: React.ReactElement[] = [];
   
   // Draw edge to parent
   if (parentX !== undefined && parentY !== undefined) {

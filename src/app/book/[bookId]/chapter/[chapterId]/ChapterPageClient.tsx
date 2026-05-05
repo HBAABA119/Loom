@@ -12,6 +12,7 @@ import { getChapterConfig } from "@/lib/engine/chapterRegistry";
 import ThemeToggle from "@/components/ThemeToggle";
 import { MixedText } from "@/components/LatexRenderer";
 import { ExpandablePanel, ExpandableTrigger } from "@/components/ExpandablePanel";
+import { ErrorBoundary, VisualizerErrorFallback, MinigameErrorFallback } from "@/components/ErrorBoundary";
 
 interface ChapterPageClientProps {
   book: Book;
@@ -316,9 +317,11 @@ function solve(input) {
             subtitle={chapter.title}
           >
             {VisualizerComponent ? (
-              <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading visualizer...</div>}>
-                <VisualizerComponent />
-              </Suspense>
+              <ErrorBoundary fallback={<VisualizerErrorFallback />}>
+                <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading visualizer...</div>}>
+                  <VisualizerComponent />
+                </Suspense>
+              </ErrorBoundary>
             ) : (
               <div className="flex h-full flex-col items-center justify-center p-8">
                 <Sparkles size={64} className="mx-auto mb-4 text-[#58a6ff]" />
@@ -335,9 +338,11 @@ function solve(input) {
             subtitle={chapter.title}
           >
             {MinigameComponent ? (
-              <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading minigame...</div>}>
-                <MinigameComponent />
-              </Suspense>
+              <ErrorBoundary fallback={<MinigameErrorFallback />}>
+                <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading minigame...</div>}>
+                  <MinigameComponent />
+                </Suspense>
+              </ErrorBoundary>
             ) : (
               <div className="flex h-full flex-col items-center justify-center p-8">
                 <Gamepad2 size={64} className="mx-auto mb-4 text-[#f0883e]" />
