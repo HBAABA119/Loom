@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { 
   Play, Pause, SkipBack, SkipForward, RotateCcw, 
   ChevronLeft, ChevronRight, Info, Zap, Database
@@ -296,8 +296,14 @@ export default function ArrayVisualizerEnhanced() {
     setCurrentStep(stepIndex);
   }, [stepIndex]);
 
-  const steps = useMemo(() => generateSteps(), [data]);
+  const steps = useMemo(() => generateSteps(), []);
   const step = steps[currentStep] || steps[0];
+
+  useEffect(() => {
+    if (step?.codeLines) {
+      setActiveLines(step.codeLines);
+    }
+  }, [step]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

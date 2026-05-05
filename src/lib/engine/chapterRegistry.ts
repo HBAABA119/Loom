@@ -133,7 +133,7 @@ const minigames: Record<string, React.LazyExoticComponent<ComponentType> | null>
   "04-strings": lazy(() => import("@/components/minigames/StringMinigameEnhanced")),
   "08-searching": lazy(() => import("@/components/minigames/SearchingMinigameEnhanced")),
   "09-hash-tables": lazy(() => import("@/components/minigames/HashTableMinigameEnhanced")),
-  "15-mst": lazy(() => import("@/components/minigames/GraphMinigameEnhanced")),
+  "15-mst": null,
   "12-graphs": lazy(() => import("@/components/minigames/GraphMinigameEnhanced")),
   "13-dfs-bfs": null,
   "14-shortest-paths": null,
