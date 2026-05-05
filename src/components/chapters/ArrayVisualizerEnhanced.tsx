@@ -285,8 +285,7 @@ export default function ArrayVisualizerEnhanced() {
     setPlaybackSpeed
   } = useTimeline();
   
-  const { setActiveLines } = useCodeHighlight();
-  const [currentStep, setCurrentStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
     setTotalSteps(generateSteps().length);

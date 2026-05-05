@@ -81,7 +81,7 @@
       "step": 1,
       "title": "Encoding",
       "description": "Map logical qubit to entangled state of multiple physical qubits.",
-      "latex": "|\\psi\\rangle_L = \\alpha|0\\rangle_L + \\beta|1\\rangle_L",
+      "latex": "|\\\psi\\rangle_L = \\\alpha|0\\rangle_L + \\beta|1\\rangle_L",
       "visualState": { "physicalQubits": 3, "logicalQubits": 1 }
     },
     {

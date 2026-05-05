@@ -32,7 +32,7 @@
       },
       {
         "title": "Multi-Controlled Gates",
-        "content": "Controlled operations generalize beyond CNOT. A controlled-U applies U to target when control is |1⟩: $CU = |0\rangle\langle 0| \otimes I + |1\rangle\langle 1| \otimes U$. Multi-controlled gates have multiple control qubits. The Toffoli gate (CCNOT) is universal for classical computation—it's reversible AND. Quantum computing also uses controlled-Z, controlled-phase, and arbitrary controlled rotations. These can be decomposed into single-qubit gates and CNOTs. For example, CZ = (I⊗H)·CNOT·(I⊗H).",
+        "content": "Controlled operations generalize beyond CNOT. A controlled-U applies U to target when control is |1⟩: $CU = |0\rangle\\langle 0| \\otimes I + |1\rangle\\langle 1| \\otimes U$. Multi-controlled gates have multiple control qubits. The Toffoli gate (CCNOT) is universal for classical computation—it's reversible AND. Quantum computing also uses controlled-Z, controlled-phase, and arbitrary controlled rotations. These can be decomposed into single-qubit gates and CNOTs. For example, CZ = (I⊗H)·CNOT·(I⊗H).",
         "decompositions": [
           { "gate": "CZ", "decomposition": "(I⊗H)·CNOT·(I⊗H)" },
           { "gate": "CNOT with swapped roles", "decomposition": "(H⊗H)·CNOT·(H⊗H) swaps control/target" },
@@ -93,35 +93,35 @@
       "step": 1,
       "title": "Initialize Qubits",
       "description": "Start with n qubits in |0⟩ state, plus any needed ancillas.",
-      "latex": "|\\psi_0\\rangle = |0\\rangle^{\\otimes n}",
+      "latex": "|\\\psi_0\\rangle = |0\\rangle^{\\\otimes n}",
       "visualState": { "qubits": "n", "initialized": true }
     },
     {
       "step": 2,
       "title": "Apply Single-Qubit Gates",
       "description": "Apply H, rotations, and other single-qubit gates to prepare initial superposition or states.",
-      "latex": "|\\psi_1\\rangle = (U_1 \\otimes U_2 \\otimes ...) |\\psi_0\\rangle",
+      "latex": "|\\\psi_1\\rangle = (U_1 \\\otimes U_2 \\\otimes ...) |\\\psi_0\\rangle",
       "visualState": { "layer": "single-qubit layer", "parallel": true }
     },
     {
       "step": 3,
       "title": "Apply Entangling Gates",
       "description": "Apply CNOT, CZ, or other multi-qubit gates to create entanglement between qubits.",
-      "latex": "|\\psi_2\\rangle = CNOT_{i,j} |\\psi_1\\rangle",
+      "latex": "|\\\psi_2\\rangle = CNOT_{i,j} |\\\psi_1\\rangle",
       "visualState": { "layer": "entangling layer", "entanglement": true }
     },
     {
       "step": 4,
       "title": "Repeat and Interleave",
       "description": "Alternate between single-qubit rotations and entangling gates. This pattern appears in variational circuits, QAOA, and Trotterized Hamiltonian simulation.",
-      "latex": "|\\psi_3\\rangle = \\prod_{k=1}^{p} (e^{-i\\gamma_k H_c} e^{-i\\beta_k H_x}) |\\psi_2\\rangle",
+      "latex": "|\\\psi_3\\rangle = \\\prod_{k=1}^{p} (e^{-i\\\gamma_k H_c} e^{-i\\beta_k H_x}) |\\\psi_2\\rangle",
       "visualState": { "layers": "alternating", "depth": "p" }
     },
     {
       "step": 5,
       "title": "Measure or Uncompute",
       "description": "Measure output qubits for result, or uncompute ancillas for reuse.",
-      "latex": "\\text{Result} = \\text{Measure}(|\\psi_{\\text{final}}\\rangle)",
+      "latex": "\\text{Result} = \\text{Measure}(|\\\psi_{\\text{final}}\\rangle)",
       "visualState": { "measurement": true, "output": "classical bits" }
     }
   ],

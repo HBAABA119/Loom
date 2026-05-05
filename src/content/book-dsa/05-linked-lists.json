@@ -11,29 +11,27 @@
       {
         "title": "Singly Linked List Structure",
         "content": "A singly linked list consists of nodes with two fields: data and next (pointer to next node). The list is accessed via a head pointer. The last node's next points to null. Basic operations: insert at head ($O(1)$), insert after given node ($O(1)$), delete from head ($O(1)$), delete after given node ($O(1)$), search ($O(n)$). The key insight: with a pointer to a node, you can insert/delete after it in constant time, but you can't easily insert before without a pointer to the previous node.",
-        "structure": {
-          "node": "{ data: value, next: Node | null }",
-          "operations": {
-            "insertAtHead": "newNode.next = head; head = newNode",
-            "insertAfter": "newNode.next = node.next; node.next = newNode",
-            "deleteAfter": "node.next = node.next.next"
-          }
-        }
+        "keyPoints": [
+          "Node structure: { data: value, next: Node | null }",
+          "Insert at head: newNode.next = head; head = newNode",
+          "Insert after: newNode.next = node.next; node.next = newNode",
+          "Delete after: node.next = node.next.next"
+        ]
       },
       {
         "title": "Doubly Linked List",
         "content": "Doubly linked lists have nodes with three fields: data, next, and prev (pointer to previous node). This enables bidirectional traversal and $O(1)$ deletion of a node when you have its pointer (no need for previous pointer). Trade-off: more memory (extra pointer per node) and slightly more complex insertion/deletion (must update two pointers). Used in implementing LRU cache, undo/redo functionality, and when bidirectional traversal is needed.",
-        "comparison": [
-          { "aspect": "Memory per node", "singly": "Data + next (2 fields)", "doubly": "Data + next + prev (3 fields)" },
-          { "aspect": "Delete node", "singly": "$O(n)$ (need previous)", "doubly": "$O(1)$ (have prev pointer)" },
-          { "aspect": "Reverse traversal", "singly": "$O(n)$ (stack or recursion)", "doubly": "$O(1)$ (follow prev pointers)" },
-          { "aspect": "Insert complexity", "singly": "$O(1)$", "doubly": "$O(1)$ but more pointer updates" }
+        "keyPoints": [
+          "Memory per node: Singly (2 fields), Doubly (3 fields)",
+          "Delete node: Singly O(n) (need previous), Doubly O(1) (have prev)",
+          "Reverse traversal: Singly O(n), Doubly O(1)",
+          "Insert complexity: Both O(1) but doubly needs more pointer updates"
         ]
       },
       {
         "title": "Circular Linked List",
         "content": "In a circular linked list, the last node's next points back to the head instead of null. This enables continuous traversal—useful for round-robin scheduling, implementing queues with circular buffers, and problems where you need to cycle through elements. Circular singly linked lists require care to detect when you've traversed the entire list (check if current.next == head). Circular doubly linked lists are common (DLL with head.prev = tail and tail.next = head).",
-        "applications": [
+        "keyPoints": [
           "Round-robin scheduling",
           "Implementing queues",
           "Game player turns",
@@ -43,15 +41,15 @@
       {
         "title": "Linked List vs Array",
         "content": "Arrays excel at random access ($O(1)$) and have excellent cache locality (contiguous memory). They're memory-efficient (no pointers). Linked lists excel at insertion/deletion ($O(1)$ with pointer) and don't require resizing. They use memory efficiently for dynamic growth (allocate nodes as needed). Arrays suffer from $O(n)$ insertion/deletion (shifting required) and fixed capacity (without resizing). Linked lists suffer from $O(n)$ access, poor cache locality, and pointer overhead. Choose based on operation patterns: arrays for access-heavy, linked lists for modification-heavy.",
-        "comparisonTable": [
-          { "operation": "Access by index", "array": "$O(1)$", "linked": "$O(n)$" },
-          { "operation": "Insert at beginning", "array": "$O(n)$", "linked": "$O(1)$" },
-          { "operation": "Insert at end", "array": "$O(1)$ amortized", "linked": "$O(1)$ with tail, $O(n)$ without" },
-          { "operation": "Insert at position", "array": "$O(n)$", "linked": "$O(1)$ with pointer" },
-          { "operation": "Delete at beginning", "array": "$O(n)$", "linked": "$O(1)$" },
-          { "operation": "Delete at position", "array": "$O(n)$", "linked": "$O(1)$ with pointer" },
-          { "operation": "Memory overhead", "array": "None", "linked": "Pointer per node" },
-          { "operation": "Cache locality", "array": "Excellent", "linked": "Poor" }
+        "keyPoints": [
+          "Access by index: Array O(1), Linked O(n)",
+          "Insert at beginning: Array O(n), Linked O(1)",
+          "Insert at end: Array O(1) amortized, Linked O(1) with tail",
+          "Insert at position: Array O(n), Linked O(1) with pointer",
+          "Delete at beginning: Array O(n), Linked O(1)",
+          "Delete at position: Array O(n), Linked O(1) with pointer",
+          "Memory overhead: Array None, Linked Pointer per node",
+          "Cache locality: Array Excellent, Linked Poor"
         ]
       },
       {

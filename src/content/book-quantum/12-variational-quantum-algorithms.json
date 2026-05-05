@@ -23,14 +23,14 @@
       {
         "title": "Variational Quantum Eigensolver (VQE)",
         "content": "VQE finds approximate ground state energies of molecular Hamiltonians, crucial for quantum chemistry. The molecular Hamiltonian is mapped to qubits using Jordan-Wigner or Bravyi-Kitaev transformations: H = Σᵢ hᵢ Pᵢ where Pᵢ are Pauli strings. The UCCSD (Unitary Coupled Cluster with Singles and Doubles) ansatz is chemically motivated: U(θ) = e^(T(θ) - T†(θ)) where T creates excitations from Hartree-Fock reference. State preparation: start from Hartree-Fock state (product state), apply parameterized excitations. Measure each Pauli term separately (requires many shots) or use grouping strategies. VQE has demonstrated molecular energies for H₂, LiH, BeH₂ on superconducting and trapped ion systems. Challenges: circuit depth grows with molecule size, measurement overhead for many Pauli terms, and classical optimization landscape with local minima.",
-        "hamiltonianForm": "H = \\sum_i h_i P_i \\text{ where } P_i \\in \\{I, X, Y, Z\\}^{\\otimes n}",
+        "hamiltonianForm": "H = \\\sum_i h_i P_i \\text{ where } P_i \\\in \\\{I, X, Y, Z\\\}^{\\\otimes n}",
         "applications": ["Molecular ground states", "Excited states via QSE", "Binding energies", "Reaction barriers"],
         "chemicalAccuracy": "< 1 kcal/mol error (~1.6 mHa) for useful predictions"
       },
       {
         "title": "Quantum Approximate Optimization Algorithm (QAOA)",
         "content": "QAOA addresses combinatorial optimization problems (MaxCut, MaxSAT, portfolio optimization). Inspired by quantum annealing, it alternates between problem Hamiltonian H_P and mixer Hamiltonian H_M. The ansatz: |ψ(θ)⟩ = e^(-iβ_p H_M) e^(-iγ_p H_P) ... e^(-iβ_1 H_M) e^(-iγ_1 H_P)|+⟩^⊗n. Parameters (γ₁...γ_p, β₁...β_p) optimized classically. H_P encodes the objective: for MaxCut, H_P = Σ_{(i,j)∈E} (I - Z_iZ_j)/2 (counts cut edges). H_M = Σᵢ Xᵢ drives transitions between solutions. Depth p controls approximation quality: p→∞ recovers adiabatic evolution, but NISQ constraints limit p to 1-10. QAOA performance depends on graph structure—regular graphs show better results than random. Variants include: Recursive QAOA (RQAOA) for larger problems, Warm-start QAOA with classical relaxation, and multi-angle strategies.",
-        "ansatz": "|\\psi(\\gamma, \\beta)\\rangle = \\prod_{k=1}^p e^{-i\\beta_k H_M} e^{-i\\gamma_k H_P} |+\\rangle^{\\otimes n}",
+        "ansatz": "|\\\psi(\\\gamma, \\beta)\\rangle = \\\prod_{k=1}^p e^{-i\\beta_k H_M} e^{-i\\\gamma_k H_P} |+\\rangle^{\\\otimes n}",
         "problemTypes": ["MaxCut", "MaxSAT", "TSP", "Graph coloring", "Portfolio optimization"],
         "depthTradeoff": "Higher p → better approximation but more noise"
       },
@@ -78,21 +78,21 @@
       "step": 1,
       "title": "Problem Encoding",
       "description": "Map problem to Hamiltonian or cost function on qubits.",
-      "latex": "\\text{MaxCut} \\rightarrow H_P = \\sum_{(i,j)\\in E} \\frac{I - Z_i Z_j}{2}",
+      "latex": "\\text{MaxCut} \\rightarrow H_P = \\\sum_{(i,j)\\\in E} \\frac{I - Z_i Z_j}{2}",
       "visualState": { "variables": "n", "clauses": "m", "qubits": "n" }
     },
     {
       "step": 2,
       "title": "Ansatz Preparation",
       "description": "Construct parameterized circuit with problem structure or hardware efficiency.",
-      "latex": "|\\psi(\\theta)\\rangle = U(\\theta)|0\\rangle^{\\otimes n}",
+      "latex": "|\\\psi(\\theta)\\rangle = U(\\theta)|0\\rangle^{\\\otimes n}",
       "visualState": { "layers": "p", "parameters": "2p" }
     },
     {
       "step": 3,
       "title": "Hybrid Optimization",
       "description": "Iteratively evaluate cost on quantum computer, update parameters classically.",
-      "latex": "\\theta_{new} = \\theta_{old} - \\eta \\nabla E(\\theta)",
+      "latex": "\\theta_{new} = \\theta_{old} - \\\eta \\nabla E(\\theta)",
       "visualState": { "convergence": "monitored", "iterations": "100s-1000s" }
     }
   ],

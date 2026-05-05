@@ -21,24 +21,36 @@
       {
         "title": "The Mathematics Behind Big O",
         "content": "Formally, $f(n) = O(g(n))$ means there exist positive constants $c$ and $n_0$ such that $0 \\leq f(n) \\leq c \\cdot g(n)$ for all $n \\geq n_0$. In plain English: after some point ($n_0$), $f(n)$ is always bounded above by a constant multiple of $g(n)$. This is why we drop constants: $O(2n) = O(n)$ because we can choose $c=2$. We also drop lower-order terms: $O(n^2 + n) = O(n^2)$ because as $n \\to \\infty$, the $n^2$ term dominates. The notation focuses on the asymptotic behavior—what happens as $n$ approaches infinity.",
-        "latex": "f(n) \\in O(g(n)) \\iff \\exists c, n_0 > 0: \\forall n \\geq n_0, f(n) \\leq c \\cdot g(n)"
+        "keyPoints": [
+          "f(n) ∈ O(g(n)) iff ∃ c, n₀ > 0: ∀ n ≥ n₀, f(n) ≤ c · g(n)",
+          "Drop constants: O(2n) = O(n)",
+          "Drop lower-order terms: O(n² + n) = O(n²)",
+          "Focus on asymptotic behavior as n → ∞"
+        ]
       },
       {
         "title": "Common Complexity Classes",
         "content": "Different problems require different amounts of resources. Here are the most common complexity classes you'll encounter, ordered from fastest to slowest growth:",
-        "complexityTable": [
-          { "notation": "$O(1)$", "name": "Constant Time", "description": "Same time regardless of input size. Array access, hash table lookup.", "example": "Accessing arr[5]" },
-          { "notation": "$O(\\log n)$", "name": "Logarithmic", "description": "Doubling input barely increases time. Binary search, balanced BST operations.", "example": "Binary search in sorted array" },
-          { "notation": "$O(n)$", "name": "Linear", "description": "Time grows proportionally with input. Single loop through data.", "example": "Finding max in unsorted array" },
-          { "notation": "$O(n \\log n)$", "name": "Linearithmic", "description": "Slightly worse than linear. Efficient sorting algorithms.", "example": "Merge sort, Quick sort (average)" },
-          { "notation": "$O(n^2)$", "name": "Quadratic", "description": "Time squares with input. Nested loops.", "example": "Bubble sort, checking all pairs" },
-          { "notation": "$O(2^n)$", "name": "Exponential", "description": "Adding one item doubles the time. Recursive subsets.", "example": "Brute-force subset generation" },
-          { "notation": "$O(n!)$", "name": "Factorial", "description": "Grows faster than exponential. Permutations.", "example": "Traveling Salesman (brute force)" }
+        "keyPoints": [
+          "O(1): Constant time - Array access, hash lookup",
+          "O(log n): Logarithmic - Binary search, balanced BST",
+          "O(n): Linear - Single loop, finding max",
+          "O(n log n): Linearithmic - Efficient sorting",
+          "O(n²): Quadratic - Nested loops, bubble sort",
+          "O(2ⁿ): Exponential - Subset generation",
+          "O(n!): Factorial - Permutations, TSP brute force"
         ]
       },
       {
         "title": "Analyzing Code for Big O",
         "content": "To determine Big O, count the fundamental operations relative to input size $n$. A single loop from 1 to $n$ is $O(n)$. Nested loops where both iterate $n$ times are $O(n^2)$. However, if loops are sequential (not nested), we add their complexities: $O(n) + O(n) = O(n)$. For recursive functions, write a recurrence relation. For example, merge sort: $T(n) = 2T(n/2) + O(n)$, which solves to $O(n \\log n)$ by the Master Theorem.",
+        "keyPoints": [
+          "Count fundamental operations relative to input size n",
+          "Single loop: O(n)",
+          "Nested loops: O(n²)",
+          "Sequential loops: O(n) + O(n) = O(n)",
+          "Recursive functions: write recurrence relation"
+        ],
         "examples": [
           {
             "code": "for i in range(n):\n    print(i)",

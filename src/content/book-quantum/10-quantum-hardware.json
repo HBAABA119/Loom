@@ -85,14 +85,14 @@
       "step": 2,
       "title": "Decoherence Modeling",
       "description": "Model exponential decay of quantum coherence over time.",
-      "latex": "\\rho(t) = \\begin{pmatrix} |\\alpha|^2 & \\alpha\\beta^* e^{-t/T_2} \\\\ \\alpha^*\\beta e^{-t/T_2} & |\\beta|^2 e^{-t/T_1} \\end{pmatrix}",
+      "latex": "\\rho(t) = \\begin{pmatrix} |\\\alpha|^2 & \\\alpha\\beta^* e^{-t/T_2} \\\\\ \\\alpha^*\\beta e^{-t/T_2} & |\\beta|^2 e^{-t/T_1} \\\end{pmatrix}",
       "visualState": { "decay": "exponential", "timescales": ["T₁", "T₂"] }
     },
     {
       "step": 3,
       "title": "Error Budget",
       "description": "Calculate maximum circuit depth given error rates.",
-      "latex": "N_{max} \\approx \\frac{1}{n \\cdot \\epsilon_{avg}} \\text{ for n qubits with avg error } \\epsilon",
+      "latex": "N_{max} \\\approx \\frac{1}{n \\\cdot \\\epsilon_{avg}} \\text{ for n qubits with avg error } \\\epsilon",
       "visualState": { "depthLimit": "function of error rate and qubit count" }
     }
   ],

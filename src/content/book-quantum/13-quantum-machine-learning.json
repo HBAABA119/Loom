@@ -11,8 +11,8 @@
       {
         "title": "Quantum Feature Maps and Kernels",
         "content": "Quantum kernel methods embed classical data into quantum Hilbert spaces where separation may be easier. The quantum feature map: Φ(x) = U(x)|0⟩ where U(x) is a parameterized circuit encoding data x. The quantum kernel K(x,y) = |⟨0|U†(x)U(y)|0⟩|² measures similarity in this exponentially large space. Classical kernels (RBF, polynomial) map to spaces growing polynomially with dimension. Quantum kernels can access spaces of dimension 2^n for n qubits. For certain structured datasets, quantum kernels show exponential advantage over any classical kernel method. Implementation: prepare U(x)|0⟩, apply U†(y), measure probability of returning to |0⟩. Used with classical SVM: quantum computer evaluates kernel matrix, classical optimizer finds decision boundary. Challenges: kernel estimation requires many shots, and the feature map must be carefully designed for the problem.",
-        "featureMap": "\\Phi(x) = U(x)|0\\rangle \\in \\mathcal{H}_{2^n}",
-        "kernel": "K(x, y) = |\\langle 0|U^\\dagger(x)U(y)|0\\rangle|^2",
+        "featureMap": "\\\Phi(x) = U(x)|0\\rangle \\\in \\\mathcal{H}_{2^n}",
+        "kernel": "K(x, y) = |\\\langle 0|U^\\\dagger(x)U(y)|0\\rangle|^2",
         "advantage": "Exponential feature space dimension vs polynomial for classical"
       },
       {
@@ -29,14 +29,14 @@
       {
         "title": "Quantum Generative Models",
         "content": "Quantum generative models learn to sample from complex probability distributions. Born machines use the probabilistic nature of quantum measurement: train a circuit so that measurement outcomes match a target distribution. The Born rule: P(x) = |⟨x|ψ(θ)⟩|². Training minimizes distance between target and learned distributions (KL divergence, MMD). Quantum circuit Born machines (QCBMs) show promise for modeling quantum data naturally. Quantum GANs (QGANs) pit a generator circuit against a discriminator (quantum or classical). The generator creates fake samples, discriminator tries to distinguish real from fake. Applications: quantum state preparation, financial modeling, and drug discovery molecular distributions. Advantages: natural probabilistic output, potential to sample from distributions hard for classical MCMC methods.",
-        "bornRule": "P(x; \\theta) = |\\langle x|\\psi(\\theta)\\rangle|^2",
-        "training": "Minimize distance: \\min_\\theta D(P_{target}, P_\\theta)",
+        "bornRule": "P(x; \\theta) = |\\\langle x|\\\psi(\\theta)\\rangle|^2",
+        "training": "Minimize distance: \\\min_\\theta D(P_{target}, P_\\theta)",
         "applications": ["Quantum state preparation", "Financial modeling", "Molecular distributions"]
       },
       {
         "title": "Quantum Optimization for ML",
         "content": "Quantum optimization algorithms can accelerate ML training. QAOA and quantum annealing solve combinatorial optimization problems arising in ML: feature selection, clustering (K-means as QUBO), and neural network architecture search. The QUBO (Quadratic Unconstrained Binary Optimization) formulation maps these to Ising Hamiltonians. For example, K-means clustering minimizes: H = Σᵢ Σₖ z_{ik} ||x_i - μₖ||² with binary variables z_{ik} indicating cluster assignment. Training classical neural networks involves non-convex optimization—quantum tunneling might escape local minima. Quantum Boltzmann machines (QBMs) generalize classical RBMs with quantum weights. Sampling from thermal states of quantum Hamiltonians may offer advantages for training energy-based models. Practical applications remain limited by NISQ constraints, but hybrid approaches show promise.",
-        "quboForm": "\\min_z z^T Q z + c^T z \\text{ where } z \\in \\{0,1\\}^n",
+        "quboForm": "\\\min_z z^T Q z + c^T z \\text{ where } z \\\in \\\{0,1\\\}^n",
         "mapping": "ML problems → QUBO → Ising Hamiltonian → QAOA/annealing",
         "applications": ["Feature selection", "Clustering", "Architecture search"]
       },
@@ -79,21 +79,21 @@
       "step": 1,
       "title": "Data Encoding",
       "description": "Map classical data into quantum state amplitudes or angles.",
-      "latex": "x \\in \\mathbb{R}^d \\rightarrow |\\psi(x)\\rangle = U(x)|0\\rangle^{\\otimes n}",
+      "latex": "x \\\in \\\mathbb{R}^d \\rightarrow |\\\psi(x)\\rangle = U(x)|0\\rangle^{\\\otimes n}",
       "visualState": { "encoding": "angle/amplitude", "qubits": "log(d) to d" }
     },
     {
       "step": 2,
       "title": "Quantum Processing",
       "description": "Apply parameterized quantum circuit to extract features or make predictions.",
-      "latex": "|\\phi(x; \\theta)\\rangle = W(\\theta)|\\psi(x)\\rangle",
+      "latex": "|\\\phi(x; \\theta)\\rangle = W(\\theta)|\\\psi(x)\\rangle",
       "visualState": { "layers": "parameterized", "measurements": "expectation values" }
     },
     {
       "step": 3,
       "title": "Hybrid Training",
       "description": "Use quantum computer for forward pass, classical optimizer for parameter updates.",
-      "latex": "\\theta \\leftarrow \\theta - \\eta \\nabla_\\theta \\mathcal{L}(\\theta)",
+      "latex": "\\theta \\\leftarrow \\theta - \\\eta \\nabla_\\theta \\\mathcal{L}(\\theta)",
       "visualState": { "gradients": "parameter-shift rule", "convergence": "iterative" }
     }
   ],

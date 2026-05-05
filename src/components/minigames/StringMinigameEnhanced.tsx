@@ -126,7 +126,7 @@ export default function StringMinigameEnhanced() {
       const expectedArr = (level.expectedAnswer as string).split(", ").map(Number);
       isCorrect = JSON.stringify(sortedSelected) === JSON.stringify(expectedArr);
     } else if (level.task === "count") {
-      isCorrect = parseInt(userVal) === level.expectedAnswer;
+      isCorrect = userVal === level.expectedAnswer;
     } else {
       isCorrect = userAnswer.trim().toLowerCase() === String(level.expectedAnswer).toLowerCase();
     }

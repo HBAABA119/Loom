@@ -47,7 +47,7 @@
       "step": 1,
       "title": "Share Entanglement",
       "description": "Distribute Bell pair |Φ⁺⟩ between Alice and Bob",
-      "latex": "|\\Phi^+\\rangle = \\frac{|00\\rangle + |11\\rangle}{\\sqrt{2}}"
+      "latex": "|\\\Phi^+\\rangle = \\frac{|00\\rangle + |11\\rangle}{\\\sqrt{2}}"
     },
     {
       "step": 2,

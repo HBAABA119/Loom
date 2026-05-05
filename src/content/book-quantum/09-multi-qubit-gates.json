@@ -11,7 +11,7 @@
       {
         "title": "The CNOT Gate",
         "content": "The CNOT (Controlled-NOT) is the fundamental two-qubit gate. It has a control qubit and a target qubit. When the control is |0⟩, the target stays unchanged. When the control is |1⟩, the target flips (X gate applied). In matrix form, CNOT is an 4×4 matrix that acts on the two-qubit state space. CNOT is its own inverse—applying it twice returns the original state. When the control is in superposition, CNOT creates entanglement: CNOT(|+0⟩) = (|00⟩ + |11⟩)/√2 = |Φ⁺⟩. This ability to entangle makes CNOT essential for universal quantum computation.",
-        "matrix": "\\text{CNOT} = \\begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & 1 & 0 \\end{pmatrix}",
+        "matrix": "\\text{CNOT} = \\begin{pmatrix} 1 & 0 & 0 & 0 \\\ 0 & 1 & 0 & 0 \\\ 0 & 0 & 0 & 1 \\\ 0 & 0 & 1 & 0 \\\end{pmatrix}",
         "truthTable": [
           { "control": "|0⟩", "target": "|0⟩", "output": "|00⟩" },
           { "control": "|0⟩", "target": "|1⟩", "output": "|01⟩" },
@@ -84,7 +84,7 @@
       "step": 2,
       "title": "Creating Entanglement",
       "description": "Put control in superposition, then apply CNOT to create Bell state.",
-      "latex": "|+0\\rangle \\xrightarrow{\\text{CNOT}} \\frac{|00\\rangle + |11\\rangle}{\\sqrt{2}} = |\\Phi^+\\rangle",
+      "latex": "|+0\\rangle \\xrightarrow{\\text{CNOT}} \\frac{|00\\rangle + |11\\rangle}{\\\sqrt{2}} = |\\\Phi^+\\rangle",
       "visualState": { "before": "Product state", "after": "Maximally entangled" }
     },
     {

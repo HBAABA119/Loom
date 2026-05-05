@@ -48,13 +48,13 @@
       "step": 1,
       "title": "Initialize",
       "description": "Prepare walker at starting position with coin state",
-      "latex": "|\\psi(0)\\rangle = |0\\rangle \\otimes |\\rightarrow\\rangle"
+      "latex": "|\\\psi(0)\\rangle = |0\\rangle \\\otimes |\\rightarrow\\rangle"
     },
     {
       "step": 2,
       "title": "Evolve",
       "description": "Apply coin then shift repeatedly",
-      "latex": "|\\psi(t)\\rangle = (SC)^t |\\psi(0)\\rangle"
+      "latex": "|\\\psi(t)\\rangle = (SC)^t |\\\psi(0)\\rangle"
     }
   ],
   "practiceProblems": [

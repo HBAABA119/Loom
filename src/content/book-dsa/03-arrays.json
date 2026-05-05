@@ -11,54 +11,49 @@
       {
         "title": "How Arrays Work in Memory",
         "content": "An array is a contiguous allocation of homogeneous elements. When you declare `int arr[100]`, the compiler allocates 100 × 4 = 400 bytes of contiguous memory. Each element sits right next to its neighbors. The address of element $i$ is calculated as: $Address(i) = Base + i \\times Size$. This arithmetic is why array access is $O(1)$—regardless of array size, we compute the address in constant time. The contiguous layout is also cache-friendly: accessing `arr[i]` typically brings `arr[i+1]`, `arr[i+2]`, etc. into cache, making sequential traversal extremely fast.",
-        "memoryLayout": {
-          "type": "diagram",
-          "baseAddress": "0x1000",
-          "elementSize": 4,
-          "elements": [
-            { "index": 0, "value": 42, "address": "0x1000", "binary": "00101010" },
-            { "index": 1, "value": 17, "address": "0x1004", "binary": "00010001" },
-            { "index": 2, "value": 88, "address": "0x1008", "binary": "01011000" },
-            { "index": 3, "value": 23, "address": "0x100C", "binary": "00010111" },
-            { "index": 4, "value": 91, "address": "0x1010", "binary": "01011011" }
-          ],
-          "formula": "Address(i) = Base + i × sizeof(element)"
-        }
+        "keyPoints": [
+          "Contiguous memory allocation",
+          "Address calculation: Base + i × Size",
+          "Cache-friendly sequential access",
+          "O(1) access via address arithmetic"
+        ]
       },
       {
         "title": "Static vs Dynamic Arrays",
         "content": "Static arrays have fixed size determined at compile time (in C/C++) or allocation time. They cannot grow or shrink. Dynamic arrays (ArrayList, Vector, std::vector) provide the abstraction of a resizable array. They start with some capacity and double when full. This doubling strategy gives amortized $O(1)$ insertion—most appends are $O(1)$, but occasional resizing is $O(n)$. The trade-off is overallocation (up to 50% unused space) and the $O(n)$ copy cost during resize. Understanding the amortized analysis is crucial: $n$ insertions take $O(n)$ total, so average is $O(1)$.",
-        "comparison": [
-          { "feature": "Size", "static": "Fixed at creation", "dynamic": "Grows as needed" },
-          { "feature": "Insertion (end)", "static": "O(1) if space, else impossible", "dynamic": "O(1) amortized" },
-          { "feature": "Memory", "static": "Exact size", "dynamic": "1x to 2x capacity" },
-          { "feature": "Cache locality", "static": "Excellent", "dynamic": "Excellent (when stable)" }
+        "keyPoints": [
+          "Size: Static fixed, Dynamic grows as needed",
+          "Insertion (end): Static O(1) if space, Dynamic O(1) amortized",
+          "Memory: Static exact, Dynamic 1x to 2x capacity",
+          "Cache locality: Both excellent when stable"
         ],
-        "growthFormula": "Capacity sequence: 1, 2, 4, 8, 16...\nTotal copies for n insertions: 1 + 2 + 4 + ... + n < 2n = O(n)"
+        "examples": [
+          { "code": "Capacity sequence: 1, 2, 4, 8, 16...", "explanation": "Dynamic array growth pattern" }
+        ]
       },
       {
         "title": "Array Operations Complexity",
         "content": "Arrays support different operations with varying efficiency. Access by index is $O(1)$—the primary advantage. Search is $O(n)$ for unsorted (linear scan), $O(\\log n)$ for sorted (binary search). Insertion at the end is $O(1)$ amortized for dynamic arrays. Insertion at arbitrary position requires shifting all subsequent elements: $O(n)$. Deletion similarly requires shifting to fill the gap: $O(n)$. These characteristics make arrays ideal when reads dominate and elements are added/removed primarily at the end.",
-        "operationsTable": [
-          { "operation": "Access by index", "complexity": "O(1)", "explanation": "Direct address calculation" },
-          { "operation": "Search (unsorted)", "complexity": "O(n)", "explanation": "Linear scan required" },
-          { "operation": "Search (sorted)", "complexity": "O(log n)", "explanation": "Binary search" },
-          { "operation": "Insert at end", "complexity": "O(1) amortized", "explanation": "Usually append, sometimes resize" },
-          { "operation": "Insert at position", "complexity": "O(n)", "explanation": "Shift elements to make room" },
-          { "operation": "Delete from end", "complexity": "O(1)", "explanation": "Simply decrement size" },
-          { "operation": "Delete from position", "complexity": "O(n)", "explanation": "Shift elements to fill gap" }
+        "keyPoints": [
+          "Access by index: O(1) - Direct address calculation",
+          "Search (unsorted): O(n) - Linear scan required",
+          "Search (sorted): O(log n) - Binary search",
+          "Insert at end: O(1) amortized - Usually append, sometimes resize",
+          "Insert at position: O(n) - Shift elements to make room",
+          "Delete from end: O(1) - Simply decrement size",
+          "Delete from position: O(n) - Shift elements to fill gap"
         ]
       },
       {
         "title": "Multidimensional Arrays",
         "content": "Multidimensional arrays can be stored in row-major or column-major order. Row-major (C, Python) stores rows contiguously: `arr[0][0], arr[0][1]... arr[1][0]...`. Column-major (Fortran, MATLAB) stores columns contiguously. This affects cache performance when traversing. Row-major favors row-wise access (inner loop over columns). For an $m \\times n$ matrix, element $(i, j)$ is at: Row-major: $base + (i \\times n + j) \\times size$. Column-major: $base + (j \\times m + i) \\times size$. Memory layout matters for performance—always match traversal order to storage order.",
-        "rowMajorLayout": [
-          [1, 2, 3],
-          [4, 5, 6],
-          [7, 8, 9]
-        ],
-        "memoryOrder": "[1, 2, 3, 4, 5, 6, 7, 8, 9] (row by row)",
-        "formula": "Row-major: address[i][j] = base + (i × cols + j) × size"
+        "keyPoints": [
+          "Row-major: C, Python - rows stored contiguously",
+          "Column-major: Fortran, MATLAB - columns stored contiguously",
+          "Row-major element (i,j): base + (i × n + j) × size",
+          "Column-major element (i,j): base + (j × m + i) × size",
+          "Match traversal order to storage for better cache performance"
+        ]
       },
       {
         "title": "Array Rotation Techniques",

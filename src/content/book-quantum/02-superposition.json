@@ -10,7 +10,7 @@
     "sections": [
       {
         "title": "Understanding Superposition",
-        "content": "Superposition is often poorly explained as 'being in two places at once' or 'being uncertain.' More precisely, a superposition is a distinct quantum state with its own physical properties. When a qubit is in state $|+\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$, it's NOT 'maybe 0, maybe 1'—it's a definite quantum state that yields probabilistic outcomes when measured in the computational basis. The key insight: measurement basis matters. Measuring $|+\rangle$ in the X basis gives definite 0 (since $|+\rangle$ is an X-basis state), while Z basis measurement is random.",
+        "content": "Superposition is often poorly explained as 'being in two places at once' or 'being uncertain.' More precisely, a superposition is a distinct quantum state with its own physical properties. When a qubit is in state $|+\rangle = \frac{1}{\\sqrt{2}}(|0\rangle + |1\rangle)$, it's NOT 'maybe 0, maybe 1'—it's a definite quantum state that yields probabilistic outcomes when measured in the computational basis. The key insight: measurement basis matters. Measuring $|+\rangle$ in the X basis gives definite 0 (since $|+\rangle$ is an X-basis state), while Z basis measurement is random.",
         "keyPoints": [
           "Superposition is a pure quantum state, not classical uncertainty",
           "Different measurement bases yield different outcomes",
@@ -21,17 +21,17 @@
       },
       {
         "title": "The Role of Complex Amplitudes",
-        "content": "Quantum mechanics uses complex numbers for amplitudes. A complex number has form $a + bi$ where $i = \sqrt{-1}$. The amplitude's magnitude squared gives probability, but the phase (angle in complex plane) affects interference. Two paths to the same outcome with amplitudes $A$ and $B$ combine as $A + B$. If they're in phase, they add: $|A + B|^2 > |A|^2 + |B|^2$. If out of phase, they can cancel: $|A - A|^2 = 0$. This interference is impossible with classical probabilities which are always non-negative.",
-        "latex": "\text{Amplitude: } z = re^{i\phi} = r(\cos\phi + i\sin\phi), \quad \text{Probability: } |z|^2 = r^2",
+        "content": "Quantum mechanics uses complex numbers for amplitudes. A complex number has form $a + bi$ where $i = \\sqrt{-1}$. The amplitude's magnitude squared gives probability, but the phase (angle in complex plane) affects interference. Two paths to the same outcome with amplitudes $A$ and $B$ combine as $A + B$. If they're in phase, they add: $|A + B|^2 > |A|^2 + |B|^2$. If out of phase, they can cancel: $|A - A|^2 = 0$. This interference is impossible with classical probabilities which are always non-negative.",
+        "latex": "\text{Amplitude: } z = re^{i\\phi} = r(\\cos\\phi + i\\sin\\phi), \\quad \text{Probability: } |z|^2 = r^2",
         "examples": [
           {
             "description": "Constructive interference",
-            "amplitudes": "$\frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}} = \sqrt{2}$",
-            "probability": "$|\sqrt{2}|^2 = 2$ (twice classical expectation!)"
+            "amplitudes": "$\frac{1}{\\sqrt{2}} + \frac{1}{\\sqrt{2}} = \\sqrt{2}$",
+            "probability": "$|\\sqrt{2}|^2 = 2$ (twice classical expectation!)"
           },
           {
             "description": "Destructive interference",
-            "amplitudes": "$\frac{1}{\sqrt{2}} - \frac{1}{\sqrt{2}} = 0$",
+            "amplitudes": "$\frac{1}{\\sqrt{2}} - \frac{1}{\\sqrt{2}} = 0$",
             "probability": "$|0|^2 = 0$ (complete cancellation)"
           },
           {
@@ -55,7 +55,7 @@
       {
         "title": "Creating and Destroying Superposition",
         "content": "The Hadamard gate ($H$) is the primary tool for creating superposition. $H|0\rangle = |+\rangle$ and $H|1\rangle = |-\rangle$. Applying $H$ again returns to the original state: $H|+\rangle = |0\rangle$. This is reversible because quantum gates are unitary. Superposition is destroyed by measurement, which forces the system into an eigenstate of the measurement operator. It's also destroyed by decoherence—unwanted interaction with the environment that entangles the qubit with its surroundings, effectively measuring it.",
-        "latex": "H = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}, \quad H|0\rangle = |+\rangle, \quad H^2 = I",
+        "latex": "H = \frac{1}{\\sqrt{2}}\begin{pmatrix} 1 & 1 \\\ 1 & -1 \\end{pmatrix}, \\quad H|0\rangle = |+\rangle, \\quad H^2 = I",
         "code": [
           { "operation": "Initialize", "state": "|0⟩", "superposition?": "No" },
           { "operation": "Apply H", "state": "|+⟩ = (|0⟩+|1⟩)/√2", "superposition?": "Yes" },
@@ -65,8 +65,8 @@
       },
       {
         "title": "Multi-Qubit Superposition",
-        "content": "With $n$ qubits, the state space grows exponentially. Two qubits have basis states $|00\rangle, |01\rangle, |10\rangle, |11\rangle$ and general state $|\psi\rangle = \alpha_{00}|00\rangle + \alpha_{01}|01\rangle + \alpha_{10}|10\rangle + \alpha_{11}|11\rangle$. Apply Hadamard to all qubits starting from $|00...0\rangle$ creates an equal superposition of all $2^n$ basis states: $\frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}|x\rangle$. This is quantum parallelism—one operation acts on all states simultaneously. The challenge is extracting useful information: naive measurement gives a random result. Clever algorithms use interference to amplify correct answers.",
-        "latex": "H^{\otimes n}|0\rangle^{\otimes n} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}|x\rangle",
+        "content": "With $n$ qubits, the state space grows exponentially. Two qubits have basis states $|00\rangle, |01\rangle, |10\rangle, |11\rangle$ and general state $|\\psi\rangle = \\alpha_{00}|00\rangle + \\alpha_{01}|01\rangle + \\alpha_{10}|10\rangle + \\alpha_{11}|11\rangle$. Apply Hadamard to all qubits starting from $|00...0\rangle$ creates an equal superposition of all $2^n$ basis states: $\frac{1}{\\sqrt{2^n}}\\sum_{x=0}^{2^n-1}|x\rangle$. This is quantum parallelism—one operation acts on all states simultaneously. The challenge is extracting useful information: naive measurement gives a random result. Clever algorithms use interference to amplify correct answers.",
+        "latex": "H^{\\otimes n}|0\rangle^{\\otimes n} = \frac{1}{\\sqrt{2^n}}\\sum_{x=0}^{2^n-1}|x\rangle",
         "keyPoints": [
           "$n$ qubits can represent $2^n$ states simultaneously",
           "Equal superposition puts equal weight on all basis states",
@@ -79,7 +79,7 @@
       {
         "name": "Born Rule",
         "description": "The probability of measuring a state is the squared magnitude of its amplitude. Discovered by Max Born in 1926, earning him the Nobel Prize.",
-        "latex": "P(x) = |\langle x | \psi \rangle|^2 = |\alpha_x|^2"
+        "latex": "P(x) = |\\langle x | \\psi \rangle|^2 = |\\alpha_x|^2"
       },
       {
         "name": "Relative Phase",
@@ -100,7 +100,7 @@
     "complexity": {
       "timeComplexity": "Creating superposition: $O(1)$ per qubit, $O(n)$ for $n$ qubits",
       "spaceComplexity": "$2^n$ amplitudes to track for $n$ qubits",
-      "understandingTime": "Deep understanding: $O(\infty)$ — quantum mechanics is weird!"
+      "understandingTime": "Deep understanding: $O(\\infty)$ — quantum mechanics is weird!"
     }
   },
   "steps": [
@@ -108,35 +108,35 @@
       "step": 1,
       "title": "Start with Definite State",
       "description": "Initialize all qubits to $|0\rangle$. This is a product state with no superposition.",
-      "latex": "|\psi_0\rangle = |0\rangle^{\otimes n}",
+      "latex": "|\\psi_0\rangle = |0\rangle^{\\otimes n}",
       "visualState": { "type": "product", "entanglement": "none" }
     },
     {
       "step": 2,
       "title": "Apply Hadamard Transform",
       "description": "Apply H gate to each qubit to create equal superposition of all basis states.",
-      "latex": "|\psi_1\rangle = H^{\otimes n}|0\rangle^{\otimes n} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}|x\rangle",
+      "latex": "|\\psi_1\rangle = H^{\\otimes n}|0\rangle^{\\otimes n} = \frac{1}{\\sqrt{2^n}}\\sum_{x=0}^{2^n-1}|x\rangle",
       "visualState": { "type": "superposition", "uniform": true, "count": "2^n" }
     },
     {
       "step": 3,
       "title": "Apply Oracle (Phase Kickback)",
       "description": "Apply a function that marks correct answers with a phase of -1, leaving others unchanged.",
-      "latex": "|\psi_2\rangle = \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{f(x)}|x\rangle",
+      "latex": "|\\psi_2\rangle = \frac{1}{\\sqrt{2^n}}\\sum_{x}(-1)^{f(x)}|x\rangle",
       "visualState": { "type": "superposition", "phases": "marked negative" }
     },
     {
       "step": 4,
       "title": "Apply Diffusion Operator",
       "description": "Reflect about the average amplitude. This amplifies marked states (constructive interference) and suppresses unmarked states (destructive interference).",
-      "latex": "\text{Amplitude of marked states } \approx \frac{3}{\sqrt{2^n}}, \text{ others } \approx \frac{1}{\sqrt{2^n}}",
+      "latex": "\text{Amplitude of marked states } \\approx \frac{3}{\\sqrt{2^n}}, \text{ others } \\approx \frac{1}{\\sqrt{2^n}}",
       "visualState": { "type": "amplified", "target": "enlarged" }
     },
     {
       "step": 5,
       "title": "Repeat and Measure",
-      "description": "Repeat steps 3-4 $O(\sqrt{2^n})$ times, then measure. The probability of finding a correct answer is now high.",
-      "latex": "P(\text{correct}) \approx 1 - \frac{1}{2^n}",
+      "description": "Repeat steps 3-4 $O(\\sqrt{2^n})$ times, then measure. The probability of finding a correct answer is now high.",
+      "latex": "P(\text{correct}) \\approx 1 - \frac{1}{2^n}",
       "visualState": { "type": "measured", "highProbability": true }
     }
   ],
@@ -168,17 +168,17 @@
       "description": "You apply Hadamard to 3 qubits in state $|000\rangle$. How many basis states are in the resulting superposition?",
       "options": ["3", "6", "8", "27"],
       "correctAnswer": 2,
-      "explanation": "$H^{\otimes 3}|000\rangle = \frac{1}{\sqrt{8}}(|000\rangle + |001\rangle + |010\rangle + |011\rangle + |100\rangle + |101\rangle + |110\rangle + |111\rangle)$. That's $2^3 = 8$ states.",
+      "explanation": "$H^{\\otimes 3}|000\rangle = \frac{1}{\\sqrt{8}}(|000\rangle + |001\rangle + |010\rangle + |011\rangle + |100\rangle + |101\rangle + |110\rangle + |111\rangle)$. That's $2^3 = 8$ states.",
       "hint": "$n$ qubits in equal superposition contain $2^n$ basis states."
     },
     {
       "id": "p4",
       "title": "Phase Matters",
       "difficulty": "Hard",
-      "description": "States $|\psi_1\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$ and $|\psi_2\rangle = \frac{1}{\sqrt{2}}(|0\rangle + i|1\rangle)$ both give 50/50 outcomes when measured in Z basis. How do they differ?",
-      "options": ["They don't differ at all", "$\\psi_2$ has higher energy", "They differ in the X basis measurement", "$\\psi_2$ collapses faster"],
+      "description": "States $|\\psi_1\rangle = \frac{1}{\\sqrt{2}}(|0\rangle + |1\rangle)$ and $|\\psi_2\rangle = \frac{1}{\\sqrt{2}}(|0\rangle + i|1\rangle)$ both give 50/50 outcomes when measured in Z basis. How do they differ?",
+      "options": ["They don't differ at all", "$\\\psi_2$ has higher energy", "They differ in the X basis measurement", "$\\\psi_2$ collapses faster"],
       "correctAnswer": 2,
-      "explanation": "The relative phase $i = e^{i\pi/2}$ means $|\psi_2\rangle$ is on the Y-axis of the Bloch sphere (state $|i+\rangle$). Measuring in X basis: $|\psi_1\rangle$ gives definite +, while $|\psi_2\rangle$ is at 45° between +X and -X, giving random outcomes.",
+      "explanation": "The relative phase $i = e^{i\\pi/2}$ means $|\\psi_2\rangle$ is on the Y-axis of the Bloch sphere (state $|i+\rangle$). Measuring in X basis: $|\\psi_1\rangle$ gives definite +, while $|\\psi_2\rangle$ is at 45° between +X and -X, giving random outcomes.",
       "hint": "Consider the Bloch sphere. Where is each state located?"
     }
   ],
