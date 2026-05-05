@@ -11,11 +11,11 @@ export interface ChapterConfig {
 
 // Dynamic imports for visualizers - mapped to chapter IDs
 const visualizers: Record<string, React.LazyExoticComponent<ComponentType>> = {
-  "01-big-o": lazy(() => import("@/components/chapters/DynamicArrayVisualizer")),
-  "03-arrays": lazy(() => import("@/components/chapters/DynamicArrayVisualizer")),
+  "01-big-o": lazy(() => import("@/components/chapters/ArrayVisualizerEnhanced")),
+  "03-arrays": lazy(() => import("@/components/chapters/ArrayVisualizerEnhanced")),
   "05-linked-lists": lazy(() => import("@/components/chapters/LinkedListVisualizerEnhanced")),
-  "06-stacks": lazy(() => import("@/components/chapters/StackVisualizer")),
-  "07-queues": lazy(() => import("@/components/chapters/QueueVisualizer")),
+  "06-stacks": lazy(() => import("@/components/chapters/StackVisualizerEnhanced")),
+  "07-queues": lazy(() => import("@/components/chapters/QueueVisualizerEnhanced")),
   "04-strings": lazy(() => import("@/components/chapters/StringVisualizer")),
   "09-hash-tables": lazy(() => import("@/components/chapters/HashTableVisualizer")),
   "10-bst": lazy(() => import("@/components/chapters/BSTVisualizer")),
@@ -45,14 +45,14 @@ const visualizers: Record<string, React.LazyExoticComponent<ComponentType>> = {
 
 // Dynamic imports for minigames - mapped to chapter IDs
 const minigames: Record<string, React.LazyExoticComponent<ComponentType>> = {
-  "01-big-o": lazy(() => import("@/components/minigames/ArrayResizeGame")),
-  "03-arrays": lazy(() => import("@/components/minigames/ArrayResizeGame")),
+  "01-big-o": lazy(() => import("@/components/minigames/ArrayMinigameEnhanced")),
+  "03-arrays": lazy(() => import("@/components/minigames/ArrayMinigameEnhanced")),
   "05-linked-lists": lazy(() => import("@/components/minigames/LinkedListMinigameEnhanced")),
-  "06-stacks": lazy(() => import("@/components/minigames/StackMinigame")),
-  "07-queues": lazy(() => import("@/components/minigames/QueueMinigame")),
+  "06-stacks": lazy(() => import("@/components/minigames/StackMinigameEnhanced")),
+  "07-queues": lazy(() => import("@/components/minigames/QueueMinigameEnhanced")),
   "10-bst": lazy(() => import("@/components/minigames/BSTMinigame")),
   "11-heaps": lazy(() => import("@/components/minigames/HeapMinigame")),
-  "02-memory": lazy(() => import("@/components/minigames/ArrayResizeGame")),
+  "02-memory": lazy(() => import("@/components/minigames/ArrayMinigameEnhanced")),
   "04-strings": lazy(() => import("@/components/minigames/SortingMinigame")),
   "08-searching": lazy(() => import("@/components/minigames/SearchingMinigame")),
   "09-hash-tables": lazy(() => import("@/components/minigames/HashTableMinigame")),
