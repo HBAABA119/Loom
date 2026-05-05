@@ -10,67 +10,64 @@
     "sections": [
       {
         "title": "Segment Tree Structure",
-        "content": "Binary tree where each node represents a segment of the array. Root represents entire array [0, n-1]. Left child represents [l, mid], right child represents [mid+1, r]. Leaf nodes represent single elements. Height = $O(\\log n)$. Total nodes = $2n-1$ (or $4n$ for safe array allocation). Each node stores aggregate (sum, min, max) of its segment.",
-        "structure": {
-          "root": "[0, n-1]",
-          "left": "[l, mid]",
-          "right": "[mid+1, r]",
-          "leaf": "single element"
-        }
+        "content": "Binary tree where each node represents a segment of the array. Root represents entire array [0, n-1]. Left child represents [l, mid], right child represents [mid+1, r]. Leaf nodes represent single elements. Height = O(log n). Total nodes = 2n-1 (or 4n for safe array allocation). Each node stores aggregate (sum, min, max) of its segment.",
+        "keyPoints": [
+          "Root = entire array",
+          "Leaves = single elements",
+          "Height = O(log n)"
+        ]
       },
       {
         "title": "Build Operation",
-        "content": "Build tree recursively from array. For leaf node, store array value. For internal node, combine children's values (sum = left + right, min = min(left, right), max = max(left, right)). Time: $O(n)$. Space: $O(n)$ for tree array.",
-        "algorithm": "build(node, l, r): if l == r: tree[node] = arr[l]; else: mid = (l+r)//2; build(left, l, mid); build(right, mid+1, r); tree[node] = combine(tree[left], tree[right]);",
-        "complexity": { "time": "$O(n)$", "space": "$O(n)$" }
+        "content": "Build tree recursively from array. For leaf node, store array value. For internal node, combine children's values (sum = left + right, min = min(left, right), max = max(left, right)). Time: O(n). Space: O(n) for tree array.",
+        "examples": [
+          { "code": "build(node, l, r)", "explanation": "Recursively build tree from array" }
+        ]
       },
       {
         "title": "Point Update",
-        "description": "Update single element at index. Recursively find leaf, update it, then recompute all ancestors. Time: $O(\\log n)$. Propagate changes up the tree.",
-        "algorithm": "update(node, l, r, idx, val): if l == r: tree[node] = val; else: mid = (l+r)//2; if idx <= mid: update(left, l, mid, idx, val); else: update(right, mid+1, r, idx, val); tree[node] = combine(tree[left], tree[right]);",
-        "complexity": { "time": "$O(\\log n)$" }
+        "content": "Update single element at index. Recursively find leaf, update it, then recompute all ancestors. Time: O(log n). Propagate changes up the tree.",
+        "keyPoints": [
+          "Update leaf node",
+          "Recompute ancestors",
+          "O(log n) time"
+        ]
       },
       {
         "title": "Range Query",
-        "description": "Query aggregate over range [ql, qr]. Recursively traverse: if segment completely outside, return neutral. If completely inside, return node value. If partial, recurse on both children and combine. Time: $O(\\log n)$.",
-        "algorithm": "query(node, l, r, ql, qr): if ql > r or qr < l: return neutral; if ql <= l and r <= qr: return tree[node]; mid = (l+r)//2; return combine(query(left, l, mid, ql, qr), query(right, mid+1, r, ql, qr));",
-        "complexity": { "time": "$O(\\log n)$" }
+        "content": "Query aggregate over range [ql, qr]. Recursively traverse: if segment completely outside, return neutral. If completely inside, return node value. If partial, recurse on both children and combine. Time: O(log n).",
+        "examples": [
+          { "code": "query(node, l, r, ql, qr)", "explanation": "Returns aggregate over range" }
+        ]
       },
       {
         "title": "Lazy Propagation",
-        "content": "For range updates (add value to all elements in range). Lazy propagation defers updates until needed. Each node has lazy value (pending update). When visiting node, apply lazy to node, propagate to children. Enables range updates in $O(\\log n)$. Complex but powerful.",
-        "concept": "Store pending updates, apply when needed",
-        "complexity": { "rangeUpdate": "$O(\\log n)$", "rangeQuery": "$O(\\log n)$" }
+        "content": "For range updates (add value to all elements in range). Lazy propagation defers updates until needed. Each node has lazy value (pending update). When visiting node, apply lazy to node, propagate to children. Enables range updates in O(log n).",
+        "keyPoints": [
+          "Defer updates",
+          "Store pending lazy values",
+          "O(log n) range updates"
+        ]
       }
     ],
     "keyConcepts": [
       {
         "name": "Segment Representation",
-        "description": "Each node represents a contiguous segment of the array. Root = entire array, leaves = single elements.",
-        "property": "Segment [l, r] splits into [l, mid] and [mid+1, r]"
+        "description": "Each node represents a contiguous segment of the array. Root = entire array, leaves = single elements."
       },
       {
         "name": "Combine Function",
-        "description": "Function to combine two child values into parent value. Depends on query type: sum = a+b, min = min(a,b), max = max(a,b), GCD = gcd(a,b).",
-        "examples": ["sum", "min", "max", "GCD", "product"]
+        "description": "Function to combine two child values into parent value. Depends on query type: sum = a+b, min = min(a,b), max = max(a,b), GCD = gcd(a,b)."
       },
       {
         "name": "Neutral Element",
-        "description": "Identity for combine function. For sum: 0, min: ∞, max: -∞, GCD: 0. Used when segment is outside query range.",
-        "purpose": "Base case for out-of-range segments"
+        "description": "Identity for combine function. For sum: 0, min: infinity, max: -infinity, GCD: 0. Used when segment is outside query range."
       },
       {
         "name": "Lazy Value",
-        "description": "Pending update to be applied to segment. Stored at node, propagated to children when needed. Enables efficient range updates.",
-        "use": "Range updates without updating all leaves immediately"
+        "description": "Pending update to be applied to segment. Stored at node, propagated to children when needed. Enables efficient range updates."
       }
-    ],
-    "complexity": {
-      "build": "$O(n)$ time, $O(n)$ space",
-      "pointUpdate": "$O(\\log n)$ time",
-      "rangeQuery": "$O(\\log n)$ time",
-      "rangeUpdate": "$O(\\log n)$ time (with lazy propagation)"
-    }
+    ]
   },
   "steps": [
     {

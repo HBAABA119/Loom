@@ -12,10 +12,10 @@
         "title": "The Interpreter-JIT Spectrum",
         "content": "Language implementations span a spectrum: pure interpreters (slowest startup, most portable), JIT compilers (balanced), and ahead-of-time compilers (fastest execution, slowest startup). JIT sits in the middle—interpreting initially for fast startup, then compiling hot code for speed. Tiered compilation adds multiple levels: quick baseline JIT for warm code, optimizing JIT for hot code. This balances startup time and peak performance.",
         "spectrum": [
-          { "approach": "Pure Interpreter", "startup": "Fast", "peakPerf": "Slow", "examples": "CPython (before 3.13), Ruby (MRI)" },
-          { "approach": "Baseline JIT", "startup": "Medium", "peakPerf": "Medium", "examples": "Java C1, .NET QuickJIT" },
-          { "approach": "Optimizing JIT", "startup": "Slow", "peakPerf": "Fast", "examples": "Java C2, V8 TurboFan" },
-          { "approach": "AOT Compilation", "startup": "Fastest", "peakPerf": "Fast", "examples": "C, Rust, Go (mostly), GraalVM Native Image" }
+          { "approach": "Pure Interpreter", "startup": "Fast", "peakPerf": "Slow", "examples": ["CPython (before 3.13)", "Ruby (MRI)"] },
+          { "approach": "Baseline JIT", "startup": "Medium", "peakPerf": "Medium", "examples": ["Java C1", ".NET QuickJIT"] },
+          { "approach": "Optimizing JIT", "startup": "Slow", "peakPerf": "Fast", "examples": ["Java C2", "V8 TurboFan"] },
+          { "approach": "AOT Compilation", "startup": "Fastest", "peakPerf": "Fast", "examples": ["C", "Rust", "Go (mostly)", "GraalVM Native Image"] }
         ]
       },
       {
@@ -92,9 +92,9 @@
       }
     ],
     "complexity": {
-      "compilationTime": "$O(codeSize)$ for baseline JIT, $O(codeSize \cdot optimizationDepth)$ for optimizing JIT",
+      "compilationTime": "O(codeSize) for baseline JIT, O(codeSize * optimizationDepth) for optimizing JIT",
       "peakPerformance": "Near C++ performance for type-stable code",
-      "memoryOverhead": "$O(compiledCodeSize)$ for generated native code"
+      "memoryOverhead": "O(compiledCodeSize) for generated native code"
     }
   },
   "steps": [
