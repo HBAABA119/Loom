@@ -63,6 +63,16 @@ const visualizers: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "crypto-03-asymmetric": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
   "crypto-04-hashing": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
   "crypto-05-signatures": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-06-keyexchange": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-07-mac": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-08-protocols": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-09-pki": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-10-random": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-11-stream": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-12-ecc": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-13-passwords": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-14-zkp": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
+  "crypto-15-postquantum": lazy(() => import("@/components/chapters/CipherVisualizerEnhanced")),
   // Book 5: Quantum Computing
   "quantum-01-qubits": lazy(() => import("@/components/chapters/QubitVisualizerEnhanced")),
   "quantum-02-superposition": lazy(() => import("@/components/chapters/QubitVisualizerEnhanced")),
@@ -72,6 +82,22 @@ const visualizers: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "quantum-06-grover": lazy(() => import("@/components/chapters/QubitVisualizerEnhanced")),
   "quantum-07-shor": lazy(() => import("@/components/chapters/QubitVisualizerEnhanced")),
   "quantum-08-crypto": lazy(() => import("@/components/chapters/QubitVisualizerEnhanced")),
+  // Book 6: Engine Room (Computer Science Engines)
+  "engine-01-lexer": lazy(() => import("@/components/chapters/LexerVisualizerEnhanced")),
+  "engine-02-parser": lazy(() => import("@/components/chapters/ParserVisualizerEnhanced")),
+  "engine-03-vm": lazy(() => import("@/components/chapters/VMVisualizerEnhanced")),
+  "engine-04-gc": lazy(() => import("@/components/chapters/GCVisualizerEnhanced")),
+  "engine-05-allocator": lazy(() => import("@/components/chapters/AllocatorVisualizerEnhanced")),
+  "engine-06-jit": lazy(() => import("@/components/chapters/JITVisualizerEnhanced")),
+  "engine-07-types": lazy(() => import("@/components/chapters/TypeVisualizerEnhanced")),
+  "engine-08-ir": lazy(() => import("@/components/chapters/IRVisualizerEnhanced")),
+  "engine-09-codegen": lazy(() => import("@/components/chapters/CodegenVisualizerEnhanced")),
+  "engine-10-linker": lazy(() => import("@/components/chapters/LinkerVisualizerEnhanced")),
+  "engine-11-exceptions": lazy(() => import("@/components/chapters/ExceptionVisualizerEnhanced")),
+  "engine-12-concurrency": lazy(() => import("@/components/chapters/ConcurrencyVisualizerEnhanced")),
+  "engine-13-io": lazy(() => import("@/components/chapters/IOVisualizerEnhanced")),
+  "engine-14-optimization": lazy(() => import("@/components/chapters/OptimizationVisualizerEnhanced")),
+  "engine-15-profiling": lazy(() => import("@/components/chapters/ProfilingVisualizerEnhanced")),
 };
 
 // Dynamic imports for minigames - mapped to chapter IDs
@@ -129,6 +155,16 @@ const minigames: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "crypto-03-asymmetric": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
   "crypto-04-hashing": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
   "crypto-05-signatures": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-06-keyexchange": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-07-mac": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-08-protocols": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-09-pki": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-10-random": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-11-stream": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-12-ecc": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-13-passwords": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-14-zkp": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
+  "crypto-15-postquantum": lazy(() => import("@/components/minigames/CipherMinigameEnhanced")),
   // Book 5: Quantum Computing
   "quantum-01-qubits": lazy(() => import("@/components/minigames/QuantumGateMinigame")),
   "quantum-02-superposition": lazy(() => import("@/components/minigames/QuantumGateMinigame")),
@@ -138,6 +174,22 @@ const minigames: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "quantum-06-grover": lazy(() => import("@/components/minigames/QuantumGateMinigame")),
   "quantum-07-shor": lazy(() => import("@/components/minigames/QuantumGateMinigame")),
   "quantum-08-crypto": lazy(() => import("@/components/minigames/QuantumGateMinigame")),
+  // Book 6: Engine Room (Computer Science Engines)
+  "engine-01-lexer": lazy(() => import("@/components/minigames/LexerMinigameEnhanced")),
+  "engine-02-parser": lazy(() => import("@/components/minigames/ParserMinigameEnhanced")),
+  "engine-03-vm": lazy(() => import("@/components/minigames/VMMinigameEnhanced")),
+  "engine-04-gc": lazy(() => import("@/components/minigames/GCMinigameEnhanced")),
+  "engine-05-allocator": lazy(() => import("@/components/minigames/AllocatorMinigameEnhanced")),
+  "engine-06-jit": lazy(() => import("@/components/minigames/JITMinigameEnhanced")),
+  "engine-07-types": lazy(() => import("@/components/minigames/TypeMinigameEnhanced")),
+  "engine-08-ir": lazy(() => import("@/components/minigames/IRMinigameEnhanced")),
+  "engine-09-codegen": lazy(() => import("@/components/minigames/CodegenMinigameEnhanced")),
+  "engine-10-linker": lazy(() => import("@/components/minigames/LinkerMinigameEnhanced")),
+  "engine-11-exceptions": lazy(() => import("@/components/minigames/ExceptionMinigameEnhanced")),
+  "engine-12-concurrency": lazy(() => import("@/components/minigames/ConcurrencyMinigameEnhanced")),
+  "engine-13-io": lazy(() => import("@/components/minigames/IOMinigameEnhanced")),
+  "engine-14-optimization": lazy(() => import("@/components/minigames/OptimizationMinigameEnhanced")),
+  "engine-15-profiling": lazy(() => import("@/components/minigames/ProfilingMinigameEnhanced")),
 };
 
 export function getChapterConfig(id: string): ChapterConfig {
@@ -473,6 +525,76 @@ export function getChapterConfig(id: string): ChapterConfig {
       minigame: minigames["crypto-05-signatures"] || null,
       hasCode: true,
     },
+    "crypto-06-keyexchange": {
+      title: "Key Exchange",
+      category: "intermediate",
+      visualizer: visualizers["crypto-06-keyexchange"] || null,
+      minigame: minigames["crypto-06-keyexchange"] || null,
+      hasCode: true,
+    },
+    "crypto-07-mac": {
+      title: "Message Authentication Codes",
+      category: "intermediate",
+      visualizer: visualizers["crypto-07-mac"] || null,
+      minigame: minigames["crypto-07-mac"] || null,
+      hasCode: true,
+    },
+    "crypto-08-protocols": {
+      title: "Cryptographic Protocols",
+      category: "intermediate",
+      visualizer: visualizers["crypto-08-protocols"] || null,
+      minigame: minigames["crypto-08-protocols"] || null,
+      hasCode: true,
+    },
+    "crypto-09-pki": {
+      title: "Public Key Infrastructure",
+      category: "intermediate",
+      visualizer: visualizers["crypto-09-pki"] || null,
+      minigame: minigames["crypto-09-pki"] || null,
+      hasCode: true,
+    },
+    "crypto-10-random": {
+      title: "Random Number Generation",
+      category: "foundations",
+      visualizer: visualizers["crypto-10-random"] || null,
+      minigame: minigames["crypto-10-random"] || null,
+      hasCode: true,
+    },
+    "crypto-11-stream": {
+      title: "Stream Ciphers",
+      category: "intermediate",
+      visualizer: visualizers["crypto-11-stream"] || null,
+      minigame: minigames["crypto-11-stream"] || null,
+      hasCode: true,
+    },
+    "crypto-12-ecc": {
+      title: "Elliptic Curve Cryptography",
+      category: "advanced",
+      visualizer: visualizers["crypto-12-ecc"] || null,
+      minigame: minigames["crypto-12-ecc"] || null,
+      hasCode: true,
+    },
+    "crypto-13-passwords": {
+      title: "Password Hashing",
+      category: "applied",
+      visualizer: visualizers["crypto-13-passwords"] || null,
+      minigame: minigames["crypto-13-passwords"] || null,
+      hasCode: true,
+    },
+    "crypto-14-zkp": {
+      title: "Zero-Knowledge Proofs",
+      category: "advanced",
+      visualizer: visualizers["crypto-14-zkp"] || null,
+      minigame: minigames["crypto-14-zkp"] || null,
+      hasCode: true,
+    },
+    "crypto-15-postquantum": {
+      title: "Post-Quantum Cryptography",
+      category: "advanced",
+      visualizer: visualizers["crypto-15-postquantum"] || null,
+      minigame: minigames["crypto-15-postquantum"] || null,
+      hasCode: true,
+    },
     // Book 5: Quantum Computing
     "quantum-01-qubits": {
       title: "Qubits: The Quantum Bit",
@@ -530,6 +652,112 @@ export function getChapterConfig(id: string): ChapterConfig {
       minigame: minigames["quantum-08-crypto"] || null,
       hasCode: true,
     },
+    // Book 6: Engine Room (Computer Science Engines)
+    "engine-01-lexer": {
+      title: "Lexical Analysis & Tokenization",
+      category: "intermediate",
+      visualizer: visualizers["engine-01-lexer"] || null,
+      minigame: minigames["engine-01-lexer"] || null,
+      hasCode: true,
+    },
+    "engine-02-parser": {
+      title: "Parsing & Abstract Syntax Trees",
+      category: "intermediate",
+      visualizer: visualizers["engine-02-parser"] || null,
+      minigame: minigames["engine-02-parser"] || null,
+      hasCode: true,
+    },
+    "engine-03-vm": {
+      title: "Virtual Machines & Bytecode",
+      category: "intermediate",
+      visualizer: visualizers["engine-03-vm"] || null,
+      minigame: minigames["engine-03-vm"] || null,
+      hasCode: true,
+    },
+    "engine-04-gc": {
+      title: "Garbage Collection",
+      category: "advanced",
+      visualizer: visualizers["engine-04-gc"] || null,
+      minigame: minigames["engine-04-gc"] || null,
+      hasCode: true,
+    },
+    "engine-05-allocator": {
+      title: "Memory Allocation Strategies",
+      category: "advanced",
+      visualizer: visualizers["engine-05-allocator"] || null,
+      minigame: minigames["engine-05-allocator"] || null,
+      hasCode: true,
+    },
+    "engine-06-jit": {
+      title: "JIT Compilation",
+      category: "advanced",
+      visualizer: visualizers["engine-06-jit"] || null,
+      minigame: minigames["engine-06-jit"] || null,
+      hasCode: true,
+    },
+    "engine-07-types": {
+      title: "Type Systems & Type Checking",
+      category: "intermediate",
+      visualizer: visualizers["engine-07-types"] || null,
+      minigame: minigames["engine-07-types"] || null,
+      hasCode: true,
+    },
+    "engine-08-ir": {
+      title: "Intermediate Representations",
+      category: "intermediate",
+      visualizer: visualizers["engine-08-ir"] || null,
+      minigame: minigames["engine-08-ir"] || null,
+      hasCode: true,
+    },
+    "engine-09-codegen": {
+      title: "Code Generation & Instruction Selection",
+      category: "advanced",
+      visualizer: visualizers["engine-09-codegen"] || null,
+      minigame: minigames["engine-09-codegen"] || null,
+      hasCode: true,
+    },
+    "engine-10-linker": {
+      title: "Linkers & Loaders",
+      category: "advanced",
+      visualizer: visualizers["engine-10-linker"] || null,
+      minigame: minigames["engine-10-linker"] || null,
+      hasCode: true,
+    },
+    "engine-11-exceptions": {
+      title: "Exception Handling & Stack Unwinding",
+      category: "advanced",
+      visualizer: visualizers["engine-11-exceptions"] || null,
+      minigame: minigames["engine-11-exceptions"] || null,
+      hasCode: true,
+    },
+    "engine-12-concurrency": {
+      title: "Concurrency & Threading",
+      category: "advanced",
+      visualizer: visualizers["engine-12-concurrency"] || null,
+      minigame: minigames["engine-12-concurrency"] || null,
+      hasCode: true,
+    },
+    "engine-13-io": {
+      title: "I/O Systems & Event Loops",
+      category: "advanced",
+      visualizer: visualizers["engine-13-io"] || null,
+      minigame: minigames["engine-13-io"] || null,
+      hasCode: true,
+    },
+    "engine-14-optimization": {
+      title: "Optimization Passes",
+      category: "advanced",
+      visualizer: visualizers["engine-14-optimization"] || null,
+      minigame: minigames["engine-14-optimization"] || null,
+      hasCode: true,
+    },
+    "engine-15-profiling": {
+      title: "Profiling & Performance Analysis",
+      category: "advanced",
+      visualizer: visualizers["engine-15-profiling"] || null,
+      minigame: minigames["engine-15-profiling"] || null,
+      hasCode: true,
+    },
   };
 
   const config = chapterMap[id] || {
@@ -545,8 +773,10 @@ export function getChapterConfig(id: string): ChapterConfig {
 
 export async function loadChapterData(bookId: string, chapterId: string) {
   try {
-    const data = await import(`@/content/${bookId}/${chapterId}.json`);
-    return data.default || data;
+    // Use fetch instead of dynamic import for Turbopack compatibility
+    const response = await fetch(`/content/${bookId}/${chapterId}.json`);
+    if (!response.ok) return null;
+    return await response.json();
   } catch {
     return null;
   }

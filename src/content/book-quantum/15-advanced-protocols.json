@@ -1,0 +1,89 @@
+{
+  "id": "15-advanced-protocols",
+  "bookId": "book-quantum",
+  "title": "Advanced Quantum Protocols",
+  "category": "Applications",
+  "order": 15,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Quantum protocols leverage entanglement and superposition for tasks impossible classically. Quantum teleportation transmits quantum states using classical communication and shared entanglement. Superdense coding sends two classical bits per qubit. These demonstrate quantum information fundamentals and enable quantum networks.",
+    "sections": [
+      {
+        "title": "Quantum Teleportation",
+        "content": "Teleportation transmits an arbitrary quantum state using 1 ebit (Bell pair) and 2 classical bits. Alice has unknown state |ψ⟩ and shares |Φ⁺⟩ with Bob. Alice Bell-measures her qubits, sends 2 classical bits to Bob, who applies corrections to recover |ψ⟩. Does not clone (original destroyed) and respects no-communication theorem (Bob needs classical bits).",
+        "resources": "1 ebit + 2 cbits → 1 qubit",
+        "steps": ["Bell measurement", "Classical communication", "Unitary correction"]
+      },
+      {
+        "title": "Superdense Coding",
+        "content": "Sends 2 classical bits using 1 qubit and shared entanglement. Alice encodes 2 bits by applying I, X, Z, or XZ to her half of |Φ⁺⟩, sends to Bob who Bell-measures to recover the bits. Doubles classical capacity of quantum channel with entanglement assistance.",
+        "capacity": "2 cbits per 1 qubit (with 1 ebit)",
+        "operations": ["00: I", "01: X", "10: Z", "11: XZ"]
+      },
+      {
+        "title": "Quantum Key Distribution",
+        "content": "BB84 protocol: Alice sends qubits in random bases, Bob measures in random bases, they compare bases publicly and keep matching bits. Eavesdropping introduces detectable errors (25% for intercept-resend). Information-theoretic security from no-cloning and measurement disturbance.",
+        "security": "Information-theoretic",
+        "errorRate": "25% detectable with intercept-resend attack"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Quantum Teleportation",
+        "description": "Transmit quantum state using entanglement + classical communication"
+      },
+      {
+        "name": "Superdense Coding",
+        "description": "Send 2 classical bits using 1 qubit with shared entanglement"
+      }
+    ],
+    "complexity": {
+      "teleportation": "1 ebit + 2 cbits per qubit",
+      "superdense": "1 qubit + 1 ebit → 2 cbits"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Share Entanglement",
+      "description": "Distribute Bell pair |Φ⁺⟩ between Alice and Bob",
+      "latex": "|\\Phi^+\\rangle = \\frac{|00\\rangle + |11\\rangle}{\\sqrt{2}}"
+    },
+    {
+      "step": 2,
+      "title": "Encode/Measure",
+      "description": "Alice performs operation and measurement",
+      "latex": "\\text{Teleport: Bell measurement, Superdense: apply } U_{ab}"
+    },
+    {
+      "step": 3,
+      "title": "Communicate",
+      "description": "Send classical bits and apply corrections",
+      "latex": "\\text{2 cbits classical communication}"
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Teleportation Resources",
+      "difficulty": "Easy",
+      "description": "What resources does quantum teleportation require?",
+      "options": ["2 qubits", "1 ebit + 2 cbits", "2 cbits only", "1 qubit"],
+      "correctAnswer": 1,
+      "explanation": "Teleportation requires 1 ebit (shared entanglement) and 2 classical bits to transmit 1 qubit."
+    },
+    {
+      "id": "p2",
+      "title": "Superdense Coding",
+      "difficulty": "Medium",
+      "description": "How many classical bits can Alice send Bob using 1 qubit and shared |Φ⁺⟩?",
+      "options": ["1", "2", "3", "4"],
+      "correctAnswer": 1,
+      "explanation": "Superdense coding allows sending 2 classical bits per qubit when sharing entanglement."
+    }
+  ],
+  "codeExample": {
+    "python": "# Quantum teleportation protocol simulation\nimport numpy as np\n\ndef bell_measurement(state):\n    # Project onto Bell basis\n    pass\n\ndef teleportation_correction(measurement):\n    # Apply X^b Z^a based on measurement (a,b)\n    corrections = {\n        (0,0): 'I', (0,1): 'X', (1,0): 'Z', (1,1): 'ZX'\n    }\n    return corrections[measurement]\n\nprint('Quantum teleportation: 1 ebit + 2 cbits → 1 qubit')",
+    "qsharp": "namespace Quantum.Protocols {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    \n    operation Teleport(msg : Qubit, alice : Qubit, bob : Qubit) : Unit {\n        // Alice shares Bell pair with Bob\n        H(alice);\n        CNOT(alice, bob);\n        \n        // Bell measurement\n        CNOT(msg, alice);\n        H(msg);\n        let (a, b) = (M(msg), M(alice));\n        \n        // Classical communication and correction\n        if (b == One) { X(bob); }\n        if (a == One) { Z(bob); }\n    }\n}"
+  }
+}

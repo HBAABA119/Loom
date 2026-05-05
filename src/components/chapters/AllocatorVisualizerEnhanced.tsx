@@ -2,9 +2,9 @@
 
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { { 
-  Play, Pause, RotateCcw, Plus, Minus, Grid3X3,
-  Layers, ArrowRight, Activity, Maximize
+import {
+  Play, Pause, RotateCcw, Plus, Grid3X3,
+  Layers, ArrowRight, Activity
 } from "lucide-react";
 
 type BlockStatus = "free" | "allocated" | "fragmented";

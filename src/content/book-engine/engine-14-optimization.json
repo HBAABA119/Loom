@@ -1,0 +1,77 @@
+{
+  "id": "engine-14-optimization",
+  "bookId": "book-engine",
+  "title": "Optimization Passes",
+  "category": "Advanced",
+  "order": 14,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Compilers transform code through multiple optimization passes, each improving performance while preserving semantics. From local peephole optimizations to global dataflow analyses, these passes work together to generate efficient machine code. Understanding optimizations helps you write code that compilers can optimize effectively.",
+    "keyConcepts": [
+      {
+        "title": "Constant Folding & Propagation",
+        "content": "Evaluate constant expressions at compile time. If x = 5, replace x + 3 with 8. Propagation tracks constant values through the program, enabling more optimizations."
+      },
+      {
+        "title": "Dead Code Elimination",
+        "content": "Remove code that doesn't affect program output. Unreachable code, unused assignments, and pure computations with unused results are eliminated."
+      },
+      {
+        "title": "Loop Optimizations",
+        "content": "Invariant code motion moves loop-invariant computations outside. Strength reduction replaces expensive operations (multiplication) with cheaper ones (addition). Loop unrolling reduces loop overhead."
+      },
+      {
+        "title": "Inlining & Devirtualization",
+        "content": "Function inlining replaces calls with function body, eliminating call overhead. Devirtualization converts virtual calls to direct calls when the target is known at compile time."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Local Optimizations",
+      "content": "Peephole optimizations examine small instruction windows. Common patterns: 'x = x + 0' eliminated, 'x = x * 1' eliminated, 'x = x * 2' becomes 'x = x << 1'."
+    },
+    {
+      "number": 2,
+      "title": "Global Dataflow Analysis",
+      "content": "Iterate over control flow graph computing facts about each block: available expressions, live variables, reaching definitions. Use results to enable global optimizations."
+    },
+    {
+      "number": 3,
+      "title": "Loop Analysis",
+      "content": "Identify loops using dominator analysis. Compute loop invariants, induction variables. Apply loop-specific optimizations."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Constant Folding",
+      "difficulty": "Easy",
+      "description": "What is 'x = 3 * 4 + 5' optimized to?",
+      "solution": "x = 17. Both multiplications and additions of constants are evaluated at compile time."
+    },
+    {
+      "id": 2,
+      "title": "Invariant Code Motion",
+      "difficulty": "Medium",
+      "description": "for(i=0; i<n; i++) { x = a + b; arr[i] = x; }. What moves out of the loop?",
+      "solution": "x = a + b is invariant (doesn't depend on i). Move before the loop: t = a + b; for(...) arr[i] = t;"
+    }
+  ],
+  "minigame": {
+    "id": "optimize-code",
+    "title": "Code Optimizer",
+    "type": "interactive",
+    "description": "Apply optimization passes to improve code performance"
+  },
+  "visualizer": {
+    "id": "opt-pipeline",
+    "title": "Optimization Pipeline",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "# Constant propagation and folding\ndef optimize_constant_fold(ir):\n    changed = True\n    while changed:\n        changed = False\n        constants = {}  # var -> constant value\n        \n        for instr in ir:\n            # Track constants\n            if instr.op == 'const':\n                constants[instr.dest] = instr.value\n            \n            # Constant folding: fold binary ops on constants\n            elif instr.op in ('add', 'sub', 'mul', 'div'):\n                if instr.left in constants and instr.right in constants:\n                    l, r = constants[instr.left], constants[instr.right]\n                    result = eval(f'{l} {instr.op[0]} {r}')\n                    instr.op = 'const'\n                    instr.value = result\n                    del instr.left\n                    del instr.right\n                    constants[instr.dest] = result\n                    changed = True\n            \n            # Constant propagation: replace vars with constants\n            elif instr.op in ('add', 'sub', 'mul', 'div'):\n                if instr.left in constants:\n                    instr.left = constants[instr.left]\n                    changed = True\n                if instr.right in constants:\n                    instr.right = constants[instr.right]\n                    changed = True\n    \n    return ir\n\n# Example: x = 5; y = x + 3; z = y * 2\n# Becomes: x = 5; y = 8; z = 16"
+  }
+}

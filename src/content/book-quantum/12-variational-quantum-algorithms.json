@@ -1,0 +1,135 @@
+{
+  "id": "12-variational-quantum-algorithms",
+  "bookId": "book-quantum",
+  "title": "Variational Quantum Algorithms",
+  "category": "Algorithms",
+  "order": 12,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Variational Quantum Algorithms (VQAs) are hybrid quantum-classical algorithms designed for NISQ (Noisy Intermediate-Scale Quantum) devices. They combine a parameterized quantum circuit (ansatz) with a classical optimizer in a feedback loop. The quantum computer evaluates a cost function by preparing a trial state and measuring observables. The classical computer updates parameters to minimize the cost. This approach is inherently resilient to noise—systematic errors can sometimes be absorbed into optimized parameters. Key applications include: the Variational Quantum Eigensolver (VQE) for molecular ground states, Quantum Approximate Optimization Algorithm (QAOA) for combinatorial problems, and variational quantum machine learning. VQAs face challenges: barren plateaus (exponentially vanishing gradients), limited expressibility of shallow circuits, and the classical simulation barrier for benchmarking.",
+    "sections": [
+      {
+        "title": "The VQA Framework",
+        "content": "VQAs follow a hybrid quantum-classical optimization loop: 1) Initialize parameters θ, 2) Prepare state |ψ(θ)⟩ = U(θ)|0⟩ on quantum computer, 3) Measure expectation value ⟨ψ(θ)|H|ψ(θ)⟩ (cost function), 4) Classical optimizer updates θ to minimize cost, 5) Repeat until convergence. The parameterized circuit U(θ) is called the ansatz. Common choices: Hardware Efficient Ansatz (HEA) uses native gates, Unitary Coupled Cluster (UCC) for chemistry. The cost function often measures energy of a Hamiltonian: E(θ) = ⟨ψ(θ)|H|ψ(θ)⟩. By variational principle, ground state energy ≤ E(θ), so minimizing finds upper bound on ground state energy. Classical optimizers include: gradient descent, COBYLA, L-BFGS-B, SPSA (simultaneous perturbation stochastic approximation).",
+        "workflow": [
+          "Initialize random parameters θ",
+          "Prepare |ψ(θ)⟩ on quantum computer",
+          "Measure cost function ⟨H⟩",
+          "Classical optimizer updates θ",
+          "Iterate until convergence"
+        ],
+        "advantages": ["NISQ-friendly", "Error resilience", "Flexible ansatz design"]
+      },
+      {
+        "title": "Variational Quantum Eigensolver (VQE)",
+        "content": "VQE finds approximate ground state energies of molecular Hamiltonians, crucial for quantum chemistry. The molecular Hamiltonian is mapped to qubits using Jordan-Wigner or Bravyi-Kitaev transformations: H = Σᵢ hᵢ Pᵢ where Pᵢ are Pauli strings. The UCCSD (Unitary Coupled Cluster with Singles and Doubles) ansatz is chemically motivated: U(θ) = e^(T(θ) - T†(θ)) where T creates excitations from Hartree-Fock reference. State preparation: start from Hartree-Fock state (product state), apply parameterized excitations. Measure each Pauli term separately (requires many shots) or use grouping strategies. VQE has demonstrated molecular energies for H₂, LiH, BeH₂ on superconducting and trapped ion systems. Challenges: circuit depth grows with molecule size, measurement overhead for many Pauli terms, and classical optimization landscape with local minima.",
+        "hamiltonianForm": "H = \\sum_i h_i P_i \\text{ where } P_i \\in \\{I, X, Y, Z\\}^{\\otimes n}",
+        "applications": ["Molecular ground states", "Excited states via QSE", "Binding energies", "Reaction barriers"],
+        "chemicalAccuracy": "< 1 kcal/mol error (~1.6 mHa) for useful predictions"
+      },
+      {
+        "title": "Quantum Approximate Optimization Algorithm (QAOA)",
+        "content": "QAOA addresses combinatorial optimization problems (MaxCut, MaxSAT, portfolio optimization). Inspired by quantum annealing, it alternates between problem Hamiltonian H_P and mixer Hamiltonian H_M. The ansatz: |ψ(θ)⟩ = e^(-iβ_p H_M) e^(-iγ_p H_P) ... e^(-iβ_1 H_M) e^(-iγ_1 H_P)|+⟩^⊗n. Parameters (γ₁...γ_p, β₁...β_p) optimized classically. H_P encodes the objective: for MaxCut, H_P = Σ_{(i,j)∈E} (I - Z_iZ_j)/2 (counts cut edges). H_M = Σᵢ Xᵢ drives transitions between solutions. Depth p controls approximation quality: p→∞ recovers adiabatic evolution, but NISQ constraints limit p to 1-10. QAOA performance depends on graph structure—regular graphs show better results than random. Variants include: Recursive QAOA (RQAOA) for larger problems, Warm-start QAOA with classical relaxation, and multi-angle strategies.",
+        "ansatz": "|\\psi(\\gamma, \\beta)\\rangle = \\prod_{k=1}^p e^{-i\\beta_k H_M} e^{-i\\gamma_k H_P} |+\\rangle^{\\otimes n}",
+        "problemTypes": ["MaxCut", "MaxSAT", "TSP", "Graph coloring", "Portfolio optimization"],
+        "depthTradeoff": "Higher p → better approximation but more noise"
+      },
+      {
+        "title": "Ansatz Design",
+        "content": "The ansatz (parameterized circuit) critically affects VQA performance. Hardware Efficient Ansatz (HEA) uses native gates: alternating layers of single-qubit rotations (Ry, Rz) and entangling gates (CNOT, iSWAP) native to the device. Advantages: minimal circuit depth, respects connectivity constraints. Disadvantages: lacks problem structure, may be hard to optimize. Problem-inspired ansatzes incorporate domain knowledge: UCC for chemistry respects particle number conservation, QAOA ansatz encodes problem-mixer alternation. Adaptive ansatzes grow circuit during optimization: ADAPT-VQE adds operators from a pool based on gradient magnitudes, reducing overall circuit depth. Expressibility vs. trainability tradeoff: highly expressive ansatzes can represent many states but often have barren plateaus (exponentially small gradients). Finding the right balance is an active research area.",
+        "ansatzTypes": [
+          { "name": "Hardware Efficient", "structure": "Alternating rotation + entanglement layers", "useCase": "NISQ devices" },
+          { "name": "UCCSD", "structure": "Excitations from reference state", "useCase": "Quantum chemistry" },
+          { "name": "ADAPT", "structure": "Grows adaptively based on gradients", "useCase": "Variable depth requirements" }
+        ]
+      },
+      {
+        "title": "Challenges: Barren Plateaus",
+        "content": "Barren plateaus are a fundamental challenge in VQAs. For deep unstructured ansatzes, gradients of the cost function vanish exponentially with system size: Var(∂E/∂θ) ∝ 2^(-n). This makes optimization impossible for large systems. Causes: high expressibility (ansatz covers too much of Hilbert space), random initialization, and lack of problem structure. Mitigation strategies: 1) Problem-inspired ansatzes with structure, 2) Layer-wise training (progressively add layers), 3) Good parameter initialization (from classical approximations or previous runs), 4) Local cost functions (measuring few qubits instead of global observables), 5) Correlated parameters (reducing effective parameter space). Recent work shows barren plateaus are less severe for shallow circuits with local observables, giving hope for near-term applications with careful ansatz design.",
+        "gradientScaling": "Var(∂E/∂θ) ~ O(2^{-n}) for deep random circuits",
+        "mitigations": ["Problem structure", "Layer-wise training", "Good initialization", "Local cost functions"]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Ansatz",
+        "description": "Parameterized quantum circuit that prepares trial states. Design balances expressibility and trainability.",
+        "types": "Hardware-efficient, problem-inspired, adaptive"
+      },
+      {
+        "name": "Hamiltonian Averaging",
+        "description": "Measuring expectation values by decomposing Hamiltonian into Pauli strings and measuring each.",
+        "scaling": "Measurement shots ~ O(1/ε²) for precision ε"
+      },
+      {
+        "name": "Chemical Accuracy",
+        "description": "Error threshold of ~1 kcal/mol (1.6 mHa) required for reliable chemistry predictions.",
+        "currentStatus": "Achieved for small molecules on NISQ devices"
+      }
+    ],
+    "complexity": {
+      "circuitDepth": "Typically O(n) to O(n³) depending on ansatz",
+      "measurements": "Thousands to millions of shots for convergence",
+      "optimization": "Classical cost scales with number of parameters"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Problem Encoding",
+      "description": "Map problem to Hamiltonian or cost function on qubits.",
+      "latex": "\\text{MaxCut} \\rightarrow H_P = \\sum_{(i,j)\\in E} \\frac{I - Z_i Z_j}{2}",
+      "visualState": { "variables": "n", "clauses": "m", "qubits": "n" }
+    },
+    {
+      "step": 2,
+      "title": "Ansatz Preparation",
+      "description": "Construct parameterized circuit with problem structure or hardware efficiency.",
+      "latex": "|\\psi(\\theta)\\rangle = U(\\theta)|0\\rangle^{\\otimes n}",
+      "visualState": { "layers": "p", "parameters": "2p" }
+    },
+    {
+      "step": 3,
+      "title": "Hybrid Optimization",
+      "description": "Iteratively evaluate cost on quantum computer, update parameters classically.",
+      "latex": "\\theta_{new} = \\theta_{old} - \\eta \\nabla E(\\theta)",
+      "visualState": { "convergence": "monitored", "iterations": "100s-1000s" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "QAOA Depth",
+      "difficulty": "Easy",
+      "description": "QAOA with depth p=2 has how many parameters?",
+      "options": ["2", "4", "6", "8"],
+      "correctAnswer": 1,
+      "explanation": "QAOA has 2p parameters: p γ values for problem Hamiltonian and p β values for mixer. For p=2: 2×2 = 4 parameters.",
+      "hint": "Count both γ and β parameters at each depth level."
+    },
+    {
+      "id": "p2",
+      "title": "Chemical Accuracy",
+      "difficulty": "Medium",
+      "description": "Chemical accuracy is approximately 1 kcal/mol. In atomic units (Hartree), this is about:",
+      "options": ["0.001 Ha", "0.016 Ha", "0.1 Ha", "1.0 Ha"],
+      "correctAnswer": 1,
+      "explanation": "1 Hartree ≈ 627.5 kcal/mol. So 1 kcal/mol ≈ 1/627.5 ≈ 0.0016 Hartree ≈ 1.6 mHa. This is the benchmark for useful quantum chemistry predictions.",
+      "hint": "1 Hartree = 627.5 kcal/mol. Divide 1 by this conversion factor."
+    },
+    {
+      "id": "p3",
+      "title": "Barren Plateaus",
+      "difficulty": "Hard",
+      "description": "In a barren plateau, how does gradient variance scale with qubit count n for deep random circuits?",
+      "options": ["O(1/n)", "O(1/n²)", "O(2⁻ⁿ)", "Constant"],
+      "correctAnswer": 2,
+      "explanation": "Barren plateaus exhibit exponential vanishing of gradients: Var(∂E/∂θ) ∝ 2^(-n). This makes optimization infeasible for large systems without problem structure or careful ansatz design.",
+      "hint": "Barren plateaus are characterized by exponentially small gradients in deep unstructured circuits."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\nfrom scipy.optimize import minimize\n\n# Simple VQE example for H₂ molecule (STO-3G basis)\n# Hamiltonian: H = -0.5*Z0 - 0.5*Z1 + 0.5*Z0*Z1 + 0.5*X0*X1 + 0.5*Y0*Y1\n\ndef ry(theta, qubit_idx):\n    \"\"\"Single-qubit Ry rotation matrix\"\"\"\n    return np.array([\n        [np.cos(theta/2), -np.sin(theta/2)],\n        [np.sin(theta/2), np.cos(theta/2)]\n    ])\n\ndef cnot():\n    \"\"\"CNOT matrix (control=0, target=1)\"\"\"\n    return np.array([\n        [1, 0, 0, 0],\n        [0, 1, 0, 0],\n        [0, 0, 0, 1],\n        [0, 0, 1, 0]\n    ])\n\ndef kron(*matrices):\n    \"\"\"Kronecker product of matrices\"\"\"\n    result = matrices[0]\n    for m in matrices[1:]:\n        result = np.kron(result, m)\n    return result\n\ndef ansatz(theta):\n    \"\"\"Hardware-efficient ansatz for 2 qubits\"\"\"\n    # U(theta) = Ry0(theta0) * Ry1(theta1) * CNOT * Ry0(theta2) * Ry1(theta3)\n    I2 = np.eye(2)\n    \n    layer1 = kron(ry(theta[0], 0), ry(theta[1], 1))\n    entangler = cnot()\n    layer2 = kron(ry(theta[2], 0), ry(theta[3], 1))\n    \n    return layer2 @ entangler @ layer1\n\ndef expectation(theta, H):\n    \"\"\"Calculate expectation value ⟨ψ(θ)|H|ψ(θ)⟩\"\"\"\n    psi = ansatz(theta) @ np.array([1, 0, 0, 0])  # Start from |00⟩\n    return np.real(psi.conj().T @ H @ psi)\n\n# H₂ Hamiltonian (simplified)\nZ = np.array([[1, 0], [0, -1]])\nX = np.array([[0, 1], [1, 0]])\nY = np.array([[0, -1j], [1j, 0]])\nI = np.eye(2)\n\nH = -0.5 * kron(Z, I) - 0.5 * kron(I, Z) + \\n    0.5 * kron(Z, Z) + 0.5 * kron(X, X) + 0.5 * kron(Y, Y)\n\n# Optimize\ntheta_init = np.random.randn(4) * 0.1\nresult = minimize(lambda t: expectation(t, H), theta_init, method='COBYLA')\n\nprint(f\"Ground state energy estimate: {result.fun:.6f} Ha\")\nprint(f\"True ground state: ~-1.137 Ha\")\nprint(f\"Optimized parameters: {result.x}\")",
+    "qsharp": "namespace Quantum.VQE {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Diagnostics;\n    \n    // Hardware-efficient ansatz for 2 qubits\n    operation Ansatz(theta : Double[]) : Unit {\n        use (q0, q1) = (Qubit(), Qubit());\n        \n        // Layer 1: Single-qubit rotations\n        Ry(theta[0], q0);\n        Ry(theta[1], q1);\n        \n        // Entangler: CNOT\n        CNOT(q0, q1);\n        \n        // Layer 2: Single-qubit rotations\n        Ry(theta[2], q0);\n        Ry(theta[3], q1);\n    }\n    \n    // Measure expectation of Pauli Z on qubit 0\n    operation MeasureZ0(theta : Double[]) : Result {\n        use (q0, q1) = (Qubit(), Qubit());\n        \n        // Prepare ansatz state\n        Ry(theta[0], q0);\n        Ry(theta[1], q1);\n        CNOT(q0, q1);\n        Ry(theta[2], q0);\n        Ry(theta[3], q1);\n        \n        // Measure Z on q0\n        let result = M(q0);\n        \n        Reset(q0);\n        Reset(q1);\n        \n        return result;\n    }\n    \n    // Estimate energy for H₂ Hamiltonian\n    operation EstimateEnergy(theta : Double[], shots : Int) : Double {\n        mutable energy = 0.0;\n        \n        // H = -0.5*Z0 - 0.5*Z1 + 0.5*Z0*Z1 + 0.5*X0*X1 + 0.5*Y0*Y1\n        // Measure each term\n        \n        for (i in 0..shots) {\n            // Terms would be measured separately with basis rotations\n            // Simplified: just measure Z0 contribution\n            let z0_result = MeasureZ0(theta);\n            let z0_val = z0_result == Zero ? 1.0 | -1.0;\n            set energy += -0.5 * z0_val;\n        }\n        \n        return energy / IntAsDouble(shots);\n    }\n    \n    @EntryPoint()\n    operation VQEDemo() : Unit {\n        // Initial parameters\n        let theta = [0.1, 0.2, 0.3, 0.4];\n        \n        // Estimate energy\n        let energy = EstimateEnergy(theta, 100);\n        Message($\"Estimated energy: {energy}\");\n        \n        // In practice: classical optimizer updates theta iteratively\n    }\n}"
+  }
+}

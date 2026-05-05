@@ -1,0 +1,123 @@
+{
+  "id": "crypto-11-stream",
+  "bookId": "book-crypto",
+  "title": "Stream Ciphers",
+  "category": "Intermediate",
+  "order": 11,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Stream ciphers encrypt data bit-by-bit or byte-by-byte, like one-time pads but using keystreams generated from short keys. Unlike block ciphers that process fixed-size chunks, stream ciphers can handle data of any length without padding, making them ideal for real-time communication and resource-constrained devices. ChaCha20, the modern standard, powers TLS 1.3 and 5G encryption. RC4, once ubiquitous, fell to practical attacks and is now deprecated. Understanding stream cipher design—particularly the critical importance of nonce uniqueness—is essential for secure implementation.",
+    "sections": [
+      {
+        "title": "Stream Cipher Operation",
+        "content": "Stream ciphers work by generating a keystream from a key and nonce, then XORing it with plaintext. Ciphertext = Plaintext XOR Keystream. Decryption is identical: Plaintext = Ciphertext XOR Keystream. The security relies entirely on the keystream's unpredictability—knowing any part of the keystream reveals the corresponding plaintext. The key difference from one-time pads: keystreams are pseudorandom, generated algorithmically from short keys rather than truly random. This makes them practical but requires careful design to prevent prediction.",
+        "keyPoints": [
+          "Keystream generation from key + nonce",
+          "XOR encryption/decryption (same operation)",
+          "No padding needed",
+          "Sequential processing"
+        ]
+      },
+      {
+        "title": "ChaCha20",
+        "content": "ChaCha20, designed by Daniel Bernstein, is the modern stream cipher standard. It uses a 256-bit key, 96-bit nonce, and 32-bit counter. The algorithm operates on a 4x4 matrix of 32-bit words through 20 rounds of quarter-round operations (ARX: Add, Rotate, XOR). ChaCha20 is faster than AES in software, constant-time by design (no cache-based timing leaks), and resistant to side-channel attacks. It's used in TLS 1.3, WireGuard VPN, and 5G. The combination ChaCha20-Poly1305 provides AEAD—encryption plus authentication.",
+        "keyPoints": [
+          "256-bit key, 96-bit nonce",
+          "20 rounds of ARX operations",
+          "Fast in software, constant-time",
+          "Used in TLS 1.3, WireGuard"
+        ]
+      },
+      {
+        "title": "Critical: Nonce Uniqueness",
+        "content": "Stream ciphers catastrophically fail if nonces repeat. If C1 = P1 XOR S and C2 = P2 XOR S (same keystream S), then C1 XOR C2 = P1 XOR P2. This reveals plaintext relationships; if one plaintext is known, the other is recovered. The Sony PlayStation 3 disaster: ECDSA signatures reused random k values, allowing private key recovery. Always use unique nonces—random 96-bit nonces for ChaCha20 have negligible collision probability. Never reuse (key, nonce) pairs.",
+        "keyPoints": [
+          "Nonce reuse = keystream reuse = broken",
+          "C1 XOR C2 = P1 XOR P2",
+          "Random 96-bit nonces: safe",
+          "Never reuse (key, nonce) pairs"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Keystream",
+        "description": "Pseudorandom sequence from key + nonce",
+        "latex": "S = ChaCha20(key, nonce, counter)"
+      },
+      {
+        "name": "XOR Encryption",
+        "description": "Same operation for encrypt and decrypt",
+        "latex": "C = P \\oplus S, P = C \\oplus S"
+      },
+      {
+        "name": "Quarter Round",
+        "description": "ChaCha20 core ARX operation",
+        "latex": "a += b; d \\oplus= a; d <<<= 16"
+      }
+    ],
+    "complexity": {
+      "chacha20": "O(n) for n bytes, ~3 cycles per byte",
+      "keystreamGen": "O(1) per 64-byte block",
+      "nonceCollision": "O(2^(n/2)) for n-bit nonce"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize State",
+      "description": "Create 4x4 matrix with constants, key, counter, and nonce.",
+      "latex": "State = [constants, key, counter, nonce]",
+      "visualState": {"constants": "expand 32-byte k", "matrix": "4x4 words"}
+    },
+    {
+      "step": 2,
+      "title": "Run Rounds",
+      "description": "Perform 20 rounds of quarter-round operations on matrix.",
+      "latex": "20 rounds: column + diagonal rounds",
+      "visualState": {"rounds": 20, "operations": "ARX per round"}
+    },
+    {
+      "step": 3,
+      "title": "Add Initial State",
+      "description": "Add initial state to final state to produce keystream block.",
+      "latex": "Keystream = Final_state + Initial_state",
+      "visualState": {"keystreamBlock": "64 bytes", "counter": "incremented"}
+    },
+    {
+      "step": 4,
+      "title": "XOR Encryption",
+      "description": "XOR plaintext with keystream to produce ciphertext.",
+      "latex": "Ciphertext = Plaintext \\oplus Keystream",
+      "visualState": {"plaintext": "input", "ciphertext": "output", "secure": true}
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "ChaCha20 Key Size",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What are the key and nonce sizes for ChaCha20?",
+      "solution": {"answer": "256-bit key, 96-bit nonce", "explanation": "ChaCha20 uses a 256-bit key and 96-bit nonce. The large nonce space allows random nonces without collision risk."}
+    },
+    {
+      "id": "p2",
+      "title": "Nonce Reuse Attack",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What happens if the same nonce is used twice with the same key?",
+      "solution": {"answer": "Catastrophic failure: keystream reuse reveals plaintext XOR", "explanation": "Reusing nonces causes the same keystream to be generated. XORing two ciphertexts cancels the keystream, revealing plaintext XOR. If one plaintext is known, the other is exposed."}
+    }
+  ],
+  "minigame": {
+    "id": "stream-cipher",
+    "title": "Stream Cipher Challenge",
+    "description": "Learn stream cipher operation and nonce management",
+    "type": "encryption-challenge",
+    "levels": [{"level": 1, "name": "ChaCha20 Basics", "task": "encrypt"}, {"level": 2, "name": "Nonce Management", "task": "secure_nonce"}],
+    "scoring": {"correct": 10, "complete": 50}
+  },
+  "visualizer": {"type": "stream-flow", "title": "ChaCha20 Stream Cipher"},
+  "codeExample": {"language": "python", "snippets": [{"title": "ChaCha20 Encryption", "code": "from Crypto.Cipher import ChaCha20\nimport os\n\nkey = os.urandom(32)\nnonce = os.urandom(12)\n\ncipher = ChaCha20.new(key=key, nonce=nonce)\nplaintext = b'Message'\nciphertext = cipher.encrypt(plaintext)"}]}
+}

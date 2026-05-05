@@ -1,0 +1,173 @@
+{
+  "id": "quantum-04-entanglement",
+  "bookId": "book-quantum",
+  "title": "Entanglement",
+  "category": "Foundations",
+  "order": 4,
+  "estimatedTime": "65 min",
+  "theory": {
+    "overview": "Quantum entanglement is a phenomenon where two or more qubits become correlated in such a way that the quantum state of each particle cannot be described independently. The state of one instantly influences the state of the other, regardless of distance. Einstein called it 'spooky action at a distance,' but it's now a cornerstone of quantum technology. Mathematically, an entangled state cannot be written as a tensor product of individual states: $|\psi\rangle \neq |\psi_1\rangle \otimes |\psi_2\rangle$. The Bell states (or EPR pairs) are the maximally entangled two-qubit states and serve as the resource for quantum teleportation, superdense coding, and quantum key distribution.",
+    "sections": [
+      {
+        "title": "Separable vs Entangled States",
+        "content": "A multi-qubit state is separable (product state) if it can be written as $|\psi\rangle = |a\rangle \otimes |b\rangle$. For example, $|00\rangle = |0\rangle \otimes |0\rangle$ is separable. An entangled state has correlations that cannot be described this way. The Bell state $|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$ is entangled—if you measure the first qubit as 0, the second is instantly 0; if first is 1, second is 1. There's no way to write this as a product of two single-qubit states. To check if a state is entangled, try the Schmidt decomposition: if it has more than one non-zero Schmidt coefficient, it's entangled.",
+        "examples": [
+          { "state": "$|00\rangle$", "type": "Separable", "description": "Product of |0⟩⊗|0⟩" },
+          { "state": "$|++\rangle$", "type": "Separable", "description": "Product of |+⟩⊗|+⟩" },
+          { "state": "$\\frac{1}{\\sqrt{2}}(|00\\rangle + |11\\rangle)$", "type": "Entangled", "description": "Cannot be factored; Bell state" },
+          { "state": "$\\frac{1}{\\sqrt{2}}(|01\\rangle + |10\\rangle)$", "type": "Entangled", "description": "Another Bell state" }
+        ]
+      },
+      {
+        "title": "The Bell States (EPR Pairs)",
+        "content": "There are four maximally entangled two-qubit states called the Bell basis: $|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$, $|\Phi^-\rangle = \frac{1}{\sqrt{2}}(|00\rangle - |11\rangle)$, $|\Psi^+\rangle = \frac{1}{\sqrt{2}}(|01\rangle + |10\rangle)$, and $|\Psi^-\rangle = \frac{1}{\sqrt{2}}(|01\rangle - |10\rangle)$. These form an orthonormal basis for the two-qubit space. They can be created by applying CNOT after putting the control qubit in superposition: $CNOT(H \otimes I)|00\rangle = |\Phi^+\rangle$. Each Bell state has perfect correlation in some basis and perfect anti-correlation in another.",
+        "latex": "|\\Phi^+\\rangle = \\frac{|00\\rangle + |11\\rangle}{\\sqrt{2}}, \\quad |\\Psi^+\\rangle = \\frac{|01\\rangle + |10\\rangle}{\\sqrt{2}}",
+        "creation": "|00⟩ --[H]--[•]-- |Φ⁺⟩\n          |      |\n          |------[X]--",
+        "properties": [
+          "Measuring one qubit instantly determines the other",
+          "The correlation holds in any basis (not just computational)",
+          "Creating Bell states requires entangling gates (like CNOT)"
+        ]
+      },
+      {
+        "title": "Creating Entanglement with CNOT",
+        "content": "The CNOT (Controlled-NOT) gate is the primary two-qubit gate for creating entanglement. It flips the target qubit if the control is $|1\rangle$. Matrix: $CNOT = |0\rangle\langle 0| \otimes I + |1\rangle\langle 1| \otimes X$. When the control is in superposition, CNOT creates entanglement. Starting from $|+0\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |10\rangle)$, applying CNOT gives $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle) = |\Phi^+\rangle$. The control and target become correlated—knowing one tells you the other. This is the foundation of quantum communication protocols.",
+        "matrix": "$CNOT = \\begin{pmatrix} 1 & 0 & 0 & 0 \\\\ 0 & 1 & 0 & 0 \\\\ 0 & 0 & 0 & 1 \\\\ 0 & 0 & 1 & 0 \\end{pmatrix}$",
+        "circuit": "|0⟩--[H]--●--  =  |Φ⁺⟩\n         |   |\n|0⟩-----⊕--",
+        "truthTable": [
+          { "input": "|00⟩", "output": "|00⟩" },
+          { "input": "|01⟩", "output": "|01⟩" },
+          { "input": "|10⟩", "output": "|11⟩" },
+          { "input": "|11⟩", "output": "|10⟩" }
+        ]
+      },
+      {
+        "title": "Bell's Inequality and Non-Locality",
+        "content": "Bell's theorem (1964) proved that quantum correlations are stronger than any classical correlations could ever be. Imagine two parties (Alice and Bob) each receive one qubit of an entangled pair. They can choose measurement bases independently. Quantum mechanics predicts correlations that violate the CHSH inequality: $S = |E(a,b) - E(a,b') + E(a',b) + E(a',b')| \leq 2$ classically, but quantum allows up to $2\sqrt{2} \approx 2.828$. Experimental violations (Aspect et al., loophole-free tests 2015-2017) confirm that nature is fundamentally non-local. This isn't faster-than-light communication—no information is transmitted—but it shows entanglement is a genuinely new resource.",
+        "inequality": "Classical bound: $|S| \\leq 2$, Quantum bound: $|S| \\leq 2\\sqrt{2}$",
+        "experiment": "Measure entangled photons in different bases; correlations exceed classical limit",
+        "implication": "Nature cannot be described by local hidden variable theories"
+      },
+      {
+        "title": "Multi-Qubit Entanglement",
+        "content": "Entanglement scales to many qubits. The GHZ state (Greenberger-Horne-Zeilinger) for $n$ qubits is $\frac{1}{\sqrt{2}}(|00...0\rangle + |11...1\rangle)$. It's maximally entangled—all qubits are perfectly correlated. Another important state is the W state: $\frac{1}{\sqrt{n}}(|100...0\rangle + |010...0\rangle + ... + |00...01\rangle)$. Unlike GHZ, if you lose one qubit from a W state, the rest remain entangled (robust entanglement). Entanglement can be quantified using entanglement entropy: for a bipartition, $S = -Tr(\rho_A \log \rho_A)$ where $\rho_A$ is the reduced density matrix of subsystem A.",
+        "states": [
+          { "name": "GHZ", "formula": "$\\frac{1}{\\sqrt{2}}(|000\\rangle + |111\\rangle)$", "property": "All or nothing entanglement" },
+          { "name": "W", "formula": "$\\frac{1}{\\sqrt{3}}(|100\\rangle + |010\\rangle + |001\\rangle)$", "property": "Robust to qubit loss" }
+        ],
+        "entropy": "$S(\\rho_A) = -\\sum_i \\lambda_i \\log \\lambda_i$ where $\\lambda_i$ are eigenvalues of $\\rho_A$"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Monogamy of Entanglement",
+        "description": "If two qubits are maximally entangled with each other, they cannot be entangled with any other qubit. Entanglement is exclusive—like a perfect correlation, it can't be shared.",
+        "formula": "For three qubits A, B, C: if A is maximally entangled with B, then C is separable from AB"
+      },
+      {
+        "name": "Reduced Density Matrix",
+        "description": "To analyze a subsystem, trace out the other qubits. If the reduced state is mixed (not a pure state), there was entanglement.",
+        "example": "For |Φ⁺⟩, tracing out qubit 2 gives ρ₁ = I/2 (maximally mixed)"
+      },
+      {
+        "name": "Quantum Teleportation",
+        "description": "Using an entangled pair and 2 classical bits, we can transmit an arbitrary quantum state. The original is destroyed (no-cloning).",
+        "resource": "1 EPR pair + 2 classical bits → transfer 1 qubit"
+      },
+      {
+        "name": "Superdense Coding",
+        "description": "Using an entangled pair, Alice can send 2 classical bits to Bob by sending only 1 qubit.",
+        "resource": "1 EPR pair + 1 qubit transmission → communicate 2 bits"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "Creating entanglement: O(1) per CNOT",
+      "spaceComplexity": "$2^n$ amplitudes for n entangled qubits",
+      "communication": "Entanglement + classical communication = quantum communication"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Both Qubits",
+      "description": "Start with two qubits in state $|00\rangle$.",
+      "latex": "|\psi_0\rangle = |00\rangle",
+      "visualState": { "qubits": 2, "entangled": false }
+    },
+    {
+      "step": 2,
+      "title": "Create Superposition on Control",
+      "description": "Apply Hadamard to the first qubit to create a superposition.",
+      "latex": "(H \otimes I)|00\rangle = \frac{|00\rangle + |10\rangle}{\sqrt{2}}",
+      "visualState": { "qubits": 2, "entangled": false, "superposition": "control only" }
+    },
+    {
+      "step": 3,
+      "title": "Apply CNOT Gate",
+      "description": "Apply controlled-NOT with qubit 1 as control and qubit 2 as target.",
+      "latex": "CNOT \cdot \frac{|00\rangle + |10\rangle}{\sqrt{2}} = \frac{|00\rangle + |11\rangle}{\sqrt{2}} = |\Phi^+\rangle",
+      "visualState": { "qubits": 2, "entangled": true, "bellState": "Φ⁺" }
+    },
+    {
+      "step": 4,
+      "title": "Verify Entanglement",
+      "description": "Measure both qubits. They will always give the same result (00 or 11), never 01 or 10.",
+      "latex": "P(00) = P(11) = 50\%, \quad P(01) = P(10) = 0\%",
+      "visualState": { "qubits": 2, "correlated": true, "measurement": "identical" }
+    },
+    {
+      "step": 5,
+      "title": "Test in Different Bases",
+      "description": "Apply Hadamard to both before measuring. The correlation persists in X basis too—both always give same result.",
+      "latex": "(H \otimes H)|\Phi^+\rangle = |\Phi^+\rangle",
+      "visualState": { "qubits": 2, "correlated": true, "basis": "X basis" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Bell State Identification",
+      "difficulty": "Easy",
+      "description": "Which Bell state gives opposite results when measured in the computational (Z) basis?",
+      "options": ["$|\\Phi^+\\rangle$", "$|\\Phi^-\\rangle$", "$|\\Psi^+\\rangle$", "$|\\Psi^-\\rangle$"],
+      "correctAnswer": 2,
+      "explanation": "$|\Psi^+\rangle = \frac{1}{\sqrt{2}}(|01\rangle + |10\rangle)$. When measured, you get either 01 or 10—the qubits are always opposite. The other Bell states give same results (00 or 11).",
+      "hint": "Look at which basis states appear in the superposition."
+    },
+    {
+      "id": "p2",
+      "title": "Entanglement Test",
+      "difficulty": "Medium",
+      "description": "Is $|+\rangle \otimes |+\rangle$ entangled?",
+      "options": ["Yes, it's a Bell state", "No, it's a product state", "Only if measured", "It depends on the basis"],
+      "correctAnswer": 1,
+      "explanation": "$|+\rangle \otimes |+\rangle = \frac{1}{2}(|00\rangle + |01\rangle + |10\rangle + |11\rangle)$. This can be written as a tensor product—it's separable. Each qubit is independent; measuring one doesn't affect the other.",
+      "hint": "Can you write it as |a⟩⊗|b⟩?"
+    },
+    {
+      "id": "p3",
+      "title": "CNOT Operation",
+      "difficulty": "Medium",
+      "description": "What is $CNOT \cdot \frac{1}{\sqrt{2}}(|01\rangle + |11\rangle)$?",
+      "options": ["$\\frac{1}{\\sqrt{2}}(|01\\rangle + |11\\rangle)$", "$\\frac{1}{\\sqrt{2}}(|01\\rangle + |10\\rangle)$", "$\\frac{1}{\\sqrt{2}}(|00\\rangle + |11\\rangle)$", "$\\frac{1}{\\sqrt{2}}(|00\\rangle + |10\\rangle)$"],
+      "correctAnswer": 1,
+      "explanation": "CNOT flips the target when control is |1⟩. In |01⟩, control is |0⟩ so no change. In |11⟩, control is |1⟩ so target flips: |11⟩ → |10⟩. Result: $\frac{1}{\sqrt{2}}(|01\rangle + |10\rangle) = |\Psi^+\rangle$.",
+      "hint": "Check each basis state: CNOT|01⟩ = |01⟩, CNOT|11⟩ = |10⟩."
+    },
+    {
+      "id": "p4",
+      "title": "Reduced Density Matrix",
+      "difficulty": "Hard",
+      "description": "For $|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$, what is the reduced density matrix of qubit 1?",
+      "options": ["$|0\\rangle\\langle0|$", "$\\frac{I}{2}$", "$|+\\rangle\\langle+|$", "$|0\\rangle\\langle1|$"],
+      "correctAnswer": 1,
+      "explanation": "Tracing out qubit 2: $\rho_1 = Tr_2(|\Phi^+\rangle\langle\Phi^+|) = \frac{1}{2}(|0\rangle\langle 0| + |1\rangle\langle 1|) = \frac{I}{2}$. This is the maximally mixed state—complete uncertainty about qubit 1 alone, even though the pair is perfectly correlated.",
+      "hint": "Trace out qubit 2 by summing over its basis states."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n\n# Define states\nzero = np.array([1, 0])\none = np.array([0, 1])\nplus = (zero + one) / np.sqrt(2)\n\n# Tensor product\ndef tensor(a, b):\n    return np.kron(a, b)\n\n# CNOT matrix\nCNOT = np.array([[1, 0, 0, 0],\n                 [0, 1, 0, 0],\n                 [0, 0, 0, 1],\n                 [0, 0, 1, 0]])\n\n# Hadamard\nH = np.array([[1, 1], [1, -1]]) / np.sqrt(2)\n\n# Create Bell state |Φ⁺⟩\npsi_initial = tensor(plus, zero)  # |+0⟩\npsi_bell = CNOT @ psi_initial\n\nprint('Creating Bell state |Φ⁺⟩:')\nprint(f'Initial |+0⟩ = {psi_initial}')\nprint(f'After CNOT = {psi_bell}')\n\n# Verify it's (|00⟩ + |11⟩)/√2\nzerozero = tensor(zero, zero)\noneone = tensor(one, one)\nexpected = (zerozero + oneone) / np.sqrt(2)\nprint(f'Expected |Φ⁺⟩ = {expected}')\nprint(f'Match: {np.allclose(psi_bell, expected)}')\n\n# Check reduced density matrix\nrho = np.outer(psi_bell, psi_bell.conj())  # |ψ⟩⟨ψ|\n# Trace out qubit 2\nrho_1 = np.array([[rho[0,0] + rho[1,1], rho[0,2] + rho[1,3]],\n                  [rho[2,0] + rho[3,1], rho[2,2] + rho[3,3]]])\nprint(f'\\nReduced density matrix ρ₁:')\nprint(rho_1)\nprint(f'Is maximally mixed (I/2)? {np.allclose(rho_1, np.eye(2)/2)}')",
+    "qsharp": "namespace Quantum.Entanglement {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Measurement;\n    \n    @EntryPoint()\n    operation CreateBellState() : (Result, Result) {\n        use (q1, q2) = (Qubit(), Qubit());\n        \n        // Create |Φ⁺⟩ = (|00⟩ + |11⟩)/√2\n        H(q1);           // Put q1 in |+⟩\n        CNOT(q1, q2);    // Entangle with q2\n        \n        // Measure both\n        let result1 = M(q1);\n        let result2 = M(q2);\n        \n        // Results should be correlated\n        Message($\"Qubit 1: {result1}, Qubit 2: {result2}\");\n        Message($\"Correlated: {result1 == result2}\");\n        \n        return (result1, result2);\n    }\n    \n    operation TestDifferentBases() : Unit {\n        use (q1, q2) = (Qubit(), Qubit());\n        \n        // Create Bell pair\n        H(q1);\n        CNOT(q1, q2);\n        \n        // Measure in X basis (apply H before measurement)\n        H(q1);\n        H(q2);\n        \n        let (r1, r2) = (M(q1), M(q2));\n        Message($\"X basis measurement - Q1: {r1}, Q2: {r2}\");\n    }\n}",
+    "quipper": "import Quipper\n\n-- Create Bell state and demonstrate correlation\ncreateBell :: Circ (Bit, Bit)\ncreateBell = do\n  -- Initialize two qubits to |0⟩\n  q1 <- qinit True\n  q2 <- qinit True\n  \n  -- Create |+⟩ on q1\n  q1 <- hadamard q1\n  \n  -- Entangle with CNOT\n  (q1, q2) <- controlled_not q1 q2\n  \n  -- Now we have |Φ⁺⟩ = (|00⟩ + |11⟩)/√2\n  -- Measure both\n  (q1, b1) <- measure_qubit q1\n  (q2, b2) <- measure_qubit q2\n  \n  -- b1 and b2 should be equal\n  return (b1, b2)\n\n-- Create GHZ state for 3 qubits\ncreateGHZ :: Circ (Bit, Bit, Bit)\ncreateGHZ = do\n  q1 <- qinit True\n  q2 <- qinit True\n  q3 <- qinit True\n  \n  q1 <- hadamard q1\n  (q1, q2) <- controlled_not q1 q2\n  (q1, q3) <- controlled_not q1 q3\n  \n  -- Now |GHZ⟩ = (|000⟩ + |111⟩)/√2\n  (q1, b1) <- measure_qubit q1\n  (q2, b2) <- measure_qubit q2\n  (q3, b3) <- measure_qubit q3\n  \n  return (b1, b2, b3)"
+  }
+}

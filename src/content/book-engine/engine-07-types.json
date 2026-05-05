@@ -1,0 +1,77 @@
+{
+  "id": "engine-07-types",
+  "bookId": "book-engine",
+  "title": "Type Systems & Type Checking",
+  "category": "Intermediate",
+  "order": 7,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Type systems are the backbone of modern programming languages, providing a formal framework for classifying values and preventing errors before runtime. Static type checking catches bugs at compile time, while dynamic typing offers flexibility. Understanding type theory helps you appreciate how languages ensure correctness and enable powerful features like generics and type inference.",
+    "keyConcepts": [
+      {
+        "title": "Static vs Dynamic Typing",
+        "content": "Static typing (Java, C++, Rust) checks types at compile time, catching errors early. Dynamic typing (Python, JavaScript) checks at runtime, offering more flexibility but potentially more runtime errors."
+      },
+      {
+        "title": "Type Inference",
+        "content": "Modern compilers can deduce types without explicit annotations. Languages like Haskell and Rust use sophisticated algorithms (Hindley-Milner) to infer the most general type for expressions."
+      },
+      {
+        "title": "Polymorphism",
+        "content": "Parametric polymorphism (generics) allows code to work with any type. Ad-hoc polymorphism (overloading) provides different implementations for different types. Subtype polymorphism enables inheritance-based substitution."
+      },
+      {
+        "title": "Soundness & Completeness",
+        "content": "A type system is sound if well-typed programs never go wrong (no false negatives). It's complete if all valid programs are accepted (no false positives). Most practical systems sacrifice completeness for soundness."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Type Checking Fundamentals",
+      "content": "Learn how type checkers traverse AST nodes, maintaining an environment mapping variables to types. Each expression is checked against expected types, building up constraints."
+    },
+    {
+      "number": 2,
+      "title": "Type Constraints & Unification",
+      "content": "Type inference generates constraints (e.g., 'a must equal int'). Unification solves these constraints by finding substitutions that make all equations consistent."
+    },
+    {
+      "number": 3,
+      "title": "Generic Types",
+      "content": "Polymorphic types use type variables (like T) that can be instantiated with concrete types. The type checker ensures generic code is used consistently."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Type Inference",
+      "difficulty": "Medium",
+      "description": "Given 'let f = x => x + 1', what is f's most general type?",
+      "solution": "int -> int. The + 1 constrains x to be numeric, and the return type matches."
+    },
+    {
+      "id": 2,
+      "title": "Unification",
+      "difficulty": "Hard",
+      "description": "Solve: T1 = List(T2), T2 = Int",
+      "solution": "T1 = List(Int), T2 = Int. Substitute T2 into first equation."
+    }
+  ],
+  "minigame": {
+    "id": "type-checker",
+    "title": "Type Checker Challenge",
+    "type": "interactive",
+    "description": "Infer types for expressions and catch type errors"
+  },
+  "visualizer": {
+    "id": "type-inference",
+    "title": "Type Inference Visualizer",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "typescript",
+    "code": "// Hindley-Milner style type inference\nfunction inferType(expr: Expr, env: TypeEnv): Type {\n  switch (expr.kind) {\n    case 'number': return IntType;\n    case 'variable': return env.lookup(expr.name);\n    case 'lambda': {\n      const paramType = new TypeVar();\n      const newEnv = env.extend(expr.param, paramType);\n      const bodyType = inferType(expr.body, newEnv);\n      return FunctionType(paramType, bodyType);\n    }\n    case 'apply': {\n      const funcType = inferType(expr.func, env);\n      const argType = inferType(expr.arg, env);\n      const resultType = new TypeVar();\n      unify(funcType, FunctionType(argType, resultType));\n      return resultType;\n    }\n  }\n}"
+  }
+}

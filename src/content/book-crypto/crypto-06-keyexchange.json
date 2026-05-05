@@ -1,0 +1,348 @@
+{
+  "id": "crypto-06-keyexchange",
+  "bookId": "book-crypto",
+  "title": "Key Exchange",
+  "category": "Intermediate",
+  "order": 6,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "The key exchange problem haunted cryptography for millennia: how do two parties establish a shared secret over an insecure channel without meeting in person? In 1976, Whitfield Diffie and Martin Hellman revolutionized cryptography with their elegant solution—two parties can derive an identical shared secret by exchanging public values while keeping private values secret. This breakthrough enabled secure internet communication, allowing strangers to establish encrypted connections without pre-shared keys. The Diffie-Hellman protocol, combined with RSA for authentication, powers the TLS handshake securing every HTTPS connection. Understanding key exchange is crucial because it explains how your browser establishes secure connections to websites you've never visited before.",
+    "sections": [
+      {
+        "title": "The Key Distribution Problem",
+        "content": "Before 1976, secure communication required physically exchanging keys. Military organizations used couriers with briefcases chained to their wrists; banks required in-person key setup. This was impractical for the emerging internet where millions of users needed secure connections with servers they'd never physically contact. Symmetric encryption provided speed and strength, but required shared secrets. Public key cryptography solved the problem by allowing parties to exchange public information that, combined with private secrets, generates identical shared keys. This is the foundation of modern secure communication.",
+        "keyPoints": [
+          "Pre-1976: Physical key exchange required",
+          "Internet scale: Millions of parties, no prior contact",
+          "Solution: Mathematical key agreement over public channels",
+          "Result: Shared secret without transmitting the secret"
+        ]
+      },
+      {
+        "title": "Diffie-Hellman Key Exchange",
+        "content": "Diffie-Hellman uses modular arithmetic in finite fields. Both parties agree on public parameters: a large prime p and a generator g (typically 2 or 5). Alice chooses private secret a, computes public A = g^a mod p. Bob chooses private secret b, computes public B = g^b mod p. They exchange A and B publicly. Alice computes shared secret s = B^a mod p = (g^b)^a mod p = g^(ba) mod p. Bob computes s = A^b mod p = (g^a)^b mod p = g^(ab) mod p. By the laws of exponents, both arrive at the same secret g^(ab) mod p, despite never transmitting it. An eavesdropper seeing A, B, g, p cannot compute g^(ab) without solving the discrete logarithm problem.",
+        "keyPoints": [
+          "Public parameters: prime p, generator g",
+          "Private secrets: Alice's a, Bob's b",
+          "Public exchange: A = g^a, B = g^b",
+          "Shared secret: s = g^(ab) mod p"
+        ]
+      },
+      {
+        "title": "Discrete Logarithm Problem",
+        "content": "Diffie-Hellman security rests on the discrete logarithm problem: given g, p, and g^x mod p, finding x is computationally infeasible for large p. Computing g^x (modular exponentiation) is fast using square-and-multiply. But reversing it—finding x given g^x—requires either trying all possibilities (infeasible for 2048-bit p) or using specialized algorithms like Number Field Sieve that still require enormous computation. The best known algorithms have sub-exponential complexity, meaning doubling key size makes attacks disproportionately harder. Current recommendations: use 2048-bit or larger primes, or better yet, elliptic curve variants (ECDH) providing equivalent security with smaller keys.",
+        "keyPoints": [
+          "Forward: g^x mod p is fast to compute",
+          "Reverse: Finding x from g^x is hard",
+          "Best attack: General Number Field Sieve",
+          "ECDH: Same security, smaller keys (256-bit ≈ 3072-bit DH)"
+        ]
+      },
+      {
+        "title": "Ephemeral Keys and Perfect Forward Secrecy",
+        "content": "Standard DH using static keys provides no forward secrecy—if an attacker records traffic and later steals a private key, they can retroactively decrypt all past communications. The solution: ephemeral Diffie-Hellman (DHE) where parties generate new key pairs for each session. After deriving the shared secret, they discard the private keys. Even if long-term authentication keys are compromised later, past session keys cannot be recovered because the ephemeral private keys are gone. This is called Perfect Forward Secrecy (PFS). Modern TLS 1.3 mandates ephemeral key exchange, ensuring that even certificate private key compromises cannot decrypt historical traffic.",
+        "keyPoints": [
+          "Static DH: Compromised key decrypts all past traffic",
+          "Ephemeral DH: New key pair per session",
+          "Perfect Forward Secrecy: Past sessions safe even if keys stolen",
+          "TLS 1.3: Requires ephemeral key exchange"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "DH Public Values",
+        "description": "Values exchanged publicly that don't reveal secrets",
+        "latex": "A = g^a mod p, B = g^b mod p"
+      },
+      {
+        "name": "Shared Secret",
+        "description": "Identical key derived by both parties",
+        "latex": "s = g^(ab) mod p = B^a = A^b"
+      },
+      {
+        "name": "Discrete Log",
+        "description": "Hard problem: find a given g, p, g^a mod p",
+        "latex": "Given g^a mod p, find a (computationally hard)"
+      },
+      {
+        "name": "Perfect Forward Secrecy",
+        "description": "Session keys safe even if long-term keys compromised",
+        "latex": "\\text{Ephemeral keys discarded after use}"
+      }
+    ],
+    "complexity": {
+      "keyGeneration": "O(log³ p) using modular exponentiation",
+      "sharedSecret": "O(log p × log² p) - single modular exponentiation",
+      "discreteLogAttack": "O(exp((c + o(1))(ln p)^(1/3)(ln ln p)^(2/3))) - sub-exponential",
+      "ecdhAdvantage": "O(log³ n) for n-bit curve, much faster than DH"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Agree on Public Parameters",
+      "description": "Alice and Bob agree on prime p=23 and generator g=5 (small example for demonstration).",
+      "latex": "p = 23, g = 5",
+      "visualState": {
+        "p": 23,
+        "g": 5,
+        "publicChannel": true,
+        "eavesdropper": "Eve"
+      }
+    },
+    {
+      "step": 2,
+      "title": "Alice Generates Keys",
+      "description": "Alice chooses private secret a=6, computes public A = g^a mod p.",
+      "latex": "a = 6, A = 5^6 mod 23 = 8",
+      "visualState": {
+        "alice": {
+          "private": 6,
+          "public": 8
+        }
+      }
+    },
+    {
+      "step": 3,
+      "title": "Bob Generates Keys",
+      "description": "Bob chooses private secret b=15, computes public B = g^b mod p.",
+      "latex": "b = 15, B = 5^{15} mod 23 = 19",
+      "visualState": {
+        "bob": {
+          "private": 15,
+          "public": 19
+        }
+      }
+    },
+    {
+      "step": 4,
+      "title": "Exchange Public Values",
+      "description": "Alice and Bob exchange public values A and B over the public channel. Eve sees these but cannot compute the secret.",
+      "latex": "\\text{Public: } A = 8, B = 19",
+      "visualState": {
+        "exchange": true,
+        "eavesdropperSees": [8, 19],
+        "eavesdropperKnows": "p=23, g=5"
+      }
+    },
+    {
+      "step": 5,
+      "title": "Alice Computes Shared Secret",
+      "description": "Alice uses her private key a and Bob's public key B to compute s = B^a mod p.",
+      "latex": "s = B^a mod p = 19^6 mod 23 = 2",
+      "visualState": {
+        "aliceComputation": "19^6 mod 23",
+        "aliceResult": 2
+      }
+    },
+    {
+      "step": 6,
+      "title": "Bob Computes Shared Secret",
+      "description": "Bob uses his private key b and Alice's public key A to compute s = A^b mod p.",
+      "latex": "s = A^b mod p = 8^{15} mod 23 = 2",
+      "visualState": {
+        "bobComputation": "8^{15} mod 23",
+        "bobResult": 2
+      }
+    },
+    {
+      "step": 7,
+      "title": "Shared Secret Established",
+      "description": "Both parties have derived the same shared secret s=2 without transmitting it. This becomes their symmetric key for AES encryption.",
+      "latex": "s = g^{ab} mod p = 5^{90} mod 23 = 2",
+      "visualState": {
+        "sharedSecret": 2,
+        "aliceVerified": true,
+        "bobVerified": true,
+        "secure": true
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "DH Parameter Agreement",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "Using p=17, g=3, Alice's a=5, Bob's b=7, what shared secret is computed?",
+      "latex": "A = 3^5 mod 17, B = 3^7 mod 17, s = ?",
+      "hints": [
+        "Calculate A = 3^5 mod 17 = 243 mod 17 = 5",
+        "Calculate B = 3^7 mod 17 = 2187 mod 17 = 11",
+        "s = B^a mod 17 = 11^5 mod 17"
+      ],
+      "solution": {
+        "answer": "14",
+        "explanation": "A=3^5 mod 17=5, B=3^7 mod 17=11, s=11^5 mod 17=14 or s=5^7 mod 17=14. Both compute same secret."
+      }
+    },
+    {
+      "id": "p2",
+      "title": "Security of Small Primes",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why is using a small prime like p=23 insecure for real DH key exchange?",
+      "latex": "\\text{Brute force on discrete log with small } p",
+      "hints": [
+        "Discrete log is hard for large p only",
+        "For p=23, only 22 possible values",
+        "Modern DH uses 2048+ bit primes"
+      ],
+      "solution": {
+        "answer": "With small primes, brute force attacks on the discrete logarithm are trivial",
+        "explanation": "For p=23, an attacker can try all 22 possible values for the private key. Modern DH uses 2048-bit primes (primes with ~600 decimal digits) where brute force is impossible."
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Eavesdropper's Challenge",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Eve sees g=5, p=23, A=8, B=19. Can she compute the shared secret?",
+      "latex": "\\text{Given } g, p, g^a, g^b \\text{ - find } g^{ab}",
+      "hints": [
+        "Eve needs to find a from 5^a mod 23 = 8",
+        "Or find b from 5^b mod 23 = 19",
+        "This is the discrete logarithm problem"
+      ],
+      "solution": {
+        "answer": "No, computing the shared secret requires solving the discrete logarithm problem",
+        "explanation": "Eve knows g, p, g^a=8, g^b=19. To find g^(ab), she needs to find a such that 5^a ≡ 8 (mod 23), which requires solving the discrete logarithm. For large p, this is computationally infeasible."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Perfect Forward Secrecy",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Alice and Bob use ephemeral DH for a session, then delete their private keys. A year later, an attacker steals both of their long-term authentication keys. Can the attacker decrypt the session?",
+      "latex": "\\text{Long-term keys compromised, ephemeral keys destroyed}",
+      "hints": [
+        "Ephemeral keys were deleted after session",
+        "Only ephemeral keys can compute the session secret",
+        "Long-term keys are for authentication only"
+      ],
+      "solution": {
+        "answer": "No, the session remains secure because the ephemeral private keys were destroyed",
+        "explanation": "This is Perfect Forward Secrecy. Since Alice and Bob deleted their ephemeral private keys after deriving the shared secret, those keys cannot be stolen later. The long-term authentication keys cannot reconstruct the session key."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Man-in-the-Middle Attack",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why is raw DH vulnerable to man-in-the-middle attacks, and how do we prevent this?",
+      "latex": "\\text{MITM: Mallory intercepts and replaces public keys}",
+      "hints": [
+        "DH provides no authentication by itself",
+        "Mallory can establish separate secrets with each party",
+        "Solution: Authenticate the public keys"
+      ],
+      "solution": {
+        "answer": "Raw DH is vulnerable because there's no authentication; we prevent it by signing DH public keys with RSA/ECDSA certificates",
+        "explanation": "In a MITM attack, Mallory intercepts Alice's public key, sends her own to Bob, and vice versa. She establishes one shared secret with Alice and another with Bob, decrypting and re-encrypting all traffic. TLS prevents this by having servers sign their DH public key with their certificate's private key, proving their identity."
+      }
+    },
+    {
+      "id": "p6",
+      "title": "ECDH Comparison",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Elliptic Curve DH with 256-bit curves provides equivalent security to standard DH with what key size?",
+      "latex": "\\text{ECDH-256} \\approx \\text{DH-?}",
+      "hints": [
+        "Elliptic curve discrete log is harder than integer discrete log",
+        "256-bit ECDH ≈ 3072-bit DH ≈ 128-bit symmetric",
+        "Smaller keys = faster computation"
+      ],
+      "solution": {
+        "answer": "3072-bit DH (providing ~128-bit security)",
+        "explanation": "256-bit ECDH provides approximately 128-bit security, equivalent to 3072-bit classical DH. This is because the elliptic curve discrete logarithm problem is harder than the integer discrete logarithm problem, allowing smaller keys for equivalent security."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "dh-simulator",
+    "title": "Diffie-Hellman Simulator",
+    "description": "Experience the magic of key exchange! Play as Alice or Bob, generate keys, exchange public values, and derive the shared secret. See why eavesdroppers cannot compute the secret even with all transmitted information.",
+    "type": "simulation",
+    "instructions": [
+      "Choose your role: Alice or Bob",
+      "Select private key and compute public key",
+      "Exchange public keys with your partner",
+      "Compute shared secret using your private + their public",
+      "Verify both parties get the same secret!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Small Numbers",
+        "description": "Practice with small primes to see the math work",
+        "p": 23,
+        "g": 5,
+        "mode": "guided"
+      },
+      {
+        "level": 2,
+        "name": "Eavesdropper View",
+        "description": "See what an eavesdropper observes and why they can't compute the secret",
+        "p": 101,
+        "g": 2,
+        "mode": "eavesdropper"
+      },
+      {
+        "level": 3,
+        "name": "Full Exchange",
+        "description": "Complete the key exchange independently",
+        "p": 257,
+        "g": 3,
+        "mode": "independent"
+      }
+    ],
+    "scoring": {
+      "correctComputation": 10,
+      "completeExchange": 50,
+      "noHints": 25,
+      "speedBonus": "seconds_remaining"
+    }
+  },
+  "visualizer": {
+    "type": "dh-flow",
+    "title": "Diffie-Hellman Key Exchange Flow",
+    "description": "Interactive visualization showing how two parties establish a shared secret without transmitting it",
+    "features": [
+      "Alice and Bob key generation",
+      "Public value exchange animation",
+      "Shared secret computation",
+      "Eavesdropper perspective showing impossibility of attack"
+    ],
+    "modes": [
+      {
+        "id": "basic",
+        "name": "Basic Exchange",
+        "description": "Watch the complete key exchange with small numbers"
+      },
+      {
+        "id": "eavesdropper",
+        "name": "Eavesdropper View",
+        "description": "See what information an attacker has access to"
+      },
+      {
+        "id": "step-by-step",
+        "name": "Step by Step",
+        "description": "Control each phase of the exchange manually"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Diffie-Hellman Key Exchange",
+        "code": "import random\n\ndef mod_exp(base, exp, mod):\n    \"\"\"Fast modular exponentiation\"\"\"\n    result = 1\n    base = base % mod\n    while exp > 0:\n        if exp % 2 == 1:\n            result = (result * base) % mod\n        exp = exp >> 1\n        base = (base * base) % mod\n    return result\n\n# Public parameters (small example - use large primes in practice)\np = 23  # Prime\ng = 5   # Generator\n\n# Alice's keys\na = 6  # Alice's private key\nA = mod_exp(g, a, p)  # Alice's public key\n\n# Bob's keys\nb = 15  # Bob's private key\nB = mod_exp(g, b, p)  # Bob's public key\n\n# Key exchange\ns_alice = mod_exp(B, a, p)  # Alice computes: B^a mod p\ns_bob = mod_exp(A, b, p)    # Bob computes: A^b mod p\n\nprint(f\"Alice's secret: {s_alice}\")  # Both should be 2\nprint(f\"Bob's secret: {s_bob}\")      # Both should be 2\nprint(f\"Match: {s_alice == s_bob}\")"
+      }
+    ]
+  }
+}

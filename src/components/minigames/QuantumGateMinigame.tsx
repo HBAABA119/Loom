@@ -147,7 +147,7 @@ const stateDefinitions: Record<string, { latex: string; description: string; amp
   "|-⟩": { latex: "|-\\rangle = \\frac{|0\\rangle - |1\\rangle}{\\sqrt{2}}", description: "-X axis (equal superposition with phase)", amplitudes: { alpha: 0.707, beta: -0.707 } },
   "|i+⟩": { latex: "|i+\\rangle = \\frac{|0\\rangle + i|1\\rangle}{\\sqrt{2}}", description: "+Y axis (superposition with i phase)", amplitudes: { alpha: 0.707, beta: 0.707 } },
   "|i-⟩": { latex: "|i-\\rangle = \\frac{|0\\rangle - i|1\\rangle}{\\sqrt{2}}", description: "-Y axis (superposition with -i phase)", amplitudes: { alpha: 0.707, beta: -0.707 } },
-  "|π/4⟩": { latex: "\\frac{|0\\rangle + e^{i\\pi/4}|1\\rangle}{\\sqrt{2}}", description: "45° phase state", amplitudes: { alpha: 0.707, beta: 0.5 + 0.5i } },
+  "|π/4⟩": { latex: "\\frac{|0\\rangle + e^{i\\pi/4}|1\\rangle}{\\sqrt{2}}", description: "45° phase state", amplitudes: { alpha: 0.707, beta: 0.707 } },
 };
 
 // Simulate gate application

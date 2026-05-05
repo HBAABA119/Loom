@@ -1,0 +1,77 @@
+{
+  "id": "engine-09-codegen",
+  "bookId": "book-engine",
+  "title": "Code Generation & Instruction Selection",
+  "category": "Advanced",
+  "order": 9,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Code generation transforms optimized IR into target machine code. This phase involves instruction selection (choosing the best machine instructions), register allocation (mapping virtual variables to physical registers), and instruction scheduling (ordering for performance). Understanding code generation reveals how high-level concepts become executable machine instructions.",
+    "keyConcepts": [
+      {
+        "title": "Instruction Selection",
+        "content": "Pattern matching IR patterns to machine instructions. Tree-based matching, tiling, or grammar-based approaches find optimal instruction sequences. Complex IR operations may need multiple machine instructions."
+      },
+      {
+        "title": "Register Allocation",
+        "content": "Mapping unlimited virtual registers to limited physical registers. Graph coloring is the classic approach: variables that interfere (live simultaneously) get different colors (registers). Spilling moves values to memory when registers are scarce."
+      },
+      {
+        "title": "Calling Conventions",
+        "content": "Standardized protocols for function calls: which registers pass arguments, which must be preserved, where return values go, and how the stack frame is organized."
+      },
+      {
+        "title": "Peephole Optimization",
+        "content": "Local pattern matching on generated code to eliminate redundancies: 'mov r0, r1; mov r1, r0' becomes 'mov r0, r1', 'add r0, 0' can be eliminated."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "From IR to Assembly",
+      "content": "Map IR operations to target instructions. Consider instruction costs and addressing modes. Handle operations not directly supported by the target."
+    },
+    {
+      "number": 2,
+      "title": "Live Variable Analysis",
+      "content": "Compute which variables are 'live' at each point. Two variables interfere if they're both live at any point and cannot share a register."
+    },
+    {
+      "number": 3,
+      "title": "Graph Coloring",
+      "content": "Build interference graph, attempt to color with N colors (registers). If impossible, spill a variable to stack and retry."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Instruction Selection",
+      "difficulty": "Medium",
+      "description": "Translate: t1 = a + b; t2 = t1 + c (target has 2-operand ADD)",
+      "solution": "mov r0, a; add r0, b; add r0, c; // r0 holds result"
+    },
+    {
+      "id": 2,
+      "title": "Register Pressure",
+      "difficulty": "Hard",
+      "description": "Given 3 registers and 5 live variables at same point, what's the solution?",
+      "solution": "Spill 2 variables to stack (memory), keep 3 in registers. Reload when needed."
+    }
+  ],
+  "minigame": {
+    "id": "instruction-selector",
+    "title": "Instruction Selector",
+    "type": "interactive",
+    "description": "Match IR patterns to optimal machine instructions"
+  },
+  "visualizer": {
+    "id": "register-allocation",
+    "title": "Register Allocation Visualizer",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "c",
+    "code": "// Simple register allocator using graph coloring\ntypedef struct {\n    int var_id;\n    Set neighbors;  // interfering variables\n    int color;      // assigned register, -1 if spilled\n} Node;\n\nbool try_color(Graph* g, int num_regs) {\n    if (g->num_nodes == 0) return true;\n    \n    // Find node with degree < num_regs\n    Node* n = find_low_degree_node(g, num_regs);\n    if (!n) {\n        // Must spill - pick node with highest degree\n        n = find_max_degree_node(g);\n        n->color = SPILL;\n        remove_node(g, n);\n    } else {\n        remove_node(g, n);\n        if (try_color(g, num_regs)) {\n            // Assign lowest available color\n            n->color = find_free_color(n, num_regs);\n            return n->color >= 0;\n        }\n    }\n    return false;\n}"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "id": "engine-10-linker",
+  "bookId": "book-engine",
+  "title": "Linkers & Loaders",
+  "category": "Advanced",
+  "order": 10,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Linkers and loaders transform compiler output into runnable programs. The linker combines multiple object files, resolves symbol references, and creates the final executable. The loader brings the program into memory and prepares it for execution. Understanding linking helps debug mysterious 'undefined reference' errors and optimize build times.",
+    "keyConcepts": [
+      {
+        "title": "Symbol Resolution",
+        "content": "Object files contain undefined symbols (external references) and defined symbols (exports). The linker matches references to definitions across all input files. Unresolved symbols cause linker errors."
+      },
+      {
+        "title": "Relocation",
+        "content": "Object files are compiled with placeholder addresses. The linker patches these with actual addresses once final memory layout is known. This includes adjusting code and data references."
+      },
+      {
+        "title": "Static vs Dynamic Linking",
+        "content": "Static linking copies library code into the executable. Dynamic linking loads libraries at runtime, sharing code between processes and enabling updates without recompilation."
+      },
+      {
+        "title": "Symbol Visibility",
+        "content": "Symbols can be local (file-private) or global (accessible externally). Name mangling encodes type information into symbol names to support function overloading and namespaces."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Object File Anatomy",
+      "content": "Examine .o files: code sections (.text), data sections (.data, .bss), symbol tables, and relocation entries. Tools like objdump reveal this structure."
+    },
+    {
+      "number": 2,
+      "title": "Symbol Resolution Algorithm",
+      "content": "The linker maintains a symbol table. For each input file, it adds new definitions and resolves pending references. Duplicate definitions cause errors (unless weak symbols)."
+    },
+    {
+      "number": 3,
+      "title": "Relocation Processing",
+      "content": "After assigning final addresses, the linker patches all relocatable references. PC-relative addressing reduces relocations needed for position-independent code."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Symbol Resolution",
+      "difficulty": "Medium",
+      "description": "File A calls 'foo()', File B defines 'foo()', File C also defines 'foo()'. What happens?",
+      "solution": "Link error: multiple definition of 'foo'. The linker rejects duplicate strong symbols."
+    },
+    {
+      "id": 2,
+      "title": "Dynamic Linking",
+      "difficulty": "Hard",
+      "description": "Why does dynamic linking reduce memory usage?",
+      "solution": "Shared libraries are loaded once and mapped into multiple processes' address spaces. Code pages are shared read-only across processes."
+    }
+  ],
+  "minigame": {
+    "id": "symbol-linker",
+    "title": "Symbol Linker",
+    "type": "interactive",
+    "description": "Resolve symbols between object files and handle relocations"
+  },
+  "visualizer": {
+    "id": "linking-process",
+    "title": "Linking Process Visualizer",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "c",
+    "code": "// Simplified linker symbol resolution\nvoid link(ObjectFile** inputs, int n) {\n    SymbolTable global;\n    \n    for (int i = 0; i < n; i++) {\n        ObjectFile* obj = inputs[i];\n        \n        // Add definitions\n        for (Symbol* sym = obj->exports; sym; sym = sym->next) {\n            if (lookup(global, sym->name)) {\n                error(\"Duplicate symbol: %s\", sym->name);\n            }\n            insert(global, sym->name, sym->value);\n        }\n        \n        // Resolve references\n        for (Reloc* rel = obj->relocs; rel; rel = rel->next) {\n            Symbol* def = lookup(global, rel->symbol);\n            if (!def) {\n                error(\"Undefined reference: %s\", rel->symbol);\n            }\n            // Patch the reference\n            patch(obj, rel->offset, def->value + rel->addend);\n        }\n    }\n}"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "id": "11-quantum-error-correction",
+  "bookId": "book-quantum",
+  "title": "Quantum Error Correction",
+  "category": "Advanced",
+  "order": 11,
+  "estimatedTime": "65 min",
+  "theory": {
+    "overview": "Quantum error correction (QEC) is essential for fault-tolerant quantum computing because quantum information is extremely fragile. Unlike classical errors which are just bit flips, quantum errors include both bit flips (X errors) and phase flips (Z errors), and any combination thereof. The no-cloning theorem prevents simple redundancy, but quantum codes use entanglement to spread information across multiple physical qubits. The stabilizer formalism, developed by Gottesman, provides a powerful framework for understanding and constructing QEC codes. The surface code, requiring only nearest-neighbor connectivity and modest gate fidelities (~1%), is the leading candidate for large-scale quantum computing. Achieving fault tolerance requires error rates below a threshold (~1% for surface code) and significant overhead (~1000 physical qubits per logical qubit).",
+    "sections": [
+      {
+        "title": "The Error Model",
+        "content": "Quantum errors are more complex than classical bit flips. Three fundamental error types: X errors (bit flips, like classical errors), Z errors (phase flips, unique to quantum), and Y errors (both bit and phase flip). Any single-qubit error can be decomposed as a linear combination of I, X, Y, Z (Pauli operators). Continuous errors like over-rotation by angle θ can be expanded: e^(iθX) = cos(θ)I + i sin(θ)X. This means correcting discrete Pauli errors is sufficient! The key insight: measure error syndromes without measuring the encoded quantum state, using ancilla qubits. The syndrome reveals which error occurred without collapsing the superposition. After identifying the error, apply the inverse operation to correct it.",
+        "errorTypes": [
+          { "error": "X (bit flip)", "effect": "|0⟩ ↔ |1⟩", "probability": "p_x" },
+          { "error": "Z (phase flip)", "effect": "|+⟩ ↔ |-⟩", "probability": "p_z" },
+          { "error": "Y (both)", "effect": "iXZ", "probability": "p_y" }
+        ],
+        "keyInsight": "Any error = linear combination of Pauli operators"
+      },
+      {
+        "title": "The 3-Qubit Bit Flip Code",
+        "content": "The simplest quantum code protects against bit flip (X) errors by encoding one logical qubit into three physical qubits: |0⟩_L = |000⟩, |1⟩_L = |111⟩. To detect errors, measure parity between qubits using ancillas: measure Z₁Z₂ (tells if qubits 1 and 2 differ) and Z₂Z₃ (tells if qubits 2 and 3 differ). These are stabilizer measurements—they commute with logical operators and reveal error syndromes. The syndrome table: (0,0) = no error, (1,0) = error on qubit 1, (1,1) = error on qubit 2, (0,1) = error on qubit 3. After identifying the error, apply X to the affected qubit. This code corrects any single X error but fails if two qubits flip. It also cannot correct Z errors—they leave the state unchanged but affect phases in superposition.",
+        "encoding": { "|0⟩_L": "|000⟩", "|1⟩_L": "|111⟩" },
+        "syndromeMeasurements": ["Z₁Z₂", "Z₂Z₃"],
+        "correctableErrors": ["X₁", "X₂", "X₃"]
+      },
+      {
+        "title": "The 3-Qubit Phase Flip Code",
+        "content": "Phase flip (Z) errors require a different encoding because Z|0⟩ = |0⟩ and Z|1⟩ = -|1⟩, so the bit-flip code basis states are unaffected. Encode in the X basis: |0⟩_L = |+++⟩, |1⟩_L = |---⟩. Now Z errors cause bit flips in this basis: Z|+⟩ = |-⟩. The syndrome measurements are X₁X₂ and X₂X₃ in the computational basis. This code corrects any single Z error but not X errors. To see the duality: apply Hadamard to all qubits, converting phase flips to bit flips and vice versa. This reveals the relationship between the two codes. In practice, we need protection against both X and Z errors simultaneously.",
+        "encoding": { "|0⟩_L": "|+++⟩", "|1⟩_L": "|---⟩" },
+        "syndromeMeasurements": ["X₁X₂", "X₂X₃"],
+        "duality": "Had(|000⟩, |111⟩) = (|+++⟩, |---⟩)"
+      },
+      {
+        "title": "The 9-Qubit Shor Code",
+        "content": "The Shor code (1995) was the first complete quantum code correcting both X and Z errors. It concatenates bit-flip and phase-flip codes. First, encode against phase flips using 3 groups: |0⟩_L = (|000⟩ + |111⟩)(|000⟩ + |111⟩)(|000⟩ + |111⟩)/2√2. Within each group, use bit-flip protection: |000⟩ and |111⟩. Total: 9 physical qubits per logical qubit. X errors detected by Z-parity within each group of 3. Z errors detected by X-parity between the three groups. The syndrome has 8 bits (4 for X-type, 4 for Z-type), distinguishing all 3×3 = 9 single-qubit error locations plus no error. Shor code requires many qubits but demonstrates that arbitrary single-qubit errors are correctable. More efficient codes exist.",
+        "encoding": "Concatenated: phase code outer, bit code inner",
+        "qubits": "9 physical → 1 logical",
+        "correctable": "Any single X, Z, or Y error"
+      },
+      {
+        "title": "Stabilizer Formalism",
+        "content": "The stabilizer formalism provides an elegant framework for QEC. A stabilizer code is defined by a set of commuting Pauli operators (stabilizers) that leave the code space invariant. The code space is the simultaneous +1 eigenspace of all stabilizers. The 7-qubit Steane code [[7,1,3]] has stabilizers generated by XXXXIII, XXIXXII, XIXIXIX, ZZZZIII, ZZIZZII, ZIZIZIZ. These 6 generators define a 2-dimensional code space (7 qubits - 6 constraints = 1 logical qubit). The distance d=3 means it corrects 1 error. Measuring stabilizers gives syndrome bits without disturbing encoded information. The logical operators (X_L, Z_L) commute with stabilizers but aren't in the stabilizer group. CSS codes (Calderbank-Shor-Steane) separate X and Z stabilizers for easier implementation.",
+        "SteaneCode": { "parameters": "[[7,1,3]]", "stabilizers": 6, "logical": "X_L = XXXXXXX, Z_L = ZZZZZZZ" },
+        "cssConstruction": "Separate X-type and Z-type stabilizers"
+      },
+      {
+        "title": "The Surface Code",
+        "content": "The surface code is the leading candidate for scalable fault-tolerant quantum computing due to high error threshold (~1%) and nearest-neighbor connectivity. Qubits arranged in a 2D grid with alternating data and ancilla (measurement) qubits. Two types of stabilizer measurements: plaquette (Z-type, 4-qubit operators on faces) and vertex (X-type, 4-qubit operators on vertices). These detect X and Z errors respectively. Errors create chains of violated stabilizers. Decoding uses minimum-weight perfect matching to find most likely error chain. The code distance scales with lattice size: d×d lattice has distance d, correcting (d-1)/2 errors. State-of-the-art: demonstrations with ~50-100 qubits, logical error rates approaching physical rates. Scaling to millions of qubits needed for useful algorithms.",
+        "structure": "2D grid, alternating data and ancilla qubits",
+        "stabilizers": "Plaquette (Z) and vertex (X) operators",
+        "threshold": "~1% error rate (highest among practical codes)",
+        "scaling": "d×d lattice gives distance d, requires 2d² qubits"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Code Parameters [[n,k,d]]",
+        "description": "n = physical qubits, k = logical qubits, d = distance (corrects ⌊(d-1)/2⌋ errors)",
+        "example": "[[7,1,3]] Steane code uses 7 physical qubits for 1 logical, corrects 1 error"
+      },
+      {
+        "name": "Fault Tolerance",
+        "description": "Error correction itself introduces errors, but if physical error rate is below threshold, logical error rate decreases with code size.",
+        "threshold": "Surface code: ~1%, Steane code: ~0.1%"
+      },
+      {
+        "name": "Syndrome Extraction",
+        "description": "Measuring stabilizers to detect errors without measuring the encoded state.",
+        "method": "Use ancilla qubits in cat states, measure appropriately"
+      }
+    ],
+    "complexity": {
+      "overhead": "~1000:1 physical to logical qubits for practical algorithms",
+      "threshold": "~0.1-1% physical error rate required"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Encoding",
+      "description": "Map logical qubit to entangled state of multiple physical qubits.",
+      "latex": "|\\psi\\rangle_L = \\alpha|0\\rangle_L + \\beta|1\\rangle_L",
+      "visualState": { "physicalQubits": 3, "logicalQubits": 1 }
+    },
+    {
+      "step": 2,
+      "title": "Syndrome Measurement",
+      "description": "Measure stabilizers to detect error locations without disturbing encoded information.",
+      "latex": "\\text{Measure } S_i \\text{ such that } [S_i, X_L] = [S_i, Z_L] = 0",
+      "visualState": { "ancillaQubits": 2, "syndromeBits": 2 }
+    },
+    {
+      "step": 3,
+      "title": "Error Correction",
+      "description": "Apply correction operation based on syndrome, then verify.",
+      "latex": "\\text{If syndrome} = (1,0) \\Rightarrow \\text{apply } X_1",
+      "visualState": { "correction": "unitary operation", "verify": "recheck syndrome" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Code Parameters",
+      "difficulty": "Easy",
+      "description": "A quantum code has parameters [[9,1,3]]. How many errors can it correct?",
+      "options": ["0", "1", "2", "3"],
+      "correctAnswer": 1,
+      "explanation": "Distance d=3 means the code can correct t = ⌊(d-1)/2⌋ = ⌊(3-1)/2⌋ = 1 error. This describes the Shor code which uses 9 physical qubits.",
+      "hint": "The formula is t = ⌊(d-1)/2⌋ for the number of correctable errors."
+    },
+    {
+      "id": "p2",
+      "title": "Stabilizer Measurement",
+      "difficulty": "Medium",
+      "description": "You measure stabilizer Z₁Z₂Z₃Z₄ on a 4-qubit state and get -1. What does this indicate?",
+      "options": ["No error", "Bit flip on one of these qubits", "Phase flip on one of these qubits", "Both bit and phase flips"],
+      "correctAnswer": 1,
+      "explanation": "A Z-type stabilizer detects X (bit flip) errors. Eigenvalue -1 means an odd number of X errors on qubits 1-4. Phase flips (Z errors) would give +1 for this measurement.",
+      "hint": "Z stabilizers detect X errors, X stabilizers detect Z errors."
+    },
+    {
+      "id": "p3",
+      "title": "Surface Code Scaling",
+      "difficulty": "Medium",
+      "description": "A distance-5 surface code uses 50 physical qubits. How many physical qubits for distance-10?",
+      "options": ["75", "100", "150", "200"],
+      "correctAnswer": 3,
+      "explanation": "Surface code on a d×d lattice requires approximately 2d² physical qubits (half data, half ancilla). For d=5: 2×25=50. For d=10: 2×100=200. This quadratic scaling is a challenge for large codes.",
+      "hint": "Surface code scales as ~2d² where d is the code distance."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\nfrom itertools import product\n\n# Pauli matrices\nI = np.eye(2)\nX = np.array([[0, 1], [1, 0]])\nZ = np.array([[1, 0], [0, -1]])\nY = 1j * X @ Z\n\ndef kron_product(matrices):\n    \"\"\"Compute kronecker product of multiple matrices\"\"\"\n    result = matrices[0]\n    for m in matrices[1:]:\n        result = np.kron(result, m)\n    return result\n\ndef three_qubit_bit_flip_code():\n    \"\"\"Implement the 3-qubit bit flip code\"\"\"\n    # Logical states\n    logical_0 = kron_product([np.array([1,0]), np.array([1,0]), np.array([1,0])])  # |000⟩\n    logical_1 = kron_product([np.array([0,1]), np.array([0,1]), np.array([0,1])])  # |111⟩\n    \n    # Stabilizers: Z1*Z2 and Z2*Z3\n    Z1Z2 = kron_product([Z, Z, I])\n    Z2Z3 = kron_product([I, Z, Z])\n    \n    print(\"3-Qubit Bit Flip Code\")\n    print(\"Stabilizer Z1Z2 eigenvalue on |000⟩:\", np.round(logical_0.T @ Z1Z2 @ logical_0, 3))\n    print(\"Stabilizer Z2Z3 eigenvalue on |000⟩:\", np.round(logical_0.T @ Z2Z3 @ logical_0, 3))\n    \n    # Simulate error on qubit 2\n    X2 = kron_product([I, X, I])\n    error_state = X2 @ logical_0\n    \n    # Measure syndrome\n    syndrome1 = np.round(error_state.T @ Z1Z2 @ error_state, 3)\n    syndrome2 = np.round(error_state.T @ Z2Z3 @ error_state, 3)\n    print(f\"\\nAfter X error on qubit 2:\")\n    print(f\"Syndrome (Z1Z2, Z2Z3) = ({syndrome1}, {syndrome2})\")\n    print(\"This pattern (1, 1) indicates error on qubit 2\")\n    \n    # Correct the error\n    corrected = X2 @ error_state\n    fidelity = np.abs(logical_0.T @ corrected)**2\n    print(f\"\\nFidelity after correction: {fidelity:.6f}\")\n\nthree_qubit_bit_flip_code()",
+    "qsharp": "namespace Quantum.ErrorCorrection {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Diagnostics;\n    open Microsoft.Quantum.Measurement;\n    \n    // Encode a qubit in the 3-qubit bit flip code\n    operation EncodeBitFlip(logical : Qubit, physical : Qubit[]) : Unit {\n        // |ψ⟩ = α|0⟩ + β|1⟩ → α|000⟩ + β|111⟩\n        CNOT(logical, physical[0]);\n        CNOT(logical, physical[1]);\n    }\n    \n    // Measure syndrome for bit flip code\n    operation MeasureSyndrome(physical : Qubit[]) : (Result, Result) {\n        use ancilla = Qubit[2];\n        \n        // Syndrome 1: Z1*Z2 - measure if qubits 1 and 2 differ\n        CNOT(physical[0], ancilla[0]);\n        CNOT(physical[1], ancilla[0]);\n        \n        // Syndrome 2: Z2*Z3 - measure if qubits 2 and 3 differ\n        CNOT(physical[1], ancilla[1]);\n        CNOT(physical[2], ancilla[1]);\n        \n        let syn1 = MResetZ(ancilla[0]);\n        let syn2 = MResetZ(ancilla[1]);\n        \n        return (syn1, syn2);\n    }\n    \n    // Correct errors based on syndrome\n    operation CorrectError(physical : Qubit[], syndrome : (Result, Result)) : Unit {\n        let (s1, s2) = syndrome;\n        \n        // Syndrome table:\n        // (0, 0): no error\n        // (1, 0): error on qubit 1\n        // (1, 1): error on qubit 2\n        // (0, 1): error on qubit 3\n        \n        if (s1 == One and s2 == Zero) {\n            X(physical[0]);\n        } elif (s1 == One and s2 == One) {\n            X(physical[1]);\n        } elif (s1 == Zero and s2 == One) {\n            X(physical[2]);\n        }\n    }\n    \n    @EntryPoint()\n    operation BitFlipDemo() : Unit {\n        use logical = Qubit();\n        use physical = Qubit[3];\n        \n        // Prepare |+⟩ state\n        H(logical);\n        \n        // Encode\n        EncodeBitFlip(logical, physical);\n        Reset(logical);\n        \n        // Introduce error on physical[1]\n        X(physical[1]);\n        Message(\"Introduced X error on qubit 2\");\n        \n        // Measure syndrome\n        let syndrome = MeasureSyndrome(physical);\n        Message($\"Syndrome: {syndrome}\");\n        \n        // Correct\n        CorrectError(physical, syndrome);\n        Message(\"Error corrected!\");\n    }\n}"
+  }
+}

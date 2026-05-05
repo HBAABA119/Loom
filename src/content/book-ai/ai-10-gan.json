@@ -1,0 +1,288 @@
+{
+  "id": "ai-10-gan",
+  "bookId": "book-ai",
+  "title": "Generative Adversarial Networks",
+  "category": "Generative AI",
+  "order": 10,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Generative Adversarial Networks (GANs) are one of the most exciting developments in deep learning, enabling AI to create realistic images, music, and even text. GANs consist of two neural networks—a Generator and a Discriminator—locked in an adversarial game. The Generator creates fake data trying to fool the Discriminator, while the Discriminator learns to distinguish real from fake. This competition drives both networks to improve, eventually producing remarkably realistic synthetic data.",
+    "sections": [
+      {
+        "title": "The Adversarial Game",
+        "content": "GANs frame generation as a two-player zero-sum game. The Generator (G) takes random noise and produces fake samples. The Discriminator (D) receives both real data and G's fakes, outputting a probability that each sample is real.",
+        "minimaxObjective": "min_G max_D V(D,G) = E[log D(x)] + E[log(1-D(G(z)))]",
+        "intuition": "D wants to maximize its accuracy (log D(x) high for real, log(1-D(G(z))) high for fake). G wants to minimize D's accuracy on its fakes—making D(G(z)) approach 1."
+      },
+      {
+        "title": "Generator Architecture",
+        "content": "The Generator transforms a latent noise vector z into a realistic data sample. For images, it typically uses transposed convolutions (deconvolutions) to upsample from low to high resolution.",
+        "structure": [
+          "Input: Random noise z ~ N(0,I), typically 100-512 dimensions",
+          "Hidden layers: Transposed convolutions + Batch Norm + ReLU",
+          "Output layer: Tanh or sigmoid for pixel values",
+          "Progressive growing: Start low-res, progressively add layers"
+        ],
+        "trainingGoal": "Make D(G(z)) as close to 1 as possible—fooling the discriminator"
+      },
+      {
+        "title": "Discriminator Architecture",
+        "content": "The Discriminator is a standard CNN classifier. It outputs a single probability (real vs fake) and must become increasingly sophisticated as G improves.",
+        "structure": [
+          "Standard convolutional architecture",
+          "Downsampling through strided convolutions or pooling",
+          "Leaky ReLU activations (prevent dying gradients)",
+          "Sigmoid output for binary classification"
+        ],
+        "challenge": "Must not become too good too fast, or G gets no useful gradients"
+      },
+      {
+        "title": "Training Dynamics",
+        "content": "GAN training is notoriously unstable. The balance between G and D is delicate—if D is too good, G gets vanishing gradients. If D is too weak, G receives poor feedback.",
+        "problems": [
+          { "name": "Vanishing Gradients", "cause": "D too confident", "solution": "Use Wasserstein loss or feature matching" },
+          { "name": "Mode Collapse", "cause": "G finds limited variety that always fools D", "solution": "Minibatch discrimination, unrolled GANs" },
+          { "name": "Training Instability", "cause": "Non-convex game", "solution": "Spectral normalization, progressive training" }
+        ]
+      },
+      {
+        "title": "Loss Functions & Improvements",
+        "content": "The original GAN loss has issues. Modern variants use improved objectives:",
+        "losses": [
+          { "name": "Standard GAN", "loss": "Binary cross-entropy", "issue": "Vanishing gradients" },
+          { "name": "Wasserstein GAN", "loss": "Wasserstein distance", "advantage": "Continuous, meaningful gradients" },
+          { "name": "WGAN-GP", "loss": "Wasserstein + gradient penalty", "advantage": "No weight clipping needed" },
+          { "name": "LSGAN", "loss": "Least squares", "advantage": "More stable, less saturation" }
+        ]
+      },
+      {
+        "title": "Conditional GANs",
+        "content": "cGANs allow controlled generation by conditioning both G and D on additional information—class labels, text descriptions, or other images.",
+        "applications": [
+          "Image-to-image translation (pix2pix)",
+          "Text-to-image synthesis",
+          "Super-resolution",
+          "Style transfer"
+        ],
+        "modification": "Concatenate condition vector to both z (input to G) and image (input to D)"
+      },
+      {
+        "title": "Applications & Impact",
+        "content": "GANs have enabled breakthroughs across creative and technical domains.",
+        "applications": [
+          { "domain": "Art", "example": "AI-generated paintings, deep art style transfer" },
+          { "domain": "Photography", "example": "Face generation, age progression, expression editing" },
+          { "domain": "Medicine", "example": "Synthetic training data for rare conditions" },
+          { "domain": "Science", "example": "Molecule generation for drug discovery" },
+          { "domain": "Fashion", "example": "Virtual try-on, design generation" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Adversarial Training",
+        "description": "Two networks compete, driving each other to improve without direct supervision on generated data.",
+        "analogy": "Like a forger and an art detective—the forger improves as the detective gets better at spotting fakes"
+      },
+      {
+        "name": "Latent Space",
+        "description": "The noise vector z that G transforms into data. Points in this space map to generated samples.",
+        "property": "Smooth interpolation between points produces semantically meaningful transitions"
+      },
+      {
+        "name": "Mode Collapse",
+        "description": "G learns to produce only a few types of samples that consistently fool D, losing diversity.",
+        "solution": "Minibatch discrimination, experience replay, or architectural changes"
+      },
+      {
+        "name": "Wasserstein Distance",
+        "description": "Earth mover's distance—measures how much 'work' to transform one distribution to another.",
+        "advantage": "Provides meaningful gradients even when D is confident"
+      }
+    ],
+    "complexity": {
+      "generator": "Similar to decoder in VAE—upsampling network",
+      "discriminator": "Standard CNN classifier",
+      "trainingTime": "Long—needs careful balancing, often 2-10× longer than standard classification"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Sample Noise",
+      "description": "Generate random latent vector z from normal distribution.",
+      "latex": "z \\sim \\mathcal{N}(0, I)$",
+      "visualState": { "z": [0.2, -0.5, 0.8, -0.3], "dim": 100 }
+    },
+    {
+      "step": 2,
+      "title": "Generator Forward",
+      "description": "G transforms noise into fake sample.",
+      "latex": "x_{fake} = G(z; \\theta_G)$",
+      "visualState": { "input": "noise", "output": "fake_image", "architecture": "deconv" }
+    },
+    {
+      "step": 3,
+      "title": "Discriminator on Real",
+      "description": "D evaluates real data batch.",
+      "latex": "D(x_{real}) \\rightarrow \\text{close to } 1$",
+      "visualState": { "input": "real_image", "output": 0.9, "label": "real" }
+    },
+    {
+      "step": 4,
+      "title": "Discriminator on Fake",
+      "description": "D evaluates generated sample.",
+      "latex": "D(x_{fake}) \\rightarrow \\text{close to } 0$",
+      "visualState": { "input": "fake_image", "output": 0.2, "label": "fake" }
+    },
+    {
+      "step": 5,
+      "title": "Update Discriminator",
+      "description": "Train D to better distinguish real from fake.",
+      "latex": "\\max_D [\\log D(x_{real}) + \\log(1-D(G(z)))]$",
+      "visualState": { "gradientFlow": "to D only", "loss": "discriminator_loss" }
+    },
+    {
+      "step": 6,
+      "title": "Generator Trick",
+      "description": "Flip labels: try to make D believe fake is real.",
+      "latex": "\\min_G \\log(1-D(G(z))) \\text{ or better: } \\max_G \\log(D(G(z)))$",
+      "visualState": { "fake": "pretend_real", "target": 1 }
+    },
+    {
+      "step": 7,
+      "title": "Update Generator",
+      "description": "Train G to produce more realistic fakes.",
+      "latex": "\\theta_G \\leftarrow \\theta_G - \\alpha \\nabla_{\\theta_G} L_G$",
+      "visualState": { "gradientFlow": "to G only", "G_improves": true }
+    },
+    {
+      "step": 8,
+      "title": "Equilibrium",
+      "description": "At Nash equilibrium, D outputs 0.5 for both real and fake.",
+      "latex": "D(x) = D(G(z)) = 0.5$",
+      "visualState": { "D_confused": true, "G_perfect": true, "converged": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Generator Output Shape",
+      "difficulty": "easy",
+      "type": "conceptual",
+      "description": "If G takes a 100-dim noise vector and generates 64×64 RGB images, how many output neurons?",
+      "answer": "64 × 64 × 3 = 12,288 output neurons (one per pixel channel)",
+      "explanation": "Each pixel has 3 color channels (R, G, B). The final layer of G must output values for every pixel position and channel.",
+      "hints": ["RGB = 3 channels", "64×64 pixels", "One neuron per value"]
+    },
+    {
+      "id": "p2",
+      "title": "Minimax Game",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "At convergence, what value should D(x) approach for both real and fake? Why?",
+      "answer": "0.5—D cannot distinguish real from fake, so it random guesses. This is the Nash equilibrium.",
+      "explanation": "When G is perfect, P(fake) = P(real), so optimal D outputs P(real|x) = 0.5. At this point, neither can improve by unilateral change.",
+      "hints": ["Perfect G produces realistic fakes", "Optimal D is Bayesian", "Cannot do better than random"]
+    },
+    {
+      "id": "p3",
+      "title": "Mode Collapse",
+      "difficulty": "medium",
+      "type": "scenario",
+      "description": "Your GAN generates faces, but all outputs look like the same person. What's happening?",
+      "answer": "Mode collapse—G found a single output that reliably fools D. It stopped exploring the full distribution.",
+      "explanation": "G has discovered a 'safe zone'—one mode of the data distribution that D accepts. Solutions: minibatch discrimination (D sees multiple samples), unrolled GANs (G anticipates D's response), or architectural diversity enforcement.",
+      "hints": ["Lack of diversity", "G found a shortcut", "Need to penalize similarity"]
+    },
+    {
+      "id": "p4",
+      "title": "Wasserstein vs Standard",
+      "difficulty": "hard",
+      "type": "comparison",
+      "description": "When D becomes too confident (D(x)≈1, D(G(z))≈0), what happens to G's gradients in standard GAN vs WGAN?",
+      "answer": "Standard GAN: vanishing gradients (log(1-D(G(z)))) saturates). WGAN: meaningful gradients (linear distance to optimality).",
+      "explanation": "In standard GAN, if D is perfect, loss saturates and G gets no signal. WGAN uses Wasserstein distance which is continuous and provides gradients even when distributions don't overlap.",
+      "hints": ["Standard uses log which saturates", "Wasserstein is earth mover's distance", "Continuity matters"]
+    },
+    {
+      "id": "p5",
+      "title": "Conditional GAN",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Design a cGAN architecture for text-to-image synthesis.",
+      "answer": "Text encoder (RNN/Transformer) → sentence embedding. Concatenate with z → G produces image. D receives (image, text) pairs—learns joint distribution.",
+      "explanation": "Both G and D must be conditioned on text. G needs text to know what to generate. D needs text to verify semantic alignment. StackGAN approaches this hierarchically—sketch first, then details.",
+      "hints": ["Condition both networks", "Text encoding needed", "Semantic alignment verification"]
+    },
+    {
+      "id": "p6",
+      "title": "Training Schedule",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Should you train D and G equally? If not, what's the typical ratio and why?",
+      "answer": "Often k:1 ratio (e.g., 5:1 or 1:1). D usually trained more initially to provide good signal, then balanced or G trained more.",
+      "explanation": "If D is too weak, G gets poor feedback. If D is too strong, G gets vanishing gradients. Progressive schedules: start with D-heavy, transition to balanced. Some use adaptive schedules based on D's accuracy.",
+      "hints": ["D needs to be good but not perfect", "Ratio affects stability", "Adaptive schedules help"]
+    }
+  ],
+  "minigame": {
+    "id": "gan-battle",
+    "title": "Generator vs Discriminator",
+    "description": "Train a GAN interactively. Watch the Generator try to fool the Discriminator in real-time. Adjust training ratios, visualize latent space interpolations, and see how different architectures affect convergence.",
+    "instructions": [
+      "Choose a dataset (MNIST, faces, or simple shapes)",
+      "Adjust Generator architecture (layers, channels)",
+      "Adjust Discriminator architecture",
+      "Set training ratio (D steps per G step)",
+      "Watch training progress: loss curves, sample quality",
+      "Explore latent space by moving sliders",
+      "Identify mode collapse when it happens"
+    ],
+    "controls": [
+      {
+        "id": "dataset",
+        "label": "Dataset",
+        "type": "select",
+        "options": ["MNIST Digits", "Celeb Faces (simplified)", "2D Gaussian Mixture", "Color Blobs"]
+      },
+      {
+        "id": "gDepth",
+        "label": "Generator Depth",
+        "type": "slider",
+        "min": 2,
+        "max": 6,
+        "step": 1,
+        "default": 4
+      },
+      {
+        "id": "dDepth",
+        "label": "Discriminator Depth",
+        "type": "slider",
+        "min": 2,
+        "max": 6,
+        "step": 1,
+        "default": 4
+      },
+      {
+        "id": "dToGRatio",
+        "label": "D:G Training Ratio",
+        "type": "slider",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "default": 1
+      },
+      {
+        "id": "lossType",
+        "label": "Loss Function",
+        "type": "select",
+        "options": ["Standard", "Wasserstein", "Least Squares", "Hinge"]
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import torch\nimport torch.nn as nn\nimport torch.optim as optim\n\nclass Generator(nn.Module):\n    def __init__(self, latent_dim=100, img_size=28, channels=1):\n        super().__init__()\n        self.img_size = img_size\n        self.channels = channels\n        \n        # For 28x28 MNIST: start 7x7, upsample twice\n        self.model = nn.Sequential(\n            # Input: latent_dim → 128 channels, 7x7\n            nn.ConvTranspose2d(latent_dim, 128, 7, 1, 0),\n            nn.BatchNorm2d(128),\n            nn.ReLU(inplace=True),\n            \n            # 7x7 → 14x14\n            nn.ConvTranspose2d(128, 64, 4, 2, 1),\n            nn.BatchNorm2d(64),\n            nn.ReLU(inplace=True),\n            \n            # 14x14 → 28x28\n            nn.ConvTranspose2d(64, channels, 4, 2, 1),\n            nn.Tanh()  # Output [-1, 1]\n        )\n    \n    def forward(self, z):\n        # z: (batch, latent_dim) → (batch, latent_dim, 1, 1)\n        z = z.view(z.size(0), z.size(1), 1, 1)\n        img = self.model(z)\n        return img\n\nclass Discriminator(nn.Module):\n    def __init__(self, img_size=28, channels=1):\n        super().__init__()\n        \n        self.model = nn.Sequential(\n            # 28x28 → 14x14\n            nn.Conv2d(channels, 64, 4, 2, 1),\n            nn.LeakyReLU(0.2, inplace=True),\n            nn.Dropout2d(0.25),\n            \n            # 14x14 → 7x7\n            nn.Conv2d(64, 128, 4, 2, 1),\n            nn.BatchNorm2d(128),\n            nn.LeakyReLU(0.2, inplace=True),\n            nn.Dropout2d(0.25),\n            \n            # Flatten and classify\n            nn.Flatten(),\n            nn.Linear(128 * 7 * 7, 1),\n            nn.Sigmoid()\n        )\n    \n    def forward(self, img):\n        validity = self.model(img)\n        return validity\n\ndef train_gan(generator, discriminator, dataloader, epochs=50, device='cuda'):\n    \"\"\"\n    Basic GAN training loop\n    \"\"\"\n    # Optimizers\n    optimizer_G = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))\n    optimizer_D = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))\n    \n    # Loss\n    adversarial_loss = nn.BCELoss()\n    \n    generator.to(device)\n    discriminator.to(device)\n    \n    for epoch in range(epochs):\n        for i, (imgs, _) in enumerate(dataloader):\n            batch_size = imgs.size(0)\n            real_imgs = imgs.to(device)\n            \n            # Ground truths\n            real_label = torch.ones(batch_size, 1).to(device)\n            fake_label = torch.zeros(batch_size, 1).to(device)\n            \n            # ============= Train Generator =============\n            optimizer_G.zero_grad()\n            \n            # Sample noise\n            z = torch.randn(batch_size, 100).to(device)\n            \n            # Generate images\n            gen_imgs = generator(z)\n            \n            # G wants D to believe these are real\n            g_loss = adversarial_loss(discriminator(gen_imgs), real_label)\n            \n            g_loss.backward()\n            optimizer_G.step()\n            \n            # ============= Train Discriminator =============\n            optimizer_D.zero_grad()\n            \n            # D loss on real and fake\n            real_loss = adversarial_loss(discriminator(real_imgs), real_label)\n            fake_loss = adversarial_loss(discriminator(gen_imgs.detach()), fake_label)\n            d_loss = (real_loss + fake_loss) / 2\n            \n            d_loss.backward()\n            optimizer_D.step()\n            \n            if i % 100 == 0:\n                print(f\"Epoch {epoch}/{epochs} Batch {i}/{len(dataloader)} \"\n                      f\"D_loss: {d_loss.item():.4f} G_loss: {g_loss.item():.4f}\")\n\n# Wasserstein GAN improvements\nclass WassersteinGAN:\n    \"\"\"\n    Key changes for more stable training:\n    1. Remove sigmoid from D (now outputs raw scores)\n    2. Use Wasserstein loss instead of cross-entropy\n    3. Weight clipping or gradient penalty\n    4. Train D more than G\n    \"\"\"\n    def wasserstein_loss(self, d_output, target_real):\n        if target_real:\n            return -torch.mean(d_output)  # Maximize D(x)\n        else:\n            return torch.mean(d_output)   # Minimize D(G(z))\n    \n    def gradient_penalty(self, discriminator, real_imgs, fake_imgs):\n        \"\"\"WGAN-GP: penalize deviation from unit gradient norm\"\"\"\n        alpha = torch.rand(real_imgs.size(0), 1, 1, 1).to(real_imgs.device)\n        interpolates = (alpha * real_imgs + (1 - alpha) * fake_imgs).requires_grad_(True)\n        \n        d_interpolates = discriminator(interpolates)\n        gradients = torch.autograd.grad(\n            outputs=d_interpolates,\n            inputs=interpolates,\n            grad_outputs=torch.ones_like(d_interpolates),\n            create_graph=True,\n            retain_graph=True\n        )[0]\n        \n        gradients = gradients.view(gradients.size(0), -1)\n        gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()\n        return gradient_penalty\n\nif __name__ == \"__main__\":\n    print(\"=== GAN Architecture Summary ===\")\n    G = Generator(latent_dim=100, img_size=28, channels=1)\n    D = Discriminator(img_size=28, channels=1)\n    \n    # Count parameters\n    g_params = sum(p.numel() for p in G.parameters())\n    d_params = sum(p.numel() for p in D.parameters())\n    \n    print(f\"Generator parameters: {g_params:,}\")\n    print(f\"Discriminator parameters: {d_params:,}\")\n    print(f\"Total: {g_params + d_params:,}\")\n    \n    # Test forward pass\n    z = torch.randn(16, 100)\n    fake_imgs = G(z)\n    d_output = D(fake_imgs)\n    \n    print(f\"\\nGenerator output shape: {fake_imgs.shape}\")\n    print(f\"Discriminator output shape: {d_output.shape}\")\n    print(f\"D(fake) range: [{d_output.min():.3f}, {d_output.max():.3f}]\")"
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "id": "crypto-08-protocols",
+  "bookId": "book-crypto",
+  "title": "Cryptographic Protocols",
+  "category": "Intermediate",
+  "order": 8,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Individual cryptographic primitives—ciphers, hashes, MACs, signatures—are building blocks. Real security requires protocols that combine these correctly to achieve specific goals. The Transport Layer Security (TLS) protocol, securing every HTTPS connection, exemplifies this: it negotiates algorithms, authenticates servers, establishes session keys, and protects data in transit. Understanding protocols matters because subtle flaws—incorrect message ordering, missing authentication, or improper nonce handling—lead to devastating attacks. From the BEAST attack on TLS 1.0 to Heartbleed in OpenSSL, protocol vulnerabilities have shaped internet security. This chapter examines how protocols compose primitives and the principles that distinguish secure protocols from broken ones.",
+    "sections": [
+      {
+        "title": "TLS Handshake Overview",
+        "content": "The TLS handshake establishes secure communication in several phases. First, the ClientHello proposes protocol versions and cipher suites; ServerHello responds with its choices and sends its certificate chain. The client verifies the server certificate against trusted CAs. Both parties perform key exchange (usually ECDHE for forward secrecy), generating pre-master secrets. They derive session keys from the pre-master secret using HKDF. Finally, they exchange Finished messages—encrypted and MAC'd using the new session keys—proving the handshake succeeded. This produces two sets of keys: client-to-server and server-to-client, each with separate encryption and MAC keys. The entire handshake is authenticated, preventing downgrade and man-in-the-middle attacks.",
+        "keyPoints": [
+          "ClientHello/ServerHello: negotiate parameters",
+          "Certificate verification: authenticate server",
+          "Key exchange: establish shared secrets",
+          "Finished messages: verify handshake success"
+        ]
+      },
+      {
+        "title": "Protocol Attacks and Defenses",
+        "content": "Protocol history reveals recurring vulnerability patterns. Downgrade attacks force clients to use weak protocol versions; TLS 1.3 prevents this by encoding supported versions in the ServerHello's random nonce. Replay attacks resend captured messages; nonces and sequence numbers prevent this. Padding oracle attacks exploit error message differences in CBC mode; constant-time decryption and TLS 1.3's AEAD-only design eliminate this. Certificate mis-issuance has enabled attackers to get valid certs for domains they don't own; Certificate Transparency logs now mandate public logging of all certificates. Understanding these attacks teaches the adversarial mindset required for protocol design.",
+        "keyPoints": [
+          "Downgrade attacks: prevented by version enforcement",
+          "Replay attacks: prevented by nonces/timestamps",
+          "Padding oracles: prevented by constant-time operations",
+          "Certificate transparency: public audit logs"
+        ]
+      },
+      {
+        "title": "Perfect Forward Secrecy in Practice",
+        "content": "Without forward secrecy, capturing encrypted traffic and later stealing the server's private key enables retroactive decryption. Ephemeral Diffie-Hellman (DHE or ECDHE) prevents this by generating temporary key pairs for each session. The server's long-term key (RSA or ECDSA) only authenticates the ephemeral DH public key. After the session, ephemeral private keys are discarded. Even if the server's certificate key is compromised later, past session keys cannot be recovered because the ephemeral DH private keys are gone. TLS 1.3 mandates forward secrecy—static RSA key transport is no longer allowed. This protects historical traffic even against future key compromises.",
+        "keyPoints": [
+          "Static key transport: vulnerable to retroactive decryption",
+          "Ephemeral DH: new keys per session",
+          "TLS 1.3: PFS mandatory",
+          "Protects past sessions from future key theft"
+        ]
+      },
+      {
+        "title": "Protocol Design Principles",
+        "content": "Secure protocol design follows established principles. Minimize attack surface: TLS 1.3 removed obsolete cipher suites and features, reducing complexity. Fail securely: any error should terminate the connection rather than continue with degraded security. Explicit authentication: every message should be authenticated, either implicitly (within encrypted record) or explicitly (signed). Defense in depth: multiple redundant protections so single failures don't compromise security. Clear specification: ambiguities lead to implementation divergences and vulnerabilities. Cryptographic agility: ability to update algorithms without protocol changes. These principles guide not just TLS but all secure protocol development, from messaging apps to blockchain consensus.",
+        "keyPoints": [
+          "Minimize attack surface: remove obsolete features",
+          "Fail secure: terminate on any error",
+          "Explicit authentication: authenticate all messages",
+          "Defense in depth: redundant protections"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Handshake Phases",
+        "description": "TLS connection establishment steps",
+        "latex": "Hello → Certificates → KeyExchange → Finished"
+      },
+      {
+        "name": "Session Keys",
+        "description": "Derived keys for symmetric encryption",
+        "latex": "K = HKDF(pre_master, 'TLS 1.3 keys')"
+      },
+      {
+        "name": "Cipher Suite",
+        "description": "Agreed algorithms for handshake and record layer",
+        "latex": "TLS_AES_256_GCM_SHA384"
+      },
+      {
+        "name": "Certificate Chain",
+        "description": "Trust path from root CA to server",
+        "latex": "Root CA → Intermediate → Server"
+      }
+    ],
+    "complexity": {
+      "handshake": "2-RTT for TLS 1.2, 1-RTT for TLS 1.3, 0-RTT with PSK",
+      "keyDerivation": "O(1) using HKDF",
+      "certificateVerification": "O(chain_length) signature verifications",
+      "recordProcessing": "O(n) per n bytes of application data"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "ClientHello",
+      "description": "Client proposes TLS version, cipher suites, and sends random nonce.",
+      "latex": "ClientHello: versions, ciphers, client_random",
+      "visualState": {
+        "client": "Browser",
+        "proposedVersions": ["TLS 1.3", "TLS 1.2"],
+        "cipherSuites": ["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"],
+        "clientRandom": "32 bytes random"
+      }
+    },
+    {
+      "step": 2,
+      "title": "ServerHello",
+      "description": "Server selects version and cipher, sends its certificate chain.",
+      "latex": "ServerHello: version, cipher, server_random, certificate",
+      "visualState": {
+        "selectedVersion": "TLS 1.3",
+        "selectedCipher": "TLS_AES_256_GCM_SHA384",
+        "serverRandom": "32 bytes random",
+        "certificate": "X.509 chain"
+      }
+    },
+    {
+      "step": 3,
+      "title": "Certificate Verification",
+      "description": "Client verifies server certificate against trusted CAs, checks validity and hostname.",
+      "latex": "verify(cert.signature, CA_pubkey), check(hostname)",
+      "visualState": {
+        "certChain": ["Server", "Intermediate CA", "Root CA"],
+        "verification": true,
+        "trustStore": "Trusted roots"
+      }
+    },
+    {
+      "step": 4,
+      "title": "Key Exchange",
+      "description": "Server and client perform ephemeral DH key exchange, generating shared secret.",
+      "latex": "ECDHE: server_params, client_params → shared_secret",
+      "visualState": {
+        "keyExchange": "ECDHE",
+        "serverPub": "ephemeral public",
+        "clientPub": "ephemeral public",
+        "sharedSecret": "computed"
+      }
+    },
+    {
+      "step": 5,
+      "title": "Key Derivation",
+      "description": "Derive session keys from shared secret using HKDF.",
+      "latex": "keys = HKDF(shared_secret, client_random || server_random)",
+      "visualState": {
+        "hkdfInput": "shared_secret + randoms",
+        "derivedKeys": ["client_write_key", "server_write_key", "client_IV", "server_IV"]
+      }
+    },
+    {
+      "step": 6,
+      "title": "Finished Messages",
+      "description": "Both sides send Finished message encrypted with new keys, verifying handshake integrity.",
+      "latex": "Finished = PRF(master_secret, 'finished', handshake_hash)",
+      "visualState": {
+        "clientFinished": "encrypted + MAC",
+        "serverFinished": "encrypted + MAC",
+        "handshakeComplete": true
+      }
+    },
+    {
+      "step": 7,
+      "title": "Application Data",
+      "description": "Secure channel established. Application data encrypted with session keys.",
+      "latex": "EncryptedRecord = AEAD(write_key, seq_num, plaintext)",
+      "visualState": {
+        "channel": "Secure",
+        "encryption": "AES-256-GCM",
+        "dataFlow": "Bidirectional"
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "TLS 1.3 vs 1.2",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is a major improvement of TLS 1.3 over TLS 1.2?",
+      "latex": "\\text{TLS 1.3 improvements}",
+      "hints": [
+        "TLS 1.3 removes obsolete features",
+        "Handshake round trips reduced",
+        "Forward secrecy mandated"
+      ],
+      "solution": {
+        "answer": "TLS 1.3 reduces handshake to 1-RTT, mandates forward secrecy, and removes obsolete cipher suites",
+        "explanation": "TLS 1.3 is faster (fewer round trips), more secure (mandates PFS, removes static RSA), and simpler (removed legacy algorithms like MD5, SHA-1, and RSA key exchange)."
+      }
+    },
+    {
+      "id": "p2",
+      "title": "Certificate Purpose",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What role do certificates play in the TLS handshake?",
+      "latex": "\\text{Certificate verification in TLS}",
+      "hints": [
+        "Certificates bind identity to public key",
+        "Signed by trusted Certificate Authority",
+        "Client verifies before continuing"
+      ],
+      "solution": {
+        "answer": "Certificates authenticate the server's identity and provide their public key",
+        "explanation": "The server's certificate proves its identity (hostname) and contains its public key. It's signed by a Certificate Authority that the client trusts. This prevents man-in-the-middle attacks by ensuring the client talks to the real server."
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Downgrade Attack",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "How does a man-in-the-middle force TLS clients to use weaker protocol versions?",
+      "latex": "\\text{MITM intercepts and modifies Hello messages}",
+      "hints": [
+        "MITM intercepts ClientHello",
+        "Removes strong cipher suites",
+        "Client falls back to weaker option"
+      ],
+      "solution": {
+        "answer": "By intercepting and modifying ClientHello to remove strong options, forcing the server to choose a weaker protocol",
+        "explanation": "In a downgrade attack, the MITM intercepts the ClientHello and removes modern protocol versions and cipher suites. The server, seeing only legacy options, negotiates a weaker connection. TLS 1.3 prevents this by including supported versions in the ServerHello's random field."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "0-RTT Resumption",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is the trade-off of TLS 1.3's 0-RTT session resumption?",
+      "latex": "\\text{0-RTT: speed vs security tradeoff}",
+      "hints": [
+        "0-RTT allows immediate data sending",
+        "Uses pre-shared key from previous session",
+        "No forward secrecy for early data"
+      ],
+      "solution": {
+        "answer": "0-RTT improves performance but lacks forward secrecy for the initial data and is vulnerable to replay attacks",
+        "explanation": "0-RTT allows sending data with the ClientHello, saving a round trip. However, it uses a pre-shared key from the previous session, so if that key is compromised, the 0-RTT data can be decrypted. It also requires replay protection mechanisms since 0-RTT data can be replayed by attackers."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Certificate Transparency",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "How does Certificate Transparency prevent rogue CA certificate issuance?",
+      "latex": "\\text{CT logs: public, append-only, auditable}",
+      "hints": [
+        "All certificates must be logged publicly",
+        "Logs are append-only and auditable",
+        "Domain owners can monitor for misissuance"
+      ],
+      "solution": {
+        "answer": "By requiring all certificates to be publicly logged, making it impossible for rogue certificates to remain hidden",
+        "explanation": "Certificate Transparency requires CAs to log every issued certificate to public, append-only logs before browsers accept them. Domain owners can monitor these logs for certificates issued for their domains without authorization, detecting rogue CA behavior quickly."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "tls-handshake",
+    "title": "TLS Handshake Simulator",
+    "description": "Experience the TLS 1.3 handshake from both client and server perspectives! Negotiate cipher suites, verify certificates, perform key exchange, and establish secure channels.",
+    "type": "simulation",
+    "instructions": [
+      "Play as client or server",
+      "Negotiate protocol version and cipher suite",
+      "Verify certificates correctly",
+      "Complete key exchange",
+      "Send and receive encrypted data"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Basic Handshake",
+        "description": "Complete a standard TLS 1.3 handshake",
+        "mode": "guided"
+      },
+      {
+        "level": 2,
+        "name": "Certificate Validation",
+        "description": "Identify valid vs invalid certificates",
+        "mode": "challenge"
+      },
+      {
+        "level": 3,
+        "name": "Attack Detection",
+        "description": "Detect and prevent downgrade attacks",
+        "mode": "defense"
+      }
+    ],
+    "scoring": {
+      "handshakeComplete": 100,
+      "correctCipherChoice": 20,
+      "certValidation": 30,
+      "attackPrevented": 50
+    }
+  },
+  "visualizer": {
+    "type": "tls-flow",
+    "title": "TLS 1.3 Handshake Flow",
+    "description": "Interactive visualization of the complete TLS 1.3 handshake showing message exchange, key derivation, and data protection",
+    "features": [
+      "Client/server message exchange",
+      "Certificate chain verification",
+      "Key exchange animation",
+      "Session key derivation",
+      "Encrypted application data"
+    ],
+    "modes": [
+      {
+        "id": "full-handshake",
+        "name": "Full Handshake",
+        "description": "Watch complete TLS 1.3 handshake"
+      },
+      {
+        "id": "resumption",
+        "name": "Session Resumption",
+        "description": "0-RTT abbreviated handshake"
+      },
+      {
+        "id": "attack",
+        "name": "Attack Scenarios",
+        "description": "See downgrade and MITM attacks"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "TLS Connection with Python",
+        "code": "import ssl\nimport socket\n\n# Create SSL context with TLS 1.3\ncontext = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)\ncontext.minimum_version = ssl.TLSVersion.TLSv1_3\ncontext.load_verify_locations('/path/to/ca-bundle.crt')\n\n# Connect to server\nwith socket.create_connection(('example.com', 443)) as sock:\n    with context.wrap_socket(sock, server_hostname='example.com') as tls_sock:\n        print(f\"TLS version: {tls_sock.version()}\")\n        print(f\"Cipher: {tls_sock.cipher()}\")\n        print(f\"Certificate: {tls_sock.getpeercert()}\")\n        \n        # Send HTTP request\n        tls_sock.send(b'GET / HTTP/1.1\\r\\nHost: example.com\\r\\n\\r\\n')\n        response = tls_sock.recv(4096)\n        print(response.decode())"
+      }
+    ]
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "id": "crypto-14-zkp",
+  "bookId": "book-crypto",
+  "title": "Zero-Knowledge Proofs",
+  "category": "Advanced",
+  "order": 14,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Zero-Knowledge Proofs (ZKPs) allow one party to prove they know a secret without revealing the secret itself. First conceived in the 1980s, ZKPs have evolved from theoretical curiosities to practical tools powering blockchain privacy (Zcash), authentication, and secure computation. A classic example: proving you know a graph's 3-coloring without revealing the coloring. Modern ZKPs like zk-SNARKs enable succinct proofs that can be verified in milliseconds, enabling privacy-preserving cryptocurrencies and scalable blockchain rollups.",
+    "sections": [
+      {
+        "title": "What is Zero-Knowledge?",
+        "content": "A zero-knowledge proof has three properties: Completeness—if the statement is true and prover follows protocol, verifier accepts; Soundness—if statement is false, no cheating prover can convince verifier; Zero-Knowledge—verifier learns nothing beyond the statement's truth. The Ali Baba cave analogy: Peggy wants to prove she knows the cave's secret word without revealing it. She enters randomly, Victor shouts which exit to use, and Peggy exits correctly if she knows the word. Repeating this convinces Victor without revealing the word.",
+        "keyPoints": [
+          "Completeness: honest proofs verify",
+          "Soundness: can't cheat",
+          "Zero-knowledge: no info leaked",
+          "Interactive vs non-interactive"
+        ]
+      },
+      {
+        "title": "zk-SNARKs",
+        "content": "zk-SNARKs (Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge) are the most deployed ZKPs. Succinct: proofs are small (hundreds of bytes) and fast to verify (milliseconds). Non-interactive: single message from prover to verifier. They work by converting computations to arithmetic circuits, then to polynomial equations checked via cryptographic pairings on elliptic curves. Trusted setup is required (generating common reference string)—if compromised, proofs can be forged. Modern systems use MPC ceremonies where multiple parties contribute randomness.",
+        "keyPoints": [
+          "Succinct: small proofs, fast verification",
+          "Non-interactive: single proof message",
+          "Arithmetic circuits to polynomials",
+          "Requires trusted setup"
+        ]
+      },
+      {
+        "title": "Applications",
+        "content": "Zcash uses zk-SNARKs for shielded transactions—proving you own coins and transactions are valid without revealing addresses or amounts. Blockchain rollups (StarkNet, zkSync) use ZKPs to verify thousands of transactions off-chain with succinct on-chain proofs. Identity systems prove attributes (over 18) without revealing birthdate. Secure voting proves valid votes without linking to voters. These applications demonstrate ZKPs' power: proving knowledge without disclosure.",
+        "keyPoints": [
+          "Zcash: Private cryptocurrency",
+          "Rollups: Scalable blockchain",
+          "Identity: Selective disclosure",
+          "Voting: Anonymous verification"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Completeness",
+        "description": "Honest prover convinces verifier",
+        "latex": "\\text{If true, } Pr[verify] = 1"
+      },
+      {
+        "name": "Soundness",
+        "description": "Cheating prover unlikely to succeed",
+        "latex": "\\text{If false, } Pr[accept] \\approx 0"
+      },
+      {
+        "name": "Zero-Knowledge",
+        "description": "Verifier learns nothing beyond truth",
+        "latex": "\\text{View} \\approx \\text{Simulated view}"
+      }
+    ],
+    "complexity": {
+      "proofGen": "O(n) for n gates in circuit",
+      "proofVerify": "O(1) for SNARKs",
+      "proofSize": "O(1) - constant size"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Statement Definition",
+      "description": "Define what you want to prove (e.g., I know x such that hash(x) = y).",
+      "latex": "\\exists x: H(x) = y",
+      "visualState": {"statement": "defined", "public": "y", "secret": "x"}
+    },
+    {
+      "step": 2,
+      "title": "Circuit Construction",
+      "description": "Convert computation to arithmetic circuit.",
+      "latex": "\\text{Computation} \\rightarrow \\text{Arithmetic Circuit}",
+      "visualState": {"gates": "defined", "wires": "connected"}
+    },
+    {
+      "step": 3,
+      "title": "Witness Generation",
+      "description": "Prover computes witness (intermediate values) for their secret input.",
+      "latex": "w = \\text{witness}(x)",
+      "visualState": {"witness": "computed", "satisfies": "circuit"}
+    },
+    {
+      "step": 4,
+      "title": "Proof Generation",
+      "description": "Generate succinct proof using polynomial commitments.",
+      "latex": "\\pi = \\text{Prove}(circuit, witness, CRS)",
+      "visualState": {"proof": "generated", "size": "small"}
+    },
+    {
+      "step": 5,
+      "title": "Verification",
+      "description": "Verifier checks proof using public inputs only.",
+      "latex": "\\text{Verify}(\\pi, public_input, CRS) \\rightarrow \\{0, 1\\}",
+      "visualState": {"verified": true, "secret": "unknown"}
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "ZKP Properties",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What are the three required properties of zero-knowledge proofs?",
+      "solution": {"answer": "Completeness, Soundness, Zero-Knowledge", "explanation": "Completeness: honest proofs verify. Soundness: cheating unlikely to succeed. Zero-Knowledge: verifier learns nothing beyond statement truth."}
+    },
+    {
+      "id": "p2",
+      "title": "SNARK vs STARK",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is a key difference between zk-SNARKs and zk-STARKs?",
+      "solution": {"answer": "SNARKs require trusted setup; STARKs don't", "explanation": "zk-SNARKs need a trusted setup ceremony. zk-STARKs are transparent (no trusted setup) but produce larger proofs. SNARKs have smaller proofs."}
+    }
+  ],
+  "minigame": {
+    "id": "zkp-demo",
+    "title": "Zero-Knowledge Simulator",
+    "description": "Experience proving knowledge without revealing secrets",
+    "type": "interactive-proof",
+    "levels": [{"level": 1, "name": "Ali Baba Cave"}, {"level": 2, "name": "Graph 3-Coloring"}]
+  },
+  "visualizer": {"type": "zkp-flow", "title": "Zero-Knowledge Proof Flow"},
+  "codeExample": {"language": "python", "snippets": [{"title": "ZKP Concept", "code": "# Using a ZKP library like zokrates or snarkjs\n# Conceptual example:\n# Prove: I know x such that SHA256(x) = known_hash\n# Without revealing x\n\nfrom zokrates import zokrates\n\n# Compile circuit\nzokrates compile -i hash_preimage.zok\n\n# Generate trusted setup\nzokrates setup\n\n# Compute witness with secret\nzokrates compute-witness -a <secret_x>\n\n# Generate proof\nzokrates generate-proof\n\n# Verify\nzokrates verify"}]}
+}

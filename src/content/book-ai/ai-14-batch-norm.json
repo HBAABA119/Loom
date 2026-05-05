@@ -1,0 +1,280 @@
+{
+  "id": "ai-14-batch-norm",
+  "bookId": "book-ai",
+  "title": "Batch Normalization",
+  "category": "Training Techniques",
+  "order": 14,
+  "estimatedTime": "30 min",
+  "theory": {
+    "overview": "Batch Normalization (BatchNorm) is one of the most important innovations in deep learning. By normalizing layer inputs to have zero mean and unit variance, it dramatically accelerates training, allows higher learning rates, and reduces sensitivity to weight initialization. Introduced by Ioffe & Szegedy in 2015, BatchNorm has become standard in virtually all modern architectures—from ResNet to Transformer. It operates by learning the optimal distribution for each layer, not just forcing standard normal.",
+    "sections": [
+      {
+        "title": "The Internal Covariate Shift Problem",
+        "content": "As parameters of preceding layers change during training, the distribution of inputs to subsequent layers changes. This requires constant adaptation and slows learning.",
+        "analogy": "Like aiming at a moving target—each layer must continuously adjust to new input distributions from previous layers.",
+        "symptoms": ["Requires lower learning rates", "Careful initialization critical", "Hard to train deep networks", "Training plateaus easily"]
+      },
+      {
+        "title": "Normalization Procedure",
+        "content": "For each feature across the mini-batch:",
+        "steps": [
+          "Compute batch mean: $\\mu_B = \\frac{1}{m}\\sum_{i=1}^m x_i$",
+          "Compute batch variance: $\\sigma^2_B = \\frac{1}{m}\\sum_{i=1}^m (x_i - \\mu_B)^2$",
+          "Normalize: $\\hat{x}_i = \\frac{x_i - \\mu_B}{\\sqrt{\\sigma^2_B + \\epsilon}}$",
+          "Scale and shift: $y_i = \\gamma \\hat{x}_i + \\beta$"
+        ],
+        "epsilon": "Small constant (1e-5) for numerical stability when variance is near zero",
+        "learnable": "γ (scale) and β (shift) are learned per feature—allows network to undo normalization if beneficial"
+      },
+      {
+        "title": "Training vs Inference",
+        "content": "Batch statistics are different at training and inference time.",
+        "training": [
+          "Use batch mean and variance",
+          "Randomness from batch composition adds noise (acts as regularization)",
+          "Update running averages"
+        ],
+        "inference": [
+          "Use fixed running mean and variance (population statistics)",
+          "Deterministic behavior required",
+          "No batch needed—can run single sample"
+        ],
+        "runningStats": "$\\mu_{running} \\leftarrow (1 - momentum) \\cdot \\mu_{running} + momentum \\cdot \\mu_B$"
+      },
+      {
+        "title": "Benefits of BatchNorm",
+        "content": "Why has BatchNorm become ubiquitous?",
+        "advantages": [
+          { "benefit": "Higher Learning Rates", "explanation": "Gradients are well-conditioned, less risk of explosion" },
+          { "benefit": "Faster Convergence", "explanation": "Typically 2-10× fewer epochs needed" },
+          { "benefit": "Less Initialization Sensitivity", "explanation": "Networks train from wider range of initial weights" },
+          { "benefit": "Regularization Effect", "explanation": "Noise from batch statistics reduces overfitting" },
+          { "benefit": "Enables Deeper Networks", "explanation": "ResNet-152, DenseNet-121 would not train without it" }
+        ]
+      },
+      {
+        "title": "Placement in Network",
+        "content": "Where to put BatchNorm? Two common patterns:",
+        "patterns": [
+          { "ordering": "Conv → BN → ReLU", "advantage": "Normalize before activation (original paper)" },
+          { "ordering": "Conv → ReLU → BN", "advantage": "Works for some architectures (ResNet uses pre-activation variant)" }
+        ],
+        "placement": "Apply before activation in original, but experiments show both work. Key is consistency.",
+        "note": "Don't use bias before BatchNorm—it's subtracted out by normalization anyway"
+      },
+      {
+        "title": "Variants and Alternatives",
+        "content": "BatchNorm isn't always ideal. Alternatives for different scenarios:",
+        "alternatives": [
+          { "name": "Layer Normalization", "usage": "RNNs, small batches", "method": "Normalize across features per sample" },
+          { "name": "Instance Normalization", "usage": "Style transfer", "method": "Normalize each channel per sample" },
+          { "name": "Group Normalization", "usage": "Small batches, object detection", "method": "Normalize across groups of channels" },
+          { "name": "Weight Normalization", "usage": "Generative models", "method": "Normalize weight vectors instead of activations" }
+        ],
+        "smallBatch": "BatchNorm degrades with batch size < 8—use GroupNorm or LayerNorm instead"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Internal Covariate Shift",
+        "description": "Change in distribution of network activations due to parameter updates in previous layers.",
+        "impact": "Slows training, requires lower learning rates, makes deep networks hard to train"
+      },
+      {
+        "name": "Learnable Parameters",
+        "description": "γ and β allow the network to learn the optimal scale and shift for each layer.",
+        "flexibility": "Network can restore original representation if that's optimal: γ=σ, β=μ"
+      },
+      {
+        "name": "Running Statistics",
+        "description": "Exponential moving average of mean and variance used at inference time.",
+        "formula": "$\\mu_{running} = (1 - momentum) \\cdot \\mu_{old} + momentum \\cdot \\mu_{batch}$",
+        "momentum": "Typically 0.1—higher = faster adaptation to new statistics"
+      },
+      {
+        "name": "Normalization Dimension",
+        "description": "Different normalizations operate across different dimensions:",
+        "batchNorm": "Across batch dimension (N, C, H, W) → normalize (N, H, W) per C",
+        "layerNorm": "Across feature dimension (C, H, W) per sample",
+        "instanceNorm": "Across spatial (H, W) per (N, C)"
+      }
+    ],
+    "complexity": {
+      "forwardPass": "$O(N \\cdot C \\cdot H \\cdot W)$—element-wise operations only",
+      "memory": "$O(C)$ for running statistics + $O(N \\cdot C \\cdot H \\cdot W)$ for saved normalized values (backward)",
+      "overhead": "Minimal—primarily adds 2 learnable parameters per feature"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Compute Batch Statistics",
+      "description": "Calculate mean and variance across batch and spatial dimensions.",
+      "latex": "\\mu_B = \\frac{1}{m}\\sum_{i=1}^m x_i, \\quad \\sigma^2_B = \\frac{1}{m}\\sum_{i=1}^m (x_i - \\mu_B)^2$",
+      "visualState": { "batch": "m_samples", "per_feature": "stats" }
+    },
+    {
+      "step": 2,
+      "title": "Normalize",
+      "description": "Center and scale to unit variance.",
+      "latex": "\\hat{x}_i = \\frac{x_i - \\mu_B}{\\sqrt{\\sigma^2_B + \\epsilon}}$",
+      "visualState": { "mean": "0", "std": "1", "epsilon": "1e-5" }
+    },
+    {
+      "step": 3,
+      "title": "Scale and Shift",
+      "description": "Apply learnable affine transformation.",
+      "latex": "y_i = \\gamma \\hat{x}_i + \\beta$",
+      "visualState": { "gamma": "scale", "beta": "shift", "learnable": true }
+    },
+    {
+      "step": 4,
+      "title": "Update Running Stats",
+      "description": "Maintain exponential moving average for inference.",
+      "latex": "\\mu_{running} \\leftarrow (1-momentum)\\mu_{running} + momentum \\cdot \\mu_B$",
+      "visualState": { "ema": "updated", "momentum": "0.1" }
+    },
+    {
+      "step": 5,
+      "title": "Forward Pass",
+      "description": "Continue through activation.",
+      "latex": "z = \\text{activation}(y)$",
+      "visualState": { "normalized": "activations", "stable": "distribution" }
+    },
+    {
+      "step": 6,
+      "title": "Backpropagation",
+      "description": "Gradients flow through normalization.",
+      "latex": "\\frac{\\partial L}{\\partial x_i} \\text{ depends on } \\frac{\\partial L}{\\partial y_j} \\text{ for all } j$",
+      "visualState": { "gradients": "through_batch", "local": "dependence" }
+    },
+    {
+      "step": 7,
+      "title": "Test-Time Inference",
+      "description": "Use fixed running statistics.",
+      "latex": "y = \\gamma \\frac{x - \\mu_{running}}{\\sqrt{\\sigma^2_{running} + \\epsilon}} + \\beta$",
+      "visualState": { "fixed": "stats", "deterministic": "output" }
+    },
+    {
+      "step": 8,
+      "title": "Single Sample",
+      "description": "Works even with batch size 1 at test time.",
+      "latex": "\\text{No batch dimension issue with running stats}$",
+      "visualState": { "inference": "flexible", "batch_size": "independent" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "BatchNorm Dimensions",
+      "difficulty": "easy",
+      "type": "conceptual",
+      "description": "For CNN activations shaped (N=32, C=64, H=28, W=28), what are the shapes of μ_B, σ²_B, γ, and β?",
+      "answer": "All are (64,). Computed per channel across N, H, W dimensions.",
+      "explanation": "BatchNorm in CNNs computes statistics per channel. For each of 64 channels: average over all samples (32) and all spatial locations (28×28). Learnable parameters γ and β are also per channel.",
+      "hints": ["Per channel statistics", "Average across N, H, W", "Shape = (num_channels,)"]
+    },
+    {
+      "id": "p2",
+      "title": "Training vs Test Behavior",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "If you use batch statistics at test time with batch size 1, what happens?",
+      "answer": "Normalization fails: μ_B = x_1, σ²_B = 0, so output becomes undefined (division by zero after adding ε).",
+      "explanation": "With single sample, mean equals that sample, variance is zero. Normalized value becomes 0/ε which is numerically unstable. This is why running statistics must be used at test time—or BatchNorm layers switched to eval mode.",
+      "hints": ["Single sample statistics", "Mean = sample value", "Variance = 0"]
+    },
+    {
+      "id": "p3",
+      "title": "Learnable Parameters Purpose",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "Why have learnable γ and β? Why not just normalize to N(0,1) and be done?",
+      "answer": "Network may need different distributions. γ=σ_true, β=μ_true restores original if that was optimal. Flexibility is key.",
+      "explanation": "If forcing N(0,1) was always best, we'd constrain the network. By learning γ and β, the network discovers what distribution works best. Empirically, networks often learn to maintain some shift and scale rather than pure standard normal.",
+      "hints": ["Identity transform possible", "Network learns optimal", "Flexibility matters"]
+    },
+    {
+      "id": "p4",
+      "title": "BatchNorm as Regularization",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "How does BatchNorm act as a regularizer even without explicit noise injection?",
+      "answer": "Batch statistics vary with batch composition. Same sample gets slightly different normalization depending on batchmates—creates noise.",
+      "explanation": "μ_B and σ²_B are random variables (functions of which samples happen to be in this batch). This adds noise to activations during training, similar to dropout. Small batches → more variance → stronger regularization.",
+      "hints": ["Statistics are random", "Depend on batch composition", "Noise injection effect"]
+    },
+    {
+      "id": "p5",
+      "title": "Small Batch Alternatives",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "You're training with batch size 4. BatchNorm performs poorly. What alternatives should you consider?",
+      "answer": "Use Layer Normalization (per sample), Group Normalization (normalize groups of channels), or Instance Normalization. All work with batch size 1.",
+      "explanation": "With batch size 4, batch statistics are too noisy and don't represent population well. LayerNorm normalizes across features per sample—no batch dependence. GroupNorm splits channels into groups and normalizes per group—works for any batch size. These are standard in detection/segmentation where large batches don't fit.",
+      "hints": ["Statistics too noisy with small batch", "Per-sample normalization", "Group-wise alternatives"]
+    },
+    {
+      "id": "p6",
+      "title": "BatchNorm Before or After Activation",
+      "difficulty": "hard",
+      "type": "comparison",
+      "description": "Original paper: BN before activation. ResNet often uses pre-activation (BN-ReLU-Conv). Which is better?",
+      "answer": "Both work. Pre-activation (BN-ReLU-Conv) often better for very deep networks—prevents gradient issues in skip connections.",
+      "explanation": "Original: Conv-BN-ReLU ensures inputs to next layer are normalized. Pre-activation: BN-ReLU-Conv puts normalization in skip path, helping gradient flow in ResNets. Empirically similar for moderate depth, pre-activation wins for very deep (1000+ layer) networks.",
+      "hints": ["Original vs pre-activation", "Gradient flow matters", "ResNet insight"]
+    }
+  ],
+  "minigame": {
+    "id": "batchnorm-visualizer",
+    "title": "BatchNorm Explorer",
+    "description": "Visualize how Batch Normalization stabilizes training. Watch activations distributions shift during training with and without BatchNorm. See the effect of different batch sizes and compare with LayerNorm and GroupNorm.",
+    "instructions": [
+      "Select network depth (layers)",
+      "Toggle BatchNorm on/off",
+      "Choose normalization variant",
+      "Set batch size",
+      "Train and watch activation distributions",
+      "Compare convergence speed"
+    ],
+    "controls": [
+      {
+        "id": "depth",
+        "label": "Network Depth",
+        "type": "slider",
+        "min": 5,
+        "max": 50,
+        "step": 5,
+        "default": 20
+      },
+      {
+        "id": "normalization",
+        "label": "Normalization",
+        "type": "select",
+        "options": ["None", "BatchNorm", "LayerNorm", "GroupNorm", "InstanceNorm"]
+      },
+      {
+        "id": "batchSize",
+        "label": "Batch Size",
+        "type": "slider",
+        "min": 1,
+        "max": 128,
+        "step": 1,
+        "default": 32
+      },
+      {
+        "id": "learningRate",
+        "label": "Learning Rate",
+        "type": "slider",
+        "min": 0.0001,
+        "max": 0.1,
+        "step": 0.0001,
+        "default": 0.01
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import torch\nimport torch.nn as nn\n\nclass BatchNormExample(nn.Module):\n    def __init__(self, num_features, momentum=0.1, eps=1e-5):\n        super().__init__()\n        self.num_features = num_features\n        self.eps = eps\n        self.momentum = momentum\n        \n        # Learnable parameters\n        self.gamma = nn.Parameter(torch.ones(num_features))\n        self.beta = nn.Parameter(torch.zeros(num_features))\n        \n        # Running statistics (buffers, not parameters)\n        self.register_buffer('running_mean', torch.zeros(num_features))\n        self.register_buffer('running_var', torch.ones(num_features))\n        self.register_buffer('num_batches_tracked', torch.tensor(0, dtype=torch.long))\n    \n    def forward(self, x):\n        if self.training:\n            # Compute batch statistics\n            # For 2D input: (N, C) - normalize over N\n            # For 4D input: (N, C, H, W) - normalize over N, H, W\n            \n            dim = [0] if x.dim() == 2 else [0, 2, 3]\n            batch_mean = x.mean(dim=dim, keepdim=True)\n            batch_var = x.var(dim=dim, unbiased=False, keepdim=True)\n            \n            # Update running statistics\n            with torch.no_grad():\n                self.running_mean = (1 - self.momentum) * self.running_mean + \\n                                    self.momentum * batch_mean.squeeze()\n                self.running_var = (1 - self.momentum) * self.running_var + \\n                                   self.momentum * batch_var.squeeze()\n                self.num_batches_tracked += 1\n            \n            # Normalize using batch stats\n            x_norm = (x - batch_mean) / torch.sqrt(batch_var + self.eps)\n        else:\n            # Use running statistics\n            running_mean = self.running_mean.view(1, -1, *([1] * (x.dim() - 2)))\n            running_var = self.running_var.view(1, -1, *([1] * (x.dim() - 2)))\n            x_norm = (x - running_mean) / torch.sqrt(running_var + self.eps)\n        \n        # Scale and shift\n        shape = [1, -1] + [1] * (x.dim() - 2)\n        return self.gamma.view(shape) * x_norm + self.beta.view(shape)\n\nclass ModernCNN(nn.Module):\n    \"\"\"\n    CNN with BatchNorm (standard modern architecture)\n    \"\"\"\n    def __init__(self, in_channels=3, num_classes=10):\n        super().__init__()\n        \n        # Conv block 1\n        self.conv1 = nn.Conv2d(in_channels, 64, 3, padding=1, bias=False)\n        self.bn1 = nn.BatchNorm2d(64)\n        self.relu1 = nn.ReLU(inplace=True)\n        \n        # Conv block 2\n        self.conv2 = nn.Conv2d(64, 128, 3, padding=1, bias=False)\n        self.bn2 = nn.BatchNorm2d(128)\n        self.relu2 = nn.ReLU(inplace=True)\n        \n        # Conv block 3\n        self.conv3 = nn.Conv2d(128, 256, 3, padding=1, bias=False)\n        self.bn3 = nn.BatchNorm2d(256)\n        self.relu3 = nn.ReLU(inplace=True)\n        \n        # Classifier\n        self.pool = nn.AdaptiveAvgPool2d(1)\n        self.fc = nn.Linear(256, num_classes)\n    \n    def forward(self, x):\n        # Block 1\n        x = self.conv1(x)\n        x = self.bn1(x)  # BatchNorm before activation\n        x = self.relu1(x)\n        \n        # Block 2\n        x = self.conv2(x)\n        x = self.bn2(x)\n        x = self.relu2(x)\n        \n        # Block 3\n        x = self.conv3(x)\n        x = self.bn3(x)\n        x = self.relu3(x)\n        \n        # Classifier\n        x = self.pool(x)\n        x = x.view(x.size(0), -1)\n        x = self.fc(x)\n        return x\n\n# Different normalization variants\nclass NormalizationComparison(nn.Module):\n    \"\"\"\n    Compare BatchNorm, LayerNorm, GroupNorm, InstanceNorm\n    \"\"\"\n    def __init__(self, num_channels=64, num_groups=32):\n        super().__init__()\n        \n        self.bn = nn.BatchNorm2d(num_channels)\n        self.ln = nn.LayerNorm([num_channels, 28, 28])  # Need spatial dims\n        self.gn = nn.GroupNorm(num_groups, num_channels)\n        self.in_norm = nn.InstanceNorm2d(num_channels)\n    \n    def forward(self, x, norm_type='bn'):\n        if norm_type == 'bn':\n            return self.bn(x)\n        elif norm_type == 'ln':\n            # LayerNorm: normalize over C, H, W per sample\n            return self.ln(x)\n        elif norm_type == 'gn':\n            return self.gn(x)\n        elif norm_type == 'in':\n            return self.in_norm(x)\n\ndef demonstrate_batchnorm_effects():\n    \"\"\"\n    Show how BatchNorm stabilizes training\n    \"\"\"\n    print(\"=== BatchNorm Demonstration ===\\n\")\n    \n    # Create sample activations\n    torch.manual_seed(42)\n    batch_size = 32\n    num_features = 64\n    \n    # Simulate pre-BN: high variance, different scales\n    x_before = torch.randn(batch_size, num_features) * torch.linspace(0.1, 5, num_features)\n    x_before += torch.linspace(-10, 10, num_features)\n    \n    print(f'Before BatchNorm:')\n    print(f'  Mean range: [{x_before.mean(dim=0).min():.2f}, {x_before.mean(dim=0).max():.2f}]')\n    print(f'  Std range: [{x_before.std(dim=0).min():.2f}, {x_before.std(dim=0).max():.2f}]')\n    \n    # Apply manual BatchNorm\n    bn = BatchNormExample(num_features)\n    bn.train()\n    x_after = bn(x_before.unsqueeze(-1).unsqueeze(-1))  # Add fake H, W dims\n    x_after = x_after.squeeze()\n    \n    print(f'\\nAfter BatchNorm (first batch):')\n    print(f'  Mean range: [{x_after.mean(dim=0).min():.2f}, {x_after.mean(dim=0).max():.2f}]')\n    print(f'  Std range: [{x_after.std(dim=0).min():.2f}, {x_after.std(dim=0).max():.2f}]')\n    \n    # After many batches, running stats converge\n    for _ in range(100):\n        x = torch.randn(batch_size, num_features) * torch.linspace(0.1, 5, num_features)\n        x += torch.linspace(-10, 10, num_features)\n        _ = bn(x.unsqueeze(-1).unsqueeze(-1))\n    \n    # Test mode with running stats\n    bn.eval()\n    x_test = torch.randn(batch_size, num_features)\n    x_test = x_test.unsqueeze(-1).unsqueeze(-1)\n    with torch.no_grad():\n        x_test_normalized = bn(x_test)\n    \n    print(f'\\nRunning stats after 100 batches:')\n    print(f'  Running mean range: [{bn.running_mean.min():.2f}, {bn.running_mean.max():.2f}]')\n    print(f'  Running std range: [{torch.sqrt(bn.running_var).min():.2f}, {torch.sqrt(bn.running_var).max():.2f}]')\n    \n    print(f'\\nTest mode output stats:')\n    print(f'  Mean: {x_test_normalized.mean().item():.3f}')\n    print(f'  Std: {x_test_normalized.std().item():.3f}')\n\nif __name__ == \"__main__\":\n    demonstrate_batchnorm_effects()\n    \n    print(f\"\\n=== Modern CNN with BatchNorm ===\")\n    model = ModernCNN(in_channels=3, num_classes=10)\n    \n    # Count BatchNorm layers\n    bn_layers = [m for m in model.modules() if isinstance(m, nn.BatchNorm2d)]\n    total_params = sum(p.numel() for p in model.parameters())\n    \n    print(f'Number of BatchNorm layers: {len(bn_layers)}')\n    print(f'Total parameters: {total_params:,}')\n    \n    # Test forward pass\n    x = torch.randn(4, 3, 224, 224)\n    model.eval()\n    with torch.no_grad():\n        output = model(x)\n    print(f'Input: {x.shape} → Output: {output.shape}')\n    \n    print(f\"\\n=== Normalization Comparison ===\")\n    comp = NormalizationComparison(num_channels=64, num_groups=32)\n    x = torch.randn(4, 64, 28, 28)\n    \n    for norm in ['bn', 'ln', 'gn', 'in']:\n        try:\n            out = comp(x, norm)\n            print(f'{norm.upper()}: {x.shape} → {out.shape}')\n        except Exception as e:\n            print(f'{norm.upper()}: {e}')"
+  }
+}

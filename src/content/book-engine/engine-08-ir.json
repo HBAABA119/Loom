@@ -1,0 +1,77 @@
+{
+  "id": "engine-08-ir",
+  "bookId": "book-engine",
+  "title": "Intermediate Representations",
+  "category": "Intermediate",
+  "order": 8,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Intermediate Representations (IR) bridge the gap between high-level source code and low-level machine code. IRs like SSA (Static Single Assignment), three-address code, and control flow graphs enable powerful optimizations. Understanding IR helps you grasp how compilers transform and optimize your code through multiple passes.",
+    "keyConcepts": [
+      {
+        "title": "Three-Address Code",
+        "content": "Each instruction has at most three operands: result = op1 operator op2. This simplifies analysis and transformation by breaking complex expressions into simple steps."
+      },
+      {
+        "title": "SSA Form",
+        "content": "Static Single Assignment requires each variable to be assigned exactly once. This makes data flow explicit and enables powerful optimizations like constant propagation and dead code elimination."
+      },
+      {
+        "title": "Basic Blocks & CFG",
+        "content": "A basic block is a sequence of instructions with no branches (except at end). The Control Flow Graph connects blocks showing possible execution paths, enabling global optimizations."
+      },
+      {
+        "title": "Phi Functions",
+        "content": "In SSA, Phi (Φ) functions merge values from different predecessors. At a join point, Φ selects the appropriate value based on which path was taken."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Converting to Three-Address Code",
+      "content": "Break complex expressions: 'a = b + c * d' becomes 't1 = c * d' then 'a = b + t1'. Each temp holds an intermediate result."
+    },
+    {
+      "number": 2,
+      "title": "SSA Construction",
+      "content": "Rename variables so each assignment is unique. Insert Phi functions at merge points where different values converge."
+    },
+    {
+      "number": 3,
+      "title": "Optimization Passes",
+      "content": "IR enables transformations: constant folding (compute at compile time), copy propagation (eliminate redundant copies), dead code elimination (remove unused computations)."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Convert to 3AC",
+      "difficulty": "Easy",
+      "description": "Convert: x = (a + b) * (c - d)",
+      "solution": "t1 = a + b; t2 = c - d; x = t1 * t2"
+    },
+    {
+      "id": 2,
+      "title": "SSA Form",
+      "difficulty": "Medium",
+      "description": "Convert: if (cond) x = 1 else x = 2; return x",
+      "solution": "if (cond) x1 = 1 else x2 = 2; x3 = Φ(x1, x2); return x3"
+    }
+  ],
+  "minigame": {
+    "id": "ssa-builder",
+    "title": "SSA Builder",
+    "type": "interactive",
+    "description": "Convert code to SSA form and place Phi functions"
+  },
+  "visualizer": {
+    "id": "ir-transform",
+    "title": "IR Transformation Pipeline",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "# Convert expression to three-address code\ndef to_three_address(expr):\n    temps = []\n    counter = [0]\n    \n    def new_temp():\n        counter[0] += 1\n        return f't{counter[0]}'\n    \n    def emit(op, left, right):\n        dest = new_temp()\n        temps.append(f'{dest} = {left} {op} {right}')\n        return dest\n    \n    def convert(e):\n        if isinstance(e, Number):\n            return str(e.value)\n        if isinstance(e, BinOp):\n            l = convert(e.left)\n            r = convert(e.right)\n            return emit(e.op, l, r)\n    \n    final = convert(expr)\n    return temps, final\n\n# Example: a + b * c\n# Output: ['t1 = b * c', 't2 = a + t1'], result in t2"
+  }
+}

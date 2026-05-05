@@ -220,14 +220,6 @@ export default function VMVisualizerEnhanced() {
     executeStep();
   };
 
-  const getOpcodeColor = (opcode: Opcode) => {
-    if (opcode === "HALT") return "text-[#f85149]";
-    if (["JUMP", "JUMP_IF_ZERO", "CALL", "RETURN"].includes(opcode)) return "text-[#d2a8ff]";
-    if (["LOAD", "STORE"].includes(opcode)) return "text-[#79c0ff]";
-    if (["ADD", "SUB", "MUL", "DIV"].includes(opcode)) return "text-[#ffa657]";
-    return "text-[#3fb950]";
-  };
-
   const formatOperand = (instr: Instruction) => {
     if (instr.operand === undefined) return "";
     return String(instr.operand);
@@ -275,18 +267,24 @@ export default function VMVisualizerEnhanced() {
               {bytecode.map((instr, i) => (
                 <motion.div
                   key={i}
-                  className={"flex items-center gap-3 px-3 py-2 rounded-lg " + (
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
                     i === vmState.pc 
                       ? "bg-[#f0883e]/20 border border-[#f0883e]" 
                       : i < vmState.pc 
                       ? "bg-[#238636]/10 text-[#7ee787]"
                       : "bg-[#21262d] text-[#8b949e]"
-                  )}
+                  }`}
                   animate={i === vmState.pc ? { scale: [1, 1.02, 1] } : {}}
                   transition={{ repeat: Infinity, duration: 1 }}
                 >
                   <span className="w-6 text-right text-xs text-[#6e7681]">{i}</span>
-                  <span className={`font-bold ${getOpcodeColor(instr.opcode)}`}>{instr.opcode}</span>
+                  <span className={`font-bold ${
+                    instr.opcode === "HALT" ? "text-[#f85149]" :
+                    ["JUMP", "JUMP_IF_ZERO", "CALL", "RETURN"].includes(instr.opcode) ? "text-[#d2a8ff]" :
+                    ["LOAD", "STORE"].includes(instr.opcode) ? "text-[#79c0ff]" :
+                    ["ADD", "SUB", "MUL", "DIV"].includes(instr.opcode) ? "text-[#ffa657]" :
+                    "text-[#3fb950]"
+                  }">{instr.opcode}</span>
                   {instr.operand !== undefined && (
                     <span className="text-[#c9d1d9]">{formatOperand(instr)}</span>
                   )}
