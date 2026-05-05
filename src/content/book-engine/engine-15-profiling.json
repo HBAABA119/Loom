@@ -6,24 +6,37 @@
   "order": 15,
   "estimatedTime": "55 min",
   "theory": {
-    "overview": "Profiling tools help identify performance bottlenecks by measuring where programs spend time and resources. From sampling profilers to instrumentation-based approaches, understanding profiling techniques enables data-driven optimization. Learn to interpret flame graphs, cache miss profiles, and memory allocation traces.",
-    "keyConcepts": [
+    "overview": "Profiling measures program performance to identify bottlenecks. Tools like CPU profilers, memory profilers, and flame graphs reveal where time is spent and memory is allocated. Understanding profiling helps optimize hot paths and reduce resource usage.",
+    "sections": [
       {
         "title": "Sampling vs Instrumentation",
-        "content": "Sampling profilers periodically interrupt the program to record the call stack. Low overhead but statistical accuracy. Instrumentation inserts measurement code at compile time. More precise but higher overhead."
+        "content": "Sampling periodically interrupts the program to see what's running (low overhead, statistical). Instrumentation adds code to track execution (precise, higher overhead).",
+        "keyPoints": [
+          "Sampling: low overhead, statistical",
+          "Instrumentation: precise, higher overhead",
+          "Choose based on use case"
+        ]
       },
       {
         "title": "Flame Graphs",
-        "content": "Visual representation of profile data showing call stacks and time spent in each function. Width indicates time proportion. Quickly identifies hot paths and deep call stacks."
+        "content": "Visual representation of call stacks. The x-axis is population (not time), y-axis is stack depth. Wide bars indicate hot paths worth optimizing.",
+        "examples": [
+          { "code": "flamegraph.svg", "explanation": "Wide bars = functions consuming most CPU time" }
+        ]
       },
       {
         "title": "Hardware Counters",
-        "content": "CPUs provide performance monitoring counters (PMCs) for cache misses, branch mispredictions, cycles, instructions. These guide low-level optimizations."
+        "content": "CPU performance counters measure cache misses, branch mispredictions, cycles per instruction, and other low-level metrics. These reveal micro-architectural bottlenecks."
       },
       {
         "title": "Memory Profiling",
         "content": "Track allocations, detect leaks, identify fragmentation. Tools like Valgrind, AddressSanitizer, and heap profilers show where memory is consumed and if it's properly freed."
       }
+    ],
+    "keyConcepts": [
+      { "name": "Hot Path", "description": "Code executed frequently, worth optimizing" },
+      { "name": "Cache Miss", "description": "Data not in CPU cache, causes delay" },
+      { "name": "Branch Misprediction", "description": "CPU guesses wrong branch direction" }
     ]
   },
   "steps": [

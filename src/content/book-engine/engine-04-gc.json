@@ -21,12 +21,14 @@
       {
         "title": "Reference Counting",
         "content": "The simplest GC approach: each object tracks how many references point to it. When count reaches zero, the object is immediately freed. Pros: deterministic destruction, simple implementation, no pause times. Cons: circular references leak (A↔B never reaches zero), overhead on every pointer write, cache-unfriendly due to frequent count updates. Python and Swift use reference counting with cycle detection.",
-        "diagram": "A → B → C (A.count=1, B.count=2, C.count=1)\nWhen A freed: B.count=1\nWhen nothing references B or C: they leak if B↔C cycle exists",
         "keyPoints": [
           "Immediate reclamation when count=0",
           "Circular references cause leaks",
           "Atomic operations needed for thread safety",
           "Write barrier on every reference assignment"
+        ],
+        "examples": [
+          { "code": "ref_count--", "explanation": "When count reaches 0, object is freed" }
         ]
       },
       {
@@ -72,8 +74,7 @@
     "keyConcepts": [
       {
         "name": "Root Set",
-        "description": "Starting points for tracing: global variables, CPU registers, stack frames. Anything directly accessible without following pointers.",
-        "examples": "Global variables, local variables on stack, static fields"
+        "description": "Starting points for tracing: global variables, CPU registers, stack frames. Anything directly accessible without following pointers."
       },
       {
         "name": "Reachability",

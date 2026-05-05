@@ -7,23 +7,32 @@
   "estimatedTime": "45 min",
   "theory": {
     "overview": "Intermediate Representations (IR) bridge the gap between high-level source code and low-level machine code. IRs like SSA (Static Single Assignment), three-address code, and control flow graphs enable powerful optimizations. Understanding IR helps you grasp how compilers transform and optimize your code through multiple passes.",
-    "keyConcepts": [
+    "sections": [
       {
         "title": "Three-Address Code",
-        "content": "Each instruction has at most three operands: result = op1 operator op2. This simplifies analysis and transformation by breaking complex expressions into simple steps."
+        "content": "Each instruction has at most three operands: result = op1 operator op2. This simplifies analysis and transformation by breaking complex expressions into simple steps.",
+        "examples": [
+          { "code": "a = b + c * d", "explanation": "Becomes: t1 = c * d; a = b + t1" }
+        ]
       },
       {
         "title": "SSA Form",
-        "content": "Static Single Assignment requires each variable to be assigned exactly once. This makes data flow explicit and enables powerful optimizations like constant propagation and dead code elimination."
+        "content": "Static Single Assignment requires each variable to be assigned exactly once. This makes data flow explicit and enables powerful optimizations like constant propagation and dead code elimination.",
+        "keyPoints": [
+          "Each variable assigned once",
+          "Phi functions merge values at join points",
+          "Enables precise data flow analysis"
+        ]
       },
       {
         "title": "Basic Blocks & CFG",
         "content": "A basic block is a sequence of instructions with no branches (except at end). The Control Flow Graph connects blocks showing possible execution paths, enabling global optimizations."
-      },
-      {
-        "title": "Phi Functions",
-        "content": "In SSA, Phi (Φ) functions merge values from different predecessors. At a join point, Φ selects the appropriate value based on which path was taken."
       }
+    ],
+    "keyConcepts": [
+      { "name": "Three-Address Code", "description": "Simplified instruction format with max 3 operands" },
+      { "name": "SSA", "description": "Static Single Assignment form for data flow analysis" },
+      { "name": "Phi Functions", "description": "Merge values from different control flow paths" }
     ]
   },
   "steps": [

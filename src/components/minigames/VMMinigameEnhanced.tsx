@@ -56,8 +56,8 @@ export default function VMMinigameEnhanced() {
     const op = instr[0];
     const arg = instr[1];
 
-    let newStack = [...stack];
-    let newLocals = { ...locals };
+    const newStack = [...stack];
+    const newLocals = { ...locals };
 
     switch (op) {
       case "PUSH": newStack.push(Number(arg)); break;
@@ -159,7 +159,7 @@ export default function VMMinigameEnhanced() {
           </div>
 
           <div className="p-4 border-t border-[#30363d]">
-            {gameState === "won" && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-[#238636]/20 border border-[#238636] rounded-lg mb-3"><p className="text-[#3fb950] text-center">Success! Stack matches expected state!</p></motion.div>}
+            {gameState === "won" && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-[#238636]/20 border border-[#238636] rounded-lg mb-3"><p className="text-[#3fb950] text-center">Success! What&apos;s the stack state after executing?</p></motion.div>}
             {gameState === "lost" && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-[#f85149]/20 border border-[#f85149] rounded-lg mb-3"><p className="text-[#f85149] text-center">Stack doesn't match. Try again!</p></motion.div>}
             <div className="flex gap-2">
               <div className="flex-1 text-center">

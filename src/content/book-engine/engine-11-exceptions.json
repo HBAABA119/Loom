@@ -6,24 +6,33 @@
   "order": 11,
   "estimatedTime": "55 min",
   "theory": {
-    "overview": "Exception handling mechanisms allow programs to gracefully handle errors and exceptional conditions. The implementation involves stack unwinding, exception tables, and zero-cost exceptions (where the happy path has no overhead). Understanding these mechanisms helps write exception-safe code and debug stack traces.",
-    "keyConcepts": [
+    "overview": "Exception handling provides structured error recovery without propagating error codes through every function. When an exception is thrown, the runtime unwinds the stack, looking for an appropriate catch handler. Understanding exceptions helps write robust code and debug stack traces.",
+    "sections": [
       {
-        "title": "Stack Unwinding",
-        "content": "When an exception is thrown, the runtime searches up the call stack for a matching catch handler. Each stack frame is 'unwound' - destructors run, stack is popped - until a handler is found or the program terminates."
+        "title": "Throw and Catch",
+        "content": "Throwing creates an exception object and begins stack unwinding. Catch blocks specify which exception types they handle. Uncaught exceptions terminate the program.",
+        "examples": [
+          { "code": "throw new Error('failed')", "explanation": "Creates exception and begins unwinding" }
+        ]
       },
       {
-        "title": "Exception Tables",
-        "content": "Compilers generate DWARF or similar metadata mapping code addresses to exception handlers. This enables the runtime to find appropriate catch blocks during unwinding without runtime checks in the happy path."
+        "title": "Stack Unwinding",
+        "content": "As the stack unwinds, destructors run for local objects (in C++), finally blocks execute (in Java/Python), and frame-by-frame cleanup occurs until a handler is found.",
+        "keyPoints": [
+          "Destructors run during unwinding",
+          "Finally blocks always execute",
+          "Search for matching catch handler"
+        ]
       },
       {
         "title": "Zero-Cost Exceptions",
-        "content": "Modern C++ implementations make exceptions cost-free when not thrown. The overhead is moved to the exceptional path via lookup tables, unlike setjmp/longjmp which always pay a cost."
-      },
-      {
-        "title": "Exception Safety Guarantees",
-        "content": "Code can offer: no guarantee, basic guarantee (invariants preserved), strong guarantee (commit-or-rollback), or no-throw guarantee. RAII is essential for writing exception-safe code."
+        "content": "Modern implementations use exception tables to avoid overhead when no exceptions occur. The cost is only paid when an exception is actually thrown."
       }
+    ],
+    "keyConcepts": [
+      { "name": "Exception Object", "description": "Contains error information and stack trace" },
+      { "name": "Exception Table", "description": "Maps code addresses to handlers" },
+      { "name": "Landing Pad", "description": "Code location where exception handler begins" }
     ]
   },
   "steps": [

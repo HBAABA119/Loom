@@ -7,23 +7,38 @@
   "estimatedTime": "50 min",
   "theory": {
     "overview": "Type systems are the backbone of modern programming languages, providing a formal framework for classifying values and preventing errors before runtime. Static type checking catches bugs at compile time, while dynamic typing offers flexibility. Understanding type theory helps you appreciate how languages ensure correctness and enable powerful features like generics and type inference.",
-    "keyConcepts": [
+    "sections": [
       {
         "title": "Static vs Dynamic Typing",
-        "content": "Static typing (Java, C++, Rust) checks types at compile time, catching errors early. Dynamic typing (Python, JavaScript) checks at runtime, offering more flexibility but potentially more runtime errors."
+        "content": "Static typing (Java, C++, Rust) checks types at compile time, catching errors early. Dynamic typing (Python, JavaScript) checks at runtime, offering more flexibility but potentially more runtime errors.",
+        "keyPoints": [
+          "Static types checked at compile time",
+          "Dynamic types checked at runtime",
+          "Static catches errors before execution",
+          "Dynamic offers more flexibility"
+        ]
       },
       {
         "title": "Type Inference",
-        "content": "Modern compilers can deduce types without explicit annotations. Languages like Haskell and Rust use sophisticated algorithms (Hindley-Milner) to infer the most general type for expressions."
+        "content": "Modern compilers can deduce types without explicit annotations. Languages like Haskell and Rust use sophisticated algorithms (Hindley-Milner) to infer the most general type for expressions.",
+        "examples": [
+          { "code": "let x = 5; // inferred as Int", "explanation": "Compiler infers x is Int from literal" }
+        ]
       },
       {
         "title": "Polymorphism",
-        "content": "Parametric polymorphism (generics) allows code to work with any type. Ad-hoc polymorphism (overloading) provides different implementations for different types. Subtype polymorphism enables inheritance-based substitution."
-      },
-      {
-        "title": "Soundness & Completeness",
-        "content": "A type system is sound if well-typed programs never go wrong (no false negatives). It's complete if all valid programs are accepted (no false positives). Most practical systems sacrifice completeness for soundness."
+        "content": "Parametric polymorphism (generics) allows code to work with any type. Ad-hoc polymorphism (overloading) provides different implementations for different types. Subtype polymorphism enables inheritance-based substitution.",
+        "keyPoints": [
+          "Generics work with any type",
+          "Overloading provides type-specific implementations",
+          "Subtyping enables inheritance substitution"
+        ]
       }
+    ],
+    "keyConcepts": [
+      { "name": "Hindley-Milner", "description": "Algorithm for type inference in functional languages" },
+      { "name": "Type Variables", "description": "Placeholder types that can be instantiated with concrete types" },
+      { "name": "Unification", "description": "Solving type constraints to find consistent type assignments" }
     ]
   },
   "steps": [

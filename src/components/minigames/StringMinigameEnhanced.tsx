@@ -119,7 +119,7 @@ export default function StringMinigameEnhanced() {
   const checkAnswer = () => {
     setAttempts(a => a + 1);
     let isCorrect = false;
-    let userVal = userAnswer.trim();
+    const userVal = parseInt(userAnswer.trim());
 
     if (level.task === "find") {
       const sortedSelected = [...selectedPositions].sort((a, b) => a - b);
@@ -128,7 +128,7 @@ export default function StringMinigameEnhanced() {
     } else if (level.task === "count") {
       isCorrect = parseInt(userVal) === level.expectedAnswer;
     } else {
-      isCorrect = userVal.toLowerCase() === String(level.expectedAnswer).toLowerCase();
+      isCorrect = userAnswer.trim().toLowerCase() === String(level.expectedAnswer).toLowerCase();
     }
 
     if (isCorrect) {

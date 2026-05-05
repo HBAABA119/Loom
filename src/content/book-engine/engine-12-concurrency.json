@@ -6,24 +6,33 @@
   "order": 12,
   "estimatedTime": "60 min",
   "theory": {
-    "overview": "Modern processors execute multiple threads simultaneously, requiring careful coordination to prevent race conditions and deadlocks. Understanding memory models, synchronization primitives, and lock-free algorithms is essential for writing correct and performant concurrent code.",
-    "keyConcepts": [
+    "overview": "Concurrency enables programs to do multiple things simultaneously. Threads allow parallel execution, but introduce challenges like race conditions, deadlocks, and data races. Understanding synchronization primitives (mutexes, semaphores, condition variables) is essential for writing correct concurrent code.",
+    "sections": [
       {
-        "title": "Memory Models",
-        "content": "Memory models define how threads observe each other's memory operations. Sequential consistency provides the strongest guarantees, while relaxed models allow reordering for performance but require explicit synchronization."
+        "title": "Threads vs Processes",
+        "content": "Processes are isolated with separate memory spaces. Threads share memory within a process, enabling efficient communication but requiring synchronization.",
+        "keyPoints": [
+          "Processes have separate memory",
+          "Threads share memory",
+          "Context switch cheaper for threads"
+        ]
       },
       {
-        "title": "Synchronization Primitives",
-        "content": "Mutexes provide mutual exclusion, condition variables enable waiting for conditions, semaphores control access to limited resources, and read-write locks allow multiple readers or one writer."
+        "title": "Race Conditions",
+        "content": "When multiple threads access shared data without synchronization, the result depends on timing. Classic example: two threads incrementing a counter concurrently can lose increments.",
+        "examples": [
+          { "code": "counter++ // not atomic!", "explanation": "Can lose increments with multiple threads" }
+        ]
       },
       {
-        "title": "Atomic Operations",
-        "content": "Atomic operations (compare-and-swap, fetch-and-add, etc.) provide lock-free synchronization. Memory orderings (relaxed, acquire, release, sequential) control visibility guarantees."
-      },
-      {
-        "title": "Deadlock Prevention",
-        "content": "Deadlocks occur when threads circularly wait for resources. Prevention strategies: lock ordering (always acquire locks in the same order), lock timeout, deadlock detection, or lock-free algorithms."
+        "title": "Deadlocks",
+        "content": "A deadlock occurs when threads wait on each other in a cycle. Prevention requires careful ordering of lock acquisition, or using timeouts and lock hierarchies."
       }
+    ],
+    "keyConcepts": [
+      { "name": "Mutex", "description": "Mutual exclusion lock for protecting shared data" },
+      { "name": "Semaphore", "description": "Counter for controlling resource access" },
+      { "name": "Data Race", "description": "Unsynchronized access to shared mutable data" }
     ]
   },
   "steps": [

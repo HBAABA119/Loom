@@ -39,7 +39,7 @@ export default function MathMinigameEnhanced() {
   const handleSubmit = () => {
     if (gameState !== "playing") return;
     setAttempts(a => a + 1);
-    let correct = level.answer;
+    const correct = level.answer;
     if (parseInt(userAnswer) === correct) { const points = Math.max(10, 50 - attempts); setScore(points); setTotalScore(s => s + points); setGameState("won"); setFeedback(`🎉 Correct! Answer is ${correct}. +${points} points`); if (currentLevel < levels.length - 1 && !unlockedLevels.includes(currentLevel + 1)) setUnlockedLevels([...unlockedLevels, currentLevel + 1]); }
     else setFeedback(`❌ Incorrect! Try again.`);
   };

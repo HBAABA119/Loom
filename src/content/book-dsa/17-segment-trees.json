@@ -52,7 +52,7 @@
       {
         "name": "Combine Function",
         "description": "Function to combine two child values into parent value. Depends on query type: sum = a+b, min = min(a,b), max = max(a,b), GCD = gcd(a,b).",
-        "examples": "sum, min, max, GCD, product"
+        "examples": ["sum", "min", "max", "GCD", "product"]
       },
       {
         "name": "Neutral Element",

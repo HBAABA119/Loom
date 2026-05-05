@@ -130,11 +130,11 @@ export default function QueueMinigameEnhanced() {
     if (gameState !== "playing") return;
     setAttempts(a => a + 1);
 
-    let newQueue = [...queue];
+    const newQueue = [...queue];
     let newSize = size;
     let newFront = front;
     let newRear = rear;
-    let newLog = [...processedLog];
+    const newLog = [...processedLog];
 
     if (operation.startsWith("Enqueue")) {
       if (size >= level.capacity) {

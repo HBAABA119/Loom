@@ -6,24 +6,33 @@
   "order": 9,
   "estimatedTime": "55 min",
   "theory": {
-    "overview": "Code generation transforms optimized IR into target machine code. This phase involves instruction selection (choosing the best machine instructions), register allocation (mapping virtual variables to physical registers), and instruction scheduling (ordering for performance). Understanding code generation reveals how high-level concepts become executable machine instructions.",
-    "keyConcepts": [
+    "overview": "Code generation transforms intermediate representations into executable machine code. This involves selecting appropriate instructions, allocating registers, managing the call stack, and generating efficient code for the target architecture.",
+    "sections": [
       {
         "title": "Instruction Selection",
-        "content": "Pattern matching IR patterns to machine instructions. Tree-based matching, tiling, or grammar-based approaches find optimal instruction sequences. Complex IR operations may need multiple machine instructions."
+        "content": "Mapping IR operations to machine instructions. Complex IR patterns may match multiple machine instructions (instruction combining), while simple patterns map directly.",
+        "examples": [
+          { "code": "a = b + c", "explanation": "Maps to: ADD r1, r2, r3 on x86" }
+        ]
       },
       {
         "title": "Register Allocation",
-        "content": "Mapping unlimited virtual registers to limited physical registers. Graph coloring is the classic approach: variables that interfere (live simultaneously) get different colors (registers). Spilling moves values to memory when registers are scarce."
+        "content": "Assigning IR variables to CPU registers. Since registers are scarce, the compiler must spill variables to memory when necessary using algorithms like graph coloring or linear scan.",
+        "keyPoints": [
+          "Registers are limited resource",
+          "Spill to memory when needed",
+          "Graph coloring for optimal allocation"
+        ]
       },
       {
         "title": "Calling Conventions",
-        "content": "Standardized protocols for function calls: which registers pass arguments, which must be preserved, where return values go, and how the stack frame is organized."
-      },
-      {
-        "title": "Peephole Optimization",
-        "content": "Local pattern matching on generated code to eliminate redundancies: 'mov r0, r1; mov r1, r0' becomes 'mov r0, r1', 'add r0, 0' can be eliminated."
+        "content": "Standardized rules for function calls: where arguments go (stack or registers), who saves which registers, how return values are passed, and stack frame layout."
       }
+    ],
+    "keyConcepts": [
+      { "name": "Instruction Selection", "description": "Mapping IR to machine instructions" },
+      { "name": "Register Spilling", "description": "Moving variables from registers to memory" },
+      { "name": "Stack Frame", "description": "Memory layout for function calls" }
     ]
   },
   "steps": [

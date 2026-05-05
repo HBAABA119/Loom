@@ -6,24 +6,33 @@
   "order": 14,
   "estimatedTime": "60 min",
   "theory": {
-    "overview": "Compilers transform code through multiple optimization passes, each improving performance while preserving semantics. From local peephole optimizations to global dataflow analyses, these passes work together to generate efficient machine code. Understanding optimizations helps you write code that compilers can optimize effectively.",
-    "keyConcepts": [
+    "overview": "Optimization passes transform code to make it faster, smaller, or more energy-efficient. Compilers apply multiple passes: constant folding, dead code elimination, loop optimizations, inlining, and more. Understanding optimizations helps write code that compilers can optimize effectively.",
+    "sections": [
       {
-        "title": "Constant Folding & Propagation",
-        "content": "Evaluate constant expressions at compile time. If x = 5, replace x + 3 with 8. Propagation tracks constant values through the program, enabling more optimizations."
+        "title": "Constant Folding",
+        "content": "Compute constant expressions at compile time. For example, '3 + 4' becomes '7' and 'x * 2 + x * 3' becomes 'x * 5'.",
+        "examples": [
+          { "code": "return 3 + 4", "explanation": "Becomes: return 7" }
+        ]
       },
       {
         "title": "Dead Code Elimination",
-        "content": "Remove code that doesn't affect program output. Unreachable code, unused assignments, and pure computations with unused results are eliminated."
+        "content": "Remove code that never executes or whose results are never used. This includes unreachable branches and unused variables.",
+        "keyPoints": [
+          "Unreachable code removed",
+          "Unused variables eliminated",
+          "Dead branches pruned"
+        ]
       },
       {
         "title": "Loop Optimizations",
-        "content": "Invariant code motion moves loop-invariant computations outside. Strength reduction replaces expensive operations (multiplication) with cheaper ones (addition). Loop unrolling reduces loop overhead."
-      },
-      {
-        "title": "Inlining & Devirtualization",
-        "content": "Function inlining replaces calls with function body, eliminating call overhead. Devirtualization converts virtual calls to direct calls when the target is known at compile time."
+        "content": "Loop unrolling (replicating loop body), loop invariant code motion (moving calculations out of loops), and induction variable optimization."
       }
+    ],
+    "keyConcepts": [
+      { "name": "SSA Form", "description": "Enables precise optimization analysis" },
+      { "name": "Inlining", "description": "Replace function call with function body" },
+      { "name": "Peephole Optimization", "description": "Local pattern-based optimizations" }
     ]
   },
   "steps": [

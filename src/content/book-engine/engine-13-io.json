@@ -6,24 +6,33 @@
   "order": 13,
   "estimatedTime": "50 min",
   "theory": {
-    "overview": "Input/Output systems handle communication between programs and the external world. From blocking I/O to async/await and event loops, modern systems employ sophisticated techniques to handle thousands of concurrent connections efficiently. Understanding I/O models helps you build high-performance networked applications.",
-    "keyConcepts": [
+    "overview": "I/O systems handle communication between programs and the outside world. Event loops enable efficient handling of many concurrent I/O operations without blocking. Understanding I/O models (blocking, non-blocking, asynchronous) is crucial for writing scalable servers and responsive applications.",
+    "sections": [
       {
-        "title": "Blocking vs Non-blocking I/O",
-        "content": "Blocking I/O waits until operation completes, consuming a thread. Non-blocking I/O returns immediately, requiring the program to check completion status. Async I/O uses callbacks or futures to notify completion."
+        "title": "Blocking vs Non-Blocking I/O",
+        "content": "Blocking I/O waits for the operation to complete before returning. Non-blocking I/O returns immediately, indicating whether the operation completed or would block.",
+        "keyPoints": [
+          "Blocking: thread waits for I/O",
+          "Non-blocking: immediate return",
+          "Async: callbacks when I/O completes"
+        ]
       },
       {
         "title": "Event Loops",
-        "content": "Event loops (reactor pattern) use a single thread to handle many connections. They monitor file descriptors for readiness, dispatching events to handlers. This avoids thread-per-connection overhead."
+        "content": "An event loop continuously checks for I/O events and invokes callbacks when events occur. This enables a single thread to handle thousands of concurrent connections efficiently.",
+        "examples": [
+          { "code": "Node.js event loop", "explanation": "Single thread handles many connections via callbacks" }
+        ]
       },
       {
-        "title": "System Calls & Kernel",
-        "content": "I/O operations require system calls transitioning to kernel mode. select/poll/epoll (Linux) and kqueue (BSD/macOS) let a single thread monitor many file descriptors efficiently."
-      },
-      {
-        "title": "Zero-Copy I/O",
-        "content": "Techniques like sendfile() avoid copying data through user space. The kernel transfers data directly from disk to socket, reducing CPU overhead and memory bandwidth."
+        "title": "select vs epoll vs kqueue",
+        "content": "Different OS APIs for monitoring multiple file descriptors. select() has O(n) overhead. epoll (Linux) and kqueue (BSD) use efficient data structures for O(1) operations."
       }
+    ],
+    "keyConcepts": [
+      { "name": "File Descriptor", "description": "OS handle for I/O resource" },
+      { "name": "Callback", "description": "Function invoked when I/O completes" },
+      { "name": "Reactor Pattern", "description": "Event-driven architecture for I/O" }
     ]
   },
   "steps": [
