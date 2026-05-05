@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ChevronLeft, ChevronRight, BookOpen, Play, CheckCircle, 
-  Clock, Target, Lightbulb, Code, Gamepad2, Calculator
+  Clock, Target, Lightbulb, Code, Gamepad2, Calculator, Eye, Sparkles
 } from "lucide-react";
 import { Book, ChapterMeta } from "@/lib/engine/bookRegistry";
 import { getChapterConfig } from "@/lib/engine/chapterRegistry";
 import ThemeToggle from "@/components/ThemeToggle";
 import { MixedText } from "@/components/LatexRenderer";
+import { ExpandablePanel, ExpandableTrigger } from "@/components/ExpandablePanel";
 
 interface ChapterPageClientProps {
   book: Book;
@@ -28,9 +29,13 @@ export default function ChapterPageClient({
   content
 }: ChapterPageClientProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"theory" | "practice" | "visualizer" | "minigame">("theory");
+  const [activeTab, setActiveTab] = useState<"theory" | "practice">("theory");
   const [showHint, setShowHint] = useState<number | null>(null);
   const [problemStep, setProblemStep] = useState(0);
+  
+  // Expandable panel state
+  const [visualizerOpen, setVisualizerOpen] = useState(false);
+  const [minigameOpen, setMinigameOpen] = useState(false);
 
   // Get chapter config for visualizer and minigame
   const chapterConfig = getChapterConfig(chapter.id);
@@ -106,9 +111,7 @@ export default function ChapterPageClient({
               <div className="flex gap-2 border-t border-border pt-4">
                 {[
                   { id: "theory", label: "Theory", icon: BookOpen },
-                  { id: "visualizer", label: "Visualizer", icon: Play },
                   { id: "practice", label: "Practice", icon: Code },
-                  { id: "minigame", label: "Minigame", icon: Gamepad2 },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -124,6 +127,24 @@ export default function ChapterPageClient({
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Interactive Tools Section */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <ExpandableTrigger
+                onClick={() => setVisualizerOpen(true)}
+                title="Algorithm Visualizer"
+                icon={<Eye size={24} />}
+                description={VisualizerComponent ? "Interactive step-by-step visualization" : "Coming soon..."}
+                isAvailable={!!VisualizerComponent}
+              />
+              <ExpandableTrigger
+                onClick={() => setMinigameOpen(true)}
+                title="Practice Minigame"
+                icon={<Gamepad2 size={24} />}
+                description={MinigameComponent ? "Test your knowledge with challenges" : "Coming soon..."}
+                isAvailable={!!MinigameComponent}
+              />
             </div>
 
             {/* Tab Content */}
@@ -283,50 +304,48 @@ function solve(input) {
                   </div>
                 )}
 
-                {activeTab === "visualizer" && (
-                  <div className="space-y-4">
-                    <h2 className="text-lg font-semibold text-foreground">Algorithm Visualizer</h2>
-                    {VisualizerComponent ? (
-                      <div className="rounded-lg border border-border bg-background/50 overflow-hidden" style={{ height: "500px" }}>
-                        <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading visualizer...</div>}>
-                          <VisualizerComponent />
-                        </Suspense>
-                      </div>
-                    ) : (
-                      <div className="rounded-lg border border-border bg-background/50 p-8 text-center">
-                        <Play size={48} className="mx-auto mb-4 text-muted" />
-                        <p className="text-muted">Visualizer coming soon...</p>
-                        <p className="mt-2 text-sm text-muted">
-                          Watch step-by-step execution of the algorithm
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === "minigame" && (
-                  <div className="space-y-4">
-                    <h2 className="text-lg font-semibold text-foreground">Interactive Minigame</h2>
-                    {MinigameComponent ? (
-                      <div className="rounded-lg border border-border bg-background/50 overflow-hidden" style={{ height: "500px" }}>
-                        <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading minigame...</div>}>
-                          <MinigameComponent />
-                        </Suspense>
-                      </div>
-                    ) : (
-                      <div className="rounded-lg border border-border bg-background/50 p-8 text-center">
-                        <Gamepad2 size={48} className="mx-auto mb-4 text-muted" />
-                        <p className="text-muted">Minigame coming soon...</p>
-                        <p className="mt-2 text-sm text-muted">
-                          Practice with interactive challenges
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
               </motion.div>
             </AnimatePresence>
           </div>
+
+          {/* Expandable Panels for Visualizer and Minigame */}
+          <ExpandablePanel
+            isOpen={visualizerOpen}
+            onClose={() => setVisualizerOpen(false)}
+            title="Algorithm Visualizer"
+            subtitle={chapter.title}
+          >
+            {VisualizerComponent ? (
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading visualizer...</div>}>
+                <VisualizerComponent />
+              </Suspense>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center p-8">
+                <Sparkles size={64} className="mx-auto mb-4 text-[#58a6ff]" />
+                <h3 className="text-2xl font-semibold text-white mb-2">Visualizer Coming Soon</h3>
+                <p className="text-[#8b949e]">This chapter&apos;s interactive visualization is being developed.</p>
+              </div>
+            )}
+          </ExpandablePanel>
+
+          <ExpandablePanel
+            isOpen={minigameOpen}
+            onClose={() => setMinigameOpen(false)}
+            title="Practice Minigame"
+            subtitle={chapter.title}
+          >
+            {MinigameComponent ? (
+              <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading minigame...</div>}>
+                <MinigameComponent />
+              </Suspense>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center p-8">
+                <Gamepad2 size={64} className="mx-auto mb-4 text-[#f0883e]" />
+                <h3 className="text-2xl font-semibold text-white mb-2">Minigame Coming Soon</h3>
+                <p className="text-[#8b949e]">Practice challenges for this chapter are being prepared.</p>
+              </div>
+            )}
+          </ExpandablePanel>
 
           {/* Sidebar */}
           <div className="space-y-4">

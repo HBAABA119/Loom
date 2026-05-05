@@ -1,0 +1,304 @@
+{
+  "id": "engine-04-gc",
+  "bookId": "book-engine",
+  "title": "Garbage Collection",
+  "category": "Intermediate",
+  "order": 4,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Garbage Collection (GC) automatically reclaims memory that is no longer reachable by the program—eliminating manual memory management bugs like use-after-free and memory leaks. Languages like Java, JavaScript, Python, and Go use GC to provide memory safety. Understanding how GC works helps you write GC-friendly code, diagnose performance issues, and tune collection behavior. From simple reference counting to sophisticated generational collectors, GC algorithms represent a beautiful intersection of theory and practical engineering.",
+    "sections": [
+      {
+        "title": "Why Garbage Collection?",
+        "content": "Manual memory management is error-prone: forgetting to free causes leaks, freeing too early causes crashes, double-free corrupts memory. GC eliminates entire classes of bugs at the cost of some runtime overhead. Modern GCs are highly optimized—generational collection, concurrent marking, and incremental collection keep pause times minimal. For most applications, the productivity and safety gains outweigh the performance costs.",
+        "keyPoints": [
+          "Eliminates memory leaks and dangling pointers",
+          "Prevents double-free and use-after-free bugs",
+          "Enables safe language features (closures, continuations)",
+          "Runtime overhead is typically < 10% for modern GCs"
+        ]
+      },
+      {
+        "title": "Reference Counting",
+        "content": "The simplest GC approach: each object tracks how many references point to it. When count reaches zero, the object is immediately freed. Pros: deterministic destruction, simple implementation, no pause times. Cons: circular references leak (A↔B never reaches zero), overhead on every pointer write, cache-unfriendly due to frequent count updates. Python and Swift use reference counting with cycle detection.",
+        "diagram": "A → B → C (A.count=1, B.count=2, C.count=1)\nWhen A freed: B.count=1\nWhen nothing references B or C: they leak if B↔C cycle exists",
+        "keyPoints": [
+          "Immediate reclamation when count=0",
+          "Circular references cause leaks",
+          "Atomic operations needed for thread safety",
+          "Write barrier on every reference assignment"
+        ]
+      },
+      {
+        "title": "Mark and Sweep",
+        "content": "The classic tracing GC algorithm with two phases. Mark: start from roots (global variables, stack, registers), traverse all reachable objects, mark them as alive. Sweep: scan entire heap, free unmarked objects. This handles cycles correctly (if not reachable from roots, collected). Downsides: pauses for entire heap traversal, fragmentation after many collections, memory not reclaimed until sweep.",
+        "phases": [
+          { "phase": "Mark", "description": "DFS/BFS from roots, set 'marked' flag on reachable objects", "complexity": "O(live objects)" },
+          { "phase": "Sweep", "description": "Scan heap, return unmarked objects to free list", "complexity": "O(total heap)" }
+        ]
+      },
+      {
+        "title": "Generational Collection",
+        "content": "Based on the generational hypothesis: most objects die young. The heap is divided into generations: young (eden, survivor spaces) and old (tenured). New objects allocate in eden. Minor GC collects eden, promoting survivors to survivor spaces. Objects surviving multiple minor GCs promote to old gen. Major GC collects old gen, triggered less frequently. This makes common case (young object death) fast.",
+        "generations": [
+          { "name": "Eden", "description": "New allocations", "collection": "Very frequent, very fast" },
+          { "name": "Survivor S0/S1", "description": "Objects surviving one GC", "collection": "Copied between spaces" },
+          { "name": "Old/Tenured", "description": "Long-lived objects", "collection": "Infrequent, slower" }
+        ]
+      },
+      {
+        "title": "Copying Collection",
+        "content": "Used in generational GC for young objects. Heap split into two semi-spaces: From and To. Allocate in From. When full, copy live objects to To, update references, swap spaces. Dead objects are left behind implicitly—no sweep phase needed. Pros: no fragmentation, allocation is fast (bump pointer), collection time proportional to live objects (not heap size). Cons: 2x memory overhead, long-lived objects copied repeatedly.",
+        "process": [
+          "1. Allocate in From space (bump pointer)",
+          "2. When From full: trace from roots",
+          "3. Copy live objects to To space (compact)",
+          "4. Update all forwarded pointers",
+          "5. Swap From/To labels",
+          "6. Allocation continues in new From"
+        ]
+      },
+      {
+        "title": "Concurrent and Incremental GC",
+        "content": "To reduce pause times, modern GCs work concurrently with the application. Challenge: the mutator (application) changes pointers while collector traces—can miss objects or trace garbage. Solution: write barriers log pointer changes, SATB (Snapshot-At-The-Beginning) or incremental update algorithms ensure correctness. Go's tri-color concurrent mark-sweep, Java's G1 and ZGC, .NET's concurrent GC all use these techniques to achieve sub-millisecond pauses.",
+        "techniques": [
+          { "name": "Tri-color Marking", "description": "White (unvisited), Grey (reachable, children not scanned), Black (fully processed). Mutator write barriers maintain invariant." },
+          { "name": "SATB", "description": "Snapshot at start of mark: objects white→grey when overwritten pointer discovered" },
+          { "name": "Incremental", "description": "Interleave small collection work between mutator execution" },
+          { "name": "Concurrent", "description": "GC threads run parallel with mutator threads" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Root Set",
+        "description": "Starting points for tracing: global variables, CPU registers, stack frames. Anything directly accessible without following pointers.",
+        "examples": "Global variables, local variables on stack, static fields"
+      },
+      {
+        "name": "Reachability",
+        "description": "An object is reachable if there's a path from any root to it following references. Unreachable objects are garbage.",
+        "formal": "∃ path: root →* object"
+      },
+      {
+        "name": "Write Barrier",
+        "description": "Code executed when a pointer is written. Logs the change for the collector, maintains tri-color invariant, or updates remembered set.",
+        "overhead": "Small constant cost on every pointer store"
+      },
+      {
+        "name": "Promotion",
+        "description": "Moving objects from young generation to old generation after surviving multiple collections.",
+        "threshold": "Typically after surviving 2-15 minor GCs"
+      }
+    ],
+    "complexity": {
+      "markPhase": "$O(R)$ where $R$ = reachable objects",
+      "sweepPhase": "$O(H)$ where $H$ = total heap size",
+      "copyPhase": "$O(R)$ - proportional to live data",
+      "allocation": "$O(1)$ amortized with bump pointer"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Identify Root Set",
+      "description": "Scan global variables, stack frames, and registers to find all directly accessible objects. Mark these as reachable.",
+      "visualState": { "roots": ["global_x", "local_y", "register_z"], "marked": 3, "phase": "identify_roots" }
+    },
+    {
+      "step": 2,
+      "title": "Mark Phase - Trace References",
+      "description": "From each root, recursively follow all references. Mark every reachable object. Use DFS or BFS traversal.",
+      "visualState": { "traversal": "DFS", "queue": ["obj_A", "obj_B"], "marked": 8, "phase": "marking" }
+    },
+    {
+      "step": 3,
+      "title": "Mark Complete",
+      "description": "All reachable objects are marked. Unmarked objects are garbage (unreachable from any root).",
+      "visualState": { "markedObjects": 15, "unmarkedObjects": 7, "phase": "mark_complete" }
+    },
+    {
+      "step": 4,
+      "title": "Sweep Phase (or Copy)",
+      "description": "Mark-Sweep: free unmarked objects. Copying: copy marked objects to new space, leave garbage behind.",
+      "visualState": { "freedObjects": 7, "heapUtilization": "68%", "phase": "sweep_or_copy" }
+    },
+    {
+      "step": 5,
+      "title": "Compaction (Optional)",
+      "description": "Move live objects together to eliminate fragmentation. Update all references to new locations.",
+      "visualState": { "compaction": true, "objectsMoved": 15, "fragmentation": "0%", "phase": "compact" }
+    },
+    {
+      "step": 6,
+      "title": "Resume Application",
+      "description": "GC complete. Application threads resume. Freed memory available for new allocations.",
+      "visualState": { "gcCycle": "complete", "pauseTime": "12ms", "memoryReclaimed": "2.1MB", "phase": "complete" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Reference Counting Basics",
+      "difficulty": "easy",
+      "type": "simulation",
+      "description": "Object A has count=2. One reference is set to null. What happens?",
+      "answer": "Count becomes 1. Object NOT freed because count != 0.",
+      "explanation": "Reference counting only frees when count reaches exactly 0. One reference remains.",
+      "hints": ["Decrement on null assignment", "Free only at count=0", "One reference still exists"]
+    },
+    {
+      "id": "p2",
+      "title": "Circular Reference Leak",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "A→B and B→A, no external refs. Both counts=1. Are they garbage collected?",
+      "answer": "Not with pure reference counting. Yes with tracing GC.",
+      "explanation": "Pure reference counting: neither count reaches 0 (cycle). Tracing GC: neither reachable from roots, so both collected.",
+      "hints": ["Check reachability from roots", "Cycle isolated from roots = garbage", "Tracing GC finds cycles"]
+    },
+    {
+      "id": "p3",
+      "title": "Mark Phase Count",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "Heap has 1000 objects. Mark phase visits 300. How many will sweep free?",
+      "answer": "700 objects (the unmarked ones)",
+      "explanation": "Mark visits reachable objects. Unvisited (unmarked) objects are unreachable = garbage. 1000 - 300 = 700 freed.",
+      "hints": ["Mark finds live objects", "Unmarked = unreachable", "Subtract visited from total"]
+    },
+    {
+      "id": "p4",
+      "title": "Generational Hypothesis",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the 'generational hypothesis' in garbage collection?",
+      "answer": "Most objects die young (short lifetime)",
+      "explanation": "Empirical observation: ~90% of objects die within a few MB of allocation or minor GC cycles. Optimizing for young object death makes GC efficient.",
+      "hints": ["Observation about object lifetimes", "Young objects tend to die quickly", "Long-lived objects keep living"]
+    },
+    {
+      "id": "p5",
+      "title": "Copying Collector Space",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Copying collector with 4MB heap. How much memory available for allocation?",
+      "answer": "2MB (From space)",
+      "explanation": "Copying collectors split heap into two semi-spaces (From and To). Only From is used for allocation. 4MB / 2 = 2MB usable.",
+      "hints": ["Two semi-spaces", "Only one active for allocation", "Double memory overhead"]
+    },
+    {
+      "id": "p6",
+      "title": "GC Pause Time",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why do simple mark-sweep collectors cause pauses?",
+      "answer": "Must stop all application threads during mark and sweep",
+      "explanation": "The collector needs a consistent view of the heap. If mutator changes pointers during mark, objects can be missed (live objects collected = crash).",
+      "hints": ["Stop-the-world for consistency", "Mutator changes during mark = errors", "Scanning takes time"]
+    },
+    {
+      "id": "p7",
+      "title": "Write Barrier Purpose",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why do concurrent GCs need write barriers?",
+      "answer": "To track pointer changes made by mutator while collector runs",
+      "explanation": "Without tracking, mutator could hide reachable objects from collector (store to field already scanned). Write barrier logs changes for re-scanning.",
+      "hints": ["Mutator modifies during collection", "Collector might miss reachable objects", "Barrier captures changes"]
+    },
+    {
+      "id": "p8",
+      "title": "Tri-color Invariant",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "In tri-color marking, what invariant must be maintained?",
+      "answer": "No black object may hold a reference directly to a white object",
+      "explanation": "If black (done scanning) → white (unvisited), and white has no other path to roots, collector will miss it. Grey objects are the 'frontier'—being scanned but children not yet visited.",
+      "hints": ["Black = fully scanned", "White = unvisited", "Grey = frontier"]
+    },
+    {
+      "id": "p9",
+      "title": "GC Performance Trade-off",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why is generational GC faster than collecting entire heap?",
+      "answer": "Minor GC only scans young generation (small, high mortality), major GC infrequent",
+      "explanation": "Young gen is small and most objects die there—collecting it is fast and frees lots of memory. Old gen collected rarely. Total GC work reduced.",
+      "hints": ["Young gen small and high death rate", "Collect frequently where objects die", "Old gen stable, scan rarely"]
+    },
+    {
+      "id": "p10",
+      "title": "Memory Fragmentation",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What causes fragmentation and how does copying/compaction solve it?",
+      "answer": "Fragmentation: dead objects leave holes. Copying/compaction moves live objects together, leaving contiguous free space.",
+      "explanation": "After many allocations/frees, free memory becomes scattered holes. Large objects can't fit despite total free space being sufficient. Compaction creates one large free block.",
+      "hints": ["Dead objects create holes", "Scattered free space", "Compaction = defragmentation"]
+    }
+  ],
+  "minigame": {
+    "id": "gc-simulator",
+    "title": "Garbage Collector Guardian",
+    "description": "Protect the heap from memory leaks! Trace references, identify garbage, and reclaim memory. Visualize how different GC algorithms work and compete for efficiency on the leaderboard.",
+    "type": "simulation-strategy",
+    "instructions": [
+      "Watch objects allocate on the heap",
+      "Trace from roots to mark live objects",
+      "Click garbage objects to reclaim them",
+      "Prevent heap exhaustion!",
+      "Try different GC strategies for bonus challenges"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Mark Apprentice",
+        "description": "Simple mark-and-sweep on small heap",
+        "setup": { "heapSize": 20, "objectSize": 1, "allocRate": "slow", "gcType": "mark-sweep" },
+        "goal": "Keep heap utilization under 80%"
+      },
+      {
+        "level": 2,
+        "name": "Generational Guardian",
+        "description": "Manage young and old generations",
+        "setup": { "heapSize": 50, "generations": 2, "promotionAge": 3, "gcType": "generational" },
+        "goal": "Perform 5 minor GCs and 1 major GC successfully"
+      },
+      {
+        "level": 3,
+        "name": "Concurrent Master",
+        "description": "Handle mutator running during collection",
+        "setup": { "heapSize": 100, "mutatorSpeed": "fast", "gcType": "concurrent", "writeBarriers": true },
+        "goal": "Complete 10 GC cycles with <5ms max pause time"
+      }
+    ],
+    "scoring": {
+      "memoryEfficiency": "freed_memory / allocated_memory",
+      "pauseTime": "lower is better",
+      "survivalRate": "live_objects / total_objects_after_gc"
+    }
+  },
+  "visualizer": {
+    "type": "gc-simulation",
+    "title": "Garbage Collection Visualizer",
+    "description": "Interactive visualization of GC algorithms. Watch mark-and-sweep, generational, and copying collectors in action. See the heap layout, reference graph, and collection phases step by step.",
+    "features": [
+      "Heap visualization with objects",
+      "Reference graph from roots",
+      "Tri-color marking display",
+      "Generation separation (young/old)",
+      "Pause time measurement",
+      "GC algorithm comparison"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Simple Mark-and-Sweep GC",
+        "code": "from dataclasses import dataclass, field\nfrom typing import List, Optional, Set, Dict\n\n@dataclass\nclass GCObject:\n    id: int\n    marked: bool = False\n    refs: List['GCObject'] = field(default_factory=list)\n    size: int = 1\n    \n    def __repr__(self):\n        return f'Obj({self.id}, marked={self.marked}, refs={[r.id for r in self.refs]})'\n\nclass SimpleGC:\n    def __init__(self, heap_size: int = 100):\n        self.heap: List[GCObject] = []\n        self.roots: Set[GCObject] = set()\n        self.heap_size = heap_size\n        self.next_id = 0\n        self.freed_count = 0\n    \n    def allocate(self, size: int = 1) -> Optional[GCObject]:\n        if len(self.heap) >= self.heap_size:\n            print('Heap full, triggering GC...')\n            self.collect()\n            if len(self.heap) >= self.heap_size:\n                return None  # Out of memory even after GC\n        \n        obj = GCObject(id=self.next_id, size=size)\n        self.next_id += 1\n        self.heap.append(obj)\n        return obj\n    \n    def add_root(self, obj: GCObject):\n        self.roots.add(obj)\n    \n    def remove_root(self, obj: GCObject):\n        self.roots.discard(obj)\n    \n    def write_ref(self, from_obj: GCObject, to_obj: Optional[GCObject], idx: int = 0):\n        '''Write barrier: update reference from from_obj to to_obj'''\n        if idx < len(from_obj.refs):\n            from_obj.refs[idx] = to_obj if to_obj else None\n        elif to_obj:\n            from_obj.refs.append(to_obj)\n    \n    def mark(self):\n        '''Mark phase: trace from roots, mark reachable'''\n        # Reset all marks\n        for obj in self.heap:\n            obj.marked = False\n        \n        # DFS from roots\n        stack = list(self.roots)\n        while stack:\n            obj = stack.pop()\n            if obj and not obj.marked:\n                obj.marked = True\n                for ref in obj.refs:\n                    if ref and not ref.marked:\n                        stack.append(ref)\n    \n    def sweep(self):\n        '''Sweep phase: remove unmarked objects'''\n        survivors = []\n        freed = 0\n        for obj in self.heap:\n            if obj.marked:\n                survivors.append(obj)\n            else:\n                freed += obj.size\n                self.freed_count += 1\n        \n        self.heap = survivors\n        return freed\n    \n    def collect(self) -> int:\n        '''Full GC cycle: mark then sweep'''\n        print(f'\\n=== GC Start: {len(self.heap)} objects ===')\n        \n        # Mark phase\n        self.mark()\n        marked = sum(1 for obj in self.heap if obj.marked)\n        print(f'Mark phase: {marked} objects reachable from roots')\n        \n        # Sweep phase\n        freed = self.sweep()\n        print(f'Sweep phase: {freed} bytes freed, {len(self.heap)} objects remain')\n        \n        print('=== GC Complete ===')\n        return freed\n    \n    def heap_stats(self):\n        total = sum(obj.size for obj in self.heap)\n        marked = sum(1 for obj in self.heap if obj.marked)\n        return {\n            'objects': len(self.heap),\n            'bytes_used': total,\n            'bytes_free': self.heap_size - total,\n            'reachable': marked\n        }\n\n# Demo\ngc = SimpleGC(heap_size=20)\n\n# Create objects\na = gc.allocate()\nb = gc.allocate()\nc = gc.allocate()\nd = gc.allocate()\n\n# Set up reference graph: a -> b -> c, and a -> d\ngc.add_root(a)\ngc.write_ref(a, b)\ngc.write_ref(b, c)\ngc.write_ref(a, d, idx=1)\n\n# b is reachable from root a, but let's make it unreachable\ngc.write_ref(a, None)  # Remove a's ref to b\n# Now only d is reachable from a (through a.refs[1])\n\nprint('Before GC:', gc.heap_stats())\nfor obj in gc.heap:\n    print(f'  {obj}')\n\ngc.collect()\n\nprint('\\nAfter GC:', gc.heap_stats())\nfor obj in gc.heap:\n    print(f'  {obj}')\n\n# Create a circular reference: x <-> y\nx = gc.allocate()\ny = gc.allocate()\ngc.write_ref(x, y)\ngc.write_ref(y, x)\n# Neither is a root - they should be collected despite the cycle\n\nprint('\\nAdded circular reference (no roots):')\ngc.collect()\nprint('Circular objects collected:', gc.freed_count, 'total freed')"
+      }
+    ]
+  }
+}

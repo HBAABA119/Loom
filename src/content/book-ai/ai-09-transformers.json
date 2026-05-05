@@ -1,0 +1,270 @@
+{
+  "id": "ai-09-transformers",
+  "bookId": "book-ai",
+  "title": "Transformers & Attention",
+  "category": "Deep Learning",
+  "order": 9,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Transformers revolutionized natural language processing and became the foundation for modern AI like GPT and BERT. Unlike RNNs that process sequences step-by-step, Transformers process entire sequences in parallel using self-attention—each token can directly attend to every other token. This 'attention is all you need' architecture enables massive models that capture complex linguistic patterns and power everything from chatbots to code generation.",
+    "sections": [
+      {
+        "title": "The Problem with RNNs",
+        "content": "RNNs process sequences sequentially, which is slow and limits context window. Long-range dependencies (word relationships far apart) are hard to capture due to vanishing gradients. Training is hard to parallelize.",
+        "limitations": ["Sequential processing = slow", "Limited context window", "Hard to parallelize training", "Vanishing gradients in long sequences"]
+      },
+      {
+        "title": "Attention: The Core Idea",
+        "content": "Self-attention allows each position to attend to all positions, computing a weighted sum based on relevance. Think of it as: 'When processing this word, which other words matter most?'",
+        "analogy": "Like reading a sentence and immediately jumping back to relevant words instead of re-reading sequentially.",
+        "formula": "Attention(Q, K, V) = softmax(QK^T / √d_k)V"
+      },
+      {
+        "title": "Query, Key, Value",
+        "content": "Each input token generates three vectors through learned linear transformations:",
+        "components": [
+          { "name": "Query (Q)", "purpose": "What am I looking for?", "analogy": "Your search query" },
+          { "name": "Key (K)", "purpose": "What do I contain?", "analogy": "Document keywords for matching" },
+          { "name": "Value (V)", "purpose": "What information do I provide?", "analogy": "The actual content" }
+        ],
+        "computation": "Score(i,j) = Query_i · Key_j determines how much position j contributes to position i"
+      },
+      {
+        "title": "Multi-Head Attention",
+        "content": "Multiple attention heads run in parallel, each potentially focusing on different aspects: syntax, semantics, coreference, etc.",
+        "mechanism": [
+          "Split Q, K, V into h heads",
+          "Compute attention independently for each head",
+          "Concatenate and project",
+          "Each head can learn different relationships"
+        ],
+        "formula": "MultiHead(Q,K,V) = Concat(head_1,...,head_h)W^O where head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)"
+      },
+      {
+        "title": "Positional Encoding",
+        "content": "Transformers have no inherent notion of position—they need explicit positional information added to inputs.",
+        "methods": [
+          { "name": "Sinusoidal", "formula": "PE(pos,2i) = sin(pos/10000^(2i/d_model))", "advantage": "Can extrapolate to longer sequences" },
+          { "name": "Learned Embeddings", "description": "Learn position vectors like word embeddings", "advantage": "More flexible, fixed max length" }
+        ]
+      },
+      {
+        "title": "Transformer Architecture",
+        "content": "The full architecture consists of encoder and decoder stacks with residual connections and layer normalization.",
+        "encoder": [
+          "Multi-Head Self-Attention",
+          "Add & Norm (residual + layer norm)",
+          "Feed-Forward Network",
+          "Add & Norm"
+        ],
+        "decoder": [
+          "Masked Self-Attention (causal)",
+          "Cross-Attention (to encoder)",
+          "Feed-Forward Network",
+          "Residual connections throughout"
+        ]
+      },
+      {
+        "title": "Masked Attention (Causal)",
+        "content": "In decoders (for generation), we prevent positions from attending to future positions. This maintains autoregressive property—each token can only see previous tokens.",
+        "implementation": "Set attention scores to -∞ for future positions before softmax",
+        "purpose": "Enable text generation one token at a time"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Self-Attention",
+        "description": "Each token attends to all other tokens in the same sequence, computing weighted importance.",
+        "complexity": "$O(n^2)$ where n = sequence length—quadratic scaling is the bottleneck"
+      },
+      {
+        "name": "Context Window",
+        "description": "Maximum sequence length the model can process. Standard: 512-2048 tokens. Long models: 32K-100K+.",
+        "scalingChallenge": "$O(n^2)$ attention becomes prohibitive"
+      },
+      {
+        "name": "Attention Weights",
+        "description": "The softmax output showing how much each position contributes to each other position.",
+        "visualization": "Heatmap showing relationships between tokens"
+      },
+      {
+        "name": "Transfer Learning",
+        "description": "Pre-train on massive text, fine-tune on specific tasks. Foundation of modern NLP.",
+        "models": ["BERT (encoder-only, bidirectional)", "GPT (decoder-only, autoregressive)", "T5 (encoder-decoder)"]
+      }
+    ],
+    "complexity": {
+      "selfAttention": "$O(n^2 \\cdot d)$—quadratic in sequence length, linear in dimension",
+      "feedForward": "$O(n \\cdot d^2)$—linear in sequence length",
+      "memory": "$O(n^2)$ for storing attention matrix—main bottleneck"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Input Embeddings",
+      "description": "Convert tokens to vectors, add positional encoding.",
+      "latex": "X = Embedding(token) + PE(position)$",
+      "visualState": { "tokens": ["The", "cat", "sat"], "vectors": "d_model=512" }
+    },
+    {
+      "step": 2,
+      "title": "Create Q, K, V",
+      "description": "Linear projections of input for each head.",
+      "latex": "Q = XW^Q, \\ K = XW^K, \\ V = XW^V$",
+      "visualState": { "projections": 3, "heads": 8, "dimensions": "d_k=64 each" }
+    },
+    {
+      "step": 3,
+      "title": "Compute Attention Scores",
+      "description": "Calculate compatibility between all pairs.",
+      "latex": "Scores = QK^T / \\sqrt{d_k}$",
+      "visualState": { "matrix": "n×n", "scores": "compatibility" }
+    },
+    {
+      "step": 4,
+      "title": "Apply Softmax",
+      "description": "Convert scores to probabilities (attention weights).",
+      "latex": "Weights = \\text{softmax}(Scores)$",
+      "visualState": { "weights": "row-wise sum to 1", "attention": "focused" }
+    },
+    {
+      "step": 5,
+      "title": "Weighted Sum of Values",
+      "description": "Aggregate information based on attention weights.",
+      "latex": "Output = Weights \\cdot V$",
+      "visualState": { "output": "context-aware representation" }
+    },
+    {
+      "step": 6,
+      "title": "Concatenate Heads",
+      "description": "Combine all attention heads.",
+      "latex": "MultiHead = Concat(head_1, ..., head_h)W^O$",
+      "visualState": { "heads": 8, "output_dim": 512 }
+    },
+    {
+      "step": 7,
+      "title": "Feed-Forward Network",
+      "description": "Position-wise transformation with non-linearity.",
+      "latex": "FFN(x) = \\text{ReLU}(xW_1 + b_1)W_2 + b_2$",
+      "visualState": { "expansion": "4× d_model", "activation": "GELU" }
+    },
+    {
+      "step": 8,
+      "title": "Layer Normalization",
+      "description": "Stabilize training by normalizing across features.",
+      "latex": "LayerNorm(x) = \\gamma \\frac{x - \\mu}{\\sigma} + \\beta$",
+      "visualState": { "residual": "added", "normalized": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Attention Complexity",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "For sequence length n=512, d_model=768, how many operations in self-attention?",
+      "answer": "$O(n^2 d) = 512^2 \\times 768 \\approx 201$ million operations",
+      "explanation": "Attention computes n×n matrix multiplied by n×d matrix. $512^2 = 262,144$ attention scores, each computed from two d_k=64-dimensional vectors (per head).",
+      "hints": ["$QK^T$ is $n \\times n$", "$\\cdot V$ is $(n \\times n)(n \\times d)$", "Quadratic in sequence length"]
+    },
+    {
+      "id": "p2",
+      "title": "Masked Attention",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "Why does the decoder use masked (causal) attention?",
+      "answer": "To prevent positions from attending to future positions, maintaining autoregressive property needed for generation. Without masking, the model could 'cheat' by looking at the answer.",
+      "explanation": "In generation, we produce tokens left-to-right. When predicting token t, we can only use tokens 1 to t-1. Masking sets future attention scores to -∞ before softmax.",
+      "hints": ["Generation is autoregressive", "Can't see the future", "Ensures causality"]
+    },
+    {
+      "id": "p3",
+      "title": "Multi-Head Purpose",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "Why use multiple attention heads instead of one larger head?",
+      "answer": "Different heads can learn different relationship types: one for syntax, one for coreference, one for semantics, etc. Averaging across diverse perspectives improves representation.",
+      "explanation": "Empirically, heads specialize: some attend locally (nearby words), some globally (sentence-wide), some to specific patterns. 8-16 heads common. Ablation: single head hurts performance significantly.",
+      "hints": ["Specialization across heads", "Different relationship types", "Ensemble effect"]
+    },
+    {
+      "id": "p4",
+      "title": "Positional Encoding Necessity",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What would happen without positional encoding?",
+      "answer": "The model would be permutation-invariant—'The cat sat' and 'cat The sat' would produce identical representations! It couldn't distinguish word order, losing crucial syntactic information.",
+      "explanation": "Self-attention alone is position-agnostic: each token's computation is identical regardless of where it appears. Positional encoding injects absolute/relative position information.",
+      "hints": ["Self-attention is permutation-equivariant", "Order matters in language", "Need position information"]
+    },
+    {
+      "id": "p5",
+      "title": "Long Sequence Challenge",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Design modifications to handle 100,000 token sequences efficiently.",
+      "answer": "Solutions: (1) Sparse attention (only attend to nearby + global tokens), (2) Linear attention approximations, (3) Recurrent memory, (4) Hierarchical attention, (5) Sliding window + dilation.",
+      "explanation": "Standard attention is $O(n^2)$—untenable at 100K ($10^{10}$ operations!). Sparse patterns reduce to $O(n)$ or $O(n \\log n)$. Longformer, BigBird, Performer, FlashAttention are examples.",
+      "hints": ["$O(n^2)$ is too expensive", "Not all pairs need attention", "Approximate full attention"]
+    },
+    {
+      "id": "p6",
+      "title": "BERT vs GPT Architecture",
+      "difficulty": "hard",
+      "type": "comparison",
+      "description": "Compare BERT (encoder) and GPT (decoder) architectures. Why different choices?",
+      "answer": "BERT uses bidirectional encoder—can see all tokens, good for understanding tasks (classification, NER). GPT uses causal decoder—only sees past, good for generation. Different objectives: MLM vs autoregressive.",
+      "explanation": "BERT: Masked Language Modeling (predict masked tokens using bidirectional context). GPT: Next token prediction (autoregressive). Encoder-decoder (T5): Best of both for translation/summarization.",
+      "hints": ["Bidirectional vs unidirectional", "Understanding vs generation", "MLM vs autoregressive"]
+    }
+  ],
+  "minigame": {
+    "id": "attention-explorer",
+    "title": "Attention Visualizer",
+    "description": "Visualize how self-attention works in Transformers. Type a sentence and see which words attend to which, explore multi-head patterns, and understand how context flows through the network.",
+    "instructions": [
+      "Enter a sentence to analyze",
+      "Select which layer and head to visualize",
+      "Click on a word to see what it attends to",
+      "Observe attention patterns: syntax, semantics, coreference",
+      "Compare different heads to see specialization"
+    ],
+    "controls": [
+      {
+        "id": "sentence",
+        "label": "Input Sentence",
+        "type": "text",
+        "default": "The cat sat on the mat because it was comfortable."
+      },
+      {
+        "id": "layer",
+        "label": "Layer",
+        "type": "slider",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "default": 6
+      },
+      {
+        "id": "head",
+        "label": "Attention Head",
+        "type": "slider",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "default": 1
+      },
+      {
+        "id": "viewMode",
+        "label": "View Mode",
+        "type": "select",
+        "options": ["Attention Heatmap", "Individual Word", "Aggregated Across Heads"]
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import torch\nimport torch.nn as nn\nimport math\n\nclass MultiHeadAttention(nn.Module):\n    def __init__(self, d_model=512, num_heads=8):\n        super().__init__()\n        assert d_model % num_heads == 0, \"d_model must be divisible by num_heads\"\n        \n        self.d_model = d_model\n        self.num_heads = num_heads\n        self.d_k = d_model // num_heads  # 64\n        \n        # Linear projections for Q, K, V\n        self.W_q = nn.Linear(d_model, d_model)\n        self.W_k = nn.Linear(d_model, d_model)\n        self.W_v = nn.Linear(d_model, d_model)\n        self.W_o = nn.Linear(d_model, d_model)\n    \n    def scaled_dot_product_attention(self, Q, K, V, mask=None):\n        \"\"\"\n        Q, K, V: (batch, num_heads, seq_len, d_k)\n        Returns: attention output and weights\n        \"\"\"\n        scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.d_k)\n        # scores: (batch, num_heads, seq_len, seq_len)\n        \n        if mask is not None:\n            scores = scores.masked_fill(mask == 0, -1e9)\n        \n        attn_weights = torch.softmax(scores, dim=-1)\n        output = torch.matmul(attn_weights, V)\n        \n        return output, attn_weights\n    \n    def forward(self, x, mask=None):\n        batch_size, seq_len, _ = x.shape\n        \n        # Linear projections and reshape for multi-head\n        Q = self.W_q(x).view(batch_size, seq_len, self.num_heads, self.d_k).transpose(1, 2)\n        K = self.W_k(x).view(batch_size, seq_len, self.num_heads, self.d_k).transpose(1, 2)\n        V = self.W_v(x).view(batch_size, seq_len, self.num_heads, self.d_k).transpose(1, 2)\n        # Shape: (batch, num_heads, seq_len, d_k)\n        \n        # Apply attention\n        attn_output, attn_weights = self.scaled_dot_product_attention(Q, K, V, mask)\n        \n        # Concatenate heads\n        attn_output = attn_output.transpose(1, 2).contiguous().view(\n            batch_size, seq_len, self.d_model\n        )\n        \n        # Final linear\n        output = self.W_o(attn_output)\n        return output, attn_weights\n\nclass TransformerBlock(nn.Module):\n    def __init__(self, d_model=512, num_heads=8, d_ff=2048, dropout=0.1):\n        super().__init__()\n        \n        self.attention = MultiHeadAttention(d_model, num_heads)\n        self.feed_forward = nn.Sequential(\n            nn.Linear(d_model, d_ff),\n            nn.ReLU(),\n            nn.Linear(d_ff, d_model)\n        )\n        \n        self.norm1 = nn.LayerNorm(d_model)\n        self.norm2 = nn.LayerNorm(d_model)\n        self.dropout = nn.Dropout(dropout)\n    \n    def forward(self, x, mask=None):\n        # Self-attention with residual and norm\n        attn_out, _ = self.attention(x, mask)\n        x = self.norm1(x + self.dropout(attn_out))\n        \n        # Feed-forward with residual and norm\n        ff_out = self.feed_forward(x)\n        x = self.norm2(x + self.dropout(ff_out))\n        \n        return x\n\nclass PositionalEncoding(nn.Module):\n    def __init__(self, d_model=512, max_len=5000):\n        super().__init__()\n        \n        # Create positional encoding matrix\n        pe = torch.zeros(max_len, d_model)\n        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)\n        \n        div_term = torch.exp(torch.arange(0, d_model, 2).float() * \n                           (-math.log(10000.0) / d_model))\n        \n        pe[:, 0::2] = torch.sin(position * div_term)\n        pe[:, 1::2] = torch.cos(position * div_term)\n        \n        self.register_buffer('pe', pe.unsqueeze(0))\n    \n    def forward(self, x):\n        return x + self.pe[:, :x.size(1)]\n\n# Example usage\nif __name__ == \"__main__\":\n    # Create sample input\n    batch_size = 2\n    seq_len = 10\n    d_model = 512\n    \n    x = torch.randn(batch_size, seq_len, d_model)\n    \n    # Positional encoding\n    pos_enc = PositionalEncoding(d_model)\n    x = pos_enc(x)\n    \n    # Transformer block\n    transformer = TransformerBlock(d_model, num_heads=8)\n    \n    # Causal mask for autoregressive generation\n    causal_mask = torch.tril(torch.ones(seq_len, seq_len)).unsqueeze(0).unsqueeze(0)\n    \n    output = transformer(x, mask=causal_mask)\n    \n    print(f\"Input shape: {x.shape}\")\n    print(f\"Output shape: {output.shape}\")\n    print(f\"\\nTransformer successfully processed sequence of length {seq_len}\")\n    \n    # Visualize attention\n    with torch.no_grad():\n        _, attn_weights = transformer.attention(x, causal_mask)\n        print(f\"\\nAttention weights shape: {attn_weights.shape}\")\n        print(f\"  (batch, heads, seq_len, seq_len)\")\n        print(f\"\\nFirst head attention for first example:\")\n        print(attn_weights[0, 0].round(decimals=2))"
+  }
+}

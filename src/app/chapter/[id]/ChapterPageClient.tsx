@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Gamepad2 } from "lucide-react";
+import { BookOpen, Gamepad2, Maximize2, Eye } from "lucide-react";
 
 import ChapterNav from "@/components/ChapterNav";
 import ContentPanel from "@/components/ContentPanel";
@@ -10,6 +10,7 @@ import CodePanel from "@/components/CodePanel";
 import Timeline from "@/components/Timeline";
 import ThemeToggle from "@/components/ThemeToggle";
 import { initTimelineSync, destroyTimelineSync } from "@/lib/engine/timelineSync";
+import { ExpandablePanel } from "@/components/ExpandablePanel";
 
 // Dynamic imports for chapter visualizers
 const chapterVisualizers: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
@@ -188,6 +189,8 @@ interface ChapterPageClientProps {
 
 export default function ChapterPageClient({ chapterId, chapterData }: ChapterPageClientProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("learn");
+  const [visualizerOpen, setVisualizerOpen] = useState(false);
+  const [minigameOpen, setMinigameOpen] = useState(false);
   
   // Get visualizer and minigame components for this chapter
   const VisualizerComponent = chapterVisualizers[chapterId];
@@ -261,7 +264,17 @@ export default function ChapterPageClient({ chapterId, chapterData }: ChapterPag
           </div>
 
           {/* Center Pane - Visualizer */}
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col relative">
+            {/* Expand Button */}
+            <button
+              onClick={() => viewMode === "learn" ? setVisualizerOpen(true) : setMinigameOpen(true)}
+              className="absolute top-4 right-4 z-10 flex items-center gap-2 px-3 py-2 rounded-lg bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-white hover:border-[#58a6ff] transition-colors shadow-lg"
+              title="Expand to full view"
+            >
+              <Maximize2 size={16} />
+              <span className="text-xs font-medium hidden sm:inline">Expand</span>
+            </button>
+
             <div className="flex-1 overflow-auto border-x border-border">
               <AnimatePresence mode="wait">
                 {viewMode === "learn" ? (
@@ -318,6 +331,45 @@ export default function ChapterPageClient({ chapterId, chapterData }: ChapterPag
 
         {/* Bottom Timeline */}
         {viewMode === "learn" && <Timeline />}
+
+        {/* Expandable Panels */}
+        <ExpandablePanel
+          isOpen={visualizerOpen}
+          onClose={() => setVisualizerOpen(false)}
+          title="Algorithm Visualizer"
+          subtitle={chapterData.title}
+        >
+          {VisualizerComponent ? (
+            <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading visualizer...</div>}>
+              <VisualizerComponent />
+            </Suspense>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center p-8">
+              <Eye size={64} className="mx-auto mb-4 text-[#58a6ff]" />
+              <h3 className="text-2xl font-semibold text-white mb-2">Visualizer Coming Soon</h3>
+              <p className="text-[#8b949e]">This chapter&apos;s interactive visualization is being developed.</p>
+            </div>
+          )}
+        </ExpandablePanel>
+
+        <ExpandablePanel
+          isOpen={minigameOpen}
+          onClose={() => setMinigameOpen(false)}
+          title="Practice Minigame"
+          subtitle={chapterData.title}
+        >
+          {MinigameComponent ? (
+            <Suspense fallback={<div className="flex h-full items-center justify-center text-muted">Loading minigame...</div>}>
+              <MinigameComponent />
+            </Suspense>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center p-8">
+              <Gamepad2 size={64} className="mx-auto mb-4 text-[#f0883e]" />
+              <h3 className="text-2xl font-semibold text-white mb-2">Minigame Coming Soon</h3>
+              <p className="text-[#8b949e]">Practice challenges for this chapter are being prepared.</p>
+            </div>
+          )}
+        </ExpandablePanel>
       </div>
     </div>
   );

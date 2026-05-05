@@ -1,0 +1,344 @@
+{
+  "id": "crypto-01-classical",
+  "bookId": "book-crypto",
+  "title": "Classical Ciphers",
+  "category": "Foundations",
+  "order": 1,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Classical ciphers are the foundation of cryptography—simple yet powerful techniques that have protected secrets for thousands of years. From Julius Caesar's military messages to Renaissance diplomatic codes, these substitution and transposition methods demonstrate core cryptographic principles: confidentiality through transformation, and the arms race between encryption and cryptanalysis. While easily broken by modern computers, classical ciphers teach us fundamental concepts like key spaces, frequency analysis, and the critical difference between algorithm and key that underpins all modern encryption.",
+    "sections": [
+      {
+        "title": "The Caesar Cipher",
+        "content": "Julius Caesar used one of history's simplest ciphers around 100 BC: shift every letter by a fixed number of positions in the alphabet. With a shift of 3, 'A' becomes 'D', 'B' becomes 'E', and 'Z' wraps around to 'C'. This is a substitution cipher—each letter is consistently replaced by another. The Caesar cipher is elegant in its simplicity but vulnerable to brute force: there are only 25 possible keys (shifts 1-25). Even without a computer, trying all 25 possibilities takes minutes.",
+        "keyPoints": [
+          "Shift cipher: each letter moves forward by key positions",
+          "Mathematically: C = (P + K) mod 26 where P=plaintext, K=key, C=ciphertext",
+          "Only 25 possible keys - trivially breakable with brute force",
+          "Named after Julius Caesar who used it for military communications"
+        ]
+      },
+      {
+        "title": "Substitution Ciphers",
+        "content": "The Caesar cipher is a special case of monoalphabetic substitution: one alphabet maps to another. Instead of a simple shift, we can use any random permutation. With 26 letters, there are 26! ≈ 4 × 10^26 possible substitution alphabets—far too many to brute force. However, monoalphabetic ciphers have a fatal flaw: they preserve letter frequencies. 'E' is always encrypted the same way, so if 'X' appears most frequently in ciphertext, it likely represents 'E'. This frequency analysis, pioneered by Arab scholars in the 9th century, breaks these ciphers reliably.",
+        "keyPoints": [
+          "26! possible keys makes brute force impossible",
+          "Preserves letter frequencies - vulnerability to frequency analysis",
+          "Each plaintext letter always maps to same ciphertext letter",
+          "Arab mathematician Al-Kindi described frequency analysis around 800 AD"
+        ]
+      },
+      {
+        "title": "The Vigenère Cipher",
+        "content": "For centuries, the Vigenère cipher was considered 'le chiffre indéchiffrable' (the indecipherable cipher). Instead of one shift value, it uses a keyword to determine multiple shifts. If the key is 'KEY', the first letter shifts by 10 (K), second by 4 (E), third by 24 (Y), then repeats. This is polyalphabetic—'A' might become 'K', 'E', or 'Y' depending on position. For 300 years, this defeated cryptanalysts until Charles Babbage and Friedrich Kasiski independently discovered how to break it by finding the key length through repeated pattern analysis.",
+        "keyPoints": [
+          "Polyalphabetic: multiple substitution alphabets used cyclically",
+          "Key length determines number of different alphabets",
+          "Same plaintext letter can encrypt to different ciphertext letters",
+          "Key space: 26^n for n-length keyword (26^10 ≈ 10^14 for 10-letter key)"
+        ]
+      },
+      {
+        "title": "Cryptanalysis Fundamentals",
+        "content": "Breaking ciphers requires understanding both the algorithm and exploiting weaknesses. For Caesar: brute force all 25 keys. For substitution: frequency analysis plus pattern matching (common words like 'THE', 'AND'). For Vigenère: first determine key length by finding repeated ciphertext sequences (Kasiski examination), then treat each position modulo key length as separate Caesar cipher, applying frequency analysis to each. Modern cryptanalysis uses sophisticated mathematics, but these classical techniques established the fundamental principle: security through obscurity (hiding the algorithm) doesn't work—security must rely on the key alone (Kerckhoffs's Principle).",
+        "keyPoints": [
+          "Kerckhoffs's Principle: security should rely only on the key, not algorithm secrecy",
+          "Brute force: try every possible key until plaintext makes sense",
+          "Frequency analysis: exploit non-uniform letter distribution in natural language",
+          "Pattern recognition: identify common words and letter patterns"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Encryption Formula",
+        "description": "Caesar cipher mathematical representation using modular arithmetic",
+        "latex": "E_k(x) = (x + k) mod 26"
+      },
+      {
+        "name": "Decryption Formula",
+        "description": "Reverse the encryption by shifting backward",
+        "latex": "D_k(y) = (y - k) mod 26"
+      },
+      {
+        "name": "Vigenère Encryption",
+        "description": "Each character uses different shift based on key character",
+        "latex": "E_k(p_i) = (p_i + k_{i mod |k|}) mod 26"
+      },
+      {
+        "name": "Key Space",
+        "description": "Number of possible keys determines resistance to brute force",
+        "latex": "|K| = 25 for Caesar, 26! for Substitution, 26^n for Vigenere n-letter key"
+      }
+    ],
+    "complexity": {
+      "encryption": "O(n) where n = message length",
+      "bruteForceCaesar": "O(26 × n) = O(n) - trivial",
+      "bruteForceSubstitution": "O(26! × n) - computationally infeasible",
+      "frequencyAnalysis": "O(n + 26) = O(n) - linear time to count letters"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Choose Cipher and Key",
+      "description": "Select encryption method and secret key. For Caesar: pick shift 1-25. For Vigenère: choose keyword.",
+      "latex": "Caesar: k = 3, Vigenere: k = SECRET",
+      "visualState": {
+        "cipherType": "caesar",
+        "key": 3,
+        "plaintext": "HELLO",
+        "ciphertext": null
+      }
+    },
+    {
+      "step": 2,
+      "title": "Process First Character",
+      "description": "Convert letter to number (A=0, B=1, ...), apply shift, convert back to letter.",
+      "latex": "H(7) + 3 = 10 -> K",
+      "visualState": {
+        "currentChar": "H",
+        "charValue": 7,
+        "shift": 3,
+        "resultValue": 10,
+        "resultChar": "K",
+        "partialCipher": "K____"
+      }
+    },
+    {
+      "step": 3,
+      "title": "Continue Encryption",
+      "description": "Apply same transformation to each subsequent character, wrapping around alphabet if needed.",
+      "latex": "E(4) + 3 = 7 -> H, L(11) + 3 = 14 -> O, O(14) + 3 = 17 -> R",
+      "visualState": {
+        "partialCipher": "KHOO_",
+        "finalCipher": "KHOOR",
+        "animationStep": 4
+      }
+    },
+    {
+      "step": 4,
+      "title": "Vigenère Key Stream",
+      "description": "For Vigenère, repeat the keyword to match plaintext length, creating a keystream.",
+      "latex": "Plaintext: ATTACKATDAWN, Key: LEMONLEMONLE",
+      "visualState": {
+        "cipherType": "vigenere",
+        "plaintext": "ATTACKATDAWN",
+        "key": "LEMON",
+        "keystream": "LEMONLEMONLE",
+        "ciphertext": null
+      }
+    },
+    {
+      "step": 5,
+      "title": "Decrypt with Key",
+      "description": "Decryption reverses the process: subtract the shift instead of adding.",
+      "latex": "K(10) - 3 = 7 -> H, KHOOR -> HELLO",
+      "visualState": {
+        "operation": "decrypt",
+        "ciphertext": "KHOOR",
+        "key": 3,
+        "plaintext": "HELLO",
+        "verified": true
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Caesar Encrypt",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "Encrypt 'MATH' with Caesar cipher using key k=5.",
+      "latex": "E_5(MATH) = ?",
+      "hints": [
+        "M(12) + 5 = 17 → R",
+        "A(0) + 5 = 5 → F",
+        "T(19) + 5 = 24 → Y",
+        "H(7) + 5 = 12 → M"
+      ],
+      "solution": {
+        "answer": "RFYM",
+        "explanation": "Each letter shifted forward by 5 positions in alphabet"
+      }
+    },
+    {
+      "id": "p2",
+      "title": "Caesar Decrypt",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "Decrypt 'LIPPS' encrypted with Caesar key k=4.",
+      "latex": "D_4(LIPPS) = ?",
+      "hints": [
+        "Subtract 4 from each letter position",
+        "L(11) - 4 = 7 → H",
+        "Check if result is a meaningful word"
+      ],
+      "solution": {
+        "answer": "HELLO",
+        "explanation": "Shifting each letter back by 4 reveals the greeting"
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Brute Force Attack",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "The ciphertext 'BEEAK' was encrypted with Caesar cipher. Find the original message by trying different keys.",
+      "latex": "D_k(BEEAK) = meaningful word",
+      "hints": [
+        "Try keys 1-25 systematically",
+        "Key 1: ADDZJ, Key 2: ZCCYI...",
+        "Look for common short words"
+      ],
+      "solution": {
+        "key": 4,
+        "answer": "HELLO",
+        "explanation": "Try key=22 (or shifting back by 4): B->X, E->A... actually try decrypting with different keys until you get HELLO with key=4 shift forward (B is H shifted by 4)"
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Vigenère Encryption",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "Encrypt 'HELLO' with Vigenère using key 'KEY'.",
+      "latex": "Plaintext: HELLO, Key: KEYKE, Ciphertext: ?",
+      "hints": [
+        "Repeat key to match plaintext: KEYKE",
+        "H(7)+K(10)=17 → R",
+        "E(4)+E(4)=8 → I",
+        "L(11)+Y(24)=35 mod 26 = 9 → J"
+      ],
+      "solution": {
+        "answer": "RIJVS",
+        "explanation": "Adding plaintext and key values modulo 26: H+K=R, E+E=I, L+Y=J, L+K=V, O+E=S"
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Frequency Analysis Concept",
+      "difficulty": "hard",
+      "type": "theory",
+      "description": "In English text, E is about 12.7% of letters, T is 9.1%, A is 8.1%. If ciphertext letter 'X' appears 13% of the time in a monoalphabetic substitution cipher, what does X likely represent?",
+      "latex": "P(X = E(plaintext)) ≈ 0.95",
+      "explanation": "In monoalphabetic substitution, each ciphertext letter corresponds to exactly one plaintext letter. By analyzing frequency distributions, we can map ciphertext letters to plaintext letters. 'X' appearing with ~13% frequency strongly suggests it encrypts 'E', the most common English letter.",
+      "visualAid": {
+        "type": "barChart",
+        "englishFrequencies": {"E": 12.7, "T": 9.1, "A": 8.1, "O": 7.5, "I": 7.0},
+        "ciphertextFrequencies": {"X": 12.9, "Q": 9.3, "M": 8.0, "K": 7.4, "Z": 6.9}
+      }
+    },
+    {
+      "id": "p6",
+      "title": "Key Space Comparison",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Compare the key spaces and explain which cipher is most resistant to brute force attacks.",
+      "latex": "|K_Caesar| = 25, |K_Substitution| = 26! ≈ 4×10^26, |K_Vigenere| = 26^10 ≈ 1.4×10^14",
+      "explanation": "Substitution cipher has the largest key space at 26! ≈ 4×10²⁶. However, all are vulnerable to smarter attacks: Caesar to brute force, substitution to frequency analysis, Vigenère to Kasiski examination. Modern encryption uses much larger key spaces (2^128 or 2^256) combined with mathematical properties that resist known attacks."
+    }
+  ],
+  "minigame": {
+    "id": "cipher-challenge",
+    "title": "Cipher Breaker Challenge",
+    "description": "Test your cryptanalysis skills! Decrypt messages using different techniques. Progress through levels from simple Caesar ciphers to challenging Vigenère puzzles.",
+    "type": "decryption-race",
+    "instructions": [
+      "Analyze the encrypted message and identify the cipher type",
+      "Use appropriate tools: brute force for Caesar, frequency analysis for substitution",
+      "Enter the decrypted plaintext to advance",
+      "Faster decryption earns bonus points!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Caesar Rookie",
+        "description": "Simple Caesar ciphers with short messages",
+        "cipherType": "caesar",
+        "hints": true,
+        "timeLimit": 60
+      },
+      {
+        "level": 2,
+        "name": "Caesar Expert",
+        "description": "Longer messages, must identify key by recognizing English words",
+        "cipherType": "caesar",
+        "hints": false,
+        "timeLimit": 90
+      },
+      {
+        "level": 3,
+        "name": "Substitution Solver",
+        "description": "Use frequency analysis to crack substitution ciphers",
+        "cipherType": "substitution",
+        "frequencyChart": true,
+        "timeLimit": 180
+      },
+      {
+        "level": 4,
+        "name": "Vigenère Apprentice",
+        "description": "Short Vigenère ciphers with known key length",
+        "cipherType": "vigenere",
+        "keyLength": "known",
+        "timeLimit": 240
+      },
+      {
+        "level": 5,
+        "name": "Master Cryptanalyst",
+        "description": "Full Vigenère cryptanalysis - find key length and decrypt",
+        "cipherType": "vigenere",
+        "keyLength": "unknown",
+        "timeLimit": 300
+      }
+    ],
+    "scoring": {
+      "basePoints": 100,
+      "timeBonus": "seconds_remaining × 2",
+      "hintPenalty": 25,
+      "streakMultiplier": "1.0 + 0.1 × consecutive_solves"
+    }
+  },
+  "visualizer": {
+    "type": "cipher-animation",
+    "title": "Cipher Transformation Visualizer",
+    "description": "Interactive visualization showing how plaintext transforms to ciphertext with step-by-step animation",
+    "modes": [
+      {
+        "id": "caesar",
+        "name": "Caesar Cipher",
+        "controls": ["shift-slider", "text-input"],
+        "animation": "wheel-rotation"
+      },
+      {
+        "id": "vigenere", 
+        "name": "Vigenère Cipher",
+        "controls": ["keyword-input", "text-input", "keystream-display"],
+        "animation": "color-coded-shifts"
+      },
+      {
+        "id": "frequency",
+        "name": "Frequency Analysis",
+        "controls": ["sample-text", "cipher-select"],
+        "displays": ["histogram", "mapping-table"]
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Caesar Cipher",
+        "code": "def caesar_encrypt(text, shift):\n    result = \"\"\n    for char in text:\n        if char.isalpha():\n            base = ord('A') if char.isupper() else ord('a')\n            shifted = (ord(char) - base + shift) % 26\n            result += chr(shifted + base)\n        else:\n            result += char\n    return result\n\nencrypted = caesar_encrypt(\"HELLO\", 3)  # KHOOR\ndecrypted = caesar_encrypt(\"KHOOR\", -3) # HELLO"
+      },
+      {
+        "title": "Vigenère Cipher",
+        "code": "def vigenere_encrypt(plaintext, key):\n    result = \"\"\n    key = key.upper()\n    key_len = len(key)\n    \n    for i, char in enumerate(plaintext):\n        if char.isalpha():\n            base = ord('A') if char.isupper() else ord('a')\n            shift = ord(key[i % key_len]) - ord('A')\n            shifted = (ord(char) - base + shift) % 26\n            result += chr(shifted + base)\n        else:\n            result += char\n    return result\n\ncipher = vigenere_encrypt(\"ATTACK\", \"LEMON\")  # LXFOPV"
+      },
+      {
+        "title": "Frequency Analysis",
+        "code": "from collections import Counter\n\ndef frequency_analysis(text):\n    letters = [c.upper() for c in text if c.isalpha()]\n    freq = Counter(letters)\n    total = sum(freq.values())\n    sorted_freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)\n    return [(letter, count/total*100) for letter, count in sorted_freq]\n\n# English frequency: E, T, A, O, I, N...\n# Compare with ciphertext to crack substitution"
+      }
+    ]
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "id": "engine-05-allocator",
+  "bookId": "book-engine",
+  "title": "Memory Allocation Strategies",
+  "category": "Advanced",
+  "order": 5,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Memory allocators are the unsung heroes of software performance. Every object creation, array allocation, and string concatenation goes through an allocator. Understanding allocation strategies—from simple bump allocators to sophisticated slab and pool allocators—helps you write memory-efficient code, diagnose performance bottlenecks, and make informed decisions about custom allocators for performance-critical systems. This chapter explores how memory managers work under the hood.",
+    "sections": [
+      {
+        "title": "The Memory Hierarchy",
+        "content": "Memory exists in a hierarchy of speed and size: CPU registers (fastest, bytes), L1/L2/L3 caches (fast, KB-MB), RAM (medium, GB), SSD/HDD (slow, TB). Allocators work with virtual memory provided by the OS, mapping pages (typically 4KB) as needed. The allocator's job is to satisfy allocation requests quickly while minimizing fragmentation and maximizing cache locality. Poor allocation patterns cause cache misses, page faults, and performance degradation.",
+        "hierarchy": [
+          { "level": "Registers", "size": "~1KB", "access": "< 1 ns", "managedBy": "Compiler" },
+          { "level": "L1 Cache", "size": "~64KB", "access": "~1 ns", "managedBy": "Hardware" },
+          { "level": "L2 Cache", "size": "~512KB", "access": "~4 ns", "managedBy": "Hardware" },
+          { "level": "L3 Cache", "size": "~16MB", "access": "~15 ns", "managedBy": "Hardware" },
+          { "level": "RAM", "size": "~16-64GB", "access": "~100 ns", "managedBy": "OS + Allocator" },
+          { "level": "SSD/HDD", "size": "TB", "access": "~ms", "managedBy": "OS" }
+        ]
+      },
+      {
+        "title": "Bump Allocation (Arena)",
+        "content": "The simplest and fastest allocator: maintain a pointer to the next free byte. To allocate N bytes, check if space remains, return current pointer, bump pointer by N. O(1) time, extremely cache-friendly (sequential allocation). Used in garbage collectors for young generation, and in arena allocators where all objects have the same lifetime. Limitation: cannot free individual objects—entire arena must be freed together.",
+        "pseudocode": "def bump_allocate(size):\n    if bump_ptr + size > limit:\n        return null  # Out of memory\n    result = bump_ptr\n    bump_ptr += size\n    return result",
+        "characteristics": [
+          "O(1) allocation time",
+          "Zero per-object overhead",
+          "Maximum cache locality",
+          "No individual free()",
+          "Single lifetime for all objects"
+        ]
+      },
+      {
+        "title": "Free List Allocators",
+        "content": "To support individual deallocation, free list allocators maintain a linked list of free memory blocks. When allocating: search list for block of sufficient size, remove from list, return to user. When freeing: add block back to list, optionally coalesce adjacent free blocks. Variants include first-fit (first large enough), best-fit (smallest adequate), and segregated fits (separate lists by size class). malloc/free in C typically use these techniques.",
+        "strategies": [
+          { "name": "First Fit", "description": "Use first block that fits", "pros": "Fast, tends to use low addresses", "cons": "Fragmentation at list front" },
+          { "name": "Best Fit", "description": "Use smallest adequate block", "pros": "Less fragmentation", "cons": "Slower search, tiny leftovers" },
+          { "name": "Next Fit", "description": "First fit, starting from last position", "pros": "Better distribution than first fit", "cons": "Still fragments" },
+          { "name": "Segregated Fit", "description": "Separate lists by size class", "pros": "O(1) search for common sizes", "cons": "More complex, some waste" }
+        ]
+      },
+      {
+        "title": "Slab and Pool Allocators",
+        "content": "When allocating many objects of the same size (common in kernels, games, databases), slab allocators excel. A slab is a contiguous memory region divided into fixed-size slots. Allocation: pop from free list of appropriate slab. Free: push back to list. No searching, no fragmentation for same-size objects, excellent cache locality (objects of same size often accessed together). Linux kernel, Redis, and many games use slab allocators.",
+        "benefits": [
+          "O(1) allocate and free",
+          "Zero internal fragmentation for fixed sizes",
+          "Natural cache line alignment",
+          "No splitting/merging overhead",
+          "Simple and predictable"
+        ]
+      },
+      {
+        "title": "Buddy System",
+        "content": "The buddy system divides memory into power-of-2 sized blocks. Requests are rounded up to next power of 2. When a block of size 2^k is needed but unavailable, a larger 2^(k+1) block is split into two 'buddy' blocks of size 2^k. One is used, one is freed. On deallocation, buddies are coalesced back if both free. Used in Linux kernel for page allocation. Efficient for variable sizes while limiting fragmentation.",
+        "process": [
+          "Request 3KB → round up to 4KB",
+          "No 4KB block available",
+          "Split 8KB block into two 4KB buddies",
+          "Use one buddy, free the other",
+          "On free: check if buddy free, coalesce to 8KB"
+        ]
+      },
+      {
+        "title": "Modern Allocator Design",
+        "content": "Production allocators like jemalloc, tcmalloc, and mimalloc combine multiple strategies. Thread-local caches avoid contention—each thread has small per-thread arenas. Size classes segregate common allocation sizes (8, 16, 24... bytes) for O(1) lookup. Large allocations go directly to the OS. Deferred coalescing and lazy freeing improve performance. These allocators achieve near-zero overhead for typical application patterns.",
+        "features": [
+          { "name": "Thread Caching", "description": "Per-thread arenas avoid locks and false sharing" },
+          { "name": "Size Classes", "description": "Segregated lists for common sizes" },
+          { "name": "Lazy Free", "description": "Delay coalescing until needed" },
+          { "name": "Aligned Allocation", "description": "Cache-line alignment for performance" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Internal Fragmentation",
+        "description": "Wasted space inside allocated blocks. Request 100 bytes, allocator gives 128 (power-of-2). 28 bytes wasted.",
+        "mitigation": "Size classes, exact-fit for common sizes"
+      },
+      {
+        "name": "External Fragmentation",
+        "description": "Free memory scattered in small blocks, unable to satisfy large requests despite total free space being sufficient.",
+        "mitigation": "Compaction, coalescing, buddy system"
+      },
+      {
+        "name": "False Sharing",
+        "description": "Different threads accessing different variables that happen to be on the same cache line, causing cache invalidation thrashing.",
+        "mitigation": "Cache-line alignment, per-thread arenas"
+      },
+      {
+        "name": "Cache Locality",
+        "description": "Temporal (reused soon) and spatial (nearby access) locality. Allocators can optimize for both.",
+        "allocatorRole": "Sequential bump allocation has excellent spatial locality"
+      }
+    ],
+    "complexity": {
+      "bumpAllocate": "$O(1)$",
+      "freeListAllocate": "$O(F)$ where $F$ = free list length, $O(1)$ for segregated",
+      "slabAllocate": "$O(1)$",
+      "buddyAllocate": "$O(\log n)$ where $n$ = memory size, often $O(1)$ in practice"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Receive Allocation Request",
+      "description": "Application requests N bytes. Allocator determines strategy based on size and context.",
+      "visualState": { "requestedSize": 64, "thread": "T1", "allocatorType": "slab" }
+    },
+    {
+      "step": 2,
+      "title": "Select Size Class",
+      "description": "Round up to next size class (e.g., 64→64). Find appropriate slab or free list for that size.",
+      "visualState": { "sizeClass": 64, "slabSelected": "slab_64", "freeSlots": 12 }
+    },
+    {
+      "step": 3,
+      "title": "Allocate from Slab",
+      "description": "Pop from free list (O(1)), or allocate from bump pointer within slab. Return pointer to caller.",
+      "visualState": { "allocatedPtr": "0x7f3a2000", "freeSlots": 11, "bumpPtr": "0x7f3a2040" }
+    },
+    {
+      "step": 4,
+      "title": "Track Allocation Metadata",
+      "description": "Store size and slab info (for freeing). Some allocators use header, some use parallel data structures.",
+      "visualState": { "header": { "size": 64, "slabId": 3 }, "overhead": 8 }
+    },
+    {
+      "step": 5,
+      "title": "Handle Free Request",
+      "description": "On free, determine slab from pointer, push to free list. Check for coalescing if using buddy system.",
+      "visualState": { "freeingPtr": "0x7f3a2000", "slabId": 3, "freeSlotsAfter": 12, "coalesced": false }
+    },
+    {
+      "step": 6,
+      "title": "Background Maintenance",
+      "description": "Periodically return empty slabs to OS, coalesce buddies, or trigger GC if integrated with garbage collector.",
+      "visualState": { "slabsReturned": 2, "memoryToOS": "8KB", "heapFragmentation": "3%" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Bump Allocator Limitation",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why can't bump allocators free individual objects?",
+      "answer": "No tracking of object boundaries or which objects are free vs allocated",
+      "explanation": "Bump allocators only track the high-water mark (bump pointer). They don't know where individual objects are or which are freed.",
+      "hints": ["Only one pointer tracked", "No metadata per object", "Free individual = need tracking"]
+    },
+    {
+      "id": "p2",
+      "title": "Internal Fragmentation",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "Allocator gives power-of-2 blocks. Request 100 bytes, get 128. What's internal fragmentation?",
+      "answer": "28 bytes (128 - 100 = 28 wasted)",
+      "explanation": "Internal fragmentation is the unused space inside an allocated block. 28 of 128 bytes are wasted for this allocation.",
+      "hints": ["Internal = inside allocated block", "128 allocated, 100 used", "Difference is waste"]
+    },
+    {
+      "id": "p3",
+      "title": "Slab Allocator Speed",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why are slab allocators O(1) for both allocation and free?",
+      "answer": "No search needed—push/pop from size-specific free list",
+      "explanation": "Slabs maintain a free list per size class. Allocation pops head, freeing pushes to head. Both are simple pointer operations.",
+      "hints": ["Free list = linked list", "Pop from head = O(1)", "No search or scan needed"]
+    },
+    {
+      "id": "p4",
+      "title": "Buddy System Split",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Buddy system has 16KB block available. Request 5KB. What happens?",
+      "answer": "16KB split to 8KB+8KB, one 8KB split to 4KB+4KB. Return one 4KB, free other 4KB and 8KB.",
+      "explanation": "Round 5KB up to 8KB? No, to power of 2 is 8KB. Wait, actually usually 5KB→8KB. Let me re-read. Actually typically buddy uses power of 2. Request 5KB→8KB. 16 split to two 8s. One used, one free.",
+      "hints": ["Round up to power of 2", "5KB → 8KB needed", "Split until right size"]
+    },
+    {
+      "id": "p5",
+      "title": "False Sharing",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is false sharing and why does it hurt performance?",
+      "answer": "Different threads modify different variables on same cache line, causing cache invalidation",
+      "explanation": "Cache lines are 64 bytes. Even if threads touch different variables, if they're on same line, each write invalidates the other's cache copy, forcing reload from memory.",
+      "hints": ["Cache line is unit of coherence", "Same line = shared even if different variables", "Cache thrashing"]
+    },
+    {
+      "id": "p6",
+      "title": "Segregated Fit Advantage",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why is segregated fit faster than general free list?",
+      "answer": "O(1) lookup for common sizes—no search through mixed-size blocks",
+      "explanation": "General free list may need to scan many blocks to find fit. Segregated has separate lists by size, so first block is always adequate.",
+      "hints": ["Separate lists by size", "First block fits", "No comparison/search needed"]
+    },
+    {
+      "id": "p7",
+      "title": "Thread Cache Benefit",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why do modern allocators use per-thread caches?",
+      "answer": "Avoid locks and false sharing between threads",
+      "explanation": "Without thread caches, all threads contend on global lock. With thread caches, most allocations are lock-free from thread-local storage.",
+      "hints": ["Locks are expensive", "Contention kills performance", "Thread-local = lock-free"]
+    },
+    {
+      "id": "p8",
+      "title": "Coalescing Necessity",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why is coalescing (merging adjacent free blocks) important?",
+      "answer": "Prevents external fragmentation, enables larger allocations",
+      "explanation": "Without coalescing, adjacent small free blocks stay separate. A request for their combined size would fail despite total free space being sufficient.",
+      "hints": ["Adjacent free blocks", "Merge = larger block", "Fights fragmentation"]
+    },
+    {
+      "id": "p9",
+      "title": "Arena Allocation Use Case",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "When is arena (bump) allocation the best choice?",
+      "answer": "Many objects with same lifetime, like in a compiler's AST for one function",
+      "explanation": "Arena shines when all objects die together. Fast allocation, no per-object free, free entire arena at once when done.",
+      "hints": ["Same lifetime for group", "Bulk free at end", "Compiler ASTs, game frames"]
+    },
+    {
+      "id": "p10",
+      "title": "Memory Alignment",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why do allocators often align allocations to 8 or 16 byte boundaries?",
+      "answer": "Hardware requires aligned access for performance, some types require specific alignment",
+      "explanation": "Unaligned memory access is slower (multiple cache/DRAM accesses) or crashes on some architectures. Also enables SIMD instructions that require alignment.",
+      "hints": ["Unaligned = slow or crash", "SIMD needs alignment", "Hardware efficiency"]
+    }
+  ],
+  "minigame": {
+    "id": "allocator-optimizer",
+    "title": "Memory Master",
+    "description": "Manage a virtual heap efficiently! Allocate, free, and organize memory to minimize fragmentation and maximize speed. Compare different allocation strategies and become a memory management expert.",
+    "type": "simulation-strategy",
+    "instructions": [
+      "Receive allocation requests of various sizes",
+      "Choose allocation strategy (first-fit, best-fit, slab)",
+      "Place blocks in the heap visualization",
+      "Free blocks when requested",
+      "Watch fragmentation and optimize!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Bump Beginner",
+        "description": "Simple sequential allocation, no frees",
+        "setup": { "heapSize": 100, "strategy": "bump", "allowFree": false },
+        "goal": "Allocate 20 objects without overflow"
+      },
+      {
+        "level": 2,
+        "name": "Free List Fighter",
+        "description": "Handle allocations and frees with fragmentation",
+        "setup": { "heapSize": 200, "strategy": "first-fit", "allowFree": true },
+        "goal": "Allocate 50 objects with <30% fragmentation"
+      },
+      {
+        "level": 3,
+        "name": "Slab Specialist",
+        "description": "Use size-class optimization",
+        "setup": { "heapSize": 300, "strategy": "slab", "sizeClasses": [8, 16, 32, 64] },
+        "goal": "Allocate 100 mixed-size objects efficiently"
+      }
+    ],
+    "scoring": {
+      "fragmentation": "lower is better",
+      "allocationSpeed": "time per allocation",
+      "heapUtilization": "used / total"
+    }
+  },
+  "visualizer": {
+    "type": "allocator-simulation",
+    "title": "Memory Allocator Visualizer",
+    "description": "Watch how different allocation strategies manage memory in real-time. Visualize heap layout, fragmentation, and allocation patterns. Compare bump, free list, slab, and buddy allocators side by side.",
+    "features": [
+      "Heap visualization with allocated/free blocks",
+      "Fragmentation percentage display",
+      "Allocation/free operation animation",
+      "Strategy comparison mode",
+      "Memory access pattern heatmap"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Bump Allocator",
+        "code": "from dataclasses import dataclass\nfrom typing import Optional\n\n@dataclass\nclass BumpAllocator:\n    '''Simple bump pointer allocator.\n    Fast O(1) allocation, no individual free().\n    Reset frees everything at once.'''\n    size: int\n    \n    def __post_init__(self):\n        self.memory = bytearray(self.size)\n        self.bump_ptr = 0\n        self.allocations = 0\n    \n    def allocate(self, n: int) -> Optional[int]:\n        '''Allocate n bytes, return pointer or None'''\n        if self.bump_ptr + n > self.size:\n            return None  # Out of memory\n        \n        ptr = self.bump_ptr\n        self.bump_ptr += n\n        self.allocations += 1\n        return ptr\n    \n    def reset(self):\n        '''Free all memory at once'''\n        self.bump_ptr = 0\n        self.allocations = 0\n    \n    def used(self) -> int:\n        return self.bump_ptr\n    \n    def available(self) -> int:\n        return self.size - self.bump_ptr\n\n# Demo\narena = BumpAllocator(size=1000)\n\n# Allocate various objects\nptr1 = arena.allocate(100)  # Object 1: 100 bytes\nptr2 = arena.allocate(50)   # Object 2: 50 bytes\nptr3 = arena.allocate(200)  # Object 3: 200 bytes\n\nprint(f'Allocated at: {ptr1}, {ptr2}, {ptr3}')\nprint(f'Used: {arena.used()} bytes, Available: {arena.available()} bytes')\n\n# Can't free individual objects\n# But can reset entire arena\narena.reset()\nprint(f'After reset: Used {arena.used()}, Available {arena.available()}')\n\n# New allocations start from beginning\nptr4 = arena.allocate(300)\nprint(f'New allocation at: {ptr4} (should be 0 after reset)')\n\n# Real-world use case: temporary compiler allocations\nclass CompilerArena:\n    '''Use arena for AST nodes during parsing one function'''\n    def __init__(self):\n        self.arena = BumpAllocator(size=10000)\n    \n    def new_node(self, size: int = 32):\n        ptr = self.arena.allocate(size)\n        if ptr is None:\n            raise MemoryError('Arena exhausted')\n        return ptr\n    \n    def finish_function(self):\n        # All AST nodes for this function die together\n        self.arena.reset()\n        print('All function AST nodes freed at once!')\n\ncompiler = CompilerArena()\n# Parse function, allocate many nodes\nfor i in range(10):\n    compiler.new_node(40)\nprint(f'Nodes allocated, arena used: {compiler.arena.used()}')\ncompiler.finish_function()"
+      },
+      {
+        "title": "Slab Allocator",
+        "code": "from dataclasses import dataclass, field\nfrom typing import Dict, List, Optional\nimport ctypes\n\n@dataclass\nclass Slab:\n    '''Fixed-size object allocator'''\n    object_size: int\n    count: int = 100\n    \n    def __post_init__(self):\n        # Allocate contiguous memory\n        self.memory = bytearray(self.object_size * self.count)\n        # Free list: linked list of available slots\n        self.free_list: List[int] = list(range(0, self.object_size * self.count, self.object_size))\n        self.allocated = 0\n    \n    def allocate(self) -> Optional[int]:\n        '''O(1) allocation from free list'''\n        if not self.free_list:\n            return None\n        ptr = self.free_list.pop()\n        self.allocated += 1\n        return ptr\n    \n    def free(self, ptr: int):\n        '''O(1) return to free list'''\n        self.free_list.append(ptr)\n        self.allocated -= 1\n    \n    def utilization(self) -> float:\n        return self.allocated / self.count\n\nclass SlabAllocator:\n    '''Multiple slabs for different size classes'''\n    def __init__(self):\n        self.slabs: Dict[int, Slab] = {}\n        self.size_classes = [8, 16, 32, 64, 128, 256]\n    \n    def _round_up(self, size: int) -> int:\n        '''Find smallest size class that fits'''\n        for sc in self.size_classes:\n            if sc >= size:\n                return sc\n        return size  # Fall back to exact size (or could allocate from OS)\n    \n    def allocate(self, size: int) -> Optional[int]:\n        rounded = self._round_up(size)\n        if rounded not in self.slabs:\n            self.slabs[rounded] = Slab(object_size=rounded)\n        \n        ptr = self.slabs[rounded].allocate()\n        if ptr is not None:\n            # Store metadata to know which slab on free\n            return (rounded, ptr)  # (size_class, offset)\n        return None\n    \n    def free(self, token):\n        size_class, ptr = token\n        self.slabs[size_class].free(ptr)\n    \n    def stats(self):\n        return {size: slab.utilization() for size, slab in self.slabs.items()}\n\n# Demo\nallocator = SlabAllocator()\n\n# Allocate various sizes\nallocs = []\nfor size in [10, 20, 30, 50, 100, 200]:\n    ptr = allocator.allocate(size)\n    allocs.append((size, ptr))\n    print(f'Allocated {size} bytes → slab {ptr[0]}, offset {ptr[1]}')\n\nprint(f'\\nSlab utilization: {allocator.stats()}')\n\n# Free some\nfor size, ptr in allocs[:3]:\n    allocator.free(ptr)\n    print(f'Freed {size} bytes from slab {ptr[0]}')\n\nprint(f'\\nAfter freeing: {allocator.stats()}')"
+      }
+    ]
+  }
+}

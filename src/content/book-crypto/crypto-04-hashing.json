@@ -1,0 +1,358 @@
+{
+  "id": "crypto-04-hashing",
+  "bookId": "book-crypto",
+  "title": "Hash Functions",
+  "category": "Intermediate",
+  "order": 4,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Cryptographic hash functions are the fingerprint generators of the digital world—they produce fixed-size, unique representations of arbitrary data. Give a hash function the complete works of Shakespeare or a single character, and both produce outputs of identical length (256 bits for SHA-256). Unlike encryption, hashing is one-way: you cannot recover the input from the output. This property enables password storage, digital signatures, blockchain consensus, and data integrity verification. A good hash function guarantees that any change to input, however small, produces a completely different hash (avalanche effect), and finding two inputs with the same hash is computationally impossible (collision resistance).",
+    "sections": [
+      {
+        "title": "Properties of Cryptographic Hash Functions",
+        "content": "Five properties define cryptographic strength. Pre-image resistance: given hash h, finding any message m where hash(m) = h should be infeasible—this makes hashing one-way. Second pre-image resistance: given message m1, finding different m2 with same hash should be infeasible—prevents forging documents with identical hashes. Collision resistance: finding any m1, m2 where hash(m1) = hash(m2) should be infeasible—prevents attackers from creating malicious files with valid hashes. Avalanche effect: changing one input bit should change ~50% of output bits—ensures hashes look completely random. Determinism: same input always produces same output—enables verification. These properties collectively make hash functions foundationally secure.",
+        "keyPoints": [
+          "Pre-image resistance: one-way, can't reverse hash",
+          "Second pre-image resistance: can't find alternative with same hash",
+          "Collision resistance: can't find any two inputs with same hash",
+          "Avalanche effect: small input change → completely different output"
+        ]
+      },
+      {
+        "title": "SHA-2 Family",
+        "content": "SHA-256 and SHA-512, designed by NSA and published by NIST in 2001, dominate modern cryptography. SHA-256 produces 256-bit (32-byte) outputs and processes data in 512-bit blocks through 64 rounds of bit manipulation. The algorithm uses modular addition, bitwise operations (AND, OR, XOR, NOT), and circular shifts. A compression function updates eight 32-bit state variables (a-h) using message schedule words derived from input blocks. SHA-512 uses 64-bit words and 80 rounds for increased security. No practical collision attacks exist against SHA-2. SHA-256 secures Bitcoin, TLS certificates, and countless systems. SHA-384 and SHA-224 provide variants for specific use cases requiring different output sizes.",
+        "keyPoints": [
+          "SHA-256: 256-bit output, 512-bit blocks, 64 rounds",
+          "Uses bitwise ops, modular addition, and circular shifts",
+          "Eight working variables updated each round",
+          "No practical attacks despite intensive cryptanalysis"
+        ]
+      },
+      {
+        "title": "Applications and Use Cases",
+        "content": "Hash functions enable diverse security applications. Password storage: systems store hash(password) instead of plaintext, verifying by re-hashing and comparing. Digital signatures: sign the hash of a message rather than the message itself—faster and produces fixed-size input for signature algorithms. Data integrity: include hash with downloads so users verify file wasn't corrupted or tampered. Blockchains: each block contains the previous block's hash, creating an immutable chain—changing any block would change all subsequent hashes. Message authentication codes (HMAC): combine hash with secret key to authenticate message origin. Commitment schemes: reveal hash of a secret now, disclose the secret later—proves you knew it beforehand without revealing it.",
+        "keyPoints": [
+          "Password verification without storing plaintext",
+          "Digital signatures on fixed-size message digests",
+          "Data integrity verification against tampering",
+          "Blockchain chaining through recursive hashing"
+        ]
+      },
+      {
+        "title": "Hash Attacks and Security",
+        "content": "Hash security degrades when weaknesses emerge. MD5, once ubiquitous, fell to practical collisions in 2004—never use it for security. SHA-1, which succeeded MD5, succumbed to collision attacks by 2017; major browsers now reject SHA-1 certificates. The birthday paradox governs collision probability: with n-bit hashes, random collisions become likely after 2^(n/2) attempts (square root of hash space). For SHA-256, this means 2^128 operations—beyond any foreseeable capability. However, quantum computers using Grover's algorithm could theoretically find collisions in 2^(n/3) operations, suggesting we may eventually need larger hashes. Post-quantum cryptography research explores 384+ bit hashes for long-term security.",
+        "keyPoints": [
+          "MD5 broken: practical collisions since 2004",
+          "SHA-1 deprecated: collision attacks demonstrated 2017",
+          "Birthday attack: find collisions in 2^(n/2) operations",
+          "SHA-256 remains secure; consider SHA-3 or 384+ bits for quantum resistance"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Digest",
+        "description": "Fixed-size output of hash function",
+        "latex": "digest = hash(input), |digest| = fixed (e.g., 256 bits)"
+      },
+      {
+        "name": "Avalanche Effect",
+        "description": "Input change causes ~50% output bit changes",
+        "latex": "HammingDistance(hash(m), hash(m')) ≈ 50% for m ≈ m'"
+      },
+      {
+        "name": "Collision",
+        "description": "Two different inputs producing same hash",
+        "latex": "Find m1 ≠ m2 such that hash(m1) = hash(m2)"
+      },
+      {
+        "name": "Birthday Bound",
+        "description": "Collision probability after sqrt(hash space) attempts",
+        "latex": "For n-bit hash: collisions likely after 2^(n/2) hashes"
+      }
+    ],
+    "complexity": {
+      "hashing": "O(n) for n-bit message, linear scan with constant per block",
+      "preimageAttack": "O(2^n) for n-bit hash - brute force",
+      "collisionAttack": "O(2^(n/2)) via birthday paradox",
+      "quantumAttack": "O(2^(n/3)) theoretical with Grover's algorithm"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize State",
+      "description": "Set up initial hash values (IV) and constants derived from fractional parts of cube roots of first primes.",
+      "latex": "h0..h7 = initial values (first 32 bits of sqrt(2,3,5,7,11,13,17,19))",
+      "visualState": {
+        "h0": "6a09e667",
+        "h1": "bb67ae85",
+        "h2": "3c6ef372",
+        "h3": "a54ff53a",
+        "h4": "510e527f",
+        "h5": "9b05688c",
+        "h6": "1f83d9ab",
+        "h7": "5be0cd19"
+      }
+    },
+    {
+      "step": 2,
+      "title": "Preprocess Message",
+      "description": "Pad message to multiple of 512 bits: append '1', then '0's, then original length as 64-bit integer.",
+      "latex": "M || 1 || 0...0 || |M|_64",
+      "visualState": {
+        "originalLength": "120 bits",
+        "padding": "1 + 311 zeros + 64-bit length",
+        "totalLength": "512 bits (1 block)"
+      }
+    },
+    {
+      "step": 3,
+      "title": "Process Message Block",
+      "description": "Break message into 512-bit blocks. For each block, create message schedule of 64 words.",
+      "latex": "W[0..15] = block chunks, W[16..63] = σ functions",
+      "visualState": {
+        "blockIndex": 0,
+        "messageSchedule": "64 × 32-bit words",
+        "words0to15": "Message data",
+        "words16to63": "Extended schedule"
+      }
+    },
+    {
+      "step": 4,
+      "title": "Initialize Working Variables",
+      "description": "Copy current hash values into working variables a through h.",
+      "latex": "a=h0, b=h1, c=h2, d=h3, e=h4, f=h5, g=h6, h=h7",
+      "visualState": {
+        "variables": {"a": "6a09e667", "b": "bb67ae85", "c": "3c6ef372", "d": "a54ff53a", "e": "510e527f", "f": "9b05688c", "g": "1f83d9ab", "h": "5be0cd19"}
+      }
+    },
+    {
+      "step": 5,
+      "title": "Compression Function Round",
+      "description": "Perform 64 rounds of updates using message schedule word, round constant, and bitwise operations.",
+      "latex": "T1 = h + Σ1(e) + Ch(e,f,g) + K[i] + W[i]\\T2 = Σ0(a) + Maj(a,b,c)\\h = g, g = f, f = e, e = d + T1, d = c, c = b, b = a, a = T1 + T2",
+      "visualState": {
+        "round": 1,
+        "totalRounds": 64,
+        "messageWord": "W[0]",
+        "roundConstant": "K[0] = 428a2f98"
+      }
+    },
+    {
+      "step": 6,
+      "title": "Update Hash Values",
+      "description": "Add working variables back to hash values (modular addition).",
+      "latex": "h0 += a, h1 += b, ..., h7 += h (mod 2^32)",
+      "visualState": {
+        "before": {"h0": "6a09e667", "h1": "bb67ae85"},
+        "after": {"h0": "Updated", "h1": "Updated"},
+        "operation": "modular_addition"
+      }
+    },
+    {
+      "step": 7,
+      "title": "Produce Final Hash",
+      "description": "Concatenate all hash values to produce 256-bit digest.",
+      "latex": "digest = h0 || h1 || h2 || h3 || h4 || h5 || h6 || h7",
+      "visualState": {
+        "finalHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": "256 bits",
+        "hex": "64 characters"
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Hash Lengths",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the output size in bits of MD5, SHA-1, SHA-256, and SHA-512?",
+      "latex": "|MD5| = ?, |SHA-1| = ?, |SHA-256| = ?, |SHA-512| = ?",
+      "hints": [
+        "MD5: Message Digest 5 - produces 128 bits",
+        "SHA-1: Secure Hash Algorithm 1 - produces 160 bits",
+        "SHA-256: the number indicates output bits",
+        "SHA-512: same naming convention"
+      ],
+      "solution": {
+        "answer": "MD5=128, SHA-1=160, SHA-256=256, SHA-512=512 bits",
+        "explanation": "The output size is often in the name. MD5 produces 128 bits (16 bytes), SHA-1 produces 160 bits (20 bytes), SHA-256 produces 256 bits (32 bytes), and SHA-512 produces 512 bits (64 bytes)."
+      }
+    },
+    {
+      "id": "p2",
+      "title": "Birthday Attack",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Approximately how many random SHA-256 hashes must be generated before finding a collision with 50% probability?",
+      "latex": "Expected attempts ≈ 2^(n/2) for n-bit hash",
+      "hints": [
+        "SHA-256 produces 256-bit outputs",
+        "Birthday paradox applies: square root of search space",
+        "2^128 is astronomically large"
+      ],
+      "solution": {
+        "answer": "Approximately 2^128 (3.4 × 10^38) hashes",
+        "explanation": "Due to the birthday paradox, collisions become likely after generating approximately √(2^256) = 2^128 hashes. This is far beyond any computational capability."
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Avalanche Effect",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "You hash 'Hello' and 'hello' (only first letter changed). What percentage of output bits typically differ?",
+      "latex": "Expected Hamming distance ≈ 50% of bits",
+      "hints": [
+        "Avalanche effect: small input change → large output change",
+        "Good hash functions aim for ~50% bit flips",
+        "This makes output appear random"
+      ],
+      "solution": {
+        "answer": "Approximately 50% (128 of 256 bits for SHA-256)",
+        "explanation": "In a well-designed hash function, changing one bit of input should flip about half the output bits on average. This makes it impossible to predict output changes from input changes."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Password Storage",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why do secure systems store hash(password + salt) instead of hash(password) or the password itself?",
+      "latex": "store: hash(password || salt), verify: hash(input || salt) == stored",
+      "hints": [
+        "Plaintext passwords: catastrophic if database leaks",
+        "Hash(password): vulnerable to rainbow tables",
+        "Salt: random value per user, prevents precomputed attacks"
+      ],
+      "solution": {
+        "answer": "Hashing prevents recovering plaintext; salt prevents rainbow table attacks by ensuring same passwords produce different hashes",
+        "explanation": "Storing hash(password) without salt allows attackers to use precomputed rainbow tables. Adding a unique salt per user forces attackers to crack each password individually. Using slow hash functions (bcrypt, Argon2) further increases cracking cost."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Blockchain Chaining",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "How does including the previous block's hash in the current block create an immutable chain?",
+      "latex": "Block[n].header includes hash(Block[n-1])",
+      "hints": [
+        "Each block references previous by hash",
+        "Changing any block changes its hash",
+        "Next block's reference becomes invalid"
+      ],
+      "solution": {
+        "answer": "Any modification changes that block's hash, which doesn't match the stored hash in the next block, breaking the chain",
+        "explanation": "This creates a tamper-evident structure. To change an old block without detection, an attacker must recompute all subsequent blocks' hashes and outpace honest miners (computationally infeasible in proof-of-work systems)."
+      }
+    },
+    {
+      "id": "p6",
+      "title": "Pre-image Resistance",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Given a SHA-256 hash output h, how difficult is it to find any message m such that SHA-256(m) = h?",
+      "latex": "Given h, find m: SHA-256(m) = h. Complexity: O(2^256)",
+      "hints": [
+        "This is the definition of pre-image resistance",
+        "Only option is trying all possible inputs",
+        "2^256 is effectively infinite"
+      ],
+      "solution": {
+        "answer": "It requires approximately 2^256 attempts on average (computationally impossible)",
+        "explanation": "Pre-image resistance guarantees that even if you know the hash, you cannot find any input that produces it without brute force. For SHA-256, this is 2^256 operations—more than all the computing power in the world could accomplish in the age of the universe."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "hash-avalanche",
+    "title": "Avalanche Effect Explorer",
+    "description": "Explore the avalanche effect by modifying input bits and watching how SHA-256 output changes. Learn why hash functions appear random and how every input bit affects every output bit.",
+    "type": "bit-manipulation",
+    "instructions": [
+      "Enter a message and see its SHA-256 hash",
+      "Flip individual bits in the input",
+      "Observe how many output bits change",
+      "Aim for ~50% bit changes (avalanche effect)",
+      "Compare different input modifications"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Single Bit Flip",
+        "description": "Change one bit and observe the effect",
+        "task": "flip_one_bit",
+        "target": "Observe >100 bit changes in output"
+      },
+      {
+        "level": 2,
+        "name": "Character Change",
+        "description": "Change one character and measure bit differences",
+        "task": "change_character",
+        "compareHashes": true
+      },
+      {
+        "level": 3,
+        "name": "Avalanche Challenge",
+        "description": "Find a single-bit change that produces maximum avalanche",
+        "task": "maximize_avalanche",
+        "scoring": "percentage_bits_changed"
+      }
+    ],
+    "scoring": {
+      "closerTo50": "Higher score for avalanche closer to 50%",
+      "exploration": 10,
+      "levelComplete": 100
+    }
+  },
+  "visualizer": {
+    "type": "hash-flow",
+    "title": "SHA-256 Hash Computation",
+    "description": "Step through the SHA-256 algorithm watching how message blocks transform through 64 rounds of compression into a 256-bit digest",
+    "features": [
+      "Message padding visualization",
+      "Block decomposition display",
+      "Round-by-round state updates",
+      "Bit operation animations",
+      "Final hash construction"
+    ],
+    "modes": [
+      {
+        "id": "full-hash",
+        "name": "Complete Hash",
+        "description": "Watch entire message hash from start to finish"
+      },
+      {
+        "id": "single-block",
+        "name": "Block Detail",
+        "description": "Deep dive into one 512-bit block processing"
+      },
+      {
+        "id": "round-inspection",
+        "name": "Round Analysis",
+        "description": "Examine each of the 64 rounds individually"
+      },
+      {
+        "id": "compare",
+        "name": "Compare Inputs",
+        "description": "Side-by-side similar inputs showing avalanche effect"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "SHA-256 Hashing",
+        "code": "import hashlib\n\n# Basic string hashing\nmessage = b\"Hello, World!\"\nhash_obj = hashlib.sha256(message)\nhash_hex = hash_obj.hexdigest()\n\nprint(f\"Message: {message}\")\nprint(f\"SHA-256: {hash_hex}\")\nprint(f\"Length: {len(hash_hex)} chars = {len(hash_hex)//2} bytes\")\n\n# Hashing file\nwith open(\"file.txt\", \"rb\") as f:\n    file_hash = hashlib.sha256(f.read()).hexdigest()\n    print(f\"\\nFile hash: {file_hash}\")\n\n# Demonstrating avalanche effect\nmsg1 = b\"Hello\"\nmsg2 = b\"hello\"  # Different case\nprint(f\"\\n{msg1}: {hashlib.sha256(msg1).hexdigest()[:16]}...\")\nprint(f\"{msg2}: {hashlib.sha256(msg2).hexdigest()[:16]}...\")\n# Completely different outputs!"
+      },
+      {
+        "title": "Password Hashing with Salt",
+        "code": "import hashlib\nimport os\nimport hmac\n\ndef hash_password(password: str, salt: bytes = None) -> tuple:\n    \"\"\"Secure password hashing with salt\"\"\"\n    if salt is None:\n        salt = os.urandom(32)  # 256-bit random salt\n    \n    # Use PBKDF2 for key stretching (100k iterations)\n    pwd_hash = hashlib.pbkdf2_hmac(\n        'sha256',              # Hash function\n        password.encode(),     # Password bytes\n        salt,                  # Salt\n        100000                 # Iterations\n    )\n    return salt, pwd_hash\n\n# Store password\npassword = \"user_password123\"\nsalt, pwd_hash = hash_password(password)\nprint(f\"Salt: {salt.hex()[:32]}...\")\nprint(f\"Hash: {pwd_hash.hex()[:32]}...\")\n\n# Verify password\ndef verify_password(password: str, salt: bytes, stored_hash: bytes) -> bool:\n    _, computed = hash_password(password, salt)\n    return hmac.compare_digest(computed, stored_hash)\n\nis_valid = verify_password(\"user_password123\", salt, pwd_hash)\nprint(f\"\\nPassword valid: {is_valid}\")  # True"
+      }
+    ]
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "id": "05-quantum-circuits",
+  "bookId": "book-quantum",
+  "title": "Quantum Circuits",
+  "category": "Intermediate",
+  "order": 5,
+  "estimatedTime": "70 min",
+  "theory": {
+    "overview": "Quantum circuits are the standard model for quantum computation—a sequence of quantum gates applied to qubits, followed by measurement. Circuits are read left-to-right (time flows rightward), with horizontal lines representing qubits and symbols on those lines representing gates. Unlike classical circuits, quantum circuits must be reversible (all gates are unitary) and cannot clone arbitrary states (no-cloning theorem). Quantum circuits can simulate any quantum computation, and with sufficient qubits and gate fidelity, they can efficiently simulate any physical process in the universe. The circuit model is universal—any quantum algorithm can be expressed this way.",
+    "sections": [
+      {
+        "title": "Circuit Notation and Conventions",
+        "content": "Quantum circuits are drawn with qubits as horizontal lines and time flowing left to right. Single-qubit gates are boxes on a line: X, Y, Z, H, S, T, or custom unitaries. Two-qubit gates like CNOT have a control (●) and target (⊕ for NOT, or box for general gates). Measurement is indicated by a meter symbol, producing classical bits (often drawn as double lines). Initial states are usually omitted (assumed |0⟩). Conditional operations can be shown with classical control. The circuit depth is the number of time steps, and width is the number of qubits.",
+        "notation": [
+          { "symbol": "Single line", "meaning": "Qubit (quantum wire)" },
+          { "symbol": "Box on line", "meaning": "Single-qubit gate" },
+          { "symbol": "●—⊕", "meaning": "CNOT (control-target)" },
+          { "symbol": "Meter", "meaning": "Measurement → classical bit" },
+          { "symbol": "Double line", "meaning": "Classical bit" }
+        ],
+        "example": "|0⟩ —[H]—[•]—[H]—  Measure\n           |\n|0⟩ ————[⊕]—————  Measure"
+      },
+      {
+        "title": "Universal Gate Sets",
+        "content": "A set of gates is universal if any quantum computation can be approximated arbitrarily well. The Solovay-Kitaev theorem guarantees efficient approximation. For quantum computing: {H, T, CNOT} is a standard universal set. All single-qubit gates plus CNOT is also universal. The Clifford group {H, S, CNOT} is NOT universal—it's classically simulable (Gottesman-Knill theorem). Adding any non-Clifford gate (like T) makes it universal. In practice, hardware provides native gates and compilers decompose algorithms into these. Common native gate sets include: superconducting (RX, RY, CZ), ion trap (RX, RY, XX), and photonic (phase shifters, beam splitters).",
+        "universalSets": [
+          { "set": "{H, T, CNOT}", "type": "Discrete, approximately universal" },
+          { "set": "{All single-qubit, CNOT}", "type": "Continuous, exactly universal" },
+          { "set": "{Toffoli, H}", "type": "Classical + quantum superposition" }
+        ],
+        "complexity": "Approximating a gate to precision ε requires O(logᶜ(1/ε)) gates from a discrete universal set"
+      },
+      {
+        "title": "Multi-Controlled Gates",
+        "content": "Controlled operations generalize beyond CNOT. A controlled-U applies U to target when control is |1⟩: $CU = |0\rangle\langle 0| \otimes I + |1\rangle\langle 1| \otimes U$. Multi-controlled gates have multiple control qubits. The Toffoli gate (CCNOT) is universal for classical computation—it's reversible AND. Quantum computing also uses controlled-Z, controlled-phase, and arbitrary controlled rotations. These can be decomposed into single-qubit gates and CNOTs. For example, CZ = (I⊗H)·CNOT·(I⊗H).",
+        "decompositions": [
+          { "gate": "CZ", "decomposition": "(I⊗H)·CNOT·(I⊗H)" },
+          { "gate": "CNOT with swapped roles", "decomposition": "(H⊗H)·CNOT·(H⊗H) swaps control/target" },
+          { "gate": "CCNOT (Toffoli)", "decomposition": "Requires 6 CNOTs + single-qubit gates" }
+        ]
+      },
+      {
+        "title": "Circuit Depth and Parallelism",
+        "content": "Circuit depth is the number of time steps (layers) when gates are scheduled. Gates on different qubits can execute in parallel, reducing depth. Shallow circuits are preferred—they complete faster and experience less decoherence. The quantum circuit complexity of a problem is the minimum depth (or total gates) needed. For example: QFT on n qubits has depth O(n²) or O(n log n) with parallelization. Adding ancilla qubits can reduce depth. Tradeoffs exist between qubit count, depth, and total gate count.",
+        "metrics": [
+          { "metric": "Depth", "meaning": "Number of time steps (latency)" },
+          { "metric": "Width", "meaning": "Number of qubits (space)" },
+          { "metric": "Gate count", "meaning": "Total operations (total work)" },
+          { "metric": "Volume", "meaning": "Depth × Width (spacetime resource)" }
+        ]
+      },
+      {
+        "title": "Quantum Circuit Compilation",
+        "content": "Real quantum hardware has constraints: limited connectivity (not all qubit pairs can interact), specific native gate sets, and gate errors. Compilation transforms abstract circuits into executable ones. Steps include: 1) Gate decomposition (arbitrary gates → native set), 2) Qubit mapping (logical → physical qubits respecting connectivity), 3) Optimization (gate fusion, cancellation, commutation rules), 4) Scheduling (parallelization respecting dependencies). This is NP-hard in general, but heuristics work well. Modern compilers (Qiskit, Cirq, TKET) handle this automatically.",
+        "techniques": [
+          { "technique": "Gate decomposition", "example": "Arbitrary rotation → ZXZ decomposition" },
+          { "technique": "Qubit routing", "example": "Swap insertion for limited connectivity" },
+          { "technique": "Optimization", "example": "Merge sequential rotations, cancel inverses" },
+          { "technique": "Error-aware", "example": "Prefer shorter paths, avoid noisy qubits" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Reversibility",
+        "description": "All quantum gates are reversible (unitary). You can run the computation backward by applying inverse gates in reverse order. Measurement is the only irreversible step.",
+        "implication": "Cannot erase information without consequences (Landauer's principle)"
+      },
+      {
+        "name": "No-Cloning in Circuits",
+        "description": "There's no CNOT-like gate that copies an arbitrary unknown quantum state. FANOUT is impossible for quantum information.",
+        "workaround": "Use CNOT with |0⟩ to create entangled copies, not independent clones"
+      },
+      {
+        "name": "Ancilla Qubits",
+        "description": "Extra qubits used as scratch space during computation. They must be returned to |0⟩ (uncomputed) for clean reuse.",
+        "technique": "Uncomputation: reverse the computation to reset ancillas"
+      },
+      {
+        "name": "Classical Control",
+        "description": "Measurement outcomes can control later operations. This enables conditional execution based on quantum results.",
+        "example": "Teleportation uses classical measurement to determine correction"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "Depends on circuit depth and gate times",
+      "spaceComplexity": "Number of qubits (including ancillas)",
+      "compilation": "NP-hard optimization problems for optimal mapping"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Qubits",
+      "description": "Start with n qubits in |0⟩ state, plus any needed ancillas.",
+      "latex": "|\\psi_0\\rangle = |0\\rangle^{\\otimes n}",
+      "visualState": { "qubits": "n", "initialized": true }
+    },
+    {
+      "step": 2,
+      "title": "Apply Single-Qubit Gates",
+      "description": "Apply H, rotations, and other single-qubit gates to prepare initial superposition or states.",
+      "latex": "|\\psi_1\\rangle = (U_1 \\otimes U_2 \\otimes ...) |\\psi_0\\rangle",
+      "visualState": { "layer": "single-qubit layer", "parallel": true }
+    },
+    {
+      "step": 3,
+      "title": "Apply Entangling Gates",
+      "description": "Apply CNOT, CZ, or other multi-qubit gates to create entanglement between qubits.",
+      "latex": "|\\psi_2\\rangle = CNOT_{i,j} |\\psi_1\\rangle",
+      "visualState": { "layer": "entangling layer", "entanglement": true }
+    },
+    {
+      "step": 4,
+      "title": "Repeat and Interleave",
+      "description": "Alternate between single-qubit rotations and entangling gates. This pattern appears in variational circuits, QAOA, and Trotterized Hamiltonian simulation.",
+      "latex": "|\\psi_3\\rangle = \\prod_{k=1}^{p} (e^{-i\\gamma_k H_c} e^{-i\\beta_k H_x}) |\\psi_2\\rangle",
+      "visualState": { "layers": "alternating", "depth": "p" }
+    },
+    {
+      "step": 5,
+      "title": "Measure or Uncompute",
+      "description": "Measure output qubits for result, or uncompute ancillas for reuse.",
+      "latex": "\\text{Result} = \\text{Measure}(|\\psi_{\\text{final}}\\rangle)",
+      "visualState": { "measurement": true, "output": "classical bits" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "CNOT Direction",
+      "difficulty": "Easy",
+      "description": "What does this circuit do? |0⟩—[H]—[•]—  |0⟩———[⊕]—",
+      "options": ["Creates |Φ⁺⟩ Bell state", "Swaps the qubits", "Measures in X basis", "Does nothing"],
+      "correctAnswer": 0,
+      "explanation": "H puts first qubit in |+⟩ = (|0⟩+|1⟩)/√2. CNOT with |+⟩ as control and |0⟩ as target creates (|00⟩+|11⟩)/√2 = |Φ⁺⟩. This is the standard Bell state creation circuit.",
+      "hint": "Follow the states: H creates superposition, CNOT entangles."
+    },
+    {
+      "id": "p2",
+      "title": "Gate Count",
+      "difficulty": "Medium",
+      "description": "What's the minimum number of CNOTs needed to implement a Toffoli (CCNOT) gate using single-qubit gates and CNOTs?",
+      "options": ["2", "4", "6", "8"],
+      "correctAnswer": 2,
+      "explanation": "The optimal decomposition requires 6 CNOTs. Early results said 8, but improved circuits achieved 6. Proving 6 is optimal was a significant result in quantum circuit theory.",
+      "hint": "This is a known result in quantum circuit optimization."
+    },
+    {
+      "id": "p3",
+      "title": "Circuit Equivalence",
+      "difficulty": "Medium",
+      "description": "Which circuit is equivalent to CNOT with control and target swapped?",
+      "options": ["Same CNOT", "(H⊗H)·CNOT·(H⊗H)", "CNOT·(H⊗H)", "Swap gate"],
+      "correctAnswer": 1,
+      "explanation": "Conjugating CNOT by H⊗H swaps the roles of control and target. Intuitively, H swaps X and Z bases, and CNOT is like controlled-X. In Z basis, first qubit controls; in X basis, second qubit controls.",
+      "hint": "H swaps X and Z. What happens to controlled-X under this swap?"
+    },
+    {
+      "id": "p4",
+      "title": "Ancilla Uncomputation",
+      "difficulty": "Hard",
+      "description": "You use an ancilla qubit to compute f(x) into it: |x⟩|0⟩ → |x⟩|f(x)⟩. How do you reset the ancilla to |0⟩ without disturbing |x⟩?",
+      "options": ["Measure and reset", "Apply X if f(x)=1", "Apply CNOT with |x⟩ as control", "Apply the computation again (uncomputation)"],
+      "correctAnswer": 3,
+      "explanation": "Uncomputation: apply the inverse of the computation circuit. Since quantum gates are unitary, they're reversible. Applying U†U = I returns ancilla to |0⟩. This is crucial for reversible computing and ancilla reuse.",
+      "hint": "Quantum computations are reversible. How do you undo a computation?"
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n\n# Define gates\ndef tensor(*matrices):\n    result = matrices[0]\n    for m in matrices[1:]:\n        result = np.kron(result, m)\n    return result\n\nH = np.array([[1, 1], [1, -1]]) / np.sqrt(2)\nX = np.array([[0, 1], [1, 0]])\nI = np.eye(2)\nCNOT = np.array([[1,0,0,0], [0,1,0,0], [0,0,0,1], [0,0,1,0]])\n\n# Build a 3-qubit circuit\n# |000⟩ → H⊗I⊗I → CNOT(1,2) → CNOT(2,3) → H⊗H⊗I\n\n# Layer 1: H on qubit 0\nlayer1 = tensor(H, I, I)\n\n# Layer 2: CNOT(0, 1) - control on qubit 0, target on qubit 1\n# In tensor form: CNOT ⊗ I for qubit 2\nlayer2 = tensor(CNOT, I)\n\n# Layer 3: CNOT(1, 2) - need to reorder (swap qubits 0 and 1 temporarily)\n# CNOT on qubits 1,2 while qubit 0 is spectator\nCNOT_12 = tensor(I, CNOT)\nlayer3 = CNOT_12\n\n# Layer 4: H on qubits 0 and 1\nlayer4 = tensor(H, H, I)\n\n# Full circuit\ncircuit = layer4 @ layer3 @ layer2 @ layer1\n\n# Initial state |000⟩\npsi0 = tensor(np.array([1,0]), np.array([1,0]), np.array([1,0]))\n\n# Apply circuit\npsi_final = circuit @ psi0\n\nprint('3-qubit circuit simulation:')\nprint(f'Final state shape: {psi_final.shape}')\nprint(f'State vector: {psi_final.round(4)}')\n\n# Calculate measurement probabilities\nprobs = np.abs(psi_final)**2\nprint(f'\\nProbabilities for each basis state (|000⟩ to |111⟩):')\nfor i, p in enumerate(probs):\n    basis = format(i, '03b')\n    print(f'|{basis}⟩: {p:.4f}')",
+    "qsharp": "namespace Quantum.Circuits {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Measurement;\n    \n    @EntryPoint()\n    operation ThreeQubitCircuit() : (Result, Result, Result) {\n        use (q1, q2, q3) = (Qubit(), Qubit(), Qubit());\n        \n        // Build a simple 3-qubit circuit\n        // Layer 1: H on qubit 1\n        H(q1);\n        \n        // Layer 2: CNOT from qubit 1 to qubit 2\n        CNOT(q1, q2);\n        \n        // Layer 3: CNOT from qubit 2 to qubit 3\n        CNOT(q2, q3);\n        \n        // Layer 4: H on qubits 1 and 2\n        H(q1);\n        H(q2);\n        \n        // Measure all\n        let (r1, r2, r3) = (M(q1), M(q2), M(q3));\n        \n        return (r1, r2, r3);\n    }\n    \n    // Demonstrate uncomputation\n    operation UncomputeDemo() : Unit {\n        use (reg, ancilla) = (Qubit(), Qubit());\n        \n        // Compute: store XOR of two bits in ancilla\n        H(reg);\n        CNOT(reg, ancilla);  // ancilla now has value of reg\n        \n        // Use ancilla for something...\n        \n        // Uncompute: reset ancilla to |0⟩\n        CNOT(reg, ancilla);  // Applying again undoes the entanglement\n        \n        // Verify ancilla is |0⟩\n        let result = M(ancilla);\n        Message($\"Ancilla reset to: {result} (should be Zero)\");\n    }\n}",
+    "quipper": "import Quipper\n\n-- Simple 3-qubit GHZ circuit\nghz3Circuit :: Circ (Bit, Bit, Bit)\nghz3Circuit = do\n  q1 <- qinit True   -- |0⟩\n  q2 <- qinit True   -- |0⟩\n  q3 <- qinit True   -- |0⟩\n  \n  -- Layer 1: H on q1\n  q1 <- hadamard q1\n  \n  -- Layer 2: CNOT(q1, q2)\n  (q1, q2) <- controlled_not q1 q2\n  \n  -- Layer 3: CNOT(q2, q3)\n  (q2, q3) <- controlled_not q2 q3\n  \n  -- Now we have |GHZ⟩ = (|000⟩ + |111⟩)/√2\n  \n  -- Measure all\n  (q1, b1) <- measure_qubit q1\n  (q2, b2) <- measure_qubit q2\n  (q3, b3) <- measure_qubit q3\n  \n  return (b1, b2, b3)\n\n-- Demonstrate gate decomposition\ntoffoliDecomposition :: Qubit -> Qubit -> Qubit -> Circ (Qubit, Qubit, Qubit)\ntoffoliDecomposition a b c = do\n  -- Toffoli using 6 CNOTs (simplified)\n  -- In practice, use library implementation\n  c <- gate_T c\n  (b, c) <- controlled_not b c\n  c <- gate_T_dagger c\n  (a, c) <- controlled_not a c\n  c <- gate_T c\n  (b, c) <- controlled_not b c\n  c <- gate_T_dagger c\n  (a, c) <- controlled_not a c\n  -- Continue with remaining gates...\n  return (a, b, c)"
+  }
+}

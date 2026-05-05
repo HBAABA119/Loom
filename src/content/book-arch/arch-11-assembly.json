@@ -1,0 +1,275 @@
+{
+  "id": "arch-11-assembly",
+  "bookId": "book-arch",
+  "title": "Assembly Language",
+  "category": "Programming",
+  "order": 11,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Assembly language is the bridge between high-level programming and raw machine code—the symbolic representation of instructions that processors execute directly. While programmers typically work in Python, Java, or C++, compilers translate those abstractions into assembly, then into binary that the CPU understands. Understanding assembly unlocks the black box of computation: you'll see how loops become conditional jumps, how functions use the stack, and how every variable access translates to memory operations. For embedded systems, performance optimization, security research, and reverse engineering, assembly remains an essential skill.",
+    "sections": [
+      {
+        "title": "From High Level to Machine Code",
+        "content": "The compilation process transforms human-readable code through multiple stages: source code → compiler → assembly → assembler → machine code → linker → executable. Assembly sits just above binary—each assembly instruction typically maps to one machine instruction. Unlike high-level languages with complex expressions and abstractions, assembly is explicit: every memory access, every arithmetic operation, every control transfer is visible and precisely specified.",
+        "process": [
+          "Source Code (C/Python/Java)",
+          "Compiler (generates assembly)",
+          "Assembly Code (.s file)",
+          "Assembler (generates object code)",
+          "Linker (combines objects)",
+          "Executable (runs on CPU)"
+        ]
+      },
+      {
+        "title": "Instruction Categories",
+        "content": "Assembly instructions fall into categories: Data Movement (MOV, LOAD, STORE) transfer data between registers and memory; Arithmetic/Logic (ADD, SUB, AND, OR) perform computation; Control Flow (JMP, CALL, RET, conditional branches) alter execution sequence; Comparison/Testing (CMP, TEST) set flags for decisions; and System (SYSCALL, INT) interface with the operating system.",
+        "categories": {
+          "data": "MOV, PUSH, POP, LEA, XCHG",
+          "arithmetic": "ADD, SUB, MUL, DIV, INC, DEC, NEG",
+          "logic": "AND, OR, XOR, NOT, SHL, SHR",
+          "control": "JMP, JE, JNE, CALL, RET, LOOP",
+          "compare": "CMP, TEST, SETcc",
+          "system": "SYSCALL, INT, CLI, STI"
+        }
+      },
+      {
+        "title": "Registers: The Workspace",
+        "content": "Registers are the CPU's working memory—fast storage directly in the processor. x86-64 has 16 general-purpose 64-bit registers (RAX, RBX, RCX, RDX, RSI, RDI, RBP, RSP, R8-R15), plus special-purpose registers like RIP (instruction pointer) and RFLAGS (status flags). RAX is the accumulator for arithmetic, RCX is the counter for loops, RSP is the stack pointer, RBP the base pointer for stack frames. Sub-registers access lower portions: EAX (32-bit), AX (16-bit), AH/AL (8-bit).",
+        "x86Registers": {
+          "rax": "Accumulator, function return value",
+          "rbx": "Base register, general purpose",
+          "rcx": "Counter, loop iterations",
+          "rdx": "Data, I/O operations",
+          "rsi": "Source index for string ops",
+          "rdi": "Destination index for string ops",
+          "rsp": "Stack pointer (top of stack)",
+          "rbp": "Base pointer (stack frame)"
+        }
+      },
+      {
+        "title": "Memory Addressing Modes",
+        "content": "Assembly provides flexible ways to access memory. Direct addressing uses a fixed address. Register indirect uses a register's value as address. Based addressing adds an offset to a base register. Indexed addressing uses an index register scaled by a multiplier (perfect for arrays). Combined modes offer [base + index*scale + offset], enabling efficient array and structure access.",
+        "modes": {
+          "direct": "[0x1000] - fixed address",
+          "indirect": "[rax] - register as pointer",
+          "based": "[rax + 8] - base + offset",
+          "indexed": "[rax + rbx*4] - array access",
+          "complex": "[rax + rbx*4 + 16] - struct array element"
+        }
+      },
+      {
+        "title": "The Stack: Function Calls",
+        "content": "The stack is a LIFO memory region used for function calls, local variables, and saving state. RSP points to the top. PUSH decrements RSP and stores; POP loads and increments RSP. The CALL instruction pushes the return address and jumps to the function; RET pops and jumps back. The stack frame (bounded by RBP and RSP) holds local variables and saved registers. Understanding stack frames is crucial for debugging and security.",
+        "stackOperations": {
+          "push rax": "rsp -= 8; [rsp] = rax",
+          "pop rax": "rax = [rsp]; rsp += 8",
+          "call func": "push rip; jmp func",
+          "ret": "pop rip"
+        }
+      },
+      {
+        "title": "System Calls and ABI",
+        "content": "The Application Binary Interface (ABI) defines how code interoperates: which registers hold arguments, which holds return values, how the stack is managed, and which registers must be preserved. For system calls, arguments go in specific registers (RDI, RSI, RDX, etc.), syscall number in RAX, then SYSCALL instruction traps to the kernel. Understanding the ABI is essential for interfacing assembly with C code or calling OS services.",
+        "linuxAbi": {
+          "args": ["RDI", "RSI", "RDX", "RCX", "R8", "R9"],
+          "return": "RAX",
+          "syscall": "RAX = number, then SYSCALL",
+          "preserved": ["RBX", "RBP", "R12-R15"],
+          "scratch": ["RAX", "RCX", "RDX", "RSI", "RDI", "R8-R11"]
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Mnemonic",
+        "description": "Human-readable name for an instruction. ADD, MOV, JMP are mnemonics.",
+        "example": "ADD RAX, RBX"
+      },
+      {
+        "name": "Opcode",
+        "description": "Binary code representing the operation. Machine-readable instruction.",
+        "example": "0x01C3 for ADD EBX, EAX"
+      },
+      {
+        "name": "Operand",
+        "description": "Data operated on by an instruction. Can be register, memory, or immediate.",
+        "types": ["Register", "Memory", "Immediate"]
+      },
+      {
+        "name": "Label",
+        "description": "Symbolic name for a memory address. Used for jumps, data, functions.",
+        "example": "loop_start:"
+      }
+    ],
+    "complexity": {
+      "instructionFetch": "O(1) from L1 cache",
+      "memoryAccess": "O(1) to O(100+) depending on cache",
+      "arithmetic": "O(1) in ALU"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Understand Instruction Format",
+      "description": "Assembly: mnemonic destination, source. Example: MOV RAX, RBX copies RBX to RAX.",
+      "visualState": { "mnemonic": "MOV", "dest": "RAX", "src": "RBX" }
+    },
+    {
+      "step": 2,
+      "title": "Learn Addressing Modes",
+      "description": "Access memory via [base + index*scale + offset] for flexible data access.",
+      "visualState": { "base": "RAX", "index": "RBX", "scale": 4, "offset": 8 }
+    },
+    {
+      "step": 3,
+      "title": "Master Stack Operations",
+      "description": "PUSH saves registers; POP restores. CALL/RET manage function entry/exit.",
+      "visualState": { "rsp": "0x7fff0000", "operation": "PUSH RAX" }
+    },
+    {
+      "step": 4,
+      "title": "Use System Calls",
+      "description": "Set arguments in registers per ABI, syscall number in RAX, execute SYSCALL.",
+      "visualState": { "rax": 60, "rdi": 0, "syscall": "exit" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "MOV Instruction",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What does MOV RAX, RBX do?",
+      "answer": "Copies value from RBX to RAX",
+      "explanation": "MOV copies data from source (RBX) to destination (RAX). The source is unchanged, destination gets a copy.",
+      "hints": ["MOV = move/copy", "Source: RBX", "Destination: RAX"]
+    },
+    {
+      "id": "p2",
+      "title": "PUSH Effect",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What happens to RSP when PUSH RAX executes?",
+      "answer": "RSP decreases by 8",
+      "explanation": "PUSH first decrements RSP by the operand size (8 for 64-bit), then stores the value at the new RSP address.",
+      "hints": ["Stack grows down", "RSP decreases", "By 8 bytes on x86-64"]
+    },
+    {
+      "id": "p3",
+      "title": "CALL and RET",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What does CALL do before jumping to the function?",
+      "answer": "Pushes return address",
+      "explanation": "CALL pushes the address of the next instruction (return address) onto the stack, then jumps to the function. RET pops this address to return.",
+      "hints": ["CALL = push + jump", "Return address saved", "RET pops and jumps"]
+    },
+    {
+      "id": "p4",
+      "title": "Memory Addressing",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "If RAX=0x1000 and RBX=4, what address does [RAX + RBX*2 + 8] access?",
+      "answer": "0x1010",
+      "explanation": "0x1000 + (4 * 2) + 8 = 0x1000 + 8 + 8 = 0x1010. Base + index*scale + offset.",
+      "hints": ["Base = RAX = 0x1000", "Index*scale = 4*2 = 8", "Offset = 8", "0x1000 + 8 + 8"]
+    },
+    {
+      "id": "p5",
+      "title": "System Call ABI",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "On Linux x86-64, which register holds the first argument for a system call?",
+      "answer": "RDI",
+      "explanation": "The System V AMD64 ABI specifies: RDI (1st arg), RSI (2nd), RDX (3rd), RCX (4th), R8 (5th), R9 (6th). RAX holds the syscall number.",
+      "hints": ["Linux x86-64 ABI", "First argument", "RDI register"]
+    },
+    {
+      "id": "p6",
+      "title": "Loop in Assembly",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "What does this code do? mov rcx, 5\\nloop: dec rcx\\njnz loop",
+      "answer": "Decrements RCX from 5 to 0 (loop runs 5 times)",
+      "explanation": "DEC decrements RCX. JNZ (jump if not zero) continues until RCX becomes 0. This is a simple countdown loop executing 5 times.",
+      "hints": ["RCX starts at 5", "DEC decrements", "JNZ jumps if not zero", "Loops 5 times"]
+    }
+  ],
+  "minigame": {
+    "id": "assembly-adventure",
+    "title": "Assembly Adventure",
+    "description": "Write assembly code to solve puzzles! Move data between registers, manipulate memory, control execution flow, and master the CPU at the lowest level. Become an assembly wizard!",
+    "type": "coding-puzzle",
+    "instructions": [
+      "Read the puzzle objective carefully",
+      "Write assembly instructions in the code editor",
+      "Use registers (RAX, RBX, etc.) for computation",
+      "Access memory with [address] syntax",
+      "Run your code and verify the result",
+      "Optimize for fewer instructions!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Register Basics",
+        "description": "Move values between registers",
+        "instructions": ["MOV"],
+        "registers": ["RAX", "RBX", "RCX"],
+        "timeLimit": 60,
+        "targetInstructions": 3
+      },
+      {
+        "level": 2,
+        "name": "Arithmetic",
+        "description": "Perform calculations",
+        "instructions": ["MOV", "ADD", "SUB", "INC", "DEC"],
+        "registers": ["RAX", "RBX", "RCX", "RDX"],
+        "timeLimit": 90,
+        "targetInstructions": 5
+      },
+      {
+        "level": 3,
+        "name": "Memory Access",
+        "description": "Read and write memory",
+        "instructions": ["MOV", "ADD", "LEA"],
+        "registers": ["RAX", "RBX", "RCX"],
+        "memory": true,
+        "timeLimit": 120,
+        "targetInstructions": 6
+      },
+      {
+        "level": 4,
+        "name": "Control Flow",
+        "description": "Loops and conditionals",
+        "instructions": ["MOV", "ADD", "SUB", "CMP", "JE", "JNE", "JMP", "LOOP"],
+        "registers": ["RAX", "RBX", "RCX", "RDX"],
+        "flags": true,
+        "timeLimit": 180,
+        "targetInstructions": 10
+      },
+      {
+        "level": 5,
+        "name": "Stack Operations",
+        "description": "Function call simulation",
+        "instructions": ["MOV", "ADD", "PUSH", "POP", "CALL", "RET"],
+        "registers": ["RAX", "RBX", "RCX", "RSP", "RBP"],
+        "stack": true,
+        "timeLimit": 240,
+        "targetInstructions": 12
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "asm",
+    "snippets": [
+      {
+        "title": "Hello World (Linux x86-64)",
+        "code": "; Hello World in x86-64 Assembly (Linux)\n; Assemble: nasm -f elf64 hello.asm -o hello.o\n; Link: ld hello.o -o hello\n\nsection .data\n    msg db 'Hello, World!', 0x0A  ; String with newline\n    len equ $ - msg              ; Calculate length\n\nsection .text\n    global _start\n\n_start:\n    ; sys_write(stdout, msg, len)\n    mov rax, 1          ; syscall: write\n    mov rdi, 1          ; fd: stdout\n    mov rsi, msg        ; buffer\n    mov rdx, len        ; count\n    syscall\n\n    ; sys_exit(0)\n    mov rax, 60         ; syscall: exit\n    xor rdi, rdi        ; status: 0\n    syscall"
+      },
+      {
+        "title": "Function Example",
+        "code": "; Function that adds two numbers\n; int64 add(int64 a, int64 b) -> a + b\n\nsection .text\nglobal add\n\n; Arguments: RDI = a, RSI = b\n; Return: RAX = result\nadd:\n    push rbp            ; Save old base pointer\n    mov rbp, rsp        ; Set new base pointer\n    \n    mov rax, rdi        ; RAX = a\n    add rax, rsi        ; RAX = a + b\n    \n    pop rbp             ; Restore base pointer\n    ret                 ; Return (RAX has result)\n\n; Caller code:\ncall_add:\n    mov rdi, 10         ; First argument\n    mov rsi, 20         ; Second argument\n    call add            ; Call function\n    ; Result in RAX = 30"
+      }
+    ]
+  }
+}
