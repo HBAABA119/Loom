@@ -55,7 +55,7 @@
       {
         "title": "Creating and Destroying Superposition",
         "content": "The Hadamard gate ($H$) is the primary tool for creating superposition. $H|0\rangle = |+\rangle$ and $H|1\rangle = |-\rangle$. Applying $H$ again returns to the original state: $H|+\rangle = |0\rangle$. This is reversible because quantum gates are unitary. Superposition is destroyed by measurement, which forces the system into an eigenstate of the measurement operator. It's also destroyed by decoherence—unwanted interaction with the environment that entangles the qubit with its surroundings, effectively measuring it.",
-        "latex": "H = \frac{1}{\\sqrt{2}}\begin{pmatrix} 1 & 1 \\\ 1 & -1 \\end{pmatrix}, \\quad H|0\rangle = |+\rangle, \\quad H^2 = I",
+        "latex": "H = \frac{1}{\\sqrt{2}}\begin{pmatrix} 1 & 1 \\\\ 1 & -1 \\end{pmatrix}, \\quad H|0\rangle = |+\rangle, \\quad H^2 = I",
         "code": [
           { "operation": "Initialize", "state": "|0⟩", "superposition?": "No" },
           { "operation": "Apply H", "state": "|+⟩ = (|0⟩+|1⟩)/√2", "superposition?": "Yes" },
@@ -176,7 +176,7 @@
       "title": "Phase Matters",
       "difficulty": "Hard",
       "description": "States $|\\psi_1\rangle = \frac{1}{\\sqrt{2}}(|0\rangle + |1\rangle)$ and $|\\psi_2\rangle = \frac{1}{\\sqrt{2}}(|0\rangle + i|1\rangle)$ both give 50/50 outcomes when measured in Z basis. How do they differ?",
-      "options": ["They don't differ at all", "$\\\psi_2$ has higher energy", "They differ in the X basis measurement", "$\\\psi_2$ collapses faster"],
+      "options": ["They don't differ at all", "$\\\\psi_2$ has higher energy", "They differ in the X basis measurement", "$\\\\psi_2$ collapses faster"],
       "correctAnswer": 2,
       "explanation": "The relative phase $i = e^{i\\pi/2}$ means $|\\psi_2\rangle$ is on the Y-axis of the Bloch sphere (state $|i+\rangle$). Measuring in X basis: $|\\psi_1\rangle$ gives definite +, while $|\\psi_2\rangle$ is at 45° between +X and -X, giving random outcomes.",
       "hint": "Consider the Bloch sphere. Where is each state located?"

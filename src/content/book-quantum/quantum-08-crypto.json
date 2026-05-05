@@ -95,14 +95,14 @@
       "step": 1,
       "title": "State Preparation",
       "description": "Alice generates random bits and random bases, encoding each bit in the chosen basis.",
-      "latex": "\\text{Bit } b \\\in \\\{0,1\\\}, \\text{ Basis } \\\in \\\{\\text{rect}, \\text{diag}\\\}",
+      "latex": "\\text{Bit } b \\\\in \\\\{0,1\\\\}, \\text{ Basis } \\\\in \\\\{\\text{rect}, \\text{diag}\\\\}",
       "visualState": { "encoding": "BB84 states", "example": "bit 0 + diag basis = |+⟩" }
     },
     {
       "step": 2,
       "title": "Quantum Transmission",
       "description": "Alice sends quantum states to Bob through a quantum channel (optical fiber or free space).",
-      "latex": "|\\\psi\\rangle \\xrightarrow{\\text{channel}} |\\\psi'\\rangle",
+      "latex": "|\\\\psi\\rangle \\xrightarrow{\\text{channel}} |\\\\psi'\\rangle",
       "visualState": { "channel": "quantum", "loss": "some photons may be lost" }
     },
     {
@@ -123,7 +123,7 @@
       "step": 5,
       "title": "Error Estimation",
       "description": "Compare a subset of bits to estimate error rate. High error indicates eavesdropping.",
-      "latex": "\\text{Error rate} > 11\\\% \\Rightarrow \\text{abort}",
+      "latex": "\\text{Error rate} > 11\\\\% \\Rightarrow \\text{abort}",
       "visualState": { "threshold": "typically 11-20%", "action": "abort if exceeded" }
     },
     {

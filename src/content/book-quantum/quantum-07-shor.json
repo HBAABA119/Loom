@@ -28,16 +28,16 @@
       },
       {
         "title": "The Quantum Fourier Transform",
-        "content": "The QFT is the quantum analog of the discrete Fourier transform. On n qubits, QFT maps $|j\\rangle \\rightarrow \\frac{1}{\\\sqrt{2^n}}\\\sum_{k=0}^{2^n-1} e^{2\\\pi i j k / 2^n}|k\\rangle$. It can be implemented with O(n²) gates—exponentially faster than classical FFT's O(n2ⁿ). The QFT circuit uses Hadamard gates and controlled phase rotations. The rotation angles decrease exponentially: π, π/2, π/4, π/8, etc. The QFT reveals periodicity: if a state has period r, the QFT output shows peaks at multiples of 2ⁿ/r. Measuring gives an approximation to k·2ⁿ/r for random k, from which we can extract r using continued fractions.",
-        "formula": "$QFT|j\\rangle = \\frac{1}{\\\sqrt{2^n}}\\\sum_{k=0}^{2^n-1} e^{2\\\pi i j k / 2^n}|k\\rangle$",
+        "content": "The QFT is the quantum analog of the discrete Fourier transform. On n qubits, QFT maps $|j\\rangle \\rightarrow \\frac{1}{\\\\sqrt{2^n}}\\\\sum_{k=0}^{2^n-1} e^{2\\\\pi i j k / 2^n}|k\\rangle$. It can be implemented with O(n²) gates—exponentially faster than classical FFT's O(n2ⁿ). The QFT circuit uses Hadamard gates and controlled phase rotations. The rotation angles decrease exponentially: π, π/2, π/4, π/8, etc. The QFT reveals periodicity: if a state has period r, the QFT output shows peaks at multiples of 2ⁿ/r. Measuring gives an approximation to k·2ⁿ/r for random k, from which we can extract r using continued fractions.",
+        "formula": "$QFT|j\\rangle = \\frac{1}{\\\\sqrt{2^n}}\\\\sum_{k=0}^{2^n-1} e^{2\\\\pi i j k / 2^n}|k\\rangle$",
         "circuitDepth": "O(n²) gates (vs O(n2ⁿ) classically)",
         "insight": "QFT transforms periodicity in time domain to peaks in frequency domain"
       },
       {
         "title": "Period Finding Algorithm",
-        "content": "To find the period r of f(x) = aˣ mod N: 1) Initialize input register to superposition of all x: $\\frac{1}{\\\sqrt{2^n}}\\\sum_x |x\\rangle|0\\rangle$. 2) Apply modular exponentiation: $\\frac{1}{\\\sqrt{2^n}}\\\sum_x |x\\rangle|a^x \\\mod N\\rangle$. 3) Measure the output register, collapsing input to superposition of x with the same f(x): $\\frac{1}{\\\sqrt{M}}\\\sum_{j=0}^{M-1}|x_0 + jr\\rangle$. 4) Apply QFT to input register, creating peaks at multiples of 2ⁿ/r. 5) Measure to get an approximation of k·2ⁿ/r. 6) Use continued fractions to recover r from this approximation.",
-        "stateAfter": "After measuring output: $\\frac{1}{\\\sqrt{M}}\\\sum_j |x_0 + jr\\rangle|y\\rangle$",
-        "qftEffect": "Peaks in probability at $k \\\cdot \\frac{2^n}{r}$",
+        "content": "To find the period r of f(x) = aˣ mod N: 1) Initialize input register to superposition of all x: $\\frac{1}{\\\\sqrt{2^n}}\\\\sum_x |x\\rangle|0\\rangle$. 2) Apply modular exponentiation: $\\frac{1}{\\\\sqrt{2^n}}\\\\sum_x |x\\rangle|a^x \\\\mod N\\rangle$. 3) Measure the output register, collapsing input to superposition of x with the same f(x): $\\frac{1}{\\\\sqrt{M}}\\\\sum_{j=0}^{M-1}|x_0 + jr\\rangle$. 4) Apply QFT to input register, creating peaks at multiples of 2ⁿ/r. 5) Measure to get an approximation of k·2ⁿ/r. 6) Use continued fractions to recover r from this approximation.",
+        "stateAfter": "After measuring output: $\\frac{1}{\\\\sqrt{M}}\\\\sum_j |x_0 + jr\\rangle|y\\rangle$",
+        "qftEffect": "Peaks in probability at $k \\\\cdot \\frac{2^n}{r}$",
         "classicalPost": "Continued fractions to find r from measurement"
       },
       {
@@ -84,28 +84,28 @@
       "step": 1,
       "title": "Classical Preprocessing",
       "description": "Check if N is even, prime, or a prime power. If so, factor classically. Otherwise, pick random a < N with gcd(a,N) = 1.",
-      "latex": "\\text{Pick } a \\\in [2, N-1] \\text{ with } \\\gcd(a, N) = 1",
+      "latex": "\\text{Pick } a \\\\in [2, N-1] \\text{ with } \\\\gcd(a, N) = 1",
       "visualState": { "random": "a selected", "coprime": "verified" }
     },
     {
       "step": 2,
       "title": "Initialize Registers",
       "description": "Create superposition in input register (n qubits) and set output register (n qubits) to |0⟩.",
-      "latex": "\\frac{1}{\\\sqrt{2^n}}\\\sum_{x=0}^{2^n-1}|x\\rangle|0\\rangle^{\\\otimes n}",
+      "latex": "\\frac{1}{\\\\sqrt{2^n}}\\\\sum_{x=0}^{2^n-1}|x\\rangle|0\\rangle^{\\\\otimes n}",
       "visualState": { "inputRegister": "superposition", "outputRegister": "|0⟩" }
     },
     {
       "step": 3,
       "title": "Modular Exponentiation",
       "description": "Apply U_f: |x⟩|y⟩ → |x⟩|y ⊕ aˣ mod N⟩. This computes f(x) in superposition.",
-      "latex": "\\frac{1}{\\\sqrt{2^n}}\\\sum_{x=0}^{2^n-1}|x\\rangle|a^x \\\mod N\\rangle",
+      "latex": "\\frac{1}{\\\\sqrt{2^n}}\\\\sum_{x=0}^{2^n-1}|x\\rangle|a^x \\\\mod N\\rangle",
       "visualState": { "entanglement": "input-output", "function": "computed" }
     },
     {
       "step": 4,
       "title": "Measure Output Register",
       "description": "Measure output, getting some value y = a^(x₀) mod N. Input collapses to superposition of all x with that output value.",
-      "latex": "\\frac{1}{\\\sqrt{M}}\\\sum_{j=0}^{M-1}|x_0 + jr\\rangle|y\\rangle",
+      "latex": "\\frac{1}{\\\\sqrt{M}}\\\\sum_{j=0}^{M-1}|x_0 + jr\\rangle|y\\rangle",
       "visualState": { "measured": "y obtained", "input": "periodic superposition" }
     },
     {
@@ -119,14 +119,14 @@
       "step": 6,
       "title": "Measure and Extract Period",
       "description": "Measure to get approximation c ≈ k·2ⁿ/r. Use continued fractions to recover r from c/2ⁿ.",
-      "latex": "\\frac{c}{2^n} \\\approx \\frac{k}{r} \\Rightarrow \\text{find } r \\text{ via continued fractions}",
+      "latex": "\\frac{c}{2^n} \\\\approx \\frac{k}{r} \\Rightarrow \\text{find } r \\text{ via continued fractions}",
       "visualState": { "measurement": "c obtained", "classical": "post-processing" }
     },
     {
       "step": 7,
       "title": "Find Factors",
       "description": "If r is even and a^(r/2) ≢ -1 (mod N), compute gcd(a^(r/2) ± 1, N) to get factors.",
-      "latex": "p = \\\gcd(a^{r/2} - 1, N), \\\quad q = \\\gcd(a^{r/2} + 1, N)",
+      "latex": "p = \\\\gcd(a^{r/2} - 1, N), \\\\quad q = \\\\gcd(a^{r/2} + 1, N)",
       "visualState": { "factors": "p, q found", "verified": "p·q = N" }
     }
   ],

@@ -14,14 +14,14 @@
         "examples": [
           { "state": "$|00\rangle$", "type": "Separable", "description": "Product of |0⟩⊗|0⟩" },
           { "state": "$|++\rangle$", "type": "Separable", "description": "Product of |+⟩⊗|+⟩" },
-          { "state": "$\\frac{1}{\\\sqrt{2}}(|00\\rangle + |11\\rangle)$", "type": "Entangled", "description": "Cannot be factored; Bell state" },
-          { "state": "$\\frac{1}{\\\sqrt{2}}(|01\\rangle + |10\\rangle)$", "type": "Entangled", "description": "Another Bell state" }
+          { "state": "$\\frac{1}{\\\\sqrt{2}}(|00\\rangle + |11\\rangle)$", "type": "Entangled", "description": "Cannot be factored; Bell state" },
+          { "state": "$\\frac{1}{\\\\sqrt{2}}(|01\\rangle + |10\\rangle)$", "type": "Entangled", "description": "Another Bell state" }
         ]
       },
       {
         "title": "The Bell States (EPR Pairs)",
         "content": "There are four maximally entangled two-qubit states called the Bell basis: $|\\Phi^+\rangle = \frac{1}{\\sqrt{2}}(|00\rangle + |11\rangle)$, $|\\Phi^-\rangle = \frac{1}{\\sqrt{2}}(|00\rangle - |11\rangle)$, $|\\Psi^+\rangle = \frac{1}{\\sqrt{2}}(|01\rangle + |10\rangle)$, and $|\\Psi^-\rangle = \frac{1}{\\sqrt{2}}(|01\rangle - |10\rangle)$. These form an orthonormal basis for the two-qubit space. They can be created by applying CNOT after putting the control qubit in superposition: $CNOT(H \\otimes I)|00\rangle = |\\Phi^+\rangle$. Each Bell state has perfect correlation in some basis and perfect anti-correlation in another.",
-        "latex": "|\\\Phi^+\\rangle = \\frac{|00\\rangle + |11\\rangle}{\\\sqrt{2}}, \\\quad |\\\Psi^+\\rangle = \\frac{|01\\rangle + |10\\rangle}{\\\sqrt{2}}",
+        "latex": "|\\\\Phi^+\\rangle = \\frac{|00\\rangle + |11\\rangle}{\\\\sqrt{2}}, \\\\quad |\\\\Psi^+\\rangle = \\frac{|01\\rangle + |10\\rangle}{\\\\sqrt{2}}",
         "creation": "|00⟩ --[H]--[•]-- |Φ⁺⟩\n          |      |\n          |------[X]--",
         "properties": [
           "Measuring one qubit instantly determines the other",
@@ -32,7 +32,7 @@
       {
         "title": "Creating Entanglement with CNOT",
         "content": "The CNOT (Controlled-NOT) gate is the primary two-qubit gate for creating entanglement. It flips the target qubit if the control is $|1\rangle$. Matrix: $CNOT = |0\rangle\\langle 0| \\otimes I + |1\rangle\\langle 1| \\otimes X$. When the control is in superposition, CNOT creates entanglement. Starting from $|+0\rangle = \frac{1}{\\sqrt{2}}(|00\rangle + |10\rangle)$, applying CNOT gives $\frac{1}{\\sqrt{2}}(|00\rangle + |11\rangle) = |\\Phi^+\rangle$. The control and target become correlated—knowing one tells you the other. This is the foundation of quantum communication protocols.",
-        "matrix": "$CNOT = \\begin{pmatrix} 1 & 0 & 0 & 0 \\\\\ 0 & 1 & 0 & 0 \\\\\ 0 & 0 & 0 & 1 \\\\\ 0 & 0 & 1 & 0 \\\end{pmatrix}$",
+        "matrix": "$CNOT = \\begin{pmatrix} 1 & 0 & 0 & 0 \\\\\\ 0 & 1 & 0 & 0 \\\\\\ 0 & 0 & 0 & 1 \\\\\\ 0 & 0 & 1 & 0 \\\\end{pmatrix}$",
         "circuit": "|0⟩--[H]--●--  =  |Φ⁺⟩\n         |   |\n|0⟩-----⊕--",
         "truthTable": [
           { "input": "|00⟩", "output": "|00⟩" },
@@ -44,7 +44,7 @@
       {
         "title": "Bell's Inequality and Non-Locality",
         "content": "Bell's theorem (1964) proved that quantum correlations are stronger than any classical correlations could ever be. Imagine two parties (Alice and Bob) each receive one qubit of an entangled pair. They can choose measurement bases independently. Quantum mechanics predicts correlations that violate the CHSH inequality: $S = |E(a,b) - E(a,b') + E(a',b) + E(a',b')| \\leq 2$ classically, but quantum allows up to $2\\sqrt{2} \\approx 2.828$. Experimental violations (Aspect et al., loophole-free tests 2015-2017) confirm that nature is fundamentally non-local. This isn't faster-than-light communication—no information is transmitted—but it shows entanglement is a genuinely new resource.",
-        "inequality": "Classical bound: $|S| \\\leq 2$, Quantum bound: $|S| \\\leq 2\\\sqrt{2}$",
+        "inequality": "Classical bound: $|S| \\\\leq 2$, Quantum bound: $|S| \\\\leq 2\\\\sqrt{2}$",
         "experiment": "Measure entangled photons in different bases; correlations exceed classical limit",
         "implication": "Nature cannot be described by local hidden variable theories"
       },
@@ -52,10 +52,10 @@
         "title": "Multi-Qubit Entanglement",
         "content": "Entanglement scales to many qubits. The GHZ state (Greenberger-Horne-Zeilinger) for $n$ qubits is $\frac{1}{\\sqrt{2}}(|00...0\rangle + |11...1\rangle)$. It's maximally entangled—all qubits are perfectly correlated. Another important state is the W state: $\frac{1}{\\sqrt{n}}(|100...0\rangle + |010...0\rangle + ... + |00...01\rangle)$. Unlike GHZ, if you lose one qubit from a W state, the rest remain entangled (robust entanglement). Entanglement can be quantified using entanglement entropy: for a bipartition, $S = -Tr(\rho_A \\log \rho_A)$ where $\rho_A$ is the reduced density matrix of subsystem A.",
         "states": [
-          { "name": "GHZ", "formula": "$\\frac{1}{\\\sqrt{2}}(|000\\rangle + |111\\rangle)$", "property": "All or nothing entanglement" },
-          { "name": "W", "formula": "$\\frac{1}{\\\sqrt{3}}(|100\\rangle + |010\\rangle + |001\\rangle)$", "property": "Robust to qubit loss" }
+          { "name": "GHZ", "formula": "$\\frac{1}{\\\\sqrt{2}}(|000\\rangle + |111\\rangle)$", "property": "All or nothing entanglement" },
+          { "name": "W", "formula": "$\\frac{1}{\\\\sqrt{3}}(|100\\rangle + |010\\rangle + |001\\rangle)$", "property": "Robust to qubit loss" }
         ],
-        "entropy": "$S(\\rho_A) = -\\\sum_i \\\lambda_i \\\log \\\lambda_i$ where $\\\lambda_i$ are eigenvalues of $\\rho_A$"
+        "entropy": "$S(\\rho_A) = -\\\\sum_i \\\\lambda_i \\\\log \\\\lambda_i$ where $\\\\lambda_i$ are eigenvalues of $\\rho_A$"
       }
     ],
     "keyConcepts": [
@@ -129,7 +129,7 @@
       "title": "Bell State Identification",
       "difficulty": "Easy",
       "description": "Which Bell state gives opposite results when measured in the computational (Z) basis?",
-      "options": ["$|\\\Phi^+\\rangle$", "$|\\\Phi^-\\rangle$", "$|\\\Psi^+\\rangle$", "$|\\\Psi^-\\rangle$"],
+      "options": ["$|\\\\Phi^+\\rangle$", "$|\\\\Phi^-\\rangle$", "$|\\\\Psi^+\\rangle$", "$|\\\\Psi^-\\rangle$"],
       "correctAnswer": 2,
       "explanation": "$|\\Psi^+\rangle = \frac{1}{\\sqrt{2}}(|01\rangle + |10\rangle)$. When measured, you get either 01 or 10—the qubits are always opposite. The other Bell states give same results (00 or 11).",
       "hint": "Look at which basis states appear in the superposition."
@@ -149,7 +149,7 @@
       "title": "CNOT Operation",
       "difficulty": "Medium",
       "description": "What is $CNOT \\cdot \frac{1}{\\sqrt{2}}(|01\rangle + |11\rangle)$?",
-      "options": ["$\\frac{1}{\\\sqrt{2}}(|01\\rangle + |11\\rangle)$", "$\\frac{1}{\\\sqrt{2}}(|01\\rangle + |10\\rangle)$", "$\\frac{1}{\\\sqrt{2}}(|00\\rangle + |11\\rangle)$", "$\\frac{1}{\\\sqrt{2}}(|00\\rangle + |10\\rangle)$"],
+      "options": ["$\\frac{1}{\\\\sqrt{2}}(|01\\rangle + |11\\rangle)$", "$\\frac{1}{\\\\sqrt{2}}(|01\\rangle + |10\\rangle)$", "$\\frac{1}{\\\\sqrt{2}}(|00\\rangle + |11\\rangle)$", "$\\frac{1}{\\\\sqrt{2}}(|00\\rangle + |10\\rangle)$"],
       "correctAnswer": 1,
       "explanation": "CNOT flips the target when control is |1⟩. In |01⟩, control is |0⟩ so no change. In |11⟩, control is |1⟩ so target flips: |11⟩ → |10⟩. Result: $\frac{1}{\\sqrt{2}}(|01\rangle + |10\rangle) = |\\Psi^+\rangle$.",
       "hint": "Check each basis state: CNOT|01⟩ = |01⟩, CNOT|11⟩ = |10⟩."
@@ -159,7 +159,7 @@
       "title": "Reduced Density Matrix",
       "difficulty": "Hard",
       "description": "For $|\\Phi^+\rangle = \frac{1}{\\sqrt{2}}(|00\rangle + |11\rangle)$, what is the reduced density matrix of qubit 1?",
-      "options": ["$|0\\rangle\\\langle0|$", "$\\frac{I}{2}$", "$|+\\rangle\\\langle+|$", "$|0\\rangle\\\langle1|$"],
+      "options": ["$|0\\rangle\\\\langle0|$", "$\\frac{I}{2}$", "$|+\\rangle\\\\langle+|$", "$|0\\rangle\\\\langle1|$"],
       "correctAnswer": 1,
       "explanation": "Tracing out qubit 2: $\rho_1 = Tr_2(|\\Phi^+\rangle\\langle\\Phi^+|) = \frac{1}{2}(|0\rangle\\langle 0| + |1\rangle\\langle 1|) = \frac{I}{2}$. This is the maximally mixed state—complete uncertainty about qubit 1 alone, even though the pair is perfectly correlated.",
       "hint": "Trace out qubit 2 by summing over its basis states."

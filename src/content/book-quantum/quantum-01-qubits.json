@@ -20,7 +20,7 @@
       },
       {
         "title": "The Mathematics of Qubits",
-        "content": "The state of a qubit is a vector in a 2-dimensional complex Hilbert space. We use Dirac notation (bra-ket) where $|0\rangle = \begin{pmatrix} 1 \\\ 0 \\end{pmatrix}$ and $|1\rangle = \begin{pmatrix} 0 \\\ 1 \\end{pmatrix}$. A general qubit state is: $|\\psi\rangle = \\alpha|0\rangle + \beta|1\rangle = \begin{pmatrix} \\alpha \\\ \beta \\end{pmatrix}$. The complex numbers $\\alpha$ and $\beta$ are called probability amplitudes. They can be negative or even complex (involving $i = \\sqrt{-1}$), which is the source of quantum interference effects.",
+        "content": "The state of a qubit is a vector in a 2-dimensional complex Hilbert space. We use Dirac notation (bra-ket) where $|0\rangle = \begin{pmatrix} 1 \\ 0 \\end{pmatrix}$ and $|1\rangle = \begin{pmatrix} 0 \\ 1 \\end{pmatrix}$. A general qubit state is: $|\\psi\rangle = \\alpha|0\rangle + \beta|1\rangle = \begin{pmatrix} \\alpha \\ \beta \\end{pmatrix}$. The complex numbers $\\alpha$ and $\beta$ are called probability amplitudes. They can be negative or even complex (involving $i = \\sqrt{-1}$), which is the source of quantum interference effects.",
         "latex": "|\\psi\rangle = \\alpha|0\rangle + \beta|1\rangle, \\quad |\\alpha|^2 + |\beta|^2 = 1",
         "examples": [
           {
@@ -50,11 +50,11 @@
         "content": "The Bloch sphere is a geometric representation of a single qubit's state. Every pure qubit state corresponds to a point on the surface of this unit sphere. The state is parameterized by two angles: $\theta$ (polar angle, 0 to $\\pi$) and $\\phi$ (azimuthal angle, 0 to $2\\pi$). The conversion from amplitudes to angles is: $\\alpha = \\cos(\theta/2)$ and $\beta = e^{i\\phi}\\sin(\theta/2)$. The North Pole ($\theta=0$) is $|0\rangle$, South Pole ($\theta=\\pi$) is $|1\rangle$. The equator contains equal superpositions with different phases.",
         "latex": "|\\psi\rangle = \\cos\frac{\theta}{2}|0\rangle + e^{i\\phi}\\sin\frac{\theta}{2}|1\rangle",
         "keyPoints": [
-          "North Pole: $|0\rangle$ (θ = 0)",
-          "South Pole: $|1\rangle$ (θ = π)",
-          "+X axis: $|+\rangle$ (θ = π/2, φ = 0)",
-          "-X axis: $|-\rangle$ (θ = π/2, φ = π)",
-          "+Y axis: $|i+\rangle$ (θ = π/2, φ = π/2)"
+          "North Pole: $|0\rangle$ ($\theta = 0$)",
+          "South Pole: $|1\rangle$ ($\theta = \\pi$)",
+          "+X axis: $|+\rangle$ ($\theta = \\pi/2, \\phi = 0$)",
+          "-X axis: $|-\rangle$ ($\theta = \\pi/2, \\phi = \\pi$)",
+          "+Y axis: $|i+\rangle$ ($\theta = \\pi/2, \\phi = \\pi/2$)"
         ]
       },
       {
@@ -112,13 +112,14 @@
       "step": 1,
       "title": "Initialize the Qubit",
       "description": "Start with a qubit in a known state, typically $|0\rangle$.",
-      "latex": "|\\psi_0\rangle = |0\rangle = \begin{pmatrix} 1 \\\ 0 \\end{pmatrix}",
+      "latex": "|\\psi_0\rangle = |0\rangle = \begin{pmatrix} 1 \\ 0 \\end{pmatrix}",
       "visualState": { "theta": 0, "phi": 0, "state": "|0⟩" }
     },
     {
       "step": 2,
       "title": "Apply Quantum Gates",
       "description": "Transform the state using unitary operations. Each gate rotates the state on the Bloch sphere.",
+      "latex": "|\\psi_1\rangle = U|\\psi_0\rangle, \\quad U^\\dagger U = I",
       "latex": "|\\psi_1\rangle = U|\\psi_0\rangle, \\quad U^\\dagger U = I",
       "visualState": { "theta": "variable", "phi": "variable", "operation": "rotation" }
     },

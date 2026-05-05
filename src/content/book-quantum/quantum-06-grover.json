@@ -18,21 +18,21 @@
       {
         "title": "The Oracle (Phase Kickback)",
         "content": "The oracle marks the winning state by flipping its phase: $O|x\rangle = (-1)^{f(x)}|x\rangle$, so $O|w\rangle = -|w\rangle$ and $O|x\rangle = |x\rangle$ for $x \neq w$. This is called phase kickback—we encode the answer in the phase. The oracle is a black box in the algorithm analysis, but in practice, it's implemented as a quantum circuit that evaluates f. For database search, this might be comparing each entry to the target. For SAT, it's checking if an assignment satisfies all clauses. The key is that the oracle runs in polynomial time relative to the problem size.",
-        "action": "$O|x\\rangle = \\begin{cases} -|x\\rangle & \\text{if } x = w \\\\\ |x\\rangle & \\text{otherwise} \\\end{cases}$",
+        "action": "$O|x\\rangle = \\begin{cases} -|x\\rangle & \\text{if } x = w \\\\\\ |x\\rangle & \\text{otherwise} \\\\end{cases}$",
         "geometric": "Reflection across hyperplane orthogonal to |w⟩",
         "keyPoint": "Only needs to recognize the answer, not know it in advance"
       },
       {
         "title": "Amplitude Amplification",
         "content": "Grover's algorithm uses two reflections to amplify the marked state's amplitude. Start with equal superposition $|s\rangle = \frac{1}{\\sqrt{N}}\\sum_x |x\rangle$. This can be written as $|s\rangle = \\sin(\theta)|w\rangle + \\cos(\theta)|r\rangle$ where $|r\rangle$ is the uniform superposition of unmarked states and $\\sin(\theta) = 1/\\sqrt{N}$. One Grover iteration (G = DO) rotates the state by $2\theta$ toward $|w\rangle$. After k iterations: $\\sin((2k+1)\theta)|w\rangle + \\cos((2k+1)\theta)|r\rangle$. We want $(2k+1)\theta \\approx \\pi/2$, so $k \\approx \frac{\\pi}{4\theta} - \frac{1}{2} \\approx \frac{\\pi}{4}\\sqrt{N}$.",
-        "formula": "After k iterations: $\\\sin((2k+1)\\theta)|w\\rangle + \\\cos((2k+1)\\theta)|r\\rangle$",
+        "formula": "After k iterations: $\\\\sin((2k+1)\\theta)|w\\rangle + \\\\cos((2k+1)\\theta)|r\\rangle$",
         "optimal": "k ≈ π√N/4 iterations",
         "visual": "2D plane spanned by |w⟩ and |r⟩: each iteration rotates by 2θ"
       },
       {
         "title": "The Diffusion Operator",
         "content": "The diffusion operator D reflects about the average amplitude (about $|s\rangle$). It can be written as $D = 2|s\rangle\\langle s| - I$ or implemented as $H^{\\otimes n}(2|0\rangle\\langle 0| - I)H^{\\otimes n}$. The operator $2|0\rangle\\langle 0| - I$ flips the phase of all states except |0...0⟩. Geometrically, D inverts all amplitudes about their mean. Combined with the oracle (which flips the marked state's amplitude), this amplifies the marked state while suppressing others. The diffusion operator is the same regardless of which item is marked—it's 'problem-independent.'",
-        "implementation": "$D = H^{\\\otimes n} \\\cdot \\text{diag}(1, -1, -1, ..., -1) \\\cdot H^{\\\otimes n}$",
+        "implementation": "$D = H^{\\\\otimes n} \\\\cdot \\text{diag}(1, -1, -1, ..., -1) \\\\cdot H^{\\\\otimes n}$",
         "effect": "Reflection about the uniform superposition |s⟩",
         "circuit": "H^{⊗n} — [Z on |0⟩] — H^{⊗n}"
       },
@@ -77,35 +77,35 @@
       "step": 1,
       "title": "Initialize Uniform Superposition",
       "description": "Apply Hadamard to all n qubits to create equal superposition of all N = 2ⁿ states.",
-      "latex": "|s\\rangle = H^{\\\otimes n}|0\\rangle^{\\\otimes n} = \\frac{1}{\\\sqrt{N}}\\\sum_{x=0}^{N-1}|x\\rangle",
+      "latex": "|s\\rangle = H^{\\\\otimes n}|0\\rangle^{\\\\otimes n} = \\frac{1}{\\\\sqrt{N}}\\\\sum_{x=0}^{N-1}|x\\rangle",
       "visualState": { "uniform": true, "markedAmplitude": "1/√N" }
     },
     {
       "step": 2,
       "title": "Apply Oracle",
       "description": "Mark the winning state |w⟩ by flipping its phase. All other states unchanged.",
-      "latex": "O|s\\rangle = \\frac{1}{\\\sqrt{N}}(\\\sum_{x \\neq w}|x\\rangle - |w\\rangle)$",
+      "latex": "O|s\\rangle = \\frac{1}{\\\\sqrt{N}}(\\\\sum_{x \\neq w}|x\\rangle - |w\\rangle)$",
       "visualState": { "markedPhase": "flipped", "amplitudes": "same magnitude" }
     },
     {
       "step": 3,
       "title": "Apply Diffusion Operator",
       "description": "Reflect about the average amplitude. This amplifies the marked state's amplitude.",
-      "latex": "D \\\cdot O|s\\rangle: \\text{amplitude of } |w\\rangle \\\approx \\frac{3}{\\\sqrt{N}}, \\text{ others } \\\approx \\frac{1}{\\\sqrt{N}}",
+      "latex": "D \\\\cdot O|s\\rangle: \\text{amplitude of } |w\\rangle \\\\approx \\frac{3}{\\\\sqrt{N}}, \\text{ others } \\\\approx \\frac{1}{\\\\sqrt{N}}",
       "visualState": { "markedAmplitude": "amplified", "others": "suppressed" }
     },
     {
       "step": 4,
       "title": "Repeat Grover Iteration",
       "description": "Repeat steps 2-3 approximately π√N/4 times. Each iteration rotates the state closer to |w⟩.",
-      "latex": "G^k|s\\rangle = \\\sin((2k+1)\\theta)|w\\rangle + \\\cos((2k+1)\\theta)|r\\rangle",
+      "latex": "G^k|s\\rangle = \\\\sin((2k+1)\\theta)|w\\rangle + \\\\cos((2k+1)\\theta)|r\\rangle",
       "visualState": { "iterations": "≈ π√N/4", "angle": "(2k+1)θ" }
     },
     {
       "step": 5,
       "title": "Measure",
       "description": "Measure all qubits. The probability of obtaining |w⟩ is close to 1.",
-      "latex": "P(|w\\rangle) = \\\sin^2((2k+1)\\theta) \\\approx 1 - O(1/N)",
+      "latex": "P(|w\\rangle) = \\\\sin^2((2k+1)\\theta) \\\\approx 1 - O(1/N)",
       "visualState": { "measurement": true, "successProbability": "≈ 1" }
     }
   ],

@@ -12,9 +12,9 @@
         "title": "The Pauli Gates",
         "content": "The Pauli matrices are the quantum analogs of classical bit-flip and phase-flip operations. X (NOT gate) flips $|0\rangle \\leftrightarrow |1\rangle$. Z flips the phase of $|1\rangle$ (leaving $|0\rangle$ unchanged). Y does both: it flips the bit AND adds a phase. Mathematically: $X = |0\rangle\\langle 1| + |1\rangle\\langle 0|$, $Z = |0\rangle\\langle 0| - |1\rangle\\langle 1|$, $Y = i|1\rangle\\langle 0| - i|0\rangle\\langle 1|$. On the Bloch sphere: X is a 180° rotation around X-axis, Y around Y-axis, Z around Z-axis. Importantly, $X^2 = Y^2 = Z^2 = I$—applying any Pauli gate twice returns to the original state.",
         "matrices": {
-          "X": "$\\begin{pmatrix} 0 & 1 \\\\\ 1 & 0 \\\end{pmatrix}$",
-          "Y": "$\\begin{pmatrix} 0 & -i \\\\\ i & 0 \\\end{pmatrix}$",
-          "Z": "$\\begin{pmatrix} 1 & 0 \\\\\ 0 & -1 \\\end{pmatrix}$"
+          "X": "$\\begin{pmatrix} 0 & 1 \\\\\\ 1 & 0 \\\\end{pmatrix}$",
+          "Y": "$\\begin{pmatrix} 0 & -i \\\\\\ i & 0 \\\\end{pmatrix}$",
+          "Z": "$\\begin{pmatrix} 1 & 0 \\\\\\ 0 & -1 \\\\end{pmatrix}$"
         },
         "actions": [
           { "gate": "X", "effect": "Bit flip", "bloch": "180° around X axis" },
@@ -24,8 +24,8 @@
       },
       {
         "title": "The Hadamard Gate",
-        "content": "The Hadamard gate ($H$) is arguably the most important single-qubit gate. It creates superposition from computational basis states: $H|0\rangle = |+\rangle$ and $H|1\rangle = |-\rangle$. Its matrix is symmetric and unitary: $H = \frac{1}{\\sqrt{2}}\begin{pmatrix} 1 & 1 \\\ 1 & -1 \\end{pmatrix}$. Geometrically, H is a 180° rotation around the axis at 45° between X and Z (the line x=z, y=0). This means $H$ exchanges the X and Z axes: $HXH = Z$ and $HZH = X$. The Hadamard gate is self-inverse: $H^2 = I$, so applying it twice returns to the original state.",
-        "latex": "H = \\frac{1}{\\\sqrt{2}}\\begin{pmatrix} 1 & 1 \\\\\ 1 & -1 \\\end{pmatrix}, \\\quad H|0\\rangle = |+\\rangle, \\\quad H|1\\rangle = |-\\rangle",
+        "content": "The Hadamard gate ($H$) is arguably the most important single-qubit gate. It creates superposition from computational basis states: $H|0\rangle = |+\rangle$ and $H|1\rangle = |-\rangle$. Its matrix is symmetric and unitary: $H = \frac{1}{\\sqrt{2}}\begin{pmatrix} 1 & 1 \\\\ 1 & -1 \\end{pmatrix}$. Geometrically, H is a 180° rotation around the axis at 45° between X and Z (the line x=z, y=0). This means $H$ exchanges the X and Z axes: $HXH = Z$ and $HZH = X$. The Hadamard gate is self-inverse: $H^2 = I$, so applying it twice returns to the original state.",
+        "latex": "H = \\frac{1}{\\\\sqrt{2}}\\begin{pmatrix} 1 & 1 \\\\\\ 1 & -1 \\\\end{pmatrix}, \\\\quad H|0\\rangle = |+\\rangle, \\\\quad H|1\\rangle = |-\\rangle",
         "keyPoints": [
           "Creates equal superposition from |0⟩ or |1⟩",
           "Self-inverse: H² = I",
@@ -37,15 +37,15 @@
         "title": "Phase Gates (S and T)",
         "content": "Phase gates rotate the qubit around the Z-axis of the Bloch sphere, changing the relative phase between $|0\rangle$ and $|1\rangle$ without changing their magnitudes. The S gate adds a phase of $i$ (90° rotation): $S|0\rangle = |0\rangle$, $S|1\rangle = i|1\rangle$. The T gate adds a phase of $e^{i\\pi/4}$ (45° rotation). These are crucial for creating complex superpositions needed in algorithms. Note that $S = T^2$ and $Z = S^2$, forming a hierarchy: T (π/4), S (π/2), Z (π).",
         "matrices": {
-          "S": "$\\begin{pmatrix} 1 & 0 \\\\\ 0 & i \\\end{pmatrix} = \\begin{pmatrix} 1 & 0 \\\\\ 0 & e^{i\\\pi/2} \\\end{pmatrix}$",
-          "T": "$\\begin{pmatrix} 1 & 0 \\\\\ 0 & e^{i\\\pi/4} \\\end{pmatrix}$"
+          "S": "$\\begin{pmatrix} 1 & 0 \\\\\\ 0 & i \\\\end{pmatrix} = \\begin{pmatrix} 1 & 0 \\\\\\ 0 & e^{i\\\\pi/2} \\\\end{pmatrix}$",
+          "T": "$\\begin{pmatrix} 1 & 0 \\\\\\ 0 & e^{i\\\\pi/4} \\\\end{pmatrix}$"
         },
         "relationships": ["T⁸ = I", "T² = S", "S² = Z", "Z² = I"]
       },
       {
         "title": "Rotation Gates (Rx, Ry, Rz)",
         "content": "General rotations around the Bloch sphere axes are parameterized by an angle $\theta$. The rotation gates are: $R_x(\theta) = e^{-i\theta X/2}$, $R_y(\theta) = e^{-i\theta Y/2}$, $R_z(\theta) = e^{-i\theta Z/2}$. Any single-qubit gate can be decomposed into rotations: $U = R_z(\\alpha)R_y(\beta)R_z(\\gamma)$ up to a global phase. This is the Z-Y decomposition. The Pauli gates are special cases: $X = -iR_x(\\pi)$, $Y = -iR_y(\\pi)$, $Z = -iR_z(\\pi)$.",
-        "latex": "R_x(\\theta) = \\begin{pmatrix} \\\cos(\\theta/2) & -i\\\sin(\\theta/2) \\\\\ -i\\\sin(\\theta/2) & \\\cos(\\theta/2) \\\end{pmatrix}",
+        "latex": "R_x(\\theta) = \\begin{pmatrix} \\\\cos(\\theta/2) & -i\\\\sin(\\theta/2) \\\\\\ -i\\\\sin(\\theta/2) & \\\\cos(\\theta/2) \\\\end{pmatrix}",
         "universal": "Any single-qubit unitary can be written with 3 parameters: U = e^(iα) Rz(β) Ry(γ) Rz(δ)"
       },
       {
@@ -86,14 +86,14 @@
       "step": 1,
       "title": "Initialize Qubit",
       "description": "Start with a qubit in state $|0\rangle$.",
-      "latex": "|\\psi_0\rangle = |0\rangle = \begin{pmatrix} 1 \\\ 0 \\end{pmatrix}",
+      "latex": "|\\psi_0\rangle = |0\rangle = \begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}",
       "visualState": { "gate": "none", "theta": 0, "phi": 0 }
     },
     {
       "step": 2,
       "title": "Apply X Gate (Optional)",
       "description": "If needed, flip the bit to start from $|1\rangle$.",
-      "latex": "X|0\rangle = |1\rangle = \begin{pmatrix} 0 \\\ 1 \\end{pmatrix}",
+      "latex": "X|0\rangle = |1\rangle = \begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}",
       "visualState": { "gate": "X", "theta": 180, "phi": 0 }
     },
     {
@@ -147,14 +147,14 @@
       "options": ["1", "2", "4", "8"],
       "correctAnswer": 1,
       "explanation": "$T^2 = S$. T adds phase $e^{i\\pi/4}$, S adds phase $e^{i\\pi/2} = i$. Since $(e^{i\\pi/4})^2 = e^{i\\pi/2}$, two T gates equal one S gate.",
-      "hint": "$S = \\begin{pmatrix} 1 & 0 \\\ 0 & i \\\end{pmatrix}$ and $T = \\begin{pmatrix} 1 & 0 \\\ 0 & e^{i\\\pi/4} \\\end{pmatrix}$."
+      "hint": "$S = \\begin{pmatrix} 1 & 0 \\\\ 0 & i \\\\end{pmatrix}$ and $T = \\begin{pmatrix} 1 & 0 \\\\ 0 & e^{i\\\\pi/4} \\\\end{pmatrix}$."
     },
     {
       "id": "p4",
       "title": "Rotation Decomposition",
       "difficulty": "Hard",
       "description": "Express the X gate using rotation gates: $X = e^{i\\alpha} R_z(\beta) R_y(\\gamma) R_z(\\delta)$. What is $\\gamma$?",
-      "options": ["$0$", "$\\\pi/2$", "$\\\pi$", "$2\\\pi$"],
+      "options": ["$0$", "$\\\\pi/2$", "$\\\\pi$", "$2\\\\pi$"],
       "correctAnswer": 2,
       "explanation": "X is a 180° rotation around the X-axis. In the Euler decomposition, this requires $\\gamma = \\pi$ (a rotation around Y by π). Specifically: $X = -i R_z(-\\pi/2) R_y(\\pi) R_z(\\pi/2)$.",
       "hint": "X rotates around the X-axis by 180°. The middle rotation in the decomposition is around Y."
