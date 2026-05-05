@@ -189,6 +189,20 @@ export default function GradientDescentMinigame() {
           newPos = prevPos;
       }
 
+      if (useMomentum) {
+        velocity.x = momentum * velocity.x + learningRate * gradient.x;
+        velocity.y = momentum * velocity.y + learningRate * gradient.y;
+        newPos = {
+          x: currentPosition.x - velocity.x,
+          y: currentPosition.y - velocity.y,
+        };
+      } else {
+        newPos = {
+          x: currentPosition.x - learningRate * gradient.x,
+          y: currentPosition.y - learningRate * gradient.y,
+        };
+      }
+
       // Clamp to bounds
       newPos = {
         x: Math.max(landscape.bounds[0], Math.min(landscape.bounds[1], newPos.x)),
@@ -286,7 +300,7 @@ export default function GradientDescentMinigame() {
           <div className="flex-1 bg-slate-800 rounded-xl border border-slate-700 relative overflow-hidden">
             <svg viewBox="-2.5 -2.5 5 5" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
               {/* Background gradient representing loss */}
-              <defs>
+              <defs>2
                 <radialGradient id="lossGradient" cx="0" cy="0" r="3">
                   <stop offset="0%" stopColor="#22c55e" />
                   <stop offset="30%" stopColor="#eab308" />

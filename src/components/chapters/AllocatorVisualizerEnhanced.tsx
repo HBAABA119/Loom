@@ -126,7 +126,7 @@ export default function AllocatorVisualizerEnhanced() {
             block.status === "free") {
           coalesced[coalesced.length - 1].size += block.size;
         } else {
-          coalesced.push({ ...block });
+          coalesced.push({ ...block, status: block.status as BlockStatus });
         }
       }
       

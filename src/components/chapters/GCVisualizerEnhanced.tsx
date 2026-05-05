@@ -82,13 +82,13 @@ export default function GCVisualizerEnhanced() {
           const objId = markQueue[0];
           setMarkQueue(q => q.slice(1));
           
-          setHeap(prevHeap => {
+          setHeap((prevHeap: HeapObject[]) => {
             const obj = prevHeap.find(o => o.id === objId);
             if (!obj || obj.status !== "white") return prevHeap;
             
             // Mark this object grey (being processed)
-            const newHeap = prevHeap.map(o => 
-              o.id === objId ? { ...o, status: "grey" } : o
+            const newHeap = prevHeap.map((o: HeapObject): HeapObject => 
+              o.id === objId ? { ...o, status: "grey" as ObjectStatus } : o
             );
             
             // Add its references to queue
@@ -99,8 +99,8 @@ export default function GCVisualizerEnhanced() {
               })]);
               
               // Mark as black (fully processed)
-              setHeap(p => p.map(o => 
-                o.id === objId ? { ...o, status: "black" } : o
+              setHeap((p: HeapObject[]) => p.map((o: HeapObject): HeapObject => 
+                o.id === objId ? { ...o, status: "black" as ObjectStatus } : o
               ));
               setGcState(s => ({ ...s, marked: s.marked + 1 }));
             }, speed / 2);
@@ -115,13 +115,13 @@ export default function GCVisualizerEnhanced() {
           state.currentScanning = null;
         }
       } else if (state.phase === "sweep") {
-        setHeap(prevHeap => {
+        setHeap((prevHeap: HeapObject[]) => {
           const whiteObjects = prevHeap.filter(o => o.status === "white");
           if (whiteObjects.length > 0) {
             const toSweep = whiteObjects[0];
             state.swept += toSweep.size;
-            return prevHeap.map(o => 
-              o.id === toSweep.id ? { ...o, status: "free" } : o
+            return prevHeap.map((o: HeapObject): HeapObject => 
+              o.id === toSweep.id ? { ...o, status: "free" as ObjectStatus } : o
             );
           } else {
             state.phase = "complete";
