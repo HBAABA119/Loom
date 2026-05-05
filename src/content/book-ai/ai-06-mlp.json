@@ -1,0 +1,263 @@
+{
+  "id": "ai-06-mlp",
+  "bookId": "book-ai",
+  "title": "Multi-Layer Perceptron",
+  "category": "Neural Networks",
+  "order": 6,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "The Multi-Layer Perceptron (MLP) is the first 'deep' neural network—a stack of fully-connected layers that can learn non-linear mappings from inputs to outputs. Unlike the single-layer perceptron, MLPs can solve the XOR problem and approximate any continuous function (Universal Approximation Theorem). By stacking layers with non-linear activations, MLPs learn hierarchical representations: early layers detect simple patterns, later layers combine them into complex concepts. This architecture forms the foundation for all modern deep learning.",
+    "sections": [
+      {
+        "title": "From Perceptron to Deep Network",
+        "content": "A single perceptron can only learn linear decision boundaries—it fails on XOR. The solution: stack multiple layers. The hidden layers transform the input into a space where the problem becomes linearly separable. This is the power of depth: each layer learns increasingly abstract features.",
+        "universalApproximation": "An MLP with one hidden layer containing sufficient neurons can approximate any continuous function on a compact set to arbitrary precision.",
+        "latex": "$f(x) \\approx W_3 \\sigma(W_2 \\sigma(W_1 x + b_1) + b_2) + b_3$"
+      },
+      {
+        "title": "Layer Types in MLP",
+        "content": "Understanding the three layer types helps design effective architectures.",
+        "layers": [
+          {
+            "name": "Input Layer",
+            "description": "Holds the raw input features. No computation, just passes data forward.",
+            "example": "784 neurons for 28×28 MNIST images"
+          },
+          {
+            "name": "Hidden Layer(s)",
+            "description": "Transform input through learned weights and non-linear activations. This is where the magic happens.",
+            "characteristics": ["Learn hierarchical features", "Use ReLU, sigmoid, or tanh", "Number of layers = depth, neurons per layer = width"]
+          },
+          {
+            "name": "Output Layer",
+            "description": "Produces final predictions. Architecture depends on task.",
+            "variants": [
+              { "task": "Binary Classification", "activation": "Sigmoid", "neurons": "1", "output": "Probability" },
+              { "task": "Multi-class", "activation": "Softmax", "neurons": "N classes", "output": "Probability distribution" },
+              { "task": "Regression", "activation": "Linear", "neurons": "N outputs", "output": "Continuous values" }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Forward Pass Through MLP",
+        "content": "Data flows through the network layer by layer. Each layer transforms its input through linear transformation (weights) followed by non-linear activation.",
+        "computation": [
+          "Layer 1: $z^{[1]} = W^{[1]}x + b^{[1]}$, $a^{[1]} = \\sigma(z^{[1]})$",
+          "Layer 2: $z^{[2]} = W^{[2]}a^{[1]} + b^{[2]}$, $a^{[2]} = \\sigma(z^{[2]})$",
+          "...",
+          "Output: $\\hat{y} = \\text{output\\_activation}(z^{[L]})$"
+        ],
+        "dimensions": "If layer $l-1$ has $n$ neurons and layer $l$ has $m$ neurons, then $W^{[l]} \\in \\mathbb{R}^{m \\times n}$ and $b^{[l]} \\in \\mathbb{R}^m$."
+      },
+      {
+        "title": "Designing MLP Architecture",
+        "content": "Choosing the right architecture is part art, part science. Key decisions: how many layers? How many neurons per layer?",
+        "guidelines": [
+          { "rule": "Start Simple", "advice": "1-2 hidden layers often sufficient for tabular data" },
+          { "rule": "Width vs Depth", "advice": "Deeper networks (more layers) learn hierarchical features; wider networks (more neurons per layer) memorize better" },
+          { "rule": "Input/Output Matching", "advice": "Input layer size = feature count; Hidden layer sizes typically between input and output" },
+          { "rule": "Overfitting", "advice": "Too many parameters overfit. Use regularization, dropout, or reduce size" },
+          { "rule": "Bottleneck", "advice": "Decreasing layer sizes forces compression (autoencoder style)" }
+        ],
+        "typicalSizes": { "small": "[10, 10]", "medium": "[128, 64, 32]", "large": "[512, 256, 128, 64]" }
+      },
+      {
+        "title": "Training Deep MLPs",
+        "content": "Training MLPs requires careful initialization, proper normalization, and sometimes architectural tricks to ensure gradients flow well through deep stacks.",
+        "techniques": [
+          { "name": "Xavier/He Initialization", "purpose": "Prevent vanishing/exploding gradients in deep networks", "formula": "$W \\sim \\mathcal{U}(-\\sqrt{6/(n_{in}+n_{out})}, +\\sqrt{6/(n_{in}+n_{out})})$" },
+          { "name": "Batch Normalization", "purpose": "Stabilize training by normalizing layer inputs", "benefit": "Allows higher learning rates, reduces internal covariate shift" },
+          { "name": "Residual Connections", "purpose": "Skip connections for very deep networks", "formula": "$a^{[l+1]} = \\sigma(z^{[l+1]} + a^{[l]})$" },
+          { "name": "Dropout", "purpose": "Prevent overfitting by randomly dropping neurons during training", "rate": "Typically 0.2-0.5" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Depth",
+        "description": "Number of hidden layers. More depth enables learning hierarchical features but increases training difficulty.",
+        "tradeoff": "Deeper = more expressive but harder to train"
+      },
+      {
+        "name": "Width",
+        "description": "Number of neurons per layer. Wider networks have more capacity to memorize patterns.",
+        "capacity": "Total parameters = sum of (weights + biases) across all layers"
+      },
+      {
+        "name": "Feature Hierarchy",
+        "description": "Early layers learn simple features (edges), later layers combine them (shapes, objects).",
+        "example": "Vision: pixels → edges → textures → parts → objects"
+      },
+      {
+        "name": "Vanishing Gradients in Deep MLPs",
+        "description": "In very deep networks with sigmoid/tanh, gradients shrink exponentially going backward.",
+        "solution": "Use ReLU, batch norm, residual connections, or careful initialization"
+      }
+    ],
+    "complexity": {
+      "forwardPass": "$O(\\sum_{l=1}^L n_{l-1} \\cdot n_l)$—multiply-add operations across all layers",
+      "parameters": "$O(\\sum_{l=1}^L n_{l-1} \\cdot n_l + n_l)$—weights plus biases",
+      "backprop": "$O(forward)$—roughly 2× forward pass cost"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Define Architecture",
+      "description": "Choose layer sizes based on problem complexity.",
+      "latex": "\\text{Input: } 2 \\rightarrow \\text{Hidden: } 4 \\rightarrow \\text{Output: } 1$",
+      "visualState": { "layers": [2, 4, 1], "totalParams": 17 }
+    },
+    {
+      "step": 2,
+      "title": "Initialize Weights",
+      "description": "Small random values with proper scaling (Xavier/He initialization).",
+      "latex": "W^{[1]} \\in \\mathbb{R}^{4\\times2}, W^{[2]} \\in \\mathbb{R}^{1\\times4}$",
+      "visualState": { "w1_shape": [4, 2], "w2_shape": [1, 4], "initialized": true }
+    },
+    {
+      "step": 3,
+      "title": "Hidden Layer Computation",
+      "description": "Transform input through first weight matrix and activation.",
+      "latex": "z^{[1]} = W^{[1]}x + b^{[1]} = \\begin{bmatrix} 0.5 & -0.3 \\\\ 0.2 & 0.8 \\\\ -0.1 & 0.4 \\\\ 0.7 & 0.1 \\end{bmatrix} \\begin{bmatrix} 1.0 \\\\ 0.5 \\end{bmatrix} + \\begin{bmatrix} 0.1 \\\\ -0.1 \\\\ 0.0 \\\\ 0.2 \\end{bmatrix} = \\begin{bmatrix} 0.45 \\\\ 0.5 \\\\ 0.1 \\\\ 0.95 \\end{bmatrix}$",
+      "visualState": { "layer": 1, "z": [0.45, 0.5, 0.1, 0.95], "a": [0.45, 0.5, 0.1, 0.95] }
+    },
+    {
+      "step": 4,
+      "title": "Apply Activation",
+      "description": "Pass through ReLU to introduce non-linearity.",
+      "latex": "a^{[1]} = \\text{ReLU}(z^{[1]}) = \\begin{bmatrix} 0.45 \\\\ 0.5 \\\\ 0.1 \\\\ 0.95 \\end{bmatrix}$",
+      "visualState": { "activated": [0.45, 0.5, 0.1, 0.95], "activation": "relu" }
+    },
+    {
+      "step": 5,
+      "title": "Output Layer",
+      "description": "Compute final output using hidden layer activations.",
+      "latex": "z^{[2]} = W^{[2]}a^{[1]} + b^{[2]} = \\begin{bmatrix} 0.3 & -0.4 & 0.2 & 0.1 \\end{bmatrix} \\begin{bmatrix} 0.45 \\\\ 0.5 \\\\ 0.1 \\\\ 0.95 \\end{bmatrix} + 0.1 = 0.12$",
+      "visualState": { "layer": 2, "z": [0.12], "output": 0.53 }
+    },
+    {
+      "step": 6,
+      "title": "Final Activation",
+      "description": "Apply output activation based on task (sigmoid for binary classification).",
+      "latex": "\\hat{y} = \\sigma(0.12) = \\frac{1}{1 + e^{-0.12}} \\approx 0.53$",
+      "visualState": { "prediction": 0.53, "target": 1.0, "loss": 0.63 }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Parameter Count",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "An MLP has layers: input (10) → hidden (20) → hidden (15) → output (5). How many total parameters?",
+      "answer": "$(10 \\times 20 + 20) + (20 \\times 15 + 15) + (15 \\times 5 + 5) = 220 + 315 + 80 = 615$ parameters",
+      "explanation": "Each layer has (input_size × output_size) weights + output_size biases. Sum across all layers.",
+      "hints": ["Weights: $n_{in} \\times n_{out}$", "Biases: $n_{out}$", "Sum for all layers"]
+    },
+    {
+      "id": "p2",
+      "title": "XOR with MLP",
+      "difficulty": "medium",
+      "type": "design",
+      "description": "Design the smallest MLP that can solve XOR. Specify architecture and one valid weight configuration.",
+      "answer": "2-2-1 MLP works. Example: W₁ = [[1,1],[1,1]], b₁ = [0,-1], W₂ = [1,-2], b₂ = 0. First hidden neuron acts as OR, second as AND, output subtracts them.",
+      "explanation": "XOR = (x₁ OR x₂) AND NOT(x₁ AND x₂). Hidden layer learns these intermediate features. Single layer can't separate XOR's non-linear boundary.",
+      "hints": ["Need at least 2 hidden neurons", "One neuron learns OR, one learns AND", "Combine them at output"]
+    },
+    {
+      "id": "p3",
+      "title": "Depth vs Width Trade-off",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "Compare a network with [1000] (1 wide layer) vs [32, 32, 32, 32] (4 narrow layers). Both have ~1000 parameters. Which learns better?",
+      "answer": "The deep network [32,32,32,32] usually learns better hierarchical features and generalizes better, though both have similar capacity.",
+      "explanation": "Deep networks compose simple features into complex ones—early layers learn primitives, later layers combine them. Wide networks may memorize more. Empirically, depth often beats width for learning structure.",
+      "hints": ["Consider feature hierarchy", "Deep networks compose features", "Width = capacity, Depth = composition"]
+    },
+    {
+      "id": "p4",
+      "title": "Output Layer Design",
+      "difficulty": "medium",
+      "type": "design",
+      "description": "Specify output layer for: (a) Binary sentiment classification, (b) 10-class digit recognition, (c) House price prediction, (d] Multi-label tagging (each example can have multiple tags).",
+      "answer": "(a) 1 neuron, sigmoid | (b) 10 neurons, softmax | (c) 1 neuron, linear | (d) N neurons, sigmoid (independent probabilities)",
+      "explanation": "Binary: 1 output, probability of positive class. Multi-class: N outputs, softmax for mutually exclusive. Regression: linear for unbounded continuous. Multi-label: sigmoid per class for independent probabilities.",
+      "hints": ["Binary = 1 output", "Multi-class = softmax", "Regression = linear", "Multi-label = sigmoid per class"]
+    },
+    {
+      "id": "p5",
+      "title": "Vanishing Gradient Analysis",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "A 10-layer MLP uses sigmoid everywhere. Input = 5, target = 1. First forward pass: all sigmoid outputs ≈ 0.5. Estimate gradient magnitude at first layer vs last layer.",
+      "answer": "Last layer gradient ≈ 0.25 (max sigmoid derivative). After 9 multiplications by ≤0.25: first layer gradient ≤ 0.25^9 ≈ 3.8×10⁻⁶—essentially zero!",
+      "explanation": "Sigmoid derivative max is 0.25. Each layer multiplies gradient by at most 0.25 during backprop. After n layers: gradient ≤ 0.25ⁿ. This is why deep networks need ReLU, batch norm, or residual connections.",
+      "hints": ["Sigmoid' max = 0.25", "Gradients multiply through layers", "0.25^10 is tiny"]
+    },
+    {
+      "id": "p6",
+      "title": "Bottleneck Architecture",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Design an MLP for MNIST (784 inputs) that compresses to a 10-dimensional bottleneck then expands back to 784 (autoencoder). Specify layer sizes.",
+      "answer": "784 → 256 → 64 → 10 → 64 → 256 → 784. Encoder: 784→256→64→10. Decoder: 10→64→256→784. Total params reasonable, learns compressed representation.",
+      "explanation": "Hourglass shape forces network to learn compressed representation. 10-dim bottleneck is 78× smaller than input! Network must learn most important features. Symmetric decoder reconstructs from compressed code.",
+      "hints": ["Encoder reduces dimensionality", "Bottleneck is smallest layer", "Decoder mirrors encoder"]
+    }
+  ],
+  "minigame": {
+    "id": "mlp-architect",
+    "title": "MLP Architect",
+    "description": "Design and train MLPs to solve classification problems. Adjust architecture, watch feature learning, and compete to build the most efficient network.",
+    "instructions": [
+      "Select a dataset: XOR circles, spirals, or moons",
+      "Design your architecture: number of layers and neurons per layer",
+      "Watch the decision boundary evolve as the network learns",
+      "Try to use the fewest parameters while achieving high accuracy",
+      "Experiment: Deep vs Wide, different activation functions"
+    ],
+    "controls": [
+      {
+        "id": "dataset",
+        "label": "Dataset",
+        "type": "select",
+        "options": ["XOR", "Concentric Circles", "Spiral", "Moons", "Gaussian Mixture"]
+      },
+      {
+        "id": "hiddenLayers",
+        "label": "Hidden Layers",
+        "type": "select",
+        "options": ["1", "2", "3", "4", "5"]
+      },
+      {
+        "id": "layerSizes",
+        "label": "Neurons per Layer",
+        "type": "multiSlider",
+        "min": 2,
+        "max": 128,
+        "default": [8, 8]
+      },
+      {
+        "id": "activation",
+        "label": "Activation Function",
+        "type": "select",
+        "options": ["ReLU", "Sigmoid", "Tanh", "Leaky ReLU"]
+      },
+      {
+        "id": "learningRate",
+        "label": "Learning Rate",
+        "type": "slider",
+        "min": 0.001,
+        "max": 1.0,
+        "step": 0.001,
+        "default": 0.1
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import numpy as np\n\nclass MLP:\n    \"\"\"\n    Multi-Layer Perceptron with configurable architecture\n    Supports arbitrary layer sizes and various activation functions\n    \"\"\"\n    def __init__(self, layer_sizes, activation='relu', output_activation='sigmoid'):\n        \"\"\"\n        Args:\n            layer_sizes: List of layer dimensions, e.g., [2, 4, 4, 1]\n            activation: Activation for hidden layers ('relu', 'sigmoid', 'tanh')\n            output_activation: Activation for output layer\n        \"\"\"\n        self.layer_sizes = layer_sizes\n        self.n_layers = len(layer_sizes) - 1  # excluding input\n        self.activation_name = activation\n        self.output_activation_name = output_activation\n        \n        # Initialize weights and biases with Xavier/He initialization\n        self.weights = []\n        self.biases = []\n        \n        for i in range(self.n_layers):\n            n_in = layer_sizes[i]\n            n_out = layer_sizes[i + 1]\n            \n            # Xavier initialization\n            limit = np.sqrt(6.0 / (n_in + n_out))\n            W = np.random.uniform(-limit, limit, (n_out, n_in))\n            b = np.zeros((n_out, 1))\n            \n            self.weights.append(W)\n            self.biases.append(b)\n        \n        # Cache for backprop\n        self.z_values = []\n        self.a_values = []\n    \n    def _activation(self, z, name):\n        \"\"\"Apply activation function\"\"\"\n        if name == 'relu':\n            return np.maximum(0, z)\n        elif name == 'sigmoid':\n            return 1 / (1 + np.exp(-z))\n        elif name == 'tanh':\n            return np.tanh(z)\n        elif name == 'linear':\n            return z\n        else:\n            raise ValueError(f\"Unknown activation: {name}\")\n    \n    def _activation_derivative(self, a, z, name):\n        \"\"\"Compute derivative of activation\"\"\"\n        if name == 'relu':\n            return (z > 0).astype(float)\n        elif name == 'sigmoid':\n            return a * (1 - a)\n        elif name == 'tanh':\n            return 1 - a ** 2\n        elif name == 'linear':\n            return np.ones_like(z)\n        else:\n            raise ValueError(f\"Unknown activation: {name}\")\n    \n    def forward(self, X):\n        \"\"\"\n        Forward pass through network\n        X: Input of shape (n_features, n_samples) or (n_features,)\n        Returns: Output predictions\n        \"\"\"\n        # Ensure 2D array\n        if X.ndim == 1:\n            X = X.reshape(-1, 1)\n        \n        self.z_values = []\n        self.a_values = [X]  # a[0] = input\n        \n        a = X\n        for i, (W, b) in enumerate(zip(self.weights, self.biases)):\n            # Linear transformation\n            z = W @ a + b\n            self.z_values.append(z)\n            \n            # Activation\n            if i == self.n_layers - 1:  # Output layer\n                a = self._activation(z, self.output_activation_name)\n            else:\n                a = self._activation(z, self.activation_name)\n            \n            self.a_values.append(a)\n        \n        return a\n    \n    def backward(self, X, y, learning_rate=0.01):\n        \"\"\"\n        Backpropagation to compute gradients and update weights\n        Returns: loss value\n        \"\"\"\n        m = y.shape[1] if y.ndim > 1 else 1  # number of examples\n        \n        # Forward pass\n        output = self.forward(X)\n        \n        # Compute loss (binary cross-entropy)\n        eps = 1e-8\n        loss = -np.mean(y * np.log(output + eps) + (1 - y) * np.log(1 - output + eps))\n        \n        # Backward pass\n        deltas = [None] * self.n_layers\n        \n        # Output layer delta\n        output_act = self.output_activation_name\n        if output_act == 'sigmoid':\n            deltas[-1] = output - y\n        else:\n            # General case\n            da = output - y  # dL/da\n            dz = da * self._activation_derivative(output, self.z_values[-1], output_act)\n            deltas[-1] = dz\n        \n        # Hidden layers\n        for l in range(self.n_layers - 2, -1, -1):\n            da = self.weights[l + 1].T @ deltas[l + 1]\n            dz = da * self._activation_derivative(\n                self.a_values[l + 1], self.z_values[l], self.activation_name\n            )\n            deltas[l] = dz\n        \n        # Compute gradients and update\n        for l in range(self.n_layers):\n            dW = deltas[l] @ self.a_values[l].T / m\n            db = np.mean(deltas[l], axis=1, keepdims=True)\n            \n            self.weights[l] -= learning_rate * dW\n            self.biases[l] -= learning_rate * db\n        \n        return loss\n    \n    def train(self, X, y, epochs=1000, learning_rate=0.01, verbose=True):\n        \"\"\"Train the network\"\"\"\n        if X.ndim == 1:\n            X = X.reshape(1, -1)\n        if y.ndim == 1:\n            y = y.reshape(1, -1)\n        \n        losses = []\n        \n        for epoch in range(epochs):\n            loss = self.backward(X, y, learning_rate)\n            losses.append(loss)\n            \n            if verbose and epoch % 100 == 0:\n                print(f\"Epoch {epoch}, Loss: {loss:.4f}\")\n        \n        return losses\n    \n    def predict(self, X):\n        \"\"\"Make predictions\"\"\"\n        output = self.forward(X)\n        return (output > 0.5).astype(int)\n    \n    def get_parameters(self):\n        \"\"\"Return total number of parameters\"\"\"\n        total = 0\n        for W, b in zip(self.weights, self.biases):\n            total += W.size + b.size\n        return total\n\n# ==================== Examples ====================\n\ndef demo_xor():\n    \"\"\"Classic XOR problem - requires hidden layer\"\"\"\n    print(\"\\n=== XOR Problem Demo ===\")\n    \n    # XOR dataset\n    X = np.array([[0, 0, 1, 1],\n                  [0, 1, 0, 1]])  # shape: (2, 4)\n    y = np.array([[0, 1, 1, 0]])  # shape: (1, 4)\n    \n    # Create MLP: 2 inputs -> 4 hidden -> 1 output\n    mlp = MLP([2, 4, 1], activation='relu', output_activation='sigmoid')\n    \n    print(f\"Architecture: {mlp.layer_sizes}\")\n    print(f\"Total parameters: {mlp.get_parameters()}\")\n    \n    # Train\n    losses = mlp.train(X, y, epochs=5000, learning_rate=0.5)\n    \n    # Test\n    print(\"\\nPredictions after training:\")\n    for i in range(4):\n        pred = mlp.forward(X[:, i].reshape(2, 1))\n        print(f\"  X=[{X[0,i]},{X[1,i]}]: prediction={pred[0,0]:.4f}, target={y[0,i]}\")\n\ndef demo_classification():\n    \"\"\"2D classification with visualization\"\"\"\n    print(\"\\n=== 2D Classification Demo ===\")\n    \n    # Generate spiral data\n    def generate_spiral(n_points, n_classes=3):\n        X = np.zeros((2, n_points * n_classes))\n        y = np.zeros((1, n_points * n_classes))\n        \n        for class_num in range(n_classes):\n            ix = range(n_points * class_num, n_points * (class_num + 1))\n            r = np.linspace(0, 1, n_points)\n            t = np.linspace(class_num * 4, (class_num + 1) * 4, n_points) + np.random.randn(n_points) * 0.2\n            X[:, ix] = np.c_[r * np.sin(t), r * np.cos(t)].T\n            y[:, ix] = class_num\n        \n        return X, y\n    \n    # For simplicity, use a 2-class problem\n    # Concentric circles\n    n = 100\n    theta = np.linspace(0, 2*np.pi, n)\n    r1 = np.random.randn(n) * 0.1 + 0.5\n    r2 = np.random.randn(n) * 0.1 + 1.5\n    \n    X_inner = np.array([r1 * np.cos(theta), r1 * np.sin(theta)])\n    X_outer = np.array([r2 * np.cos(theta), r2 * np.sin(theta)])\n    X = np.hstack([X_inner, X_outer])\n    y = np.hstack([np.zeros((1, n)), np.ones((1, n))])\n    \n    # Create and train MLP\n    mlp = MLP([2, 8, 8, 1], activation='relu', output_activation='sigmoid')\n    print(f\"Architecture: {mlp.layer_sizes}\")\n    print(f\"Total parameters: {mlp.get_parameters()}\")\n    \n    losses = mlp.train(X, y, epochs=2000, learning_rate=0.1)\n    \n    # Evaluate\n    predictions = mlp.predict(X)\n    accuracy = np.mean(predictions == y)\n    print(f\"Final accuracy: {accuracy:.2%}\")\n\ndef compare_architectures():\n    \"\"\"Compare different architectures on the same problem\"\"\"\n    print(\"\\n=== Architecture Comparison ===\")\n    \n    # XOR problem\n    X = np.array([[0, 0, 1, 1], [0, 1, 0, 1]])\n    y = np.array([[0, 1, 1, 0]])\n    \n    architectures = [\n        [2, 1],      # No hidden layer (should fail)\n        [2, 2, 1],   # Minimal hidden layer\n        [2, 4, 1],   # Standard\n        [2, 8, 8, 1] # Deep\n    ]\n    \n    for arch in architectures:\n        mlp = MLP(arch, activation='relu', output_activation='sigmoid')\n        mlp.train(X, y, epochs=3000, learning_rate=0.5, verbose=False)\n        \n        # Test accuracy\n        preds = [mlp.forward(X[:, i].reshape(2, 1))[0, 0] for i in range(4)]\n        correct = sum((p > 0.5) == y[0, i] for i, p in enumerate(preds))\n        \n        print(f\"{str(arch):20s}: {correct}/4 correct, {mlp.get_parameters()} params\")\n\nif __name__ == \"__main__\":\n    demo_xor()\n    demo_classification()\n    compare_architectures()\n    \n    print(\"\\n=== Key Insights ===\")\n    print(\"1. XOR requires at least one hidden layer\")\n    print(\"2. ReLU typically trains faster than sigmoid\")\n    print(\"3. Proper initialization (Xavier/He) is crucial for deep networks\")\n    print(\"4. Architecture choice balances capacity vs. generalization\")"
+  }
+}

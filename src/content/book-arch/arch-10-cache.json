@@ -1,0 +1,255 @@
+{
+  "id": "arch-10-cache",
+  "bookId": "book-arch",
+  "title": "Cache Memory",
+  "category": "Memory",
+  "order": 10,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "The processor-memory performance gap has grown exponentially: CPUs improved 1000x faster than DRAM. Cache memory bridges this gap by exploiting locality—storing frequently and recently accessed data in small, fast SRAM close to the processor. When the CPU needs data, it checks cache first. On a hit, data arrives in 1-10 cycles. On a miss, a slow memory access (100+ cycles) is required. With hit rates of 95%+, caches make memory appear nearly as fast as SRAM while maintaining DRAM capacity. Understanding cache design—mapping, replacement, coherence—is essential for high-performance software and hardware.",
+    "sections": [
+      {
+        "title": "The Locality Principles",
+        "content": "Caches work because programs exhibit locality. Temporal locality means recently accessed data is likely to be accessed again soon (loops, counters). Spatial locality means data near recently accessed data is likely to be accessed (arrays, sequential code). Caches exploit temporal locality by keeping recently used data, and spatial locality by fetching blocks (cache lines) containing multiple adjacent words.",
+        "localityTypes": {
+          "temporal": "Reuse of same data (time-based)",
+          "spatial": "Use of nearby data (space-based)"
+        }
+      },
+      {
+        "title": "Cache Organization",
+        "content": "A cache consists of sets, each containing one or more cache lines (blocks). Each cache line stores data plus metadata: tag (identifies which memory address), valid bit (line contains valid data), and dirty bit (modified, needs writeback). The memory address splits into tag, index (selects set), and offset (selects byte within line). The index bits find the set, then tags are compared in parallel to detect a hit.",
+        "addressSplit": {
+          "tag": "Identifies unique memory block",
+          "index": "Selects which cache set",
+          "offset": "Selects byte within block"
+        }
+      },
+      {
+        "title": "Mapping Strategies",
+        "content": "Direct-mapped caches assign each memory block to exactly one cache line (simple but can conflict). Fully associative caches allow any block in any line (flexible but expensive comparators). Set-associative caches compromise: n-way set associative allows each block in any of n lines within a set. Most CPUs use 2-way, 4-way, or 8-way set associative caches.",
+        "types": {
+          "direct": "1-way: each block has exactly one location",
+          "setAssociative": "n-way: block in any of n locations within set",
+          "fullyAssociative": "Any block in any location"
+        }
+      },
+      {
+        "title": "Replacement and Write Policies",
+        "content": "When a new block enters a full set, a replacement policy chooses which existing block to evict. LRU (Least Recently Used) is effective but complex; pseudo-LRU approximates with less overhead. Write policies handle stores: write-through immediately updates both cache and memory (simple, slower); write-back marks cache as dirty and writes to memory only on eviction (faster, needs dirty bit).",
+        "policies": {
+          "replacement": {
+            "LRU": "Evict least recently accessed",
+            "FIFO": "Evict oldest",
+            "Random": "Simple hardware implementation"
+          },
+          "write": {
+            "writeThrough": "Update cache and memory immediately",
+            "writeBack": "Update cache only, write to memory on eviction"
+          }
+        }
+      },
+      {
+        "title": "Cache Hierarchy: L1, L2, L3",
+        "content": "Modern CPUs have multiple cache levels. L1 (split into instruction and data caches) is smallest (16-64KB), fastest (2-4 cycles), and closest to the core. L2 is larger (256KB-1MB), slower (10-20 cycles), and unified or per-core. L3 is largest (4-64MB shared), slowest (30-50 cycles), and shared among cores. Each level filters accesses to the next, with L1 hitting ~90%, L2 catching most of the rest, and only ~1% reaching main memory.",
+        "typicalSizes": {
+          "L1i": "32KB per core",
+          "L1d": "32KB per core",
+          "L2": "256KB-1MB per core",
+          "L3": "8-64MB shared"
+        }
+      },
+      {
+        "title": "Cache Miss Types",
+        "content": "Not all misses are equal. Compulsory (cold start) misses occur on first access to a block—unavoidable but can be reduced by prefetching. Capacity misses occur because the working set exceeds cache size—would be hits in larger cache. Conflict misses occur due to mapping limitations—even with space available, multiple blocks map to the same set. Understanding these guides cache-friendly code optimization.",
+        "missTypes": {
+          "compulsory": "First access to block",
+          "capacity": "Cache too small for working set",
+          "conflict": "Mapping collision despite available space"
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Hit Rate",
+        "description": "Percentage of memory accesses found in cache. Good caches achieve 90-98%.",
+        "formula": "Hit Rate = Hits / (Hits + Misses)"
+      },
+      {
+        "name": "AMAT",
+        "description": "Average Memory Access Time. Combines hit time and miss penalty weighted by hit rate.",
+        "formula": "AMAT = Hit Time + (Miss Rate × Miss Penalty)"
+      },
+      {
+        "name": "Cache Line/Block",
+        "description": "Unit of cache storage. Typically 32-128 bytes, holding multiple words to exploit spatial locality.",
+        "typical": "64 bytes in modern x86"
+      },
+      {
+        "name": "Associativity",
+        "description": "Number of cache lines in a set. Higher associativity reduces conflicts but increases complexity.",
+        "common": "4-way or 8-way set associative"
+      }
+    ],
+    "complexity": {
+      "hitTime": "O(1) - parallel tag comparison",
+      "missPenalty": "O(memory latency)",
+      "lookup": "O(associativity) comparisons"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Address Split",
+      "description": "Divide memory address into tag, index, and offset fields.",
+      "visualState": { "address": "0x1A3F8", "tag": "0x1A", "index": "0x3F", "offset": "0x8" }
+    },
+    {
+      "step": 2,
+      "title": "Index to Set",
+      "description": "Use index bits to select which cache set to examine.",
+      "visualState": { "selectedSet": 63, "ways": 4 }
+    },
+    {
+      "step": 3,
+      "title": "Tag Comparison",
+      "description": "Compare all tags in the set with the address tag in parallel.",
+      "visualState": { "comparisons": 4, "match": "way 2" }
+    },
+    {
+      "step": 4,
+      "title": "Hit or Miss",
+      "description": "If any tag matches and valid bit is set, it's a hit. Otherwise, it's a miss.",
+      "visualState": { "hit": true, "dataReady": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Cache Purpose",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What problem does cache memory solve?",
+      "answer": "Processor-memory speed gap",
+      "explanation": "Cache bridges the performance gap between fast CPUs and slow main memory by storing frequently accessed data in fast SRAM close to the processor.",
+      "hints": ["CPU much faster than RAM", "Memory bottleneck", "SRAM is faster than DRAM"]
+    },
+    {
+      "id": "p2",
+      "title": "Temporal Locality",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is temporal locality?",
+      "answer": "Recently accessed data is likely to be accessed again",
+      "explanation": "Temporal locality means if a memory location is accessed, it's likely to be accessed again soon. Caches exploit this by keeping recently used data.",
+      "hints": ["Time-based locality", "Reuse of data", "Recently accessed"]
+    },
+    {
+      "id": "p3",
+      "title": "Direct-Mapped Cache",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "In a direct-mapped cache, how many locations can a memory block map to?",
+      "answer": "1",
+      "explanation": "Direct-mapped (1-way set associative) means each memory block maps to exactly one cache line. Simple but prone to conflicts.",
+      "hints": ["Direct = 1 way", "Exactly one location", "Determined by address bits"]
+    },
+    {
+      "id": "p4",
+      "title": "AMAT Calculation",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "If hit time is 2 cycles, miss rate is 5%, and miss penalty is 100 cycles, what is AMAT?",
+      "answer": "7 cycles",
+      "explanation": "AMAT = Hit Time + (Miss Rate × Miss Penalty) = 2 + (0.05 × 100) = 2 + 5 = 7 cycles.",
+      "hints": ["AMAT = Hit Time + (Miss Rate × Miss Penalty)", "0.05 × 100 = 5", "2 + 5 = 7"]
+    },
+    {
+      "id": "p5",
+      "title": "Cache Line Size",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why are cache lines larger than a single word?",
+      "answer": "Exploit spatial locality",
+      "explanation": "Fetching blocks of data exploits spatial locality—if one byte is accessed, nearby bytes are likely to be accessed soon. Reduces compulsory misses.",
+      "hints": ["Spatial locality", "Nearby data likely accessed", "Prefetch adjacent data"]
+    },
+    {
+      "id": "p6",
+      "title": "Write-Back vs Write-Through",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Which write policy has lower memory bandwidth requirements?",
+      "answer": "Write-back",
+      "explanation": "Write-back only writes to memory on eviction, reducing bandwidth. Write-through updates memory on every store, using more bandwidth but ensuring consistency.",
+      "hints": ["Write-back: update on eviction only", "Write-through: every store", "Bandwidth conservation"]
+    }
+  ],
+  "minigame": {
+    "id": "cache-champion",
+    "title": "Cache Champion",
+    "description": "Optimize cache performance! Manage cache lines, handle hits and misses, and maximize hit rate. Choose replacement policies wisely and watch your AMAT improve!",
+    "type": "strategy-optimization",
+    "instructions": [
+      "Memory requests appear from the CPU",
+      "Watch the address break down into tag, index, and offset",
+      "See which cache set is accessed",
+      "Observe hit or miss - aim for high hit rate!",
+      "On miss, choose replacement policy (LRU, FIFO, Random)",
+      "Track AMAT and optimize cache configuration!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Direct Mapped",
+        "description": "Simple 1-way cache",
+        "associativity": 1,
+        "size": "16 lines",
+        "lineSize": 16,
+        "replacement": "direct",
+        "timeLimit": 60,
+        "targetHitRate": 0.7
+      },
+      {
+        "level": 2,
+        "name": "Set Associative",
+        "description": "4-way set associative cache",
+        "associativity": 4,
+        "size": "64 lines",
+        "lineSize": 32,
+        "replacement": "LRU",
+        "timeLimit": 90,
+        "targetHitRate": 0.8
+      },
+      {
+        "level": 3,
+        "name": "Full Hierarchy",
+        "description": "Two-level cache (L1 + L2)",
+        "l1": { "size": "32 lines", "associativity": 4, "hitTime": 2 },
+        "l2": { "size": "128 lines", "associativity": 8, "hitTime": 10 },
+        "memoryLatency": 100,
+        "timeLimit": 120,
+        "targetAMAT": 8
+      },
+      {
+        "level": 4,
+        "name": "Cache Designer",
+        "description": "Optimize cache configuration for workload",
+        "configurable": true,
+        "parameters": ["size", "associativity", "lineSize", "policy"],
+        "workloads": ["sequential", "random", "loop"],
+        "timeLimit": 180,
+        "targetAMAT": 5
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Cache Simulator",
+        "code": "class CacheLine:\n    def __init__(self):\n        self.valid = False\n        self.tag = 0\n        self.data = bytearray(64)  # 64-byte line\n        self.dirty = False\n        self.lru_counter = 0\n\nclass Cache:\n    def __init__(self, size_kb, associativity, line_size, write_policy='write_back'):\n        self.size = size_kb * 1024\n        self.associativity = associativity\n        self.line_size = line_size\n        self.num_sets = self.size // (associativity * line_size)\n        self.sets = [[CacheLine() for _ in range(associativity)] \n                     for _ in range(self.num_sets)]\n        self.write_policy = write_policy\n        self.hits = 0\n        self.misses = 0\n        self.access_count = 0\n    \n    def _split_address(self, addr):\n        offset_bits = (self.line_size - 1).bit_length()\n        index_bits = (self.num_sets - 1).bit_length()\n        \n        offset = addr & (self.line_size - 1)\n        index = (addr >> offset_bits) & (self.num_sets - 1)\n        tag = addr >> (offset_bits + index_bits)\n        \n        return tag, index, offset\n    \n    def access(self, addr, is_write=False):\n        self.access_count += 1\n        tag, index, offset = self._split_address(addr)\n        \n        # Check all ways in set\n        cache_set = self.sets[index]\n        for way in cache_set:\n            if way.valid and way.tag == tag:\n                # Cache hit!\n                self.hits += 1\n                way.lru_counter = self.access_count\n                if is_write:\n                    way.dirty = True\n                    if self.write_policy == 'write_through':\n                        pass  # Would write to memory here\n                return True\n        \n        # Cache miss\n        self.misses += 1\n        self._handle_miss(cache_set, tag, is_write)\n        return False\n    \n    def _handle_miss(self, cache_set, tag, is_write):\n        # Find replacement victim (LRU)\n        victim_idx = min(range(len(cache_set)), \n                        key=lambda i: cache_set[i].lru_counter if cache_set[i].valid else -1)\n        victim = cache_set[victim_idx]\n        \n        # Write back if dirty\n        if victim.valid and victim.dirty:\n            pass  # Would write to memory\n        \n        # Load new line\n        victim.valid = True\n        victim.tag = tag\n        victim.dirty = is_write\n        victim.lru_counter = self.access_count\n    \n    def get_stats(self):\n        total = self.hits + self.misses\n        hit_rate = self.hits / total if total > 0 else 0\n        return {\n            'hits': self.hits,\n            'misses': self.misses,\n            'hit_rate': hit_rate,\n            'miss_rate': 1 - hit_rate\n        }\n\n# Test with array access pattern\ncache = Cache(size_kb=4, associativity=4, line_size=64)\n\n# Sequential access (good spatial locality)\nprint('Sequential access:')\nfor i in range(256):\n    addr = i * 4  # 4-byte words\n    cache.access(addr)\nstats = cache.get_stats()\nprint(f'  Hit rate: {stats[\"hit_rate\"]:.2%}')\n\n# Random access (poor locality)\ncache2 = Cache(size_kb=4, associativity=4, line_size=64)\nprint('Random access:')\nimport random\nfor _ in range(256):\n    addr = random.randint(0, 1024) * 4\n    cache2.access(addr)\nstats2 = cache2.get_stats()\nprint(f'  Hit rate: {stats2[\"hit_rate\"]:.2%}')"
+      }
+    ]
+  }
+}

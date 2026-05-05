@@ -36,11 +36,11 @@ const visualizers: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "23-backtracking": lazy(() => import("@/components/chapters/BacktrackVisualizerEnhanced")),
   "24-bit-manipulation": lazy(() => import("@/components/chapters/BitManipVisualizerEnhanced")),
   "25-math-primes": lazy(() => import("@/components/chapters/MathVisualizerEnhanced")),
-  "26-suffix-trees": lazy(() => import("@/components/chapters/SuffixTreeVisualizer")),
-  "27-kd-trees": lazy(() => import("@/components/chapters/KDTreeVisualizer")),
-  "28-bloom-filters": lazy(() => import("@/components/chapters/BloomFilterVisualizer")),
-  "29-network-flow": lazy(() => import("@/components/chapters/NetworkFlowVisualizer")),
-  "30-computational-geometry": lazy(() => import("@/components/chapters/GeometryVisualizer")),
+  "26-suffix-trees": lazy(() => import("@/components/chapters/SuffixTreeVisualizerEnhanced")),
+  "27-kd-trees": lazy(() => import("@/components/chapters/KDTreeVisualizerEnhanced")),
+  "28-bloom-filters": lazy(() => import("@/components/chapters/BloomFilterVisualizerEnhanced")),
+  "29-network-flow": lazy(() => import("@/components/chapters/NetworkFlowVisualizerEnhanced")),
+  "30-computational-geometry": lazy(() => import("@/components/chapters/GeometryVisualizerEnhanced")),
 };
 
 // Dynamic imports for minigames - mapped to chapter IDs
@@ -70,11 +70,11 @@ const minigames: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "23-backtracking": lazy(() => import("@/components/minigames/ArrayMinigameEnhanced")),
   "24-bit-manipulation": lazy(() => import("@/components/minigames/BitManipMinigameEnhanced")),
   "25-math-primes": lazy(() => import("@/components/minigames/MathMinigameEnhanced")),
-  "26-suffix-trees": lazy(() => import("@/components/minigames/TrieMinigame")),
-  "27-kd-trees": lazy(() => import("@/components/minigames/SortingMinigame")),
-  "28-bloom-filters": lazy(() => import("@/components/minigames/HashTableMinigame")),
-  "29-network-flow": lazy(() => import("@/components/minigames/GraphMinigame")),
-  "30-computational-geometry": lazy(() => import("@/components/minigames/SortingMinigame")),
+  "26-suffix-trees": lazy(() => import("@/components/minigames/SuffixTreeMinigameEnhanced")),
+  "27-kd-trees": lazy(() => import("@/components/minigames/ArrayMinigameEnhanced")),
+  "28-bloom-filters": lazy(() => import("@/components/minigames/HashTableMinigameEnhanced")),
+  "29-network-flow": lazy(() => import("@/components/minigames/GraphMinigameEnhanced")),
+  "30-computational-geometry": lazy(() => import("@/components/minigames/ArrayMinigameEnhanced")),
 };
 
 export function getChapterConfig(id: string): ChapterConfig {

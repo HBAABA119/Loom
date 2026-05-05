@@ -1,0 +1,190 @@
+{
+  "id": "02-superposition",
+  "bookId": "book-quantum",
+  "title": "Superposition & Interference",
+  "category": "Foundations",
+  "order": 2,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Superposition is the quantum phenomenon where a particle exists in multiple states simultaneously until measured. While classical bits are exclusively 0 or 1, a qubit in superposition is both 0 AND 1 at once. This enables quantum computers to explore exponentially many computational paths in parallel. However, the real power comes from quantum interference—we manipulate probability amplitudes (which can be positive or negative) so that wrong answers interfere destructively (cancel out) while right answers interfere constructively (add up). This is the secret behind quantum speedups.",
+    "sections": [
+      {
+        "title": "Understanding Superposition",
+        "content": "Superposition is often poorly explained as 'being in two places at once' or 'being uncertain.' More precisely, a superposition is a distinct quantum state with its own physical properties. When a qubit is in state $|+\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$, it's NOT 'maybe 0, maybe 1'—it's a definite quantum state that yields probabilistic outcomes when measured in the computational basis. The key insight: measurement basis matters. Measuring $|+\rangle$ in the X basis gives definite 0 (since $|+\rangle$ is an X-basis state), while Z basis measurement is random.",
+        "keyPoints": [
+          "Superposition is a pure quantum state, not classical uncertainty",
+          "Different measurement bases yield different outcomes",
+          "$|+\rangle$ is definite in X basis, random in Z basis",
+          "$|0\rangle$ is definite in Z basis, random in X basis"
+        ],
+        "visualization": "Bloch sphere: Z axis poles are definite in Z basis, X axis points are definite in X basis"
+      },
+      {
+        "title": "The Role of Complex Amplitudes",
+        "content": "Quantum mechanics uses complex numbers for amplitudes. A complex number has form $a + bi$ where $i = \sqrt{-1}$. The amplitude's magnitude squared gives probability, but the phase (angle in complex plane) affects interference. Two paths to the same outcome with amplitudes $A$ and $B$ combine as $A + B$. If they're in phase, they add: $|A + B|^2 > |A|^2 + |B|^2$. If out of phase, they can cancel: $|A - A|^2 = 0$. This interference is impossible with classical probabilities which are always non-negative.",
+        "latex": "\text{Amplitude: } z = re^{i\phi} = r(\cos\phi + i\sin\phi), \quad \text{Probability: } |z|^2 = r^2",
+        "examples": [
+          {
+            "description": "Constructive interference",
+            "amplitudes": "$\frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}} = \sqrt{2}$",
+            "probability": "$|\sqrt{2}|^2 = 2$ (twice classical expectation!)"
+          },
+          {
+            "description": "Destructive interference",
+            "amplitudes": "$\frac{1}{\sqrt{2}} - \frac{1}{\sqrt{2}} = 0$",
+            "probability": "$|0|^2 = 0$ (complete cancellation)"
+          },
+          {
+            "description": "90° phase shift",
+            "amplitudes": "$1 + i$",
+            "probability": "$|1+i|^2 = 1^2 + 1^2 = 2$"
+          }
+        ]
+      },
+      {
+        "title": "The Double-Slit Experiment",
+        "content": "The famous double-slit experiment demonstrates superposition and interference. A particle (photon, electron) passes through two slits simultaneously—it's in a superposition of 'went through left' and 'went through right.' On the detection screen, we see an interference pattern (bright and dark bands), not two bright patches. The dark bands are where the two paths destructively interfered—they didn't 'cancel' in the sense of annihilation; the probability amplitude canceled. This isn't wave interference of many particles; single particles build up the pattern over time.",
+        "keyPoints": [
+          "Single particles create interference patterns",
+          "Attempting to detect which slit destroys superposition",
+          "Path information forces particle-like behavior",
+          "No interference = no quantum advantage"
+        ],
+        "analogy": "Quantum computing: each computational path is like a slit. We arrange for wrong answers to hit 'dark bands' (destructive interference) and right answers to hit 'bright bands' (constructive interference)."
+      },
+      {
+        "title": "Creating and Destroying Superposition",
+        "content": "The Hadamard gate ($H$) is the primary tool for creating superposition. $H|0\rangle = |+\rangle$ and $H|1\rangle = |-\rangle$. Applying $H$ again returns to the original state: $H|+\rangle = |0\rangle$. This is reversible because quantum gates are unitary. Superposition is destroyed by measurement, which forces the system into an eigenstate of the measurement operator. It's also destroyed by decoherence—unwanted interaction with the environment that entangles the qubit with its surroundings, effectively measuring it.",
+        "latex": "H = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}, \quad H|0\rangle = |+\rangle, \quad H^2 = I",
+        "code": [
+          { "operation": "Initialize", "state": "|0⟩", "superposition?": "No" },
+          { "operation": "Apply H", "state": "|+⟩ = (|0⟩+|1⟩)/√2", "superposition?": "Yes" },
+          { "operation": "Apply H again", "state": "|0⟩", "superposition?": "No" },
+          { "operation": "Measure", "state": "|0⟩ or |1⟩", "superposition?": "Destroyed" }
+        ]
+      },
+      {
+        "title": "Multi-Qubit Superposition",
+        "content": "With $n$ qubits, the state space grows exponentially. Two qubits have basis states $|00\rangle, |01\rangle, |10\rangle, |11\rangle$ and general state $|\psi\rangle = \alpha_{00}|00\rangle + \alpha_{01}|01\rangle + \alpha_{10}|10\rangle + \alpha_{11}|11\rangle$. Apply Hadamard to all qubits starting from $|00...0\rangle$ creates an equal superposition of all $2^n$ basis states: $\frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}|x\rangle$. This is quantum parallelism—one operation acts on all states simultaneously. The challenge is extracting useful information: naive measurement gives a random result. Clever algorithms use interference to amplify correct answers.",
+        "latex": "H^{\otimes n}|0\rangle^{\otimes n} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}|x\rangle",
+        "keyPoints": [
+          "$n$ qubits can represent $2^n$ states simultaneously",
+          "Equal superposition puts equal weight on all basis states",
+          "Quantum operations apply to all components in parallel",
+          "Extracting the result requires clever interference patterns"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Born Rule",
+        "description": "The probability of measuring a state is the squared magnitude of its amplitude. Discovered by Max Born in 1926, earning him the Nobel Prize.",
+        "latex": "P(x) = |\langle x | \psi \rangle|^2 = |\alpha_x|^2"
+      },
+      {
+        "name": "Relative Phase",
+        "description": "The phase relationship between amplitudes of different basis states. Critical for interference but invisible to Z-basis measurement probabilities alone.",
+        "example": "$|+\rangle$ and $|-\rangle$ have identical Z-basis probabilities but different X-basis behavior"
+      },
+      {
+        "name": "Quantum Parallelism",
+        "description": "The ability to operate on exponentially many states simultaneously. However, we can only extract $n$ bits of classical information from $n$ qubits.",
+        "limitation": "Holevo's theorem: you can only transmit $n$ classical bits by sending $n$ qubits"
+      },
+      {
+        "name": "Coherence",
+        "description": "The maintenance of phase relationships in superposition. Decoherence (loss of coherence due to environment) is the primary obstacle in quantum computing.",
+        "timescale": "Nanoseconds to seconds depending on qubit type"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "Creating superposition: $O(1)$ per qubit, $O(n)$ for $n$ qubits",
+      "spaceComplexity": "$2^n$ amplitudes to track for $n$ qubits",
+      "understandingTime": "Deep understanding: $O(\infty)$ — quantum mechanics is weird!"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Start with Definite State",
+      "description": "Initialize all qubits to $|0\rangle$. This is a product state with no superposition.",
+      "latex": "|\psi_0\rangle = |0\rangle^{\otimes n}",
+      "visualState": { "type": "product", "entanglement": "none" }
+    },
+    {
+      "step": 2,
+      "title": "Apply Hadamard Transform",
+      "description": "Apply H gate to each qubit to create equal superposition of all basis states.",
+      "latex": "|\psi_1\rangle = H^{\otimes n}|0\rangle^{\otimes n} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}|x\rangle",
+      "visualState": { "type": "superposition", "uniform": true, "count": "2^n" }
+    },
+    {
+      "step": 3,
+      "title": "Apply Oracle (Phase Kickback)",
+      "description": "Apply a function that marks correct answers with a phase of -1, leaving others unchanged.",
+      "latex": "|\psi_2\rangle = \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{f(x)}|x\rangle",
+      "visualState": { "type": "superposition", "phases": "marked negative" }
+    },
+    {
+      "step": 4,
+      "title": "Apply Diffusion Operator",
+      "description": "Reflect about the average amplitude. This amplifies marked states (constructive interference) and suppresses unmarked states (destructive interference).",
+      "latex": "\text{Amplitude of marked states } \approx \frac{3}{\sqrt{2^n}}, \text{ others } \approx \frac{1}{\sqrt{2^n}}",
+      "visualState": { "type": "amplified", "target": "enlarged" }
+    },
+    {
+      "step": 5,
+      "title": "Repeat and Measure",
+      "description": "Repeat steps 3-4 $O(\sqrt{2^n})$ times, then measure. The probability of finding a correct answer is now high.",
+      "latex": "P(\text{correct}) \approx 1 - \frac{1}{2^n}",
+      "visualState": { "type": "measured", "highProbability": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Hadamard on Superposition",
+      "difficulty": "Easy",
+      "description": "What is $H|+\rangle$?",
+      "options": ["$|+\rangle$", "$|0\rangle$", "$|1\rangle$", "$|-\rangle$"],
+      "correctAnswer": 1,
+      "explanation": "$|+\rangle = H|0\rangle$, so $H|+\rangle = H(H|0\rangle) = H^2|0\rangle = I|0\rangle = |0\rangle$. Two Hadamards cancel out.",
+      "hint": "Remember that $H^2 = I$ (the identity matrix)."
+    },
+    {
+      "id": "p2",
+      "title": "Interference Pattern",
+      "difficulty": "Medium",
+      "description": "Two paths lead to the same outcome with amplitudes $\frac{1}{2}$ and $-\frac{1}{2}$. What is the probability of this outcome?",
+      "options": ["25%", "50%", "0%", "100%"],
+      "correctAnswer": 2,
+      "explanation": "Total amplitude = $\frac{1}{2} - \frac{1}{2} = 0$. Probability = $|0|^2 = 0$. This is destructive interference—complete cancellation!",
+      "hint": "Add the amplitudes first, then square the magnitude."
+    },
+    {
+      "id": "p3",
+      "title": "3-Qubit Superposition",
+      "difficulty": "Medium",
+      "description": "You apply Hadamard to 3 qubits in state $|000\rangle$. How many basis states are in the resulting superposition?",
+      "options": ["3", "6", "8", "27"],
+      "correctAnswer": 2,
+      "explanation": "$H^{\otimes 3}|000\rangle = \frac{1}{\sqrt{8}}(|000\rangle + |001\rangle + |010\rangle + |011\rangle + |100\rangle + |101\rangle + |110\rangle + |111\rangle)$. That's $2^3 = 8$ states.",
+      "hint": "$n$ qubits in equal superposition contain $2^n$ basis states."
+    },
+    {
+      "id": "p4",
+      "title": "Phase Matters",
+      "difficulty": "Hard",
+      "description": "States $|\psi_1\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$ and $|\psi_2\rangle = \frac{1}{\sqrt{2}}(|0\rangle + i|1\rangle)$ both give 50/50 outcomes when measured in Z basis. How do they differ?",
+      "options": ["They don't differ at all", "$\\psi_2$ has higher energy", "They differ in the X basis measurement", "$\\psi_2$ collapses faster"],
+      "correctAnswer": 2,
+      "explanation": "The relative phase $i = e^{i\pi/2}$ means $|\psi_2\rangle$ is on the Y-axis of the Bloch sphere (state $|i+\rangle$). Measuring in X basis: $|\psi_1\rangle$ gives definite +, while $|\psi_2\rangle$ is at 45° between +X and -X, giving random outcomes.",
+      "hint": "Consider the Bloch sphere. Where is each state located?"
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n\n# Hadamard gate\nH = np.array([[1, 1], [1, -1]]) / np.sqrt(2)\n\n# Create superposition from |0⟩\nzero = np.array([1, 0])\nplus = H @ zero\nprint(f'|+⟩ = {plus}')\nprint(f'P(0) = {np.abs(plus[0])**2:.4f}')\nprint(f'P(1) = {np.abs(plus[1])**2:.4f}')\n\n# Create 3-qubit superposition\npsi_3q = np.kron(np.kron(plus, plus), plus)\nprint(f'\\n3-qubit superposition has {len(psi_3q)} amplitudes')\nprint(f'All equal? {np.allclose(np.abs(psi_3q), 1/np.sqrt(8))}')\n\n# Demonstrate interference\n# Two paths with amplitudes 0.5 and -0.5\namp1 = 0.5\namp2 = -0.5\ntotal = amp1 + amp2\nprob = np.abs(total)**2\nprint(f'\\nDestructive interference: amplitude {total}, probability {prob}')",
+    "qsharp": "namespace Quantum.Superposition {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Measurement;\n    \n    @EntryPoint()\n    operation DemonstrateSuperposition() : Unit {\n        use q = Qubit();\n        \n        // Create |+⟩ state\n        H(q);\n        \n        // Demonstrate that |+⟩ is definite in X basis\n        // First transform to Z basis (which swaps X and Z)\n        H(q);\n        let result = M(q);\n        Message($\"Measuring |+⟩ in X basis via H transform: {result}\");\n        \n        // Create |0⟩, should be definite\n        Reset(q);\n        let result2 = M(q);\n        Message($\"Measuring |0⟩: {result2}\");\n    }\n}",
+    "quipper": "import Quipper\n\nsuperpositionDemo :: Circ Qubit\nsuperpositionDemo = do\n  -- Start with |0⟩\n  q <- qinit True\n  \n  -- Create |+⟩ = (|0⟩ + |1⟩)/√2\n  q <- hadamard q\n  \n  -- Apply phase gate S (adds i phase to |1⟩)\n  -- Now we have (|0⟩ + i|1⟩)/√2 = |i+⟩\n  q <- gate_S q\n  \n  -- Return the qubit for measurement\n  return q"
+  }
+}

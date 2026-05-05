@@ -1,0 +1,246 @@
+{
+  "id": "arch-03-adder",
+  "bookId": "book-arch",
+  "title": "Adders & ALU",
+  "category": "Digital Logic",
+  "order": 3,
+  "estimatedTime": "40 min",
+  "theory": {
+    "overview": "The Arithmetic Logic Unit (ALU) is the mathematical brain of every processor. It performs all arithmetic operations (addition, subtraction) and logical operations (AND, OR, comparison) that make computation possible. At its core sits the adder—a deceptively simple circuit that, when combined with clever logic, enables complex mathematics. Understanding how adders work reveals the elegance of computer design: from a single full adder handling one bit, to cascaded ripple-carry adders, to sophisticated carry-lookahead designs that power modern CPUs.",
+    "sections": [
+      {
+        "title": "The Half Adder: Starting Simple",
+        "content": "The simplest adder handles just two bits, producing a sum and carry. The sum is computed with XOR (outputs 1 when inputs differ), and the carry is computed with AND (outputs 1 only when both are 1). This is called a 'half' adder because it doesn't account for a carry-in from a previous bit—making it suitable only for the least significant bit position.",
+        "circuit": {
+          "inputs": ["A", "B"],
+          "outputs": ["Sum", "Carry"],
+          "logic": {
+            "Sum": "A XOR B",
+            "Carry": "A AND B"
+          }
+        },
+        "truthTable": [
+          { "A": 0, "B": 0, "Sum": 0, "Carry": 0 },
+          { "A": 0, "B": 1, "Sum": 1, "Carry": 0 },
+          { "A": 1, "B": 0, "Sum": 1, "Carry": 0 },
+          { "A": 1, "B": 1, "Sum": 0, "Carry": 1 }
+        ]
+      },
+      {
+        "title": "The Full Adder: Complete Addition",
+        "content": "Real addition needs to handle carries from previous positions. The full adder takes three inputs: A, B, and Carry-in (Cin). It produces Sum and Carry-out (Cout). The full adder can be built from two half adders plus an OR gate for the carry logic. This is the fundamental building block for multi-bit addition.",
+        "equations": {
+          "Sum": "A XOR B XOR Cin",
+          "Cout": "(A AND B) OR (Cin AND (A XOR B))"
+        },
+        "implementation": "Two half adders + one OR gate"
+      },
+      {
+        "title": "Ripple-Carry Adder: Chaining Together",
+        "content": "To add multi-bit numbers, connect full adders in a chain where each carry-out becomes the next carry-in. This is called a ripple-carry adder—simple but slow. The worst-case delay is proportional to the number of bits because the carry must 'ripple' through every stage. A 32-bit ripple-carry adder needs 32 full-adder delays.",
+        "characteristics": {
+          "gateCount": "~5 gates per bit",
+          "delay": "O(n) - linear with bit width",
+          "power": "Low - minimal switching"
+        }
+      },
+      {
+        "title": "Carry-Lookahead Adder: Speed at Cost",
+        "content": "Modern CPUs can't wait for carries to ripple. Carry-lookahead adders (CLA) compute carry bits in parallel using generate (G = A AND B) and propagate (P = A XOR B) signals. If G=1, a carry is definitely generated. If P=1, a carry-in will propagate through. This allows computing all carries simultaneously, reducing delay to O(log n) but requiring more gates.",
+        "formulas": {
+          "Generate": "G_i = A_i AND B_i",
+          "Propagate": "P_i = A_i XOR B_i",
+          "Carry": "C_{i+1} = G_i OR (P_i AND C_i)"
+        }
+      },
+      {
+        "title": "Subtraction via Addition",
+        "content": "Subtraction A - B is implemented as A + (-B). In two's complement, -B is computed as NOT(B) + 1. So A - B = A + NOT(B) + 1. This means the same adder hardware can do subtraction—we just invert B and set the initial carry-in to 1. This elegant design eliminates the need for separate subtraction circuits.",
+        "steps": [
+          "Invert all bits of B (one's complement)",
+          "Set carry-in to 1 (completing two's complement)",
+          "Add A to the complemented B"
+        ]
+      },
+      {
+        "title": "The ALU: Beyond Addition",
+        "content": "A complete ALU performs arithmetic (ADD, SUB) and logic (AND, OR, NOT, XOR) operations. A control signal selects which operation to perform. The ALU also outputs status flags: Zero (result is zero), Negative (MSB is 1), Carry (overflow from addition), and Overflow (signed overflow). These flags enable conditional branching in programs.",
+        "operations": ["ADD", "SUB", "AND", "OR", "XOR", "NOT", "CMP", "SHIFT"],
+        "flags": {
+          "Zero": "Z = 1 when result equals zero",
+          "Negative": "N = MSB of result",
+          "Carry": "C = carry-out from MSB",
+          "Overflow": "V = signed overflow occurred"
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Half Adder",
+        "description": "Adds two 1-bit inputs, produces 1-bit sum and 1-bit carry. No carry-in input.",
+        "gates": "1 XOR + 1 AND"
+      },
+      {
+        "name": "Full Adder",
+        "description": "Adds two 1-bit inputs plus 1-bit carry-in. Produces sum and carry-out.",
+        "gates": "2 Half Adders + 1 OR"
+      },
+      {
+        "name": "Ripple Delay",
+        "description": "The time for a carry to propagate through all bits. Limits maximum clock speed.",
+        "formula": "Delay = n × t_full_adder"
+      },
+      {
+        "name": "Generate/Propagate",
+        "description": "Signals used in fast adders. Generate: definitely creates carry. Propagate: passes carry through.",
+        "equations": "G = A·B, P = A⊕B"
+      }
+    ],
+    "complexity": {
+      "rippleAdder": "O(n) delay, O(n) gates",
+      "carryLookahead": "O(log n) delay, O(n log n) gates",
+      "subtraction": "Same as addition (uses same hardware)"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Understand Binary Addition Rules",
+      "description": "0+0=0, 0+1=1, 1+0=1, 1+1=10 (sum 0, carry 1).",
+      "visualState": { "rules": ["0+0=0", "0+1=1", "1+0=1", "1+1=10"] }
+    },
+    {
+      "step": 2,
+      "title": "Build Half Adder",
+      "description": "Use XOR for sum, AND for carry.",
+      "visualState": { "gates": ["XOR", "AND"], "bits": 1 }
+    },
+    {
+      "step": 3,
+      "title": "Extend to Full Adder",
+      "description": "Add carry-in input. Combine two half adders with OR for carry-out.",
+      "visualState": { "inputs": ["A", "B", "Cin"], "outputs": ["Sum", "Cout"] }
+    },
+    {
+      "step": 4,
+      "title": "Cascade for Multi-bit",
+      "description": "Connect full adders in chain. Each Cout connects to next Cin.",
+      "visualState": { "stages": 4, "connection": "ripple" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Half Adder Output",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What are Sum and Carry when adding 1 + 1 in a half adder?",
+      "answer": "Sum=0, Carry=1",
+      "explanation": "1 XOR 1 = 0 (sum), 1 AND 1 = 1 (carry). In binary: 1+1=10.",
+      "hints": ["Sum uses XOR: 1⊕1=0", "Carry uses AND: 1·1=1", "Result is binary 10"]
+    },
+    {
+      "id": "p2",
+      "title": "Full Adder with Carry",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "In a full adder, A=1, B=0, Cin=1. What is Sum?",
+      "answer": "0",
+      "explanation": "Sum = A XOR B XOR Cin = 1 XOR 0 XOR 1 = 0. (1⊕0=1, then 1⊕1=0).",
+      "hints": ["Sum = A ⊕ B ⊕ Cin", "Compute left to right", "1⊕0=1, then 1⊕1=0"]
+    },
+    {
+      "id": "p3",
+      "title": "4-bit Addition",
+      "difficulty": "medium",
+      "type": "arithmetic",
+      "description": "Add 0110 + 0011 using binary addition.",
+      "answer": "1001",
+      "explanation": "6 + 3 = 9. Binary: 0110 + 0011 = 1001. Carries flow from right to left.",
+      "hints": ["Add bit by bit from right", "Track carries", "6 + 3 = 9 in decimal"]
+    },
+    {
+      "id": "p4",
+      "title": "Subtraction Using Adder",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "To subtract B from A using an adder, what must be done to B?",
+      "answer": "Invert B and set Cin=1",
+      "explanation": "A - B = A + (-B) = A + NOT(B) + 1. Two's complement negation.",
+      "hints": ["Use two's complement", "NOT(B) gives one's complement", "Add 1 to complete"]
+    },
+    {
+      "id": "p5",
+      "title": "Ripple-Carry Delay",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "If each full adder has 2ns delay, what's the total delay for a 32-bit ripple-carry adder?",
+      "answer": "64ns",
+      "explanation": "32 stages × 2ns per stage = 64ns. The carry must ripple through all bits.",
+      "hints": ["Delay is proportional to bit width", "32 stages in series", "32 × 2ns = 64ns"]
+    },
+    {
+      "id": "p6",
+      "title": "Generate and Propagate",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "When does a bit position generate a carry in a CLA?",
+      "answer": "When both A and B are 1",
+      "explanation": "G = A AND B. Generate means this position definitely creates a carry regardless of Cin.",
+      "hints": ["G = A · B", "Both inputs must be 1", "Independent of carry-in"]
+    }
+  ],
+  "minigame": {
+    "id": "alu-builder",
+    "title": "ALU Architect",
+    "description": "Build an ALU from scratch! Connect gates to create adders, then expand to a full Arithmetic Logic Unit. Watch binary numbers flow through your creation.",
+    "type": "circuit-builder",
+    "instructions": [
+      "Drag components from the palette to the workspace",
+      "Connect inputs to outputs by clicking and dragging",
+      "Test your circuit with the input switches",
+      "Complete all truth table rows to advance",
+      "Build progressively: Half Adder → Full Adder → 4-bit Adder → ALU"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Half Adder",
+        "description": "Build the simplest adder with XOR and AND",
+        "components": ["Input A", "Input B", "XOR Gate", "AND Gate", "Output Sum", "Output Carry"],
+        "testCases": 4
+      },
+      {
+        "level": 2,
+        "name": "Full Adder",
+        "description": "Add carry-in to handle chained addition",
+        "components": ["Half Adder", "OR Gate", "Input Cin", "Output Cout"],
+        "testCases": 8
+      },
+      {
+        "level": 3,
+        "name": "4-Bit Ripple Adder",
+        "description": "Chain four full adders",
+        "components": ["Full Adder ×4", "Input A[3:0]", "Input B[3:0]", "Output Sum[4:0]"],
+        "testCases": 5
+      },
+      {
+        "level": 4,
+        "name": "Complete ALU",
+        "description": "Add logic operations and control signals",
+        "components": ["Adder", "AND Array", "OR Array", "XOR Array", "MUX", "Control"],
+        "operations": ["ADD", "SUB", "AND", "OR", "XOR"],
+        "testCases": 10
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Adder Simulation",
+        "code": "# Half Adder\ndef half_adder(a, b):\n    sum_bit = a ^ b\n    carry = a & b\n    return sum_bit, carry\n\n# Full Adder\ndef full_adder(a, b, cin):\n    sum1, carry1 = half_adder(a, b)\n    sum_out, carry2 = half_adder(sum1, cin)\n    carry_out = carry1 | carry2\n    return sum_out, carry_out\n\n# N-bit Ripple-Carry Adder\ndef n_bit_adder(a_bits, b_bits, n):\n    result = []\n    carry = 0\n    for i in range(n):\n        s, carry = full_adder(a_bits[i], b_bits[i], carry)\n        result.append(s)\n    return result, carry  # carry is overflow\n\n# Test: 5 + 3 = 8\na = [1, 0, 1, 0]  # 5 = 0101 (LSB first)\nb = [1, 1, 0, 0]  # 3 = 0011\nsum_bits, cout = n_bit_adder(a, b, 4)\nprint(f'5 + 3 = {sum_bits} with carry {cout}')  # 1000 = 8\n\n# Convert to decimal for verification\ndef bits_to_dec(bits):\n    return sum(b << i for i, b in enumerate(bits))\nprint(f'Result: {bits_to_dec(sum_bits)}')"
+      }
+    ]
+  }
+}

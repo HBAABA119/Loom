@@ -1,0 +1,248 @@
+{
+  "id": "arch-09-pipelining",
+  "bookId": "book-arch",
+  "title": "Pipelining",
+  "category": "Performance",
+  "order": 9,
+  "estimatedTime": "40 min",
+  "theory": {
+    "overview": "Pipelining is the architectural technique that transformed processors from lumbering giants into the high-speed engines of modern computing. By overlapping the execution of multiple instructions—similar to how an assembly line manufactures cars—pipelining achieves throughput nearly equal to one instruction per clock cycle, even though each individual instruction still takes several cycles to complete. However, this performance comes with complexity: hazards, stalls, and flushes challenge designers to maintain the pipeline's smooth flow. Understanding pipelining reveals both the art and science of processor design.",
+    "sections": [
+      {
+        "title": "The Pipeline Concept",
+        "content": "A non-pipelined processor waits for one instruction to complete before starting the next. A pipelined processor starts a new instruction each cycle while previous instructions continue through subsequent stages. Like a car assembly line where multiple cars are simultaneously being welded, painted, and assembled, a 5-stage pipeline has 5 instructions in various stages of completion. Ideally, CPI (cycles per instruction) approaches 1, though hazards prevent reaching this theoretical maximum.",
+        "analogy": {
+          "laundry": "Washer → Dryer → Folder → Stacker",
+          "cars": "Chassis → Engine → Body → Paint",
+          "cpu": "Fetch → Decode → Execute → Memory → Writeback"
+        }
+      },
+      {
+        "title": "The Classic 5-Stage Pipeline",
+        "content": "The canonical RISC pipeline consists of 5 stages: IF (Instruction Fetch) reads from memory using PC; ID (Instruction Decode) extracts opcode/operands and reads registers; EX (Execute) performs ALU operations and calculates addresses; MEM (Memory) accesses data memory for loads/stores; WB (Writeback) stores results to registers. Each stage takes approximately equal time, determining the clock period.",
+        "stages": [
+          { "stage": "IF", "name": "Instruction Fetch", "action": "PC → Memory, get instruction", "duration": "Memory access time" },
+          { "stage": "ID", "name": "Instruction Decode", "action": "Decode opcode, read registers", "duration": "Decoder + register file" },
+          { "stage": "EX", "name": "Execute", "action": "ALU operation, address calculation", "duration": "ALU delay" },
+          { "stage": "MEM", "name": "Memory", "action": "Data cache access", "duration": "Memory access time" },
+          { "stage": "WB", "name": "Writeback", "action": "Store to register file", "duration": "Register write" }
+        ]
+      },
+      {
+        "title": "Data Hazards: Dependencies Stall",
+        "content": "When an instruction needs a result that a previous instruction hasn't yet produced, we have a data hazard. Read-After-Write (RAW) is the most common—the consumer tries to read before the producer writes back. Solutions include: stalling (inserting bubbles), forwarding/bypassing (sending result directly from EX/MEM to next instruction's EX), and compiler scheduling (reordering instructions to separate dependencies).",
+        "hazardTypes": {
+          "RAW": "Read After Write - most common, must wait for result",
+          "WAR": "Write After Read - rare in simple pipelines",
+          "WAW": "Write After Write - rare in simple pipelines"
+        }
+      },
+      {
+        "title": "Control Hazards: Branches Disrupt",
+        "content": "Branch instructions change the PC, but the pipeline doesn't know the target until the Execute stage (or later). By then, subsequent instructions have already been fetched—the wrong ones if the branch is taken! Solutions include: stalling until branch resolves (slow), predicting not-taken (assume fall-through), predicting taken (assume branch goes), delayed branches (execute instructions after branch regardless), and branch prediction with speculative execution.",
+        "penalty": {
+          "notTaken": "0 cycles if predicted correctly",
+          "taken": "2-3 cycle penalty to flush pipeline"
+        }
+      },
+      {
+        "title": "Structural Hazards: Resource Conflicts",
+        "content": "When two instructions need the same hardware unit simultaneously, a structural hazard occurs. For example, if instruction and data share a single memory (von Neumann), a load/store conflicts with instruction fetch. Solutions include: stalling one instruction, or duplicating resources (Harvard architecture with separate instruction/data memories/caches). Modern CPUs eliminate most structural hazards through resource replication.",
+        "examples": [
+          "Single memory for instructions and data",
+          "Only one register write port",
+          "Single ALU for all operations"
+        ]
+      },
+      {
+        "title": "Forwarding: Smart Bypass",
+        "content": "Forwarding (bypassing) sends a result directly from one pipeline stage to another, avoiding the need to wait for writeback. If instruction 1 computes a result in EX, instruction 2 can receive it at the start of its EX stage (bypassing MEM and WB). This eliminates most RAW stalls. Modern pipelines have extensive bypass networks connecting ALU outputs directly to ALU inputs.",
+        "paths": [
+          "EX/MEM → EX (next instruction)",
+          "MEM/WB → EX (following instruction)",
+          "Multiple forwarding muxes at each stage"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "CPI (Cycles Per Instruction)",
+        "description": "Average clock cycles to complete one instruction. Ideal pipeline: CPI = 1.",
+        "formula": "CPI = 1 + stall_cycles / instructions"
+      },
+      {
+        "name": "Pipeline Register",
+        "description": "Register between stages holding intermediate results. IF/ID, ID/EX, EX/MEM, MEM/WB.",
+        "purpose": "Isolate stages, pass data forward"
+      },
+      {
+        "name": "Bubble",
+        "description": "A pipeline stall where no work is done—like a NOP inserted to resolve a hazard.",
+        "cost": "1 cycle of lost throughput"
+      },
+      {
+        "name": "Branch Penalty",
+        "description": "Cycles lost when a branch misprediction flushes the pipeline.",
+        "reduction": "Better branch prediction, early resolution"
+      }
+    ],
+    "complexity": {
+      "idealCPI": "1.0",
+      "realisticCPI": "1.2-1.5 with stalls",
+      "clockRate": "Determined by slowest stage"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Fetch First Instruction",
+      "description": "Start fetching the first instruction into IF stage.",
+      "visualState": { "IF": "Instr 1", "ID": "empty", "EX": "empty", "MEM": "empty", "WB": "empty" }
+    },
+    {
+      "step": 2,
+      "title": "Advance and Fetch Second",
+      "description": "First instruction moves to ID, second enters IF.",
+      "visualState": { "IF": "Instr 2", "ID": "Instr 1", "EX": "empty", "MEM": "empty", "WB": "empty" }
+    },
+    {
+      "step": 3,
+      "title": "Fill the Pipeline",
+      "description": "Continue until all stages are occupied.",
+      "visualState": { "IF": "Instr 5", "ID": "Instr 4", "EX": "Instr 3", "MEM": "Instr 2", "WB": "Instr 1" }
+    },
+    {
+      "step": 4,
+      "title": "Handle Dependencies",
+      "description": "Detect hazards and apply forwarding or stall.",
+      "visualState": { "forwarding": true, "stall": false, "bubble": 0 }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Pipeline Throughput",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "With a filled pipeline, how many cycles between completing consecutive instructions?",
+      "answer": "1",
+      "explanation": "In a filled pipeline, one instruction completes every cycle. The latency is 5 cycles, but throughput is 1 instruction per cycle.",
+      "hints": ["Pipeline allows overlap", "One completes per cycle", "Throughput vs latency"]
+    },
+    {
+      "id": "p2",
+      "title": "RAW Hazard",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What type of hazard occurs when an instruction needs a result before it's written back?",
+      "answer": "RAW (Read After Write)",
+      "explanation": "RAW (Read After Write) is when a later instruction tries to read a value before an earlier instruction writes it. Most common data hazard.",
+      "hints": ["Read needs a value", "But it's not written yet", "Read After Write"]
+    },
+    {
+      "id": "p3",
+      "title": "Forwarding Benefit",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What does forwarding eliminate?",
+      "answer": "Most RAW stalls",
+      "explanation": "Forwarding sends results directly from ALU to next instruction's ALU, avoiding the need to wait for register writeback. This eliminates most RAW stalls.",
+      "hints": ["Bypass register file", "Direct result passing", "Reduces stalls"]
+    },
+    {
+      "id": "p4",
+      "title": "Branch Penalty",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "If a branch resolves in EX stage and is taken, how many fetched instructions must be flushed in a 5-stage pipeline?",
+      "answer": "2",
+      "explanation": "Instructions in IF and ID stages after the branch are wrong and must be flushed. The branch instruction itself is in EX.",
+      "hints": ["Branch in EX", "IF and ID have wrong instructions", "2 instructions to flush"]
+    },
+    {
+      "id": "p5",
+      "title": "Pipeline Registers",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What passes data between pipeline stages?",
+      "answer": "Pipeline registers (IF/ID, ID/EX, EX/MEM, MEM/WB)",
+      "explanation": "Pipeline registers (latches) hold intermediate results between stages. They separate timing domains and propagate data forward.",
+      "hints": ["Between stages", "Hold intermediate results", "Named like IF/ID"]
+    },
+    {
+      "id": "p6",
+      "title": "CPI with Stalls",
+      "difficulty": "hard",
+      "type": "calculation",
+      "description": "If 20% of instructions cause a 1-cycle stall and branches (20% of instructions) have 2-cycle misprediction penalty with 90% accuracy, what's the effective CPI?",
+      "answer": "1.24",
+      "explanation": "Data stalls: 0.20 × 1 = 0.20. Branch penalty: 0.20 × 0.10 × 2 = 0.04. CPI = 1 + 0.20 + 0.04 = 1.24.",
+      "hints": ["CPI = 1 + stall_penalty", "Data: 20% × 1 cycle", "Branch: 20% × 10% × 2 cycles"]
+    }
+  ],
+  "minigame": {
+    "id": "pipeline-panic",
+    "title": "Pipeline Panic",
+    "description": "Keep the pipeline flowing at maximum speed! Route instructions through stages, resolve hazards with forwarding or stalls, and minimize bubbles. The smoothest pipeline wins!",
+    "type": "action-strategy",
+    "instructions": [
+      "Instructions flow from left (IF) to right (WB) through pipeline stages",
+      "Drag results forward to enable forwarding (green arrows)",
+      "Click hazard indicators to insert bubbles when forwarding won't work",
+      "Branches cause flushes - quickly refill the pipeline!",
+      "Keep CPI as close to 1.0 as possible!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Basic Pipeline",
+        "description": "Fill the 5-stage pipeline",
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": false,
+        "timeLimit": 60,
+        "targetCPI": 1.0
+      },
+      {
+        "level": 2,
+        "name": "Data Hazards",
+        "description": "Handle RAW dependencies",
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": ["RAW"],
+        "forwarding": true,
+        "timeLimit": 90,
+        "targetCPI": 1.1
+      },
+      {
+        "level": 3,
+        "name": "Control Hazards",
+        "description": "Manage branches and flushes",
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": ["RAW", "control"],
+        "forwarding": true,
+        "branchPrediction": "not_taken",
+        "timeLimit": 120,
+        "targetCPI": 1.2
+      },
+      {
+        "level": 4,
+        "name": "Full Challenge",
+        "description": "All hazards with realistic workloads",
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": ["RAW", "WAR", "control", "structural"],
+        "forwarding": true,
+        "branchPrediction": "dynamic",
+        "timeLimit": 180,
+        "targetCPI": 1.3
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Pipeline Simulator",
+        "code": "class PipelineStage:\n    def __init__(self, name):\n        self.name = name\n        self.instruction = None\n        self.data = {}\n    \n    def accept(self, instruction, data):\n        self.instruction = instruction\n        self.data = data\n    \n    def clear(self):\n        self.instruction = None\n        self.data = {}\n\nclass PipelinedCPU:\n    def __init__(self):\n        self.stages = {\n            'IF': PipelineStage('IF'),\n            'ID': PipelineStage('ID'),\n            'EX': PipelineStage('EX'),\n            'MEM': PipelineStage('MEM'),\n            'WB': PipelineStage('WB')\n        }\n        self.pc = 0\n        self.cycle = 0\n        self.completed = 0\n        self.stalls = 0\n        self.forwarding_enabled = True\n    \n    def check_hazard(self, current, next_stage):\n        # Simplified RAW hazard detection\n        if not current.instruction or not next_stage.instruction:\n            return False\n        \n        # If destination of next equals source of current, hazard\n        curr_dest = current.data.get('dest')\n        next_srcs = next_stage.data.get('srcs', [])\n        \n        if curr_dest in next_srcs:\n            # Can we forward?\n            if self.forwarding_enabled and current.name in ['EX', 'MEM']:\n                return 'forward'  # Can forward\n            return 'stall'  # Must stall\n        return False\n    \n    def step(self, new_instruction):\n        self.cycle += 1\n        \n        # Check hazards and handle\n        hazard = self.check_hazard(self.stages['EX'], self.stages['ID'])\n        \n        if hazard == 'stall':\n            # Insert bubble - don't advance ID to EX\n            self.stalls += 1\n            # Move WB→done, MEM→WB, EX→MEM, ID stays, IF→ID\n            self.stages['WB'].clear()\n            self.stages['WB'].accept(self.stages['MEM'].instruction, self.stages['MEM'].data)\n            self.stages['MEM'].accept(self.stages['EX'].instruction, self.stages['EX'].data)\n            self.stages['EX'].clear()  # Bubble inserted\n            # ID stays in place, IF→ID\n            self.stages['ID'].accept(self.stages['IF'].instruction, self.stages['IF'].data)\n            self.stages['IF'].accept(new_instruction, {'pc': self.pc})\n            self.pc += 1\n        else:\n            # Normal advance\n            if self.stages['WB'].instruction:\n                self.completed += 1\n            \n            self.stages['WB'].accept(self.stages['MEM'].instruction, self.stages['MEM'].data)\n            self.stages['MEM'].accept(self.stages['EX'].instruction, self.stages['EX'].data)\n            self.stages['EX'].accept(self.stages['ID'].instruction, self.stages['ID'].data)\n            self.stages['ID'].accept(self.stages['IF'].instruction, self.stages['IF'].data)\n            self.stages['IF'].accept(new_instruction, {'pc': self.pc, 'dest': None, 'srcs': []})\n            self.pc += 1\n    \n    def get_cpi(self):\n        if self.completed == 0:\n            return float('inf')\n        return self.cycle / self.completed\n\n    def status(self):\n        print(f'Cycle {self.cycle}: CPI={self.get_cpi():.2f}')\n        for name in ['IF', 'ID', 'EX', 'MEM', 'WB']:\n            instr = self.stages[name].instruction or '---'\n            print(f'  {name}: {instr}')\n\n# Test\ncpu = PipelinedCPU()\nprogram = ['ADD', 'SUB', 'LOAD', 'STORE', 'ADD', 'MUL', 'DIV', 'ADD']\n\nfor i, instr in enumerate(program):\n    cpu.step(instr)\n    cpu.status()\n    print()\n\nprint(f'Final CPI: {cpu.get_cpi():.2f}')"
+      }
+    ]
+  }
+}

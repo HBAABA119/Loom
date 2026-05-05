@@ -1,0 +1,260 @@
+{
+  "id": "arch-06-ram",
+  "bookId": "book-arch",
+  "title": "RAM Architecture",
+  "category": "Memory",
+  "order": 6,
+  "estimatedTime": "35 min",
+  "theory": {
+    "overview": "Random Access Memory (RAM) is the workspace where programs and data live while the computer is running. Unlike sequential storage (tape), RAM allows accessing any location in constant time—hence 'random access.' Modern computers use DRAM (Dynamic RAM) for main memory, offering high density and low cost at the expense of speed, and SRAM (Static RAM) for caches, offering speed at the expense of density and cost. Understanding how RAM works—from memory cells to address decoding to refresh cycles—reveals why memory access is often the bottleneck in modern computing and why cache hierarchies are essential.",
+    "sections": [
+      {
+        "title": "SRAM: Fast but Bulky",
+        "content": "SRAM uses 6 transistors per bit (typically) arranged as cross-coupled inverters with access transistors. It retains data as long as power is applied—no refresh needed. SRAM is fast (access times of 1-10 nanoseconds) but consumes more area and power per bit than DRAM. This makes it ideal for caches and register files where speed matters more than density.",
+        "characteristics": {
+          "cell": "6 transistors (6T)",
+          "speed": "1-10 ns access time",
+          "power": "Continuous power for retention",
+          "density": "Low (large area per bit)",
+          "cost": "High per bit",
+          "use": "Caches, register files"
+        }
+      },
+      {
+        "title": "DRAM: Dense but Slow",
+        "content": "DRAM stores each bit as charge on a tiny capacitor (1 transistor + 1 capacitor per bit). The capacitor naturally leaks, requiring periodic refresh—reading and rewriting every row every few milliseconds. DRAM is much denser and cheaper than SRAM but slower (access times of 50-100 nanoseconds). This trade-off makes DRAM economical for large main memories.",
+        "characteristics": {
+          "cell": "1 transistor + 1 capacitor (1T1C)",
+          "speed": "50-100 ns access time",
+          "power": "Lower static power, refresh overhead",
+          "density": "High (small area per bit)",
+          "cost": "Low per bit",
+          "use": "Main memory (RAM sticks)"
+        }
+      },
+      {
+        "title": "Memory Organization: Rows and Columns",
+        "content": "Memory chips organize cells in a 2D grid. The address splits into row and column portions. First, the row address activates an entire row into sense amplifiers (row access). Then the column address selects specific bits from that row (column access). This two-step process explains why sequential accesses to the same row are faster than accesses to different rows (row hit vs. row miss).",
+        "timing": {
+          "tRAS": "Row active time",
+          "tCAS": "Column access time",
+          "tRCD": "Row-to-column delay",
+          "tRP": "Row precharge time"
+        }
+      },
+      {
+        "title": "Memory Address Decoding",
+        "content": "Address decoders convert binary addresses into row/column select signals. A memory with 2^n rows needs an n-to-2^n decoder. For a 1KB memory (1024 bytes = 2^10), the row decoder takes some address bits and activates one of 2^(n/2) rows, while the column decoder selects the specific byte within that row. This hierarchical decoding reduces complexity from exponential to linear in address bits.",
+        "formula": {
+          "rows": "2^(address_bits / 2)",
+          "columns": "2^(address_bits / 2)",
+          "total": "rows × columns = 2^address_bits"
+        }
+      },
+      {
+        "title": "DRAM Refresh: Keeping Data Alive",
+        "content": "DRAM capacitors leak charge within milliseconds. Each row must be read and rewritten (refreshed) every 64ms typically. Refresh happens automatically: the memory controller cycles through rows, activating each one briefly. Refresh consumes bandwidth—while refreshing, memory can't be accessed by the processor. Modern DRAM hides refresh by staggering it and using bursts when the bus is idle.",
+        "refresh": {
+          "interval": "Every 64ms (JEDEC standard)",
+          "method": "Read row into sense amps, write back",
+          "overhead": "~1-5% of bandwidth",
+          "command": "REF or auto-refresh"
+        }
+      },
+      {
+        "title": "Memory Hierarchy: The Speed-Cost Tradeoff",
+        "content": "Computers use a hierarchy: small, fast, expensive SRAM caches; larger, slower, cheaper DRAM main memory; and massive, slow, cheapest storage (SSD/HDD). This hierarchy exploits locality: programs tend to access data near previously accessed data (spatial locality) and reuse data (temporal locality). The cache holds recently used data, reducing slow DRAM accesses. Well-designed hierarchies make memory appear almost as fast as SRAM while having the capacity of DRAM.",
+        "hierarchy": [
+          { "level": "Registers", "size": "~1KB", "access": "< 1ns", "tech": "SRAM" },
+          { "level": "L1 Cache", "size": "~32KB", "access": "1-2ns", "tech": "SRAM" },
+          { "level": "L2 Cache", "size": "~256KB", "access": "3-10ns", "tech": "SRAM" },
+          { "level": "L3 Cache", "size": "~8MB", "access": "10-20ns", "tech": "SRAM" },
+          { "level": "Main Memory", "size": "8-64GB", "access": "50-100ns", "tech": "DRAM" },
+          { "level": "Storage", "size": "TB", "access": "ms", "tech": "Flash/Disk" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "1T1C Cell",
+        "description": "Single transistor and capacitor storing one DRAM bit. Capacitor charge = 1, no charge = 0.",
+        "leakage": "Refresh every ~64ms required"
+      },
+      {
+        "name": "6T Cell",
+        "description": "Six-transistor SRAM cell. Cross-coupled inverters maintain state without refresh.",
+        "advantage": "Fast access, no refresh"
+      },
+      {
+        "name": "Row Buffer / Sense Amplifiers",
+        "description": "Circuits that read and amplify weak signals from DRAM cells. A whole row is read at once.",
+        "benefit": "Sequential access to same row is fast"
+      },
+      {
+        "name": "Memory Bank",
+        "description": "Independent memory section that can operate in parallel with other banks, increasing bandwidth.",
+        "interleaving": "Alternating accesses between banks"
+      }
+    ],
+    "complexity": {
+      "sramAccess": "O(1) - constant time",
+      "dramAccess": "O(1) for column, with row overhead",
+      "refreshOverhead": "~1-5% of total bandwidth"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Design Memory Cell",
+      "description": "Choose between 6T SRAM cell (fast, no refresh) or 1T1C DRAM cell (dense, needs refresh).",
+      "visualState": { "sramTransistors": 6, "dramTransistors": 1, "dramCapacitor": 1 }
+    },
+    {
+      "step": 2,
+      "title": "Create Memory Array",
+      "description": "Organize cells in a 2D grid with word lines (rows) and bit lines (columns).",
+      "visualState": { "rows": 256, "columns": 256, "totalBits": 65536 }
+    },
+    {
+      "step": 3,
+      "title": "Add Address Decoding",
+      "description": "Build row and column decoders to select specific memory locations from address inputs.",
+      "visualState": { "rowDecoder": "n-to-2^n", "columnDecoder": "n-to-2^n" }
+    },
+    {
+      "step": 4,
+      "title": "Implement Read/Write Logic",
+      "description": "Add sense amplifiers for reading and write drivers for writing. Include refresh logic for DRAM.",
+      "visualState": { "senseAmps": true, "writeDrivers": true, "refresh": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "SRAM vs DRAM Speed",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Which memory type is faster: SRAM or DRAM?",
+      "answer": "SRAM",
+      "explanation": "SRAM uses flip-flops with direct access (1-10ns). DRAM requires capacitor sensing and refresh (50-100ns).",
+      "hints": ["SRAM uses 6 transistors per cell", "Direct access like registers", "No refresh overhead"]
+    },
+    {
+      "id": "p2",
+      "title": "DRAM Cell Components",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "How many transistors are in a DRAM cell?",
+      "answer": "1",
+      "explanation": "DRAM uses 1 transistor + 1 capacitor per bit (1T1C). The transistor acts as a switch to access the capacitor.",
+      "hints": ["1T1C design", "Transistor is access switch", "Capacitor stores charge"]
+    },
+    {
+      "id": "p3",
+      "title": "Memory Address Bits",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "How many address bits are needed for a 4KB memory?",
+      "answer": "12",
+      "explanation": "4KB = 4096 bytes = 2^12. Therefore, 12 address bits can access all locations.",
+      "hints": ["4KB = 4096 bytes", "2^n = 4096", "n = 12"]
+    },
+    {
+      "id": "p4",
+      "title": "DRAM Refresh Need",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why does DRAM need refresh?",
+      "answer": "Capacitors leak charge",
+      "explanation": "DRAM stores data as charge on capacitors. This charge leaks away over milliseconds and must be restored periodically.",
+      "hints": ["Capacitors lose charge over time", "Leakage current", "Must rewrite data"]
+    },
+    {
+      "id": "p5",
+      "title": "Memory Array Size",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "A memory chip has 1024 rows and 1024 columns. How much data can it store?",
+      "answer": "1 Mbit (or 128 KB)",
+      "explanation": "1024 × 1024 = 1,048,576 bits = 1 Mbit = 128 KB (since 8 bits = 1 byte).",
+      "hints": ["Total bits = rows × columns", "1024 × 1024 = 1,048,576", "Divide by 8 for bytes"]
+    },
+    {
+      "id": "p6",
+      "title": "Row vs Column Access",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why is accessing data in the same row faster than accessing data in a different row?",
+      "answer": "Row already activated",
+      "explanation": "After first access, the entire row is in sense amplifiers. Same-row access just needs column select. Different-row access needs row precharge, activate, then column access.",
+      "hints": ["Row access activates whole row", "Same row: just column select", "Different row: precharge + activate + column"]
+    }
+  ],
+  "minigame": {
+    "id": "memory-master",
+    "title": "Memory Master",
+    "description": "Manage a DRAM chip! Handle read/write requests, balance refresh cycles, and optimize row buffer hits. Keep the memory running smoothly while maximizing throughput!",
+    "type": "simulation-strategy",
+    "instructions": [
+      "Read/write requests arrive from the CPU",
+      "Click on the memory array to access cells",
+      "Watch for row buffer hits (fast) vs. row misses (slow)",
+      "Schedule refresh cycles before data is lost",
+      "Balance performance and data integrity!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "SRAM Basics",
+        "description": "Learn simple read/write with no refresh",
+        "memoryType": "SRAM",
+        "size": "16 bytes",
+        "refresh": false,
+        "timeLimit": 60,
+        "targetScore": 1000
+      },
+      {
+        "level": 2,
+        "name": "DRAM Introduction",
+        "description": "Handle refresh cycles along with requests",
+        "memoryType": "DRAM",
+        "size": "64 bytes",
+        "refreshInterval": 10,
+        "timeLimit": 90,
+        "targetScore": 2000
+      },
+      {
+        "level": 3,
+        "name": "Row Buffer Management",
+        "description": "Optimize for row buffer hits",
+        "memoryType": "DRAM",
+        "size": "256 bytes",
+        "rows": 16,
+        "refreshInterval": 8,
+        "timeLimit": 120,
+        "targetScore": 3500
+      },
+      {
+        "level": 4,
+        "name": "Memory Controller",
+        "description": "Full memory management with scheduling",
+        "memoryType": "DDR",
+        "size": "1 KB",
+        "banks": 4,
+        "refreshInterval": 6,
+        "features": ["Bank interleaving", "Burst mode", "Precharge"],
+        "timeLimit": 180,
+        "targetScore": 5000
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Memory Array Simulation",
+        "code": "class MemoryCell:\n    def __init__(self, cell_type='SRAM'):\n        self.type = cell_type\n        self.value = 0\n        self.charge = 1.0 if cell_type == 'DRAM' else None\n        self.leak_rate = 0.1 if cell_type == 'DRAM' else 0\n    \n    def read(self):\n        if self.type == 'DRAM':\n            # Sense the weak signal and restore\n            self.charge = 1.0 if self.value else 0.0\n        return self.value\n    \n    def write(self, value):\n        self.value = value\n        if self.type == 'DRAM':\n            self.charge = 1.0 if value else 0.0\n    \n    def tick(self):\n        if self.type == 'DRAM':\n            self.charge -= self.leak_rate\n            if self.charge < 0.3 and self.value == 1:\n                # Data corruption due to leakage\n                pass  # Would lose data in real scenario\n    \n    def refresh(self):\n        if self.type == 'DRAM':\n            self.charge = 1.0 if self.value else 0.0\n\nclass MemoryArray:\n    def __init__(self, rows, cols, cell_type='SRAM'):\n        self.rows = rows\n        self.cols = cols\n        self.cells = [[MemoryCell(cell_type) for _ in range(cols)] for _ in range(rows)]\n        self.active_row = None\n        self.cell_type = cell_type\n    \n    def activate_row(self, row_addr):\n        self.active_row = row_addr\n        # In real DRAM, this reads entire row into sense amps\n        return sum(1 for c in self.cells[row_addr] if c.value)  # Dummy return\n    \n    def read(self, row, col):\n        if self.cell_type == 'DRAM' and self.active_row != row:\n            self.activate_row(row)\n        return self.cells[row][col].read()\n    \n    def write(self, row, col, value):\n        if self.cell_type == 'DRAM' and self.active_row != row:\n            self.activate_row(row)\n        self.cells[row][col].write(value)\n    \n    def refresh_all(self):\n        for row in self.cells:\n            for cell in row:\n                cell.refresh()\n\n# Test\nsram = MemoryArray(4, 4, 'SRAM')\nsram.write(0, 0, 1)\nsram.write(1, 2, 1)\nprint(f'SRAM read: {sram.read(0, 0)}')\n\ndram = MemoryArray(4, 4, 'DRAM')\ndram.write(0, 0, 1)\nprint(f'DRAM before refresh: charge={dram.cells[0][0].charge:.2f}')\nfor _ in range(5):\n    dram.cells[0][0].tick()\nprint(f'DRAM after leakage: charge={dram.cells[0][0].charge:.2f}')\ndram.refresh_all()\nprint(f'DRAM after refresh: charge={dram.cells[0][0].charge:.2f}')"
+      }
+    ]
+  }
+}

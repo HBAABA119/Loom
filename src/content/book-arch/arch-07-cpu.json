@@ -1,0 +1,266 @@
+{
+  "id": "arch-07-cpu",
+  "bookId": "book-arch",
+  "title": "CPU Architecture",
+  "category": "Processor",
+  "order": 7,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "The Central Processing Unit (CPU) is the brain of the computer—the component that executes instructions and orchestrates all computation. Modern CPUs are marvels of engineering, containing billions of transistors that implement instruction fetching, decoding, execution, and coordination with memory and I/O. Understanding CPU architecture reveals how software instructions transform into electrical signals that manipulate data. From the classic von Neumann architecture to modern superscalar out-of-order designs, the evolution of CPUs represents the relentless pursuit of performance within the constraints of physics.",
+    "sections": [
+      {
+        "title": "Von Neumann Architecture: The Foundation",
+        "content": "The dominant computer organization, named after John von Neumann, stores both instructions and data in the same memory. The CPU fetches instructions from memory, decodes them, executes them, and writes results back. This stored-program concept enables flexibility—the same hardware runs different programs by loading different instruction sequences into memory. The architecture consists of: CPU (ALU + control unit + registers), memory, and I/O interfaces.",
+        "components": {
+          "cpu": "ALU, Control Unit, Registers",
+          "memory": "Stores instructions and data",
+          "bus": "Connects CPU, memory, and I/O",
+          "io": "Input/Output devices"
+        }
+      },
+      {
+        "title": "The Datapath: Where Computation Happens",
+        "content": "The datapath contains the functional units that process data: ALU for arithmetic/logic, shifters for bit manipulation, registers for temporary storage, and buses that connect everything. Data flows from registers through the ALU and back to registers. The control unit orchestrates this flow by generating signals that open/close data paths at the right times. A well-designed datapath enables efficient instruction execution.",
+        "datapathElements": [
+          "Program Counter (PC) - tracks instruction address",
+          "Instruction Register (IR) - holds current instruction",
+          "Register File - operand storage",
+          "ALU - computation",
+          "Memory Interface - load/store",
+          "Branch Logic - control flow"
+        ]
+      },
+      {
+        "title": "Control Unit: The Conductor",
+        "content": "The control unit directs all processor operations. It fetches instructions, decodes them to determine what actions to take, and generates control signals that activate the appropriate datapath elements. Control can be hardwired (fast, fixed) or microprogrammed (flexible, slower). Modern CPUs use hardwired control for common operations with microcode for complex instructions.",
+        "controlTypes": {
+          "hardwired": "Logic gates generate signals directly",
+          "microprogrammed": "ROM stores micro-instruction sequences"
+        }
+      },
+      {
+        "title": "Instruction Set Architecture (ISA)",
+        "content": "The ISA defines the interface between hardware and software—the instructions the CPU understands, registers available, memory model, and I/O operations. ISAs can be CISC (Complex Instruction Set Computer) like x86 with many powerful instructions, or RISC (Reduced Instruction Set Computer) like ARM or RISC-V with simple, uniform instructions. The ISA is the contract: software compiled for an ISA runs on any compatible hardware implementation.",
+        "isaTypes": {
+          "cisc": {
+            "name": "Complex Instruction Set",
+            "example": "x86",
+            "features": ["Variable-length instructions", "Few registers", "Complex operations"]
+          },
+          "risc": {
+            "name": "Reduced Instruction Set", 
+            "example": "ARM, RISC-V",
+            "features": ["Fixed-length instructions", "Many registers", "Simple operations", "Load/store architecture"]
+          }
+        }
+      },
+      {
+        "title": "Pipelining: Assembly Line Execution",
+        "content": "Pipelining overlaps instruction execution stages—while one instruction executes, the next is decoded, and another is fetched. A classic 5-stage pipeline: Fetch, Decode, Execute, Memory, Writeback. Pipelining ideally achieves one instruction per clock cycle (IPC = 1), dramatically improving throughput. However, hazards (data dependencies, branches, structural conflicts) can stall the pipeline.",
+        "stages": [
+          "IF - Instruction Fetch from memory",
+          "ID - Instruction Decode and register read",
+          "EX - Execute operation in ALU",
+          "MEM - Memory access (load/store)",
+          "WB - Write result back to register"
+        ]
+      },
+      {
+        "title": "Modern CPU Features",
+        "content": "High-performance CPUs employ sophisticated techniques: superscalar execution (multiple instructions per cycle), out-of-order execution (execute when ready, not in order), speculative execution (predict and execute branches before knowing outcome), and branch prediction (guess branch direction to avoid stalls). These features extract instruction-level parallelism from sequential programs.",
+        "features": {
+          "superscalar": "Multiple instructions per cycle",
+          "outOfOrder": "Execute instructions as dependencies allow",
+          "speculative": "Execute before knowing if needed",
+          "branchPrediction": "Guess branch outcomes"
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Stored-Program Concept",
+        "description": "Instructions stored as data in memory, allowing the same hardware to run different programs.",
+        "significance": "Foundation of general-purpose computing"
+      },
+      {
+        "name": "IPC (Instructions Per Cycle)",
+        "description": "Average instructions completed per clock cycle. Ideal pipelined CPU achieves IPC = 1.",
+        "superscalar": "IPC > 1 possible"
+      },
+      {
+        "name": "CPI (Cycles Per Instruction)",
+        "description": "Average clock cycles needed per instruction. Inverse of IPC.",
+        "formula": "CPI = 1 / IPC"
+      },
+      {
+        "name": "Hazard",
+        "description": "Situation preventing next instruction from executing in its designated cycle.",
+        "types": ["Data hazard", "Control hazard", "Structural hazard"]
+      }
+    ],
+    "complexity": {
+      "singleCycle": "Clock period = longest instruction",
+      "pipelined": "Clock period = longest stage",
+      "ipc": "Up to N for N-wide superscalar"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Fetch Instruction",
+      "description": "Read instruction from memory address in PC, then increment PC.",
+      "visualState": { "pc": "0x1000", "instruction": "ADD R1, R2, R3" }
+    },
+    {
+      "step": 2,
+      "title": "Decode Instruction",
+      "description": "Determine operation type and which registers to use.",
+      "visualState": { "opcode": "ADD", "operands": ["R1", "R2", "R3"] }
+    },
+    {
+      "step": 3,
+      "title": "Execute Operation",
+      "description": "ALU performs the operation on source operands.",
+      "visualState": { "aluInput1": 10, "aluInput2": 20, "aluOutput": 30 }
+    },
+    {
+      "step": 4,
+      "title": "Write Back Result",
+      "description": "Store ALU result in destination register.",
+      "visualState": { "destination": "R1", "value": 30 }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Von Neumann Feature",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the key feature of von Neumann architecture?",
+      "answer": "Stored program",
+      "explanation": "The von Neumann architecture stores both instructions and data in the same memory, enabling the stored-program concept where programs are data that can be loaded and executed.",
+      "hints": ["Instructions in memory", "Same memory for code and data", "Program as data"]
+    },
+    {
+      "id": "p2",
+      "title": "ISA Purpose",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What does ISA stand for and what is its purpose?",
+      "answer": "Instruction Set Architecture - interface between hardware and software",
+      "explanation": "The ISA defines the instructions, registers, and operations that software can use. It abstracts hardware implementation details from programmers.",
+      "hints": ["Instruction Set Architecture", "Hardware/software interface", "Contract between layers"]
+    },
+    {
+      "id": "p3",
+      "title": "Pipeline Stages",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What are the classic 5 pipeline stages?",
+      "answer": "Fetch, Decode, Execute, Memory, Writeback",
+      "explanation": "The 5 stages are: IF (Instruction Fetch), ID (Instruction Decode), EX (Execute), MEM (Memory access), WB (Write Back).",
+      "hints": ["IF - get instruction", "ID - understand it", "EX - do it", "MEM - access memory", "WB - save result"]
+    },
+    {
+      "id": "p4",
+      "title": "CPI Calculation",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "If a CPU executes 1 billion instructions in 2 billion cycles, what is the CPI?",
+      "answer": "2",
+      "explanation": "CPI = Cycles / Instructions = 2 billion / 1 billion = 2. On average, each instruction takes 2 cycles.",
+      "hints": ["CPI = Cycles / Instructions", "2B / 1B", "CPI = 2"]
+    },
+    {
+      "id": "p5",
+      "title": "RISC vs CISC",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Which typically has more registers: RISC or CISC?",
+      "answer": "RISC",
+      "explanation": "RISC architectures typically have more registers (e.g., ARM has 16-32, RISC-V has 32) compared to CISC (x86 has 8 general-purpose).",
+      "hints": ["RISC = Reduced Instruction Set", "More registers reduces memory access", "CISC like x86 has fewer registers"]
+    },
+    {
+      "id": "p6",
+      "title": "Superscalar Execution",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is the maximum theoretical IPC for a 4-wide superscalar processor?",
+      "answer": "4",
+      "explanation": "A 4-wide superscalar can issue up to 4 instructions per cycle, achieving maximum IPC of 4 (assuming perfect instruction mix and no dependencies).",
+      "hints": ["N-wide = N instructions per cycle", "IPC can exceed 1", "4-wide = max IPC of 4"]
+    }
+  ],
+  "minigame": {
+    "id": "cpu-commander",
+    "title": "CPU Commander",
+    "description": "Control a CPU's execution! Manage the datapath, coordinate pipeline stages, handle hazards, and maximize instruction throughput. Build the ultimate processing machine!",
+    "type": "strategy-simulation",
+    "instructions": [
+      "Instructions arrive and need to flow through pipeline stages",
+      "Drag instructions to appropriate stages",
+      "Handle data hazards by stalling or forwarding",
+      "Predict branches to avoid pipeline flushes",
+      "Keep all pipeline stages busy for maximum throughput!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Single Cycle",
+        "description": "Execute one instruction at a time",
+        "pipeline": false,
+        "timeLimit": 60,
+        "targetScore": 1000
+      },
+      {
+        "level": 2,
+        "name": "Basic Pipeline",
+        "description": "5-stage pipeline with no hazards",
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": false,
+        "timeLimit": 90,
+        "targetScore": 2000
+      },
+      {
+        "level": 3,
+        "name": "Data Hazards",
+        "description": "Handle dependencies between instructions",
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": ["RAW", "WAR", "WAW"],
+        "forwarding": true,
+        "timeLimit": 120,
+        "targetScore": 3000
+      },
+      {
+        "level": 4,
+        "name": "Control Hazards",
+        "description": "Predict and handle branches",
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": ["data", "control"],
+        "branchPrediction": true,
+        "timeLimit": 150,
+        "targetScore": 4500
+      },
+      {
+        "level": 5,
+        "name": "Superscalar",
+        "description": "Multiple instructions per stage",
+        "width": 2,
+        "stages": ["IF", "ID", "EX", "MEM", "WB"],
+        "hazards": ["data", "control", "structural"],
+        "timeLimit": 180,
+        "targetScore": 6000
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Simple CPU Simulation",
+        "code": "class SimpleCPU:\n    def __init__(self):\n        self.registers = [0] * 8\n        self.pc = 0\n        self.memory = [0] * 256\n        self.running = True\n        self.cycles = 0\n    \n    def load_program(self, program):\n        for i, instr in enumerate(program):\n            self.memory[i] = instr\n    \n    def fetch(self):\n        instr = self.memory[self.pc]\n        self.pc = (self.pc + 1) % 256\n        return instr\n    \n    def decode_execute(self, instr):\n        opcode = (instr >> 6) & 0x3\n        rd = (instr >> 3) & 0x7\n        rs = instr & 0x7\n        \n        if opcode == 0:  # ADD\n            self.registers[rd] = (self.registers[rd] + self.registers[rs]) & 0xFF\n        elif opcode == 1:  # SUB\n            self.registers[rd] = (self.registers[rd] - self.registers[rs]) & 0xFF\n        elif opcode == 2:  # LOAD\n            addr = self.registers[rs]\n            self.registers[rd] = self.memory[addr]\n        elif opcode == 3:  # STORE\n            addr = self.registers[rs]\n            self.memory[addr] = self.registers[rd]\n        \n        self.cycles += 1\n    \n    def run(self, max_cycles=100):\n        while self.running and self.cycles < max_cycles:\n            instr = self.fetch()\n            if instr == 0:\n                break\n            self.decode_execute(instr)\n    \n    def dump(self):\n        print(f'PC: {self.pc}, Cycles: {self.cycles}')\n        print(f'Registers: {self.registers}')\n\n# Test program: R0 = 5 + 3 = 8\n# ADD R0, R1: opcode=0, rd=0, rs=1\ncpu = SimpleCPU()\ncpu.registers[0] = 5\ncpu.registers[1] = 3\nprogram = [0b000001000]  # ADD R0, R1\ncpu.load_program(program)\ncpu.run()\ncpu.dump()"
+      }
+    ]
+  }
+}

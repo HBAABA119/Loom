@@ -1,0 +1,228 @@
+{
+  "id": "ai-02-activation",
+  "bookId": "book-ai",
+  "title": "Activation Functions",
+  "category": "Foundations",
+  "order": 2,
+  "estimatedTime": "25 min",
+  "theory": {
+    "overview": "Activation functions are the gatekeepers of neural networks. They decide whether a neuron should 'fire' (activate) or not, introducing non-linearity into the network. Without activation functions, no matter how many layers you stack, your neural network would behave like a simple linear model—incapable of learning complex patterns. Each activation function has unique characteristics: some are smooth and differentiable everywhere (sigmoid, tanh), some are computationally efficient (ReLU), and some solve specific problems like vanishing gradients.",
+    "sections": [
+      {
+        "title": "Why We Need Non-Linearity",
+        "content": "Imagine trying to separate a spiral dataset with a straight line—impossible! Real-world data is rarely linear. Activation functions allow neural networks to learn curved decision boundaries, approximate any continuous function (Universal Approximation Theorem), and capture complex relationships. Without them, stacking 100 linear layers is mathematically equivalent to having just 1 linear layer.",
+        "keyPoints": [
+          "Linear functions compose to linear functions: $f(f(x))$ is still linear",
+          "Non-linearity enables universal function approximation",
+          "Without activation functions, deep networks have no advantage over shallow ones"
+        ]
+      },
+      {
+        "title": "Sigmoid: The Classic S-Curve",
+        "content": "The sigmoid function squashes any input to a value between 0 and 1, making it perfect for probability outputs. It was the go-to activation for decades, but has fallen out of favor for hidden layers due to the vanishing gradient problem—when inputs are far from zero, gradients become nearly zero, stopping learning.",
+        "latex": "\\sigma(x) = \\frac{1}{1 + e^{-x}}",
+        "derivative": "\\sigma'(x) = \\sigma(x)(1 - \\sigma(x))",
+        "pros": ["Output bounded (0,1)", "Smooth gradient", "Probabilistic interpretation"],
+        "cons": ["Vanishing gradients", "Not zero-centered", "Computationally expensive"]
+      },
+      {
+        "title": "Tanh: Zero-Centered Sigmoid",
+        "content": "Tanh is essentially a scaled and shifted sigmoid that outputs values between -1 and 1. Being zero-centered helps with training dynamics—gradients can flow in both positive and negative directions more naturally. It's often preferred over sigmoid for hidden layers, but still suffers from vanishing gradients.",
+        "latex": "\\tanh(x) = \\frac{e^x - e^{-x}}{e^x + e^{-x}} = 2\\sigma(2x) - 1",
+        "derivative": "\\tanh'(x) = 1 - \\tanh^2(x)",
+        "pros": ["Zero-centered output", "Stronger gradients than sigmoid", "Smooth"],
+        "cons": ["Still has vanishing gradients", "Computationally expensive"]
+      },
+      {
+        "title": "ReLU: The Modern Default",
+        "content": "ReLU (Rectified Linear Unit) is beautifully simple: if input is positive, output it; otherwise, output zero. This computational efficiency and avoidance of vanishing gradients for positive values made it the default choice for hidden layers. However, it has a fatal flaw: the 'dying ReLU' problem where neurons can permanently turn off.",
+        "latex": "\\text{ReLU}(x) = \\max(0, x) = \\begin{cases} x & \\text{if } x > 0 \\ 0 & \\text{if } x \\leq 0 \\end{cases}",
+        "derivative": "\\text{ReLU}'(x) = \\begin{cases} 1 & \\text{if } x > 0 \\ 0 & \\text{if } x < 0 \\end{cases}",
+        "pros": ["Computationally cheap", "No vanishing gradient for $x > 0$", "Biological plausibility"],
+        "cons": ["Dying ReLU problem", "Not zero-centered", "Gradient is 0 for negative inputs"]
+      },
+      {
+        "title": "Leaky ReLU & Variants",
+        "content": "To solve the dying ReLU problem, variants allow a small negative slope. Leaky ReLU uses a small constant (typically 0.01), PReLU learns this slope, and ELU smooths the negative region exponentially. These modifications prevent neurons from permanently dying while keeping most of ReLU's benefits.",
+        "variants": [
+          { "name": "Leaky ReLU", "formula": "\\max(\\alpha x, x)" },
+          { "name": "PReLU", "formula": "\\max(\\alpha x, x)$ where $\\alpha$ is learned" },
+          { "name": "ELU", "formula": "\\begin{cases} x & x > 0 \\\\ \\alpha(e^x - 1) & x \\leq 0 \\end{cases}" },
+          { "name": "GELU", "formula": "$x \\cdot \\Phi(x)$ where $\\Phi$ is Gaussian CDF" }
+        ]
+      },
+      {
+        "title": "Softmax: For Multi-Class Output",
+        "content": "Softmax is special—it's designed for output layers in classification tasks. It converts raw scores (logits) into a probability distribution where all outputs sum to 1. The exponential ensures the winner takes more probability mass, while the denominator normalizes everything.",
+        "latex": "\\text{softmax}(x_i) = \\frac{e^{x_i}}{\\sum_{j=1}^{n} e^{x_j}}",
+        "useCase": "Multi-class classification output layer",
+        "intuition": "Emphasizes the largest value, suppresses smaller ones"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Vanishing Gradients",
+        "description": "When gradients become extremely small during backpropagation, preventing weight updates. Common with sigmoid/tanh in deep networks.",
+        "solution": "Use ReLU, batch normalization, or residual connections"
+      },
+      {
+        "name": "Exploding Gradients",
+        "description": "When gradients become extremely large, causing unstable training with huge weight updates.",
+        "solution": "Gradient clipping, careful initialization, batch normalization"
+      },
+      {
+        "name": "Dead Neurons",
+        "description": "ReLU neurons that always output 0 because they're stuck in the negative region.",
+        "solution": "Use Leaky ReLU, lower learning rates, or better initialization"
+      },
+      {
+        "name": "Saturation",
+        "description": "When activation function outputs reach their min/max bounds, gradients become near-zero.",
+        "example": "Sigmoid outputs near 0 or 1 have almost no gradient"
+      }
+    ],
+    "complexity": {
+      "forwardPass": "$O(1)$ per neuron—simple element-wise operation",
+      "backwardPass": "$O(1)$ per neuron—derivative is also simple",
+      "comparison": "ReLU family: ~1 operation, Sigmoid/Tanh: ~10-20 operations (exponential)"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Input Values",
+      "description": "Activation functions transform the weighted sum before passing it forward.",
+      "latex": "z = w \\cdot x + b$ is the input to activation function",
+      "visualState": { "function": "input", "z": -3 }
+    },
+    {
+      "step": 2,
+      "title": "Apply Sigmoid",
+      "description": "Squash the input to range (0, 1). Notice how large negative values approach 0 and large positive values approach 1.",
+      "latex": "\\sigma(-3) = \\frac{1}{1 + e^{3}} \\approx 0.047",
+      "visualState": { "function": "sigmoid", "input": -3, "output": 0.047 }
+    },
+    {
+      "step": 3,
+      "title": "Apply Tanh",
+      "description": "Squash to range (-1, 1). Zero-centered output helps with training.",
+      "latex": "\\tanh(-3) = \\frac{e^{-3} - e^{3}}{e^{-3} + e^{3}} \\approx -0.995",
+      "visualState": { "function": "tanh", "input": -3, "output": -0.995 }
+    },
+    {
+      "step": 4,
+      "title": "Apply ReLU",
+      "description": "Simply pass through positive values, block negative values.",
+      "latex": "\\text{ReLU}(-3) = \\max(0, -3) = 0",
+      "visualState": { "function": "relu", "input": -3, "output": 0 }
+    },
+    {
+      "step": 5,
+      "title": "Compare Gradients",
+      "description": "The derivative tells us how much the output changes with input—crucial for learning.",
+      "latex": "\\sigma'(-3) \\approx 0.045$ (small!) vs $\\text{ReLU}'(-3) = 0$",
+      "visualState": { "showGradients": true, "sigmoidGrad": 0.045, "reluGrad": 0 }
+    },
+    {
+      "step": 6,
+      "title": "Softmax for Classification",
+      "description": "Convert raw scores to probabilities that sum to 1.",
+      "latex": "\\text{softmax}([2.0, 1.0, 0.1]) = [0.659, 0.242, 0.099]",
+      "visualState": { "function": "softmax", "logits": [2.0, 1.0, 0.1], "probs": [0.659, 0.242, 0.099] }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Sigmoid Calculation",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "Compute $\\sigma(0)$, $\\sigma(2)$, and $\\sigma(-2)$.",
+      "answer": "$\\sigma(0) = 0.5$, $\\sigma(2) \\approx 0.881$, $\\sigma(-2) \\approx 0.119$",
+      "explanation": "At x=0, sigmoid outputs 0.5. Positive inputs push toward 1, negative toward 0.",
+      "hints": ["Use $\\sigma(x) = \\frac{1}{1+e^{-x}}$", "$e^0 = 1$", "$e^2 \\approx 7.389$, $e^{-2} \\approx 0.135$"]
+    },
+    {
+      "id": "p2",
+      "title": "ReLU Behavior",
+      "difficulty": "easy",
+      "type": "conceptual",
+      "description": "For inputs $x = [-2, -1, 0, 1, 2]$, what are the ReLU outputs?",
+      "answer": "$[0, 0, 0, 1, 2]$",
+      "explanation": "ReLU outputs 0 for all negative inputs and passes positive values through unchanged.",
+      "hints": ["ReLU(x) = max(0, x)", "Negative values become 0", "Zero stays 0"]
+    },
+    {
+      "id": "p3",
+      "title": "Softmax Temperature",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "Given logits $[2.0, 1.0, 0.0]$, compute softmax. What happens if you multiply all logits by 2? By 0.5?",
+      "answer": "Original: [0.665, 0.245, 0.090] | ×2: [0.844, 0.142, 0.014] | ×0.5: [0.506, 0.307, 0.187]",
+      "explanation": "Higher temperature (×2) makes distribution more 'peaked' (confident). Lower temperature (×0.5) makes it more uniform.",
+      "hints": ["Higher logits → bigger exponential differences", "Temperature controls confidence", "$\\infty$ temp → uniform, $0$ temp → one-hot"]
+    },
+    {
+      "id": "p4",
+      "title": "Gradient Flow Analysis",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "A neuron has input $z = 10$. Compare the gradients for sigmoid and tanh.",
+      "answer": "Sigmoid gradient: ~0.000045 | Tanh gradient: ~0.000018",
+      "explanation": "Both suffer from vanishing gradients far from origin, but sigmoid's max gradient is 0.25 while tanh's is 1.0.",
+      "hints": ["$\\sigma'(x) = \\sigma(x)(1-\\sigma(x))$", "$\\tanh'(x) = 1 - \\tanh^2(x)$", "At extremes, both approach 0"]
+    },
+    {
+      "id": "p5",
+      "title": "Dying ReLU Analysis",
+      "difficulty": "hard",
+      "type": "scenario",
+      "description": "A ReLU neuron has weights that produce negative output for ALL training examples. What happens during training?",
+      "answer": "The neuron 'dies'—gradient is always 0, weights never update, neuron stays inactive forever.",
+      "explanation": "This is the 'dying ReLU' problem. Since ReLU's gradient is 0 for negative inputs, no learning occurs. Solutions: Leaky ReLU, careful initialization, or lower learning rate.",
+      "hints": ["Gradient of ReLU for negative inputs is 0", "No gradient means no weight updates", "Neuron becomes permanently inactive"]
+    },
+    {
+      "id": "p6",
+      "title": "Choosing Activations",
+      "difficulty": "medium",
+      "type": "design",
+      "description": "Design a network for: (a) Binary classification, (b) Multi-class classification with 10 classes, (c) Regression predicting house prices.",
+      "answer": "(a) Sigmoid output, ReLU hidden | (b) Softmax output, ReLU hidden | (c) Linear/no activation output, ReLU hidden",
+      "explanation": "Output layer choice depends on task: binary (sigmoid), multi-class (softmax), regression (linear). Hidden layers typically use ReLU.",
+      "hints": ["Output range requirements drive choice", "Probabilities need sigmoid/softmax", "Unbounded outputs need linear/identity"]
+    }
+  ],
+  "minigame": {
+    "id": "activation-explorer",
+    "title": "Activation Function Explorer",
+    "description": "Explore how different activation functions transform inputs. Drag the input value and watch the output and gradient change in real-time.",
+    "instructions": [
+      "Drag the input slider to see how each function transforms values",
+      "Compare the output ranges: Sigmoid (0,1), Tanh (-1,1), ReLU (0,∞)",
+      "Watch the gradient visualization—notice vanishing gradients in Sigmoid/Tanh",
+      "Try to find where each function's gradient is maximum"
+    ],
+    "controls": [
+      {
+        "id": "input",
+        "label": "Input Value",
+        "type": "slider",
+        "min": -5,
+        "max": 5,
+        "step": 0.1,
+        "default": 0
+      },
+      {
+        "id": "function",
+        "label": "Activation Function",
+        "type": "select",
+        "options": ["sigmoid", "tanh", "relu", "leaky_relu", "elu", "softmax"]
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# Activation functions\ndef sigmoid(x):\n    return 1 / (1 + np.exp(-x))\n\ndef tanh(x):\n    return np.tanh(x)  # or (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))\n\ndef relu(x):\n    return np.maximum(0, x)\n\ndef leaky_relu(x, alpha=0.01):\n    return np.where(x > 0, x, alpha * x)\n\ndef elu(x, alpha=1.0):\n    return np.where(x > 0, x, alpha * (np.exp(x) - 1))\n\ndef softmax(x):\n    exp_x = np.exp(x - np.max(x))  # subtract max for numerical stability\n    return exp_x / exp_x.sum()\n\ndef gelu(x):\n    # Gaussian Error Linear Unit (used in BERT, GPT)\n    return 0.5 * x * (1 + np.tanh(np.sqrt(2/np.pi) * (x + 0.044715 * x**3)))\n\n# Derivatives (for backpropagation)\ndef sigmoid_derivative(x):\n    s = sigmoid(x)\n    return s * (1 - s)\n\ndef tanh_derivative(x):\n    return 1 - np.tanh(x)**2\n\ndef relu_derivative(x):\n    return np.where(x > 0, 1, 0)\n\n# Visualize\nx = np.linspace(-5, 5, 1000)\n\nfig, axes = plt.subplots(2, 3, figsize=(15, 10))\nfunctions = [\n    ('Sigmoid', sigmoid(x), sigmoid_derivative(x)),\n    ('Tanh', tanh(x), tanh_derivative(x)),\n    ('ReLU', relu(x), relu_derivative(x)),\n    ('Leaky ReLU', leaky_relu(x), np.where(x > 0, 1, 0.01)),\n    ('ELU', elu(x), np.where(x > 0, 1, elu(x) + 1)),\n    ('GELU', gelu(x), None)  # Derivative is complex\n]\n\nfor (name, y, dy), ax in zip(functions, axes.flat):\n    ax.plot(x, y, 'b-', label=f'{name}', linewidth=2)\n    if dy is not None:\n        ax.plot(x, dy, 'r--', label=f\"{name}'\", alpha=0.7)\n    ax.axhline(y=0, color='k', linewidth=0.5)\n    ax.axvline(x=0, color='k', linewidth=0.5)\n    ax.set_title(name)\n    ax.legend()\n    ax.grid(True, alpha=0.3)\n\nplt.tight_layout()\nplt.show()\n\n# Practical usage in a neural network layer\nclass Layer:\n    def __init__(self, input_size, output_size, activation='relu'):\n        self.weights = np.random.randn(input_size, output_size) * 0.01\n        self.bias = np.zeros((1, output_size))\n        self.activation = activation\n        \n    def forward(self, X):\n        self.z = np.dot(X, self.weights) + self.bias\n        \n        if self.activation == 'sigmoid':\n            self.a = sigmoid(self.z)\n        elif self.activation == 'tanh':\n            self.a = tanh(self.z)\n        elif self.activation == 'relu':\n            self.a = relu(self.z)\n        elif self.activation == 'softmax':\n            self.a = softmax(self.z)\n        else:\n            self.a = self.z  # linear\n            \n        return self.a"
+  }
+}

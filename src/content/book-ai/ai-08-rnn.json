@@ -1,0 +1,287 @@
+{
+  "id": "ai-08-rnn",
+  "bookId": "book-ai",
+  "title": "Recurrent Neural Networks",
+  "category": "Deep Learning",
+  "order": 8,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Recurrent Neural Networks (RNNs) process sequential data—text, speech, time series—where order matters. Unlike feedforward networks that process fixed-size inputs, RNNs maintain a hidden state that captures information from previous time steps. This memory allows them to model temporal dependencies: predicting the next word in a sentence, forecasting stock prices, or generating music. However, vanilla RNNs suffer from vanishing gradients in long sequences, leading to the development of more sophisticated variants like LSTM and GRU that can capture long-term dependencies.",
+    "sections": [
+      {
+        "title": "The Sequence Challenge",
+        "content": "Standard neural networks assume inputs are independent and fixed-size. But real-world sequences—sentences, audio, sensor readings—have variable length and temporal structure. The word 'bank' means different things depending on context ('river bank' vs 'bank account'). RNNs solve this by maintaining state across time steps.",
+        "examples": [
+          { "task": "Sentiment Analysis", "input": "Variable-length review", "output": "Positive/Negative" },
+          { "task": "Machine Translation", "input": "Sentence in English", "output": "Sentence in French" },
+          { "task": "Time Series Forecasting", "input": "Past stock prices", "output": "Future price prediction" },
+          { "task": "Music Generation", "input": "Previous notes", "output": "Next note" }
+        ]
+      },
+      {
+        "title": "RNN Core Mechanism",
+        "content": "At each time step, an RNN combines the current input with the previous hidden state to produce a new hidden state and optionally an output. The same weights are used at every time step—parameter sharing across time!",
+        "formulas": [
+          "Hidden state: $h_t = \\tanh(W_{hh}h_{t-1} + W_{xh}x_t + b_h)$",
+          "Output: $y_t = W_{hy}h_t + b_y$ (optional)"
+        ],
+        "intuition": "The hidden state $h_t$ is a summary of everything the network has seen up to time t. It gets updated each step, carrying forward relevant information."
+      },
+      {
+        "title": "Backpropagation Through Time (BPTT)",
+        "content": "Training RNNs requires unrolling the network through time and applying backpropagation across all time steps. This is Backpropagation Through Time (BPTT). Gradients flow not just through layers, but through time steps.",
+        "process": [
+          "Unroll network for T time steps",
+          "Compute loss at each step (or just final output)",
+          "Backpropagate through all unrolled layers",
+          "Sum gradients across time for shared weights",
+          "Update weights once per sequence"
+        ],
+        "challenge": "Gradients must flow through many matrix multiplications—can vanish or explode over long sequences"
+      },
+      {
+        "title": "The Vanishing Gradient Problem",
+        "content": "In vanilla RNNs with tanh activation, gradients are multiplied by weight matrices at each time step during backprop. Over many steps, gradients either shrink to near-zero (vanish) or explode to infinity. This makes learning long-term dependencies nearly impossible.",
+        "demonstration": "After T steps, gradient contains factor $W^T$. If eigenvalues of W < 1: vanishing. If > 1: exploding.",
+        "example": "Consider: 'The cat, which was sitting on the mat that was placed near the window overlooking the garden, ... was hungry.' The verb agreement ('was') depends on 'cat' from 15+ words ago. Vanilla RNNs can't capture this."
+      },
+      {
+        "title": "LSTM: Long Short-Term Memory",
+        "content": "LSTMs solve the vanishing gradient problem through a clever gating mechanism. Instead of simple matrix multiplications, they use an explicit memory cell with gates that control information flow.",
+        "gates": [
+          { "name": "Forget Gate", "formula": "$f_t = \\sigma(W_f \\cdot [h_{t-1}, x_t] + b_f)$", "purpose": "Decide what to remove from cell state" },
+          { "name": "Input Gate", "formula": "$i_t = \\sigma(W_i \\cdot [h_{t-1}, x_t] + b_i)$", "purpose": "Decide what new information to store" },
+          { "name": "Output Gate", "formula": "$o_t = \\sigma(W_o \\cdot [h_{t-1}, x_t] + b_o)$", "purpose": "Decide what to output from cell state" }
+        ],
+        "cellState": "$C_t = f_t \\odot C_{t-1} + i_t \\odot \\tilde{C}_t$—the memory highway that gradients flow through relatively unchanged",
+        "intuition": "The cell state is like a conveyor belt—information rides along it unchanged, only modified by gates when necessary. This allows gradients to flow across many time steps."
+      },
+      {
+        "title": "GRU: Gated Recurrent Unit",
+        "content": "GRUs are a simpler alternative to LSTMs with fewer parameters but similar performance. They merge cell state and hidden state, using just two gates.",
+        "simplification": "Combines forget and input gates into an 'update gate', merges cell and hidden states",
+        "formulas": [
+          "Update gate: $z_t = \\sigma(W_z \\cdot [h_{t-1}, x_t])$",
+          "Reset gate: $r_t = \\sigma(W_r \\cdot [h_{t-1}, x_t])$",
+          "New memory: $\\tilde{h}_t = \\tanh(W \\cdot [r_t \\odot h_{t-1}, x_t])$",
+          "Hidden state: $h_t = (1 - z_t) \\odot h_{t-1} + z_t \\odot \\tilde{h}_t$"
+        ],
+        "comparison": "GRU has 3 weight matrices vs LSTM's 4; often trains faster with similar results"
+      },
+      {
+        "title": "RNN Architectures by Task",
+        "content": "Different sequence problems require different RNN architectures.",
+        "architectures": [
+          { "name": "One-to-Many", "example": "Image captioning", "structure": "Single input → sequence output" },
+          { "name": "Many-to-One", "example": "Sentiment analysis", "structure": "Sequence input → single output" },
+          { "name": "Many-to-Many (synced)", "example": "Named entity recognition", "structure": "Input per step → Output per step" },
+          { "name": "Many-to-Many (encoder-decoder)", "example": "Machine translation", "structure": "Sequence → context → sequence" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Hidden State",
+        "description": "The memory vector that carries information across time steps.",
+        "analogy": "Like a person keeping notes while reading—summarizing what's been read so far"
+      },
+      {
+        "name": "Parameter Sharing",
+        "description": "Same weights applied at every time step—process variable-length sequences with fixed parameters.",
+        "benefit": "Generalization across sequence positions"
+      },
+      {
+        "name": "Unfolding",
+        "description": "Visualizing RNNs as a deep feedforward network by copying layers for each time step.",
+        "purpose": "Enables backpropagation through time"
+      },
+      {
+        "name": "Long-Term Dependencies",
+        "description": "Relationships between elements far apart in a sequence.",
+        "challenge": "Hard for vanilla RNNs, solved by LSTM/GRU gating"
+      }
+    ],
+    "complexity": {
+      "forwardPass": "$O(T \\cdot H^2)$ where T = sequence length, H = hidden size—matrix multiply per step",
+      "parameters": "$O(H^2 + H \\cdot D)$ where D = input dimension—hidden-to-hidden + input-to-hidden weights",
+      "lstmOverhead": "4× parameters of vanilla RNN (one set per gate)"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Hidden State",
+      "description": "Start with zero hidden state before processing sequence.",
+      "latex": "h_0 = \\mathbf{0} \\in \\mathbb{R}^H$",
+      "visualState": { "h": [0, 0, 0, 0], "t": 0, "sequence": ["The", "cat", "sat"] }
+    },
+    {
+      "step": 2,
+      "title": "Process First Input",
+      "description": "Combine input embedding with hidden state.",
+      "latex": "h_1 = \\tanh(W_{hh}h_0 + W_{xh}x_1 + b) = \\tanh(W_{xh}x_1 + b)$",
+      "visualState": { "x": "The", "h_prev": [0, 0, 0, 0], "h_new": [0.3, -0.2, 0.1, 0.5] }
+    },
+    {
+      "step": 3,
+      "title": "Recurrent Update",
+      "description": "Hidden state now carries information from first word.",
+      "latex": "h_2 = \\tanh(W_{hh}h_1 + W_{xh}x_2)$",
+      "visualState": { "x": "cat", "h_prev": [0.3, -0.2, 0.1, 0.5], "h_new": [0.5, 0.1, -0.3, 0.7] }
+    },
+    {
+      "step": 4,
+      "title": "LSTM: Forget Gate",
+      "description": "Decide what information to discard from cell state.",
+      "latex": "f_t = \\sigma(W_f[h_{t-1}, x_t] + b_f)$",
+      "visualState": { "gate": "forget", "values": [0.1, 0.9, 0.8, 0.2], "action": "keeping 90%, 80%, discarding 10%, 20%" }
+    },
+    {
+      "step": 5,
+      "title": "LSTM: Input Gate",
+      "description": "Decide what new information to store.",
+      "latex": "i_t = \\sigma(W_i[h_{t-1}, x_t] + b_i), \\quad \\tilde{C}_t = \\tanh(W_C[h_{t-1}, x_t] + b_C)$",
+      "visualState": { "gate": "input", "candidate": [0.2, -0.5, 0.3, 0.1], "update": [0.8, 0.3, 0.9, 0.5] }
+    },
+    {
+      "step": 6,
+      "title": "LSTM: Update Cell State",
+      "description": "Combine forget and input operations.",
+      "latex": "C_t = f_t \\odot C_{t-1} + i_t \\odot \\tilde{C}_t$",
+      "visualState": { "cellOld": [1.0, 0.5, -0.3, 0.8], "cellNew": [0.9, 0.6, -0.2, 0.7], "gradientFlow": "preserved" }
+    },
+    {
+      "step": 7,
+      "title": "LSTM: Output Gate",
+      "description": "Decide what to output based on cell state.",
+      "latex": "o_t = \\sigma(W_o[h_{t-1}, x_t] + b_o), \\quad h_t = o_t \\odot \\tanh(C_t)$",
+      "visualState": { "gate": "output", "hiddenNew": [0.4, 0.3, -0.1, 0.6], "passedToNext": true }
+    },
+    {
+      "step": 8,
+      "title": "Final Prediction",
+      "description": "Use last hidden state (or all states) for output.",
+      "latex": "\\hat{y} = \\text{softmax}(W_{hy}h_T + b_y)$",
+      "visualState": { "finalH": [0.4, 0.3, -0.1, 0.6], "prediction": "positive", "prob": 0.85 }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Sequence Length Flexibility",
+      "difficulty": "easy",
+      "type": "conceptual",
+      "description": "An RNN trained on sentences of length 10 can process sentences of length 20 at test time. Why?",
+      "answer": "RNNs share parameters across time steps—the same weights are applied at every position. The network architecture is independent of sequence length.",
+      "explanation": "Unlike feedforward networks with fixed input size, RNNs process one element at a time using recurrent connections. The hidden state carries all necessary context, regardless of how long the sequence is.",
+      "hints": ["Think about parameter sharing", "Same weights at each time step", "Hidden state handles variable length"]
+    },
+    {
+      "id": "p2",
+      "title": "LSTM Gate Count",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "An LSTM with hidden size 128, input size 50. How many parameters?",
+      "answer": "4 gates × (128+50) × 128 + 4 × 128 biases = 4 × 178 × 128 + 512 = 91,648 + 512 = 92,160 parameters",
+      "explanation": "Each gate has weights: (hidden_size + input_size) → hidden_size, plus biases. 4 gates × (178 × 128 + 128) = 4 × 22,912 = 91,648 for weights + 512 for biases = 92,160. Compare to vanilla RNN: (128+50)×128 + 128 = 22,912 + 128 = 23,040.",
+      "hints": ["4 gates: forget, input, candidate, output", "Each gate: $W \\in \\mathbb{R}^{(H+D)\\times H}$", "LSTM has ~4× vanilla RNN parameters"]
+    },
+    {
+      "id": "p3",
+      "title": "BPTT Gradient Flow",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "In a vanilla RNN, gradient at time t must flow back through how many matrix multiplications to reach time t-10?",
+      "answer": "10 matrix multiplications (one per time step)",
+      "explanation": "Each time step involves multiplying by $W_{hh}^T$ during backprop. After 10 steps, the gradient contains $W^{10}$ as a factor. If the largest singular value of W is less than 1, this shrinks exponentially—vanishing gradients!",
+      "hints": ["Backprop through each time step", "Each step multiplies by weight matrix", "$W^{10}$ for 10 steps back"]
+    },
+    {
+      "id": "p4",
+      "title": "Forget Gate Behavior",
+      "difficulty": "medium",
+      "type": "scenario",
+      "description": "Processing a long document. At word t, the forget gate outputs [0.01, 0.99, 0.99, 0.01] for 4 cell dimensions. What does this mean?",
+      "answer": "Dimensions 2 and 3 remember almost everything (99% kept). Dimensions 1 and 4 forget almost everything (99% cleared), preparing for new information.",
+      "explanation": "Each cell dimension can behave differently. The forget gate gives fine-grained control over what to remember. This is why LSTMs can selectively remember/forget different types of information.",
+      "hints": ["Forget gate ≈ 1 means keep", "Forget gate ≈ 0 means clear", "Each dimension is independent"]
+    },
+    {
+      "id": "p5",
+      "title": "Encoder-Decoder Architecture",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Design an RNN architecture for English to French translation using encoder-decoder.",
+      "answer": "Encoder RNN: processes English sentence → final hidden state becomes 'thought vector'. Decoder RNN: initialized with thought vector, generates French word by word. Use attention mechanism to focus on relevant encoder states during decoding.",
+      "explanation": "The bottleneck is the fixed-size thought vector—information compression. Attention fixes this by letting the decoder 'look back' at all encoder states. Without attention, long sentences suffer.",
+      "hints": ["Encoder compresses input to vector", "Decoder expands vector to output", "Attention helps with long sequences"]
+    },
+    {
+      "id": "p6",
+      "title": "Gradient Clipping",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Explain why and how gradient clipping helps RNN training.",
+      "answer": "When gradients explode (grow very large), weight updates become huge and training becomes unstable (NaN loss). Gradient clipping caps gradient norm: if $||g|| > threshold$, set $g = threshold \\cdot g / ||g||$. This prevents explosions while preserving direction.",
+      "explanation": "Exploding gradients are common in RNNs with long sequences. Clipping is computationally cheap and effective. Typical threshold: 1-5. PyTorch: torch.nn.utils.clip_grad_norm_.",
+      "hints": ["Gradients can explode exponentially", "Clipping caps the magnitude", "Preserves gradient direction"]
+    }
+  ],
+  "minigame": {
+    "id": "rnn-sequence-master",
+    "title": "Sequence Predictor",
+    "description": "Train RNNs to predict next elements in sequences. Watch hidden states evolve, compare vanilla RNN vs LSTM performance on long sequences, and visualize memory gates in action.",
+    "instructions": [
+      "Choose a sequence task: character prediction, sine wave, or custom pattern",
+      "Select RNN type: Vanilla, LSTM, or GRU",
+      "Adjust hidden size and sequence length",
+      "Train and watch prediction accuracy over time",
+      "Visualize hidden state dynamics and LSTM gate activations"
+    ],
+    "controls": [
+      {
+        "id": "task",
+        "label": "Sequence Task",
+        "type": "select",
+        "options": ["Character Prediction", "Sine Wave", "Fibonacci", "Custom Pattern"]
+      },
+      {
+        "id": "rnnType",
+        "label": "RNN Type",
+        "type": "select",
+        "options": ["Vanilla RNN", "LSTM", "GRU"]
+      },
+      {
+        "id": "hiddenSize",
+        "label": "Hidden Size",
+        "type": "slider",
+        "min": 8,
+        "max": 256,
+        "step": 8,
+        "default": 64
+      },
+      {
+        "id": "seqLength",
+        "label": "Sequence Length",
+        "type": "slider",
+        "min": 10,
+        "max": 200,
+        "step": 10,
+        "default": 50
+      },
+      {
+        "id": "learningRate",
+        "label": "Learning Rate",
+        "type": "slider",
+        "min": 0.0001,
+        "max": 0.1,
+        "step": 0.0001,
+        "default": 0.01
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import numpy as np\n\nclass VanillaRNN:\n    \"\"\"\n    Vanilla RNN implementation from scratch\n    h_t = tanh(W_hh @ h_{t-1} + W_xh @ x_t + b)\n    \"\"\"\n    def __init__(self, input_size, hidden_size, output_size):\n        self.input_size = input_size\n        self.hidden_size = hidden_size\n        self.output_size = output_size\n        \n        # Xavier initialization\n        self.W_xh = np.random.randn(hidden_size, input_size) * 0.01\n        self.W_hh = np.random.randn(hidden_size, hidden_size) * 0.01\n        self.W_hy = np.random.randn(output_size, hidden_size) * 0.01\n        \n        self.b_h = np.zeros(hidden_size)\n        self.b_y = np.zeros(output_size)\n        \n    def forward(self, inputs, h_prev=None):\n        \"\"\"\n        Forward pass through sequence\n        inputs: shape (seq_len, input_size)\n        Returns: outputs (seq_len, output_size), final hidden state\n        \"\"\"\n        seq_len = inputs.shape[0]\n        \n        if h_prev is None:\n            h_prev = np.zeros(self.hidden_size)\n        \n        # Store hidden states for backprop\n        self.h_states = [h_prev]\n        self.inputs = inputs\n        outputs = []\n        \n        for t in range(seq_len):\n            # Hidden state update\n            h_t = np.tanh(self.W_xh @ inputs[t] + self.W_hh @ h_prev + self.b_h)\n            \n            # Output\n            y_t = self.W_hy @ h_t + self.b_y\n            \n            outputs.append(y_t)\n            h_prev = h_t\n            self.h_states.append(h_t)\n        \n        return np.array(outputs), h_t\n\nclass LSTM:\n    \"\"\"\n    LSTM implementation with forget, input, output gates\n    \"\"\"\n    def __init__(self, input_size, hidden_size):\n        self.input_size = input_size\n        self.hidden_size = hidden_size\n        \n        # Combined weights for all gates\n        # Concatenated: [W_f, W_i, W_C, W_o]\n        self.W = np.random.randn(4 * hidden_size, input_size + hidden_size) * 0.01\n        self.b = np.zeros(4 * hidden_size)\n        \n        # Forget gate bias initialization to 1 (remember by default)\n        self.b[:hidden_size] = 1.0\n    \n    def forward(self, x_t, h_prev, c_prev):\n        \"\"\"\n        Single LSTM step\n        x_t: input at time t (input_size,)\n        h_prev: previous hidden state (hidden_size,)\n        c_prev: previous cell state (hidden_size,)\n        \"\"\"\n        # Concatenate input and hidden state\n        concat = np.concatenate([h_prev, x_t])\n        \n        # Compute all gate activations\n        gates = self.W @ concat + self.b\n        \n        # Split into individual gates\n        f = self._sigmoid(gates[:self.hidden_size])  # forget\n        i = self._sigmoid(gates[self.hidden_size:2*self.hidden_size])  # input\n        c_tilde = np.tanh(gates[2*self.hidden_size:3*self.hidden_size])  # candidate\n        o = self._sigmoid(gates[3*self.hidden_size:])  # output\n        \n        # Update cell state\n        c_t = f * c_prev + i * c_tilde\n        \n        # Update hidden state\n        h_t = o * np.tanh(c_t)\n        \n        # Store for visualization\n        self.gates = {'f': f, 'i': i, 'c_tilde': c_tilde, 'o': o}\n        \n        return h_t, c_t\n    \n    def _sigmoid(self, x):\n        return 1 / (1 + np.exp(-x))\n\nclass GRU:\n    \"\"\"\n    Gated Recurrent Unit - simpler than LSTM\n    \"\"\"\n    def __init__(self, input_size, hidden_size):\n        self.input_size = input_size\n        self.hidden_size = hidden_size\n        \n        # Weights for reset gate, update gate, and new gate\n        self.W = np.random.randn(3 * hidden_size, input_size + hidden_size) * 0.01\n        self.b = np.zeros(3 * hidden_size)\n    \n    def forward(self, x_t, h_prev):\n        \"\"\"Single GRU step\"\"\"\n        concat = np.concatenate([h_prev, x_t])\n        gates = self.W @ concat + self.b\n        \n        # Split\n        z = self._sigmoid(gates[:self.hidden_size])  # update gate\n        r = self._sigmoid(gates[self.hidden_size:2*self.hidden_size])  # reset gate\n        h_tilde = np.tanh(gates[2*self.hidden_size:])  # candidate\n        \n        # Update hidden state\n        h_t = (1 - z) * h_prev + z * h_tilde\n        \n        return h_t\n    \n    def _sigmoid(self, x):\n        return 1 / (1 + np.exp(-x))\n\ndef gradient_clip(grads, max_norm=5.0):\n    \"\"\"Clip gradients to prevent exploding gradients\"\"\"\n    total_norm = np.sqrt(sum(np.sum(g**2) for g in grads))\n    clip_coef = max_norm / (total_norm + 1e-6)\n    if clip_coef < 1:\n        return [g * clip_coef for g in grads]\n    return grads\n\n# Demonstration\nif __name__ == \"__main__\":\n    print(\"=== RNN Comparison Demo ===\")\n    \n    # Problem: Predict next number in sequence\n    # Training data: [0, 0.1, 0.2, ..., 1.0] → predict next value\n    \n    seq = np.linspace(0, 1, 20)\n    X = seq[:-1].reshape(-1, 1)  # inputs\n    y = seq[1:].reshape(-1, 1)   # targets\n    \n    # Vanilla RNN\n    print(\"\\n1. Vanilla RNN:\")\n    rnn = VanillaRNN(input_size=1, hidden_size=16, output_size=1)\n    outputs, _ = rnn.forward(X)\n    mse = np.mean((outputs - y)**2)\n    print(f\"   Untrained MSE: {mse:.4f}\")\n    \n    # LSTM\n    print(\"\\n2. LSTM (single forward pass):\")\n    lstm = LSTM(input_size=1, hidden_size=16)\n    h = np.zeros(16)\n    c = np.zeros(16)\n    lstm_outputs = []\n    for x_t in X:\n        h, c = lstm.forward(x_t.flatten(), h, c)\n        lstm_outputs.append(h[0])  # Just using first dimension as 'output'\n    \n    print(f\"   Forget gate (first step): {lstm.gates['f'][:5]}\")\n    print(f\"   Input gate (first step): {lstm.gates['i'][:5]}\")\n    print(f\"   Cell state range: [{c.min():.3f}, {c.max():.3f}]\")\n    \n    # GRU\n    print(\"\\n3. GRU:\")\n    gru = GRU(input_size=1, hidden_size=16)\n    h = np.zeros(16)\n    for i, x_t in enumerate(X[:3]):\n        h = gru.forward(x_t.flatten(), h)\n        print(f\"   Step {i}: h mean={h.mean():.3f}, std={h.std():.3f}\")\n    \n    print(\"\\n=== Key Differences ===\")\n    print(\"Vanilla RNN: Simple, suffers from vanishing gradients\")\n    print(\"LSTM: 4 gates, explicit cell state, best for long sequences\")\n    print(\"GRU: 2 gates, merged cell/hidden, faster, often comparable performance\")\n    print(f\"\\nParameters: RNN ~ {16*16 + 16*1 + 16:,}, LSTM ~ {4*(16+1)*16 + 4*16:,}, GRU ~ {3*(16+1)*16 + 3*16:,}\")"
+  }
+}

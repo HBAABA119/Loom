@@ -1,0 +1,269 @@
+{
+  "id": "arch-08-instructions",
+  "bookId": "book-arch",
+  "title": "Instruction Cycle",
+  "category": "Processor",
+  "order": 8,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "The instruction cycle—also called the fetch-decode-execute cycle—is the fundamental process by which a CPU executes programs. From boot-up to shutdown, the processor endlessly repeats this cycle: fetching the next instruction from memory, figuring out what it means, performing the requested operation, and preparing to do it again. This seemingly simple loop, executed billions of times per second, is the heartbeat of computation. Understanding the instruction cycle reveals how software instructions—mere patterns of bits—are transformed into the electrical signals that drive calculation, data movement, and control flow.",
+    "sections": [
+      {
+        "title": "Fetch: Getting the Instruction",
+        "content": "The CPU places the Program Counter (PC) value on the address bus and asserts a memory read signal. After memory access time (potentially many cycles with cache misses), the instruction appears on the data bus and is latched into the Instruction Register (IR). Simultaneously, the PC increments to point to the next sequential instruction. For variable-length instruction sets (like x86), the PC may increment by different amounts.",
+        "steps": [
+          "Place PC on address bus",
+          "Assert memory read signal",
+          "Wait for memory to respond",
+          "Latch instruction into IR",
+          "Increment PC by instruction length"
+        ]
+      },
+      {
+        "title": "Decode: Understanding the Instruction",
+        "content": "The control unit examines the instruction bits to determine: the operation (opcode), which registers to read, immediate values embedded in the instruction, and the operation format. For simple RISC instructions, decoding is straightforward. For complex CISC instructions, decoding may require reading additional bytes and consulting microcode ROM that translates the instruction into a sequence of micro-operations.",
+        "decodeOutputs": {
+          "aluOp": "Which ALU operation to perform",
+          "regRead": "Which registers to read",
+          "regWrite": "Which register to write",
+          "memRead": "Whether to read memory",
+          "memWrite": "Whether to write memory",
+          "branch": "Whether this is a branch/jump"
+        }
+      },
+      {
+        "title": "Execute: Performing the Operation",
+        "content": "The decoded control signals activate datapath elements. For arithmetic instructions, the ALU performs the operation on register operands. For load/store instructions, memory addresses are calculated. For branch instructions, the target address is computed. This stage is where the actual computation or data movement occurs.",
+        "operations": {
+          "arithmetic": "ALU computes result from register operands",
+          "load": "Calculate effective memory address",
+          "store": "Calculate address, prepare data",
+          "branch": "Calculate target, evaluate condition"
+        }
+      },
+      {
+        "title": "Memory: Accessing Data",
+        "content": "If the instruction needs to access memory (load, store), this stage performs the access. The calculated address is placed on the address bus with appropriate read/write control signals. Data flows from memory to CPU (load) or CPU to memory (store). Instructions that don't access memory may skip or shorten this stage.",
+        "accessTypes": {
+          "load": "Read data from memory to register",
+          "store": "Write data from register to memory",
+          "none": "Arithmetic/logic instruction - skip this stage"
+        }
+      },
+      {
+        "title": "Writeback: Storing Results",
+        "content": "The final stage writes results back to registers. For arithmetic instructions, the ALU result goes to the destination register. For load instructions, data from memory is written to the target register. Even instructions that don't seem to 'compute' often update the status register flags (zero, negative, carry, overflow) to reflect the operation's result.",
+        "results": {
+          "register": "ALU result or loaded data",
+          "flags": "Status register updates",
+          "pc": "Updated for branches"
+        }
+      },
+      {
+        "title": "Interrupts: Breaking the Flow",
+        "content": "The CPU periodically checks for interrupt signals—requests from external devices or internal exceptions that need immediate attention. When an interrupt occurs, the CPU: finishes the current instruction, saves the PC and status (context), jumps to an interrupt handler, and eventually restores context to resume the interrupted program. This mechanism enables responsive I/O and operating system services.",
+        "interruptTypes": {
+          "hardware": "External device signal (timer, I/O)",
+          "software": "INT instruction (system call)",
+          "exception": "Error during execution (divide by zero)"
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Program Counter (PC)",
+        "description": "Register holding the address of the next instruction to fetch. Also called Instruction Pointer (IP).",
+        "updates": "Sequential (PC+4) or branch target"
+      },
+      {
+        "name": "Instruction Register (IR)",
+        "description": "Register holding the currently executing instruction during decode/execution.",
+        "width": "Matches instruction size (16-64 bits)"
+      },
+      {
+        "name": "Microcode",
+        "description": "Layer of interpretation that translates complex instructions into simple micro-operations.",
+        "use": "Common in CISC processors like x86"
+      },
+      {
+        "name": "Interrupt Vector",
+        "description": "Table of addresses for interrupt handlers. Each interrupt type has a specific entry point.",
+        "purpose": "Direct interrupts to correct handler"
+      }
+    ],
+    "complexity": {
+      "singleCycle": "All stages in one long clock cycle",
+      "multiCycle": "Stages spread across multiple cycles",
+      "pipelined": "Stages overlap for different instructions"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "PC to Address Bus",
+      "description": "Place the Program Counter value on the memory address bus to specify which instruction to fetch.",
+      "visualState": { "pc": "0x1000", "addressBus": "0x1000" }
+    },
+    {
+      "step": 2,
+      "title": "Fetch Instruction",
+      "description": "Memory responds with the instruction. Latch it into the Instruction Register.",
+      "visualState": { "memoryData": "0x8B802000", "ir": "0x8B802000" }
+    },
+    {
+      "step": 3,
+      "title": "Increment PC",
+      "description": "Advance PC to the next instruction address.",
+      "visualState": { "pc": "0x1004", "increment": 4 }
+    },
+    {
+      "step": 4,
+      "title": "Decode Opcode",
+      "description": "Extract operation type and operand information from instruction bits.",
+      "visualState": { "opcode": "ADD", "operands": "R1, R2, R3" }
+    },
+    {
+      "step": 5,
+      "title": "Read Operands",
+      "description": "Read source register values from the register file.",
+      "visualState": { "R2": 10, "R3": 20, "srcValues": [10, 20] }
+    },
+    {
+      "step": 6,
+      "title": "Execute Operation",
+      "description": "ALU performs the operation on the source operands.",
+      "visualState": { "aluResult": 30, "operation": "10 + 20" }
+    },
+    {
+      "step": 7,
+      "title": "Write Result",
+      "description": "Store the ALU result in the destination register.",
+      "visualState": { "R1": 30, "destination": "R1" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Instruction Cycle Stages",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What are the basic stages of the instruction cycle?",
+      "answer": "Fetch, Decode, Execute, (Memory), Writeback",
+      "explanation": "The classic instruction cycle consists of Fetch (get instruction), Decode (interpret it), Execute (perform operation), optional Memory access, and Writeback (store result).",
+      "hints": ["Fetch from memory", "Decode the opcode", "Execute the operation", "Writeback results"]
+    },
+    {
+      "id": "p2",
+      "title": "PC Function",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What does the Program Counter hold?",
+      "answer": "Address of next instruction",
+      "explanation": "The PC always points to the next instruction to be fetched. After each fetch, it increments (or gets loaded with a branch target).",
+      "hints": ["Program Counter tracks position", "Contains memory address", "Points to next instruction"]
+    },
+    {
+      "id": "p3",
+      "title": "Instruction Size",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "If instructions are 4 bytes and PC is 0x1000, what is the PC after fetch?",
+      "answer": "0x1004",
+      "explanation": "PC increments by the instruction size (4 bytes). 0x1000 + 4 = 0x1004.",
+      "hints": ["PC += instruction size", "4 bytes per instruction", "Hex addition: 0x1000 + 4"]
+    },
+    {
+      "id": "p4",
+      "title": "Microcode Purpose",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is microcode used for?",
+      "answer": "Translating complex instructions to simple operations",
+      "explanation": "Microcode is a firmware layer that breaks complex CISC instructions into sequences of simpler micro-operations that the hardware can execute directly.",
+      "hints": ["Complex to simple", "Internal translation", "Used in x86 processors"]
+    },
+    {
+      "id": "p5",
+      "title": "Interrupt Handling",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What must the CPU do first when handling an interrupt?",
+      "answer": "Save context (PC and status)",
+      "explanation": "Before jumping to the interrupt handler, the CPU must save the current PC and status registers so it can resume the interrupted program later.",
+      "hints": ["Save return address", "Store registers", "Context switch"]
+    },
+    {
+      "id": "p6",
+      "title": "Pipeline vs Single Cycle",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "If a single-cycle CPU has 500ps cycle time and a 5-stage pipeline has 100ps cycle time, what's the theoretical speedup for many instructions?",
+      "answer": "5x",
+      "explanation": "The pipeline can start a new instruction each cycle (100ps), while single-cycle takes 500ps per instruction. Theoretical speedup = 500/100 = 5x.",
+      "hints": ["Single cycle: 500ps per instruction", "Pipeline: 100ps per instruction", "Speedup = 500/100"]
+    }
+  ],
+  "minigame": {
+    "id": "cycle-sprint",
+    "title": "Cycle Sprint",
+    "description": "Race through instruction cycles! Guide instructions through fetch, decode, execute, and writeback stages. Handle interrupts, manage the PC, and become the ultimate instruction cycle master!",
+    "type": "action-puzzle",
+    "instructions": [
+      "Instructions enter from the left and must flow through all stages",
+      "Click on each stage to advance the instruction",
+      "Watch for interrupts - handle them immediately!",
+      "Keep the pipeline full for maximum throughput",
+      "Don't forget to update the PC after each instruction!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Single Cycle",
+        "description": "Complete all stages for one instruction",
+        "stages": ["Fetch", "Decode", "Execute", "Writeback"],
+        "interrupts": false,
+        "timeLimit": 60,
+        "targetScore": 1000
+      },
+      {
+        "level": 2,
+        "name": "Sequential Execution",
+        "description": "Process multiple instructions in order",
+        "stages": ["Fetch", "Decode", "Execute", "Writeback"],
+        "instructions": 5,
+        "interrupts": false,
+        "timeLimit": 90,
+        "targetScore": 2000
+      },
+      {
+        "level": 3,
+        "name": "Memory Access",
+        "description": "Handle load and store instructions",
+        "stages": ["Fetch", "Decode", "Execute", "Memory", "Writeback"],
+        "instructionTypes": ["ADD", "SUB", "LOAD", "STORE"],
+        "interrupts": false,
+        "timeLimit": 120,
+        "targetScore": 3000
+      },
+      {
+        "level": 4,
+        "name": "Interrupts",
+        "description": "Handle interrupts while processing",
+        "stages": ["Fetch", "Decode", "Execute", "Memory", "Writeback"],
+        "instructionTypes": ["ADD", "SUB", "LOAD", "STORE", "BRANCH"],
+        "interrupts": true,
+        "timeLimit": 150,
+        "targetScore": 4000
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Instruction Cycle Simulator",
+        "code": "class InstructionCycle:\n    def __init__(self):\n        self.pc = 0x1000\n        self.ir = 0\n        self.registers = [0] * 8\n        self.memory = {}\n        self.stage = 'FETCH'\n        self.decoded = None\n        self.alu_result = None\n        self.mem_data = None\n    \n    def fetch(self, instruction):\n        print(f'FETCH: PC=0x{self.pc:04X}, Getting instruction from memory')\n        self.ir = instruction\n        self.pc += 4\n        self.stage = 'DECODE'\n    \n    def decode(self):\n        print(f'DECODE: IR=0x{self.ir:08X}')\n        opcode = (self.ir >> 26) & 0x3F\n        rs = (self.ir >> 21) & 0x1F\n        rt = (self.ir >> 16) & 0x1F\n        rd = (self.ir >> 11) & 0x1F\n        \n        op_names = {0: 'ADD', 1: 'SUB', 2: 'LOAD', 3: 'STORE'}\n        self.decoded = {\n            'op': op_names.get(opcode, 'UNKNOWN'),\n            'rs': rs,\n            'rt': rt,\n            'rd': rd,\n            'src1': self.registers[rs],\n            'src2': self.registers[rt]\n        }\n        print(f'  -> {self.decoded[\"op\"]} R{rd}, R{rs}, R{rt}')\n        self.stage = 'EXECUTE'\n    \n    def execute(self):\n        print(f'EXECUTE: {self.decoded[\"op\"]}')\n        op = self.decoded['op']\n        src1 = self.decoded['src1']\n        src2 = self.decoded['src2']\n        \n        if op == 'ADD':\n            self.alu_result = src1 + src2\n        elif op == 'SUB':\n            self.alu_result = src1 - src2\n        elif op == 'LOAD':\n            addr = src1 + src2\n            self.alu_result = addr\n        elif op == 'STORE':\n            addr = src1 + src2\n            self.alu_result = addr\n        \n        print(f'  -> ALU result: {self.alu_result}')\n        self.stage = 'MEMORY' if op in ['LOAD', 'STORE'] else 'WRITEBACK'\n    \n    def memory_access(self):\n        op = self.decoded['op']\n        addr = self.alu_result\n        \n        if op == 'LOAD':\n            self.mem_data = self.memory.get(addr, 0)\n            print(f'MEMORY: LOAD from 0x{addr:04X} = {self.mem_data}')\n        elif op == 'STORE':\n            rt = self.decoded['rt']\n            data = self.registers[rt]\n            self.memory[addr] = data\n            print(f'MEMORY: STORE 0x{addr:04X} = {data}')\n        \n        self.stage = 'WRITEBACK'\n    \n    def writeback(self):\n        op = self.decoded['op']\n        rd = self.decoded['rd']\n        \n        if op in ['ADD', 'SUB']:\n            self.registers[rd] = self.alu_result\n            print(f'WRITEBACK: R{rd} = {self.alu_result}')\n        elif op == 'LOAD':\n            self.registers[rd] = self.mem_data\n            print(f'WRITEBACK: R{rd} = {self.mem_data} (loaded)')\n        \n        self.stage = 'FETCH'\n    \n    def run_instruction(self, instr):\n        self.fetch(instr)\n        self.decode()\n        self.execute()\n        if self.stage == 'MEMORY':\n            self.memory_access()\n        self.writeback()\n        print('---')\n\n# Test: ADD R1, R2, R3 (R1 = R2 + R3)\ncycle = InstructionCycle()\ncycle.registers[2] = 10\ncycle.registers[3] = 20\n\n# Encode: ADD=0, R2=2, R3=3, R1=1\ninstr = (0 << 26) | (2 << 21) | (3 << 16) | (1 << 11)\ncycle.run_instruction(instr)\n\nprint(f'Registers after: {cycle.registers[1:4]}')  # R1=30, R2=10, R3=20"
+      }
+    ]
+  }
+}

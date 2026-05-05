@@ -1,0 +1,194 @@
+{
+  "id": "01-qubits",
+  "bookId": "book-quantum",
+  "title": "Qubits: The Quantum Bit",
+  "category": "Foundations",
+  "order": 1,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "A qubit (quantum bit) is the fundamental unit of quantum information. Unlike classical bits that are either 0 or 1, qubits exist in a superposition of states. Mathematically, a qubit's state is represented as $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$, where $\alpha$ and $\beta$ are complex probability amplitudes. The key constraint is $|\alpha|^2 + |\beta|^2 = 1$, ensuring total probability equals 1. When measured, the qubit collapses to $|0\rangle$ with probability $|\alpha|^2$ and $|1\rangle$ with probability $|\beta|^2$. This probabilistic nature, combined with the ability to exist in superposition, gives quantum computers their computational advantage.",
+    "sections": [
+      {
+        "title": "From Classical to Quantum",
+        "content": "Classical computers use bits—tiny switches that are either OFF (0) or ON (1). Every computation is built from these binary states. Quantum computers use qubits, which can exist in a continuum of states between 0 and 1. This isn't just 'being uncertain about the value'—it's a fundamentally different physical state. A qubit can be visualized as a point on the surface of a sphere (the Bloch sphere), where the North Pole is $|0\rangle$ and the South Pole is $|1\rangle$. Every other point represents a superposition.",
+        "keyPoints": [
+          "Classical bit: definitely 0 OR definitely 1",
+          "Qubit: can be in superposition of 0 AND 1 simultaneously",
+          "Measurement forces a qubit to choose 0 or 1",
+          "The state before measurement determines the probability of each outcome"
+        ]
+      },
+      {
+        "title": "The Mathematics of Qubits",
+        "content": "The state of a qubit is a vector in a 2-dimensional complex Hilbert space. We use Dirac notation (bra-ket) where $|0\rangle = \begin{pmatrix} 1 \\ 0 \end{pmatrix}$ and $|1\rangle = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$. A general qubit state is: $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle = \begin{pmatrix} \alpha \\ \beta \end{pmatrix}$. The complex numbers $\alpha$ and $\beta$ are called probability amplitudes. They can be negative or even complex (involving $i = \sqrt{-1}$), which is the source of quantum interference effects.",
+        "latex": "|\psi\rangle = \alpha|0\rangle + \beta|1\rangle, \quad |\alpha|^2 + |\beta|^2 = 1",
+        "examples": [
+          {
+            "state": "$|0\rangle$",
+            "meaning": "Definitely 0 when measured",
+            "amplitudes": "$\alpha=1, \beta=0$"
+          },
+          {
+            "state": "$|1\rangle$",
+            "meaning": "Definitely 1 when measured",
+            "amplitudes": "$\alpha=0, \beta=1$"
+          },
+          {
+            "state": "$|+\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$",
+            "meaning": "50% chance of 0, 50% chance of 1",
+            "amplitudes": "$\alpha=\frac{1}{\sqrt{2}}, \beta=\frac{1}{\sqrt{2}}$"
+          },
+          {
+            "state": "$|-\rangle = \frac{1}{\sqrt{2}}(|0\rangle - |1\rangle)$",
+            "meaning": "50% chance of 0, 50% chance of 1, but with phase difference",
+            "amplitudes": "$\alpha=\frac{1}{\sqrt{2}}, \beta=-\frac{1}{\sqrt{2}}$"
+          }
+        ]
+      },
+      {
+        "title": "The Bloch Sphere",
+        "content": "The Bloch sphere is a geometric representation of a single qubit's state. Every pure qubit state corresponds to a point on the surface of this unit sphere. The state is parameterized by two angles: $\theta$ (polar angle, 0 to $\pi$) and $\phi$ (azimuthal angle, 0 to $2\pi$). The conversion from amplitudes to angles is: $\alpha = \cos(\theta/2)$ and $\beta = e^{i\phi}\sin(\theta/2)$. The North Pole ($\theta=0$) is $|0\rangle$, South Pole ($\theta=\pi$) is $|1\rangle$. The equator contains equal superpositions with different phases.",
+        "latex": "|\psi\rangle = \cos\frac{\theta}{2}|0\rangle + e^{i\phi}\sin\frac{\theta}{2}|1\rangle",
+        "keyPoints": [
+          "North Pole: $|0\rangle$ (θ = 0)",
+          "South Pole: $|1\rangle$ (θ = π)",
+          "+X axis: $|+\rangle$ (θ = π/2, φ = 0)",
+          "-X axis: $|-\rangle$ (θ = π/2, φ = π)",
+          "+Y axis: $|i+\rangle$ (θ = π/2, φ = π/2)"
+        ]
+      },
+      {
+        "title": "Physical Realizations of Qubits",
+        "content": "Qubits aren't theoretical constructs—they're built from real quantum systems. Common implementations include: Superconducting circuits (used by IBM, Google) where current flows simultaneously clockwise and counterclockwise. Trapped ions (IonQ, Quantinuum) using internal energy states of individual atoms. Photonic qubits (Xanadu, PsiQuantum) using polarization or path of light. Topological qubits (Microsoft's approach) using exotic anyon particles. Each has tradeoffs in coherence time, gate fidelity, connectivity, and scalability.",
+        "comparisons": [
+          { "platform": "Superconducting", "coherence": "~100 μs", "gates": "Fast (~10 ns)", "connectivity": "Limited (nearest-neighbor)" },
+          { "platform": "Trapped Ion", "coherence": "~1-10 s", "gates": "Slow (~10-100 μs)", "connectivity": "All-to-all" },
+          { "platform": "Photonic", "coherence": "Excellent", "gates": "Variable", "connectivity": "Programmable" },
+          { "platform": "Neutral Atom", "coherence": "~1-10 s", "gates": "Medium", "connectivity": "Reconfigurable" }
+        ]
+      },
+      {
+        "title": "Measurement and Collapse",
+        "content": "Measurement is the process of extracting classical information from a qubit. When you measure a qubit in the computational basis (0 vs 1), it collapses from superposition to either $|0\rangle$ or $|1\rangle$. The probability of each outcome is the square of the absolute value of its amplitude: $P(0) = |\alpha|^2$ and $P(1) = |\beta|^2$. After measurement, the qubit IS that state—you've destroyed the superposition. This is why quantum algorithms are designed to amplify correct answers so measurement likely yields the desired result.",
+        "latex": "P(0) = |\langle 0 | \psi \rangle|^2 = |\alpha|^2, \quad P(1) = |\langle 1 | \psi \rangle|^2 = |\beta|^2",
+        "keyPoints": [
+          "Measurement is irreversible—superposition is lost",
+          "You can measure in different bases (X, Y, Z)",
+          "Multiple measurements on identical states reveal probabilities",
+          "No-cloning theorem: you can't copy an unknown quantum state"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Probability Amplitude",
+        "description": "Complex numbers $\alpha, \beta$ in the state vector. Unlike classical probability, amplitudes can interfere—constructively or destructively.",
+        "latex": "|\alpha|^2 + |\beta|^2 = 1"
+      },
+      {
+        "name": "Global vs Relative Phase",
+        "description": "Multiplying both amplitudes by $e^{i\gamma}$ (global phase) doesn't change physical predictions. But the relative phase between $\alpha$ and $\beta$ matters enormously.",
+        "example": "$|+\rangle$ and $|-\rangle$ differ only by relative phase but give different measurement outcomes in X basis"
+      },
+      {
+        "name": "Pure vs Mixed States",
+        "description": "Pure states are points on the Bloch sphere surface. Mixed states (inside the sphere) represent classical uncertainty about the quantum state.",
+        "latex": "\rho = |\psi\rangle\langle\psi|$ (pure) vs $\rho = \sum_i p_i |\psi_i\rangle\langle\psi_i|$ (mixed)"
+      },
+      {
+        "name": "No-Cloning Theorem",
+        "description": "It's impossible to create an identical copy of an arbitrary unknown quantum state. This is fundamental and enables quantum cryptography.",
+        "implication": "Prevents eavesdroppers from copying quantum communications"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "Qubit operations: $O(1)$ per gate",
+      "spaceComplexity": "$n$ qubits need $2^n$ complex amplitudes to describe",
+      "understandingTime": "$O(n)$ where $n$ is your patience with linear algebra"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize the Qubit",
+      "description": "Start with a qubit in a known state, typically $|0\rangle$.",
+      "latex": "|\psi_0\rangle = |0\rangle = \begin{pmatrix} 1 \\ 0 \end{pmatrix}",
+      "visualState": { "theta": 0, "phi": 0, "state": "|0⟩" }
+    },
+    {
+      "step": 2,
+      "title": "Apply Quantum Gates",
+      "description": "Transform the state using unitary operations. Each gate rotates the state on the Bloch sphere.",
+      "latex": "|\psi_1\rangle = U|\psi_0\rangle, \quad U^\dagger U = I",
+      "visualState": { "theta": "variable", "phi": "variable", "operation": "rotation" }
+    },
+    {
+      "step": 3,
+      "title": "Prepare Superposition",
+      "description": "Apply Hadamard gate to create equal superposition of 0 and 1.",
+      "latex": "H|0\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle) = |+\rangle",
+      "visualState": { "theta": 90, "phi": 0, "state": "|+⟩" }
+    },
+    {
+      "step": 4,
+      "title": "Manipulate Phase",
+      "description": "Apply phase gates to rotate around the Z-axis, changing the relative phase between amplitudes.",
+      "latex": "S|+\rangle = \frac{1}{\sqrt{2}}(|0\rangle + i|1\rangle)",
+      "visualState": { "theta": 90, "phi": 90, "state": "|i+⟩" }
+    },
+    {
+      "step": 5,
+      "title": "Measure",
+      "description": "Collapse the superposition to classical 0 or 1 based on probability amplitudes.",
+      "latex": "P(0) = |\alpha|^2, \quad P(1) = |\beta|^2",
+      "visualState": { "measurement": true, "outcome": "probabilistic" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Qubit State Identification",
+      "difficulty": "Easy",
+      "description": "A qubit is in state $|\psi\rangle = \frac{1}{2}|0\rangle + \frac{\sqrt{3}}{2}|1\rangle$. What is the probability of measuring 0?",
+      "options": ["25%", "50%", "75%", "100%"],
+      "correctAnswer": 0,
+      "explanation": "$P(0) = |\frac{1}{2}|^2 = \frac{1}{4} = 25\%$. The probability is the square of the absolute value of the amplitude.",
+      "hint": "Remember: $P(0) = |\alpha|^2$ where $\alpha$ is the amplitude of $|0\rangle$."
+    },
+    {
+      "id": "p2",
+      "title": "Bloch Sphere Coordinates",
+      "difficulty": "Medium",
+      "description": "For the state $|+\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$, what are the Bloch sphere angles $(\theta, \phi)$?",
+      "options": ["(0, 0)", "(π/2, 0)", "(π, 0)", "(π/2, π)"],
+      "correctAnswer": 1,
+      "explanation": "$|+\rangle$ is on the equator at the +X axis. Since $\cos(\theta/2) = \frac{1}{\sqrt{2}}$, we get $\theta = \pi/2$. The amplitudes are both real and positive, so $\phi = 0$.",
+      "hint": "Use the formula: $\alpha = \cos(\theta/2)$ and $\beta = e^{i\phi}\sin(\theta/2)$."
+    },
+    {
+      "id": "p3",
+      "title": "Normalization Check",
+      "difficulty": "Medium",
+      "description": "Is $|\psi\rangle = \frac{1}{\sqrt{3}}|0\rangle + \sqrt{\frac{2}{3}}|1\rangle$ a valid quantum state?",
+      "options": ["Yes, it's normalized", "No, amplitudes must be equal", "No, it needs complex amplitudes", "Only if we measure in X basis"],
+      "correctAnswer": 0,
+      "explanation": "Check: $|\frac{1}{\sqrt{3}}|^2 + |\sqrt{\frac{2}{3}}|^2 = \frac{1}{3} + \frac{2}{3} = 1$. The state is properly normalized and valid.",
+      "hint": "A valid state requires $|\alpha|^2 + |\beta|^2 = 1$."
+    },
+    {
+      "id": "p4",
+      "title": "Measurement Outcomes",
+      "difficulty": "Hard",
+      "description": "You have 1000 copies of the state $|-\rangle = \frac{1}{\sqrt{2}}(|0\rangle - |1\rangle)$. You measure all in the computational (Z) basis. How many 0s and 1s do you expect?",
+      "options": ["~1000 zeros, ~0 ones", "~500 zeros, ~500 ones", "~250 zeros, ~750 ones", "Cannot be predicted"],
+      "correctAnswer": 1,
+      "explanation": "$P(0) = |\frac{1}{\sqrt{2}}|^2 = 50\%$, $P(1) = |-\frac{1}{\sqrt{2}}|^2 = 50\%$. The minus sign affects phase (interference) but not measurement probabilities in the Z basis.",
+      "hint": "The minus sign is a relative phase. Does it affect $|\beta|^2$?"
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n\n# Define basis states\nzero = np.array([1, 0])\none = np.array([0, 1])\n\n# Create a general qubit state\nalpha = 1/np.sqrt(3)  # amplitude for |0⟩\nbeta = np.sqrt(2/3)   # amplitude for |1⟩\npsi = alpha * zero + beta * one\n\nprint(f'State vector: {psi}')\nprint(f'Normalization: {np.abs(alpha)**2 + np.abs(beta)**2:.6f}')\n\n# Calculate measurement probabilities\np0 = np.abs(alpha)**2\np1 = np.abs(beta)**2\nprint(f'P(0) = {p0:.4f} ({p0*100:.2f}%)')\nprint(f'P(1) = {p1:.4f} ({p1*100:.2f}%)')",
+    "qsharp": "namespace Quantum.Qubits {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    \n    operation CreateSuperposition() : Result {\n        use q = Qubit();\n        \n        // Initialize to |0⟩ (default)\n        // Apply Hadamard to create |+⟩\n        H(q);\n        \n        // Measure and return result\n        return M(q);\n    }\n}",
+    "quipper": "import Quipper\n\nqubitExample :: Circ (Qubit, Qubit)\nqubitExample = do\n  -- Initialize two qubits\n  q1 <- qinit True   -- |0⟩\n  q2 <- qinit False  -- |1⟩\n  \n  -- Create superposition on first qubit\n  q1 <- hadamard q1\n  \n  -- Apply phase gate\n  q1 <- gate_S q1\n  \n  return (q1, q2)"
+  }
+}

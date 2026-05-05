@@ -1,0 +1,237 @@
+{
+  "id": "arch-04-flipflop",
+  "bookId": "book-arch",
+  "title": "Flip-Flops & Memory",
+  "category": "Memory",
+  "order": 4,
+  "estimatedTime": "35 min",
+  "theory": {
+    "overview": "While combinational logic (gates) produces outputs based solely on current inputs, sequential logic remembers—the output depends on both current inputs and past history. Flip-flops are the fundamental memory elements of digital systems. These remarkable circuits can 'remember' a single bit indefinitely (as long as power is applied), forming the basis of all storage: registers, cache, RAM, and even the program counter that tracks which instruction to execute next. Understanding flip-flops unlocks the door to understanding how computers store and sequence information.",
+    "sections": [
+      {
+        "title": "The SR Latch: Memory Begins",
+        "content": "The simplest memory circuit uses cross-coupled NOR (or NAND) gates. Set (S) makes Q=1, Reset (R) makes Q=0. When neither is active, the circuit 'remembers' its previous state. The forbidden state (S=R=1 for NOR latch) must be avoided. This basic bistable circuit demonstrates the essence of memory: feedback creates stability.",
+        "behavior": {
+          "S=0,R=0": "Hold state (memory)",
+          "S=1,R=0": "Set Q to 1",
+          "S=0,R=1": "Reset Q to 0",
+          "S=1,R=1": "Forbidden/invalid"
+        }
+      },
+      {
+        "title": "The D Flip-Flop: Controlled Storage",
+        "content": "The D (Data) flip-flop solves the SR latch's undefined state problem. It has one data input (D) and a clock input. On the clock edge (rising or falling, depending on design), the D value is captured and held at Q until the next clock edge. This synchronous behavior is essential for organized, predictable circuit operation. Most modern digital design uses D flip-flops exclusively.",
+        "timing": {
+          "setupTime": "Data must be stable before clock edge",
+          "holdTime": "Data must remain stable after clock edge",
+          "clockToQ": "Time from clock edge to stable output"
+        }
+      },
+      {
+        "title": "Clock Signals: The Heartbeat",
+        "content": "Digital systems use a clock signal—a periodic square wave that synchronizes all operations. Like a conductor's baton, the clock ensures all flip-flops update simultaneously, preventing chaos. Clock frequency determines performance: a 3 GHz CPU has a clock period of about 333 picoseconds. The maximum clock frequency is limited by the longest propagation delay through combinational logic between flip-flops.",
+        "characteristics": {
+          "period": "T = 1/f",
+          "dutyCycle": "Usually 50% (high half the time)",
+          "edges": "Rising (0→1) or falling (1→0) trigger"
+        }
+      },
+      {
+        "title": "JK and T Flip-Flops: Specialized Behaviors",
+        "content": "The JK flip-flop eliminates the forbidden state of SR: when J=K=1, it toggles (flips) its output. This makes JK flip-flops ideal for counters. The T (Toggle) flip-flop is a simplified JK—when T=1, it toggles; when T=0, it holds. These specialized flip-flops are useful for frequency dividers and ripple counters.",
+        "jkBehavior": {
+          "J=0,K=0": "Hold state",
+          "J=0,K=1": "Reset to 0",
+          "J=1,K=0": "Set to 1",
+          "J=1,K=1": "Toggle (complement)"
+        }
+      },
+      {
+        "title": "Registers: Multi-bit Storage",
+        "content": "A register is simply a group of flip-flops that store multiple bits together. A 32-bit register contains 32 D flip-flops sharing a common clock. Registers are the fastest memory in a computer, located directly within the CPU. They hold operands for arithmetic, memory addresses, and control information. Register transfer level (RTL) design describes how data moves between registers through combinational logic.",
+        "types": {
+          "dataRegister": "Holds operands for ALU",
+          "addressRegister": "Holds memory addresses",
+          "statusRegister": "Contains ALU flags",
+          "shiftRegister": "Allows data shifting"
+        }
+      },
+      {
+        "title": "Metastability: When Timing Fails",
+        "content": "If setup or hold times are violated, a flip-flop can enter metastability—a state where the output hovers between 0 and 1 for an unpredictable time. While the flip-flop will eventually settle, the delay can cause system failure. Designers use synchronizers (two flip-flops in series) when crossing clock domains to reduce metastability risk, though it can never be completely eliminated.",
+        "solutions": [
+          "Respect setup/hold times",
+          "Use synchronizers for async inputs",
+          "Allow extra clock cycles for settling"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Bistable Circuit",
+        "description": "A circuit with two stable states (0 or 1). Feedback creates memory.",
+        "example": "Cross-coupled inverters or NOR gates"
+      },
+      {
+        "name": "Setup Time (t_setup)",
+        "description": "Minimum time data must be stable before clock edge.",
+        "typical": "100ps - 1ns depending on technology"
+      },
+      {
+        "name": "Hold Time (t_hold)",
+        "description": "Minimum time data must remain stable after clock edge.",
+        "typical": "Usually 0 - 200ps"
+      },
+      {
+        "name": "Propagation Delay (t_clock_to_Q)",
+        "description": "Time from clock edge to valid output.",
+        "critical": "Determines max clock frequency"
+      }
+    ],
+    "complexity": {
+      "delay": "Setup + Clock-to-Q determines minimum clock period",
+      "power": "Clock distribution consumes significant power",
+      "area": "Each bit requires multiple transistors"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Create Cross-Coupled Inverters",
+      "description": "Connect two inverters in a loop—output of one to input of other. This creates two stable states.",
+      "visualState": { "state": "bistable", "q": "0 or 1", "stable": true }
+    },
+    {
+      "step": 2,
+      "title": "Add Control Inputs",
+      "description": "Replace inverters with NOR or NAND gates to get Set and Reset inputs.",
+      "visualState": { "inputs": ["S", "R"], "outputs": ["Q", "Q'"] }
+    },
+    {
+      "step": 3,
+      "title": "Add Clock Synchronization",
+      "description": "Gate the inputs with a clock signal to create a D flip-flop that updates only on clock edges.",
+      "visualState": { "inputs": ["D", "CLK"], "edge": "triggered" }
+    },
+    {
+      "step": 4,
+      "title": "Build Registers",
+      "description": "Array multiple flip-flops to store multi-bit values like bytes or words.",
+      "visualState": { "width": 8, "shared": "clock" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "SR Latch Behavior",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "In an SR latch (NOR type), if S=1 and R=0, what is Q?",
+      "answer": "1",
+      "explanation": "S (Set) sets Q to 1. R is inactive (0), so no reset occurs.",
+      "hints": ["S means Set", "Set makes Q=1", "R=0 means no reset"]
+    },
+    {
+      "id": "p2",
+      "title": "D Flip-Flop Timing",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "When does a D flip-flop capture its input?",
+      "answer": "On the clock edge",
+      "explanation": "D flip-flops are edge-triggered. The value at D is captured at the moment of the clock transition (rising or falling edge).",
+      "hints": ["D flip-flops are edge-triggered", "Not level-sensitive like latches", "Capture at transition moment"]
+    },
+    {
+      "id": "p3",
+      "title": "JK Toggle Mode",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What happens when J=1 and K=1 in a JK flip-flop?",
+      "answer": "The output toggles (flips)",
+      "explanation": "J=K=1 is the toggle mode. Q becomes NOT(Q)—if it was 0, becomes 1; if 1, becomes 0.",
+      "hints": ["JK eliminates forbidden state", "J=K=1 is special", "Output complements itself"]
+    },
+    {
+      "id": "p4",
+      "title": "8-bit Register Size",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "How many D flip-flops are needed for an 8-bit register?",
+      "answer": "8",
+      "explanation": "Each flip-flop stores one bit. An 8-bit register needs 8 flip-flops sharing a common clock.",
+      "hints": ["One flip-flop per bit", "8 bits = 8 flip-flops", "All share clock"]
+    },
+    {
+      "id": "p5",
+      "title": "Maximum Clock Frequency",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "If setup time is 2ns, clock-to-Q is 3ns, and combinational logic delay is 10ns, what's the maximum clock frequency?",
+      "answer": "66.7 MHz",
+      "explanation": "Minimum period = setup + clock-to-Q + logic = 2 + 3 + 10 = 15ns. Frequency = 1/15ns = 66.7 MHz.",
+      "hints": ["Period = t_setup + t_clk-to-q + t_logic", "Sum all delays", "f = 1/T"]
+    },
+    {
+      "id": "p6",
+      "title": "Metastability Cause",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What causes a flip-flop to enter metastability?",
+      "answer": "Violating setup or hold time",
+      "explanation": "When data changes too close to the clock edge (setup/hold violation), the flip-flop may not resolve to a valid state quickly.",
+      "hints": ["Timing violations", "Setup or hold time", "Signal changes during critical window"]
+    }
+  ],
+  "minigame": {
+    "id": "flipflop-simulator",
+    "title": "Flip-Flop Factory",
+    "description": "Build and test flip-flops! Create memory circuits, watch them store bits, and synchronize them with clocks. Race against time to build stable memory elements.",
+    "type": "interactive-lab",
+    "instructions": [
+      "Construct circuits by placing gates and connecting them",
+      "Toggle input switches to test behavior",
+      "Click the clock to trigger edge-sensitive flip-flops",
+      "Observe Q and Q' outputs",
+      "Build increasingly complex memory elements"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "SR Latch",
+        "description": "Build the basic memory cell with cross-coupled NOR gates",
+        "components": ["NOR Gate ×2", "Input S", "Input R", "Output Q", "Output Q'"],
+        "testScenarios": ["Set", "Reset", "Hold", "Forbidden"]
+      },
+      {
+        "level": 2,
+        "name": "D Latch",
+        "description": "Add a clock input to control when data passes through",
+        "components": ["SR Latch", "AND Gates", "NOT Gate", "Data D", "Clock CLK"],
+        "testScenarios": ["Latch when high", "Hold when low"]
+      },
+      {
+        "level": 3,
+        "name": "D Flip-Flop",
+        "description": "Master-slave configuration for edge-triggered behavior",
+        "components": ["D Latch ×2", "Inverted Clock", "Master", "Slave"],
+        "testScenarios": ["Edge trigger", "Hold between edges"]
+      },
+      {
+        "level": 4,
+        "name": "4-bit Register",
+        "description": "Combine flip-flops to store a nibble",
+        "components": ["D Flip-Flop ×4", "Shared Clock", "4-bit Input", "4-bit Output"],
+        "testScenarios": ["Load value", "Hold value", "Clock synchronization"]
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Flip-Flop Simulation",
+        "code": "class DFlipFlop:\n    def __init__(self):\n        self.q = 0\n        self.q_not = 1\n    \n    def clock(self, d):\n        # On clock edge, capture D\n        self.q = d\n        self.q_not = 1 - d\n        return self.q, self.q_not\n\nclass Register:\n    def __init__(self, width=8):\n        self.bits = [DFlipFlop() for _ in range(width)]\n    \n    def load(self, values):\n        result = []\n        for i, bit in enumerate(self.bits):\n            q, _ = bit.clock(values[i])\n            result.append(q)\n        return result\n    \n    def read(self):\n        return [bit.q for bit in self.bits]\n\n# Test 4-bit register\nreg = Register(4)\nprint(f'Initial: {reg.read()}')  # [0, 0, 0, 0]\n\n# Load 1010\nreg.load([0, 1, 0, 1])  # LSB first\nprint(f'After load: {reg.read()}')  # [0, 1, 0, 1]\n\n# Clock ticks but no change (load same values again)\nreg.load([0, 1, 0, 1])\nprint(f'Stable: {reg.read()}')  # Still [0, 1, 0, 1]"
+      }
+    ]
+  }
+}
