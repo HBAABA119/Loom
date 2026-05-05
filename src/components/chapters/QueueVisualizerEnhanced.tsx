@@ -307,7 +307,7 @@ export default function QueueVisualizerEnhanced() {
     if (step?.codeLines) {
       setActiveLines(step.codeLines);
     }
-  }, [step, setActiveLines]);
+  }, [step]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

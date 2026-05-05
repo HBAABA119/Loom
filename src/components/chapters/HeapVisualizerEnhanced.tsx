@@ -370,7 +370,7 @@ export default function HeapVisualizerEnhanced() {
     if (step?.codeLines) {
       setActiveLines(step.codeLines);
     }
-  }, [step, setActiveLines]);
+  }, [step]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

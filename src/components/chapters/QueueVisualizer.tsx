@@ -91,7 +91,7 @@ export default function QueueVisualizer() {
 
   useEffect(() => {
     setActiveLines(step.highlightLines);
-  }, [step, setActiveLines]);
+  }, [step]);
 
   const cellWidth = 80;
   const cellHeight = 60;

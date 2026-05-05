@@ -89,7 +89,7 @@ export default function StackVisualizer() {
 
   useEffect(() => {
     setActiveLines(step.highlightLines);
-  }, [step, setActiveLines]);
+  }, [step]);
 
   const maxCapacity = 5;
   const cellHeight = 50;

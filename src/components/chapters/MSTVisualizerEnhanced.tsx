@@ -37,7 +37,7 @@ export default function MSTVisualizerEnhanced() {
   useEffect(() => { setCurrentStep(stepIndex); }, [stepIndex]);
   const steps = generateSteps();
   const step = steps[currentStep] || steps[0];
-  useEffect(() => { if (step?.codeLines) setActiveLines(step.codeLines); }, [step, setActiveLines]);
+  useEffect(() => { if (step?.codeLines) setActiveLines(step.codeLines); }, [step]);
   useEffect(() => { let interval: NodeJS.Timeout; if (isPlaying && currentStep < steps.length - 1) { interval = setInterval(() => nextStep(), 2500 / playbackSpeed); } else if (currentStep >= steps.length - 1 && isPlaying) pause(); return () => clearInterval(interval); }, [isPlaying, currentStep, steps.length, playbackSpeed, nextStep, pause]);
   const handleReset = useCallback(() => { pause(); setStep(0); }, [pause, setStep]);
 

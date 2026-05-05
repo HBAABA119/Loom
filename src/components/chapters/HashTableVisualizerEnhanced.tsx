@@ -379,7 +379,7 @@ export default function HashTableVisualizerEnhanced() {
     if (step?.codeLines) {
       setActiveLines(step.codeLines);
     }
-  }, [step, setActiveLines]);
+  }, [step]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

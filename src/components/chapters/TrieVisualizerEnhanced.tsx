@@ -412,7 +412,7 @@ export default function TrieVisualizerEnhanced() {
     if (step?.codeLines) {
       setActiveLines(step.codeLines);
     }
-  }, [step, setActiveLines]);
+  }, [step]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

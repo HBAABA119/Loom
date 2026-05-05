@@ -293,7 +293,7 @@ export default function SearchingVisualizerEnhanced() {
     if (step?.codeLines) {
       setActiveLines(step.codeLines);
     }
-  }, [step, setActiveLines]);
+  }, [step]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
