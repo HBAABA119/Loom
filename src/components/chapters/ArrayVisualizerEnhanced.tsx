@@ -6,7 +6,7 @@ import {
   Play, Pause, SkipBack, SkipForward, RotateCcw, 
   ChevronLeft, ChevronRight, Info, Zap, Database
 } from "lucide-react";
-import { useTimeline, useCodeHighlight } from "@/lib/engine/store";
+import { useTimeline } from "@/lib/engine/store";
 
 interface ArrayElement {
   value: number | null;
@@ -298,12 +298,6 @@ export default function ArrayVisualizerEnhanced() {
 
   const steps = useMemo(() => generateSteps(), []);
   const step = steps[currentStep] || steps[0];
-
-  useEffect(() => {
-    if (step?.codeLines) {
-      setActiveLines(step.codeLines);
-    }
-  }, [step]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
