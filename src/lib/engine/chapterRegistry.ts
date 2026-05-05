@@ -13,7 +13,7 @@ export interface ChapterConfig {
 const visualizers: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "01-big-o": lazy(() => import("@/components/chapters/DynamicArrayVisualizer")),
   "03-arrays": lazy(() => import("@/components/chapters/DynamicArrayVisualizer")),
-  "05-linked-lists": lazy(() => import("@/components/chapters/LinkedListVisualizer")),
+  "05-linked-lists": lazy(() => import("@/components/chapters/LinkedListVisualizerEnhanced")),
   "06-stacks": lazy(() => import("@/components/chapters/StackVisualizer")),
   "07-queues": lazy(() => import("@/components/chapters/QueueVisualizer")),
   "04-strings": lazy(() => import("@/components/chapters/StringVisualizer")),
@@ -47,7 +47,7 @@ const visualizers: Record<string, React.LazyExoticComponent<ComponentType>> = {
 const minigames: Record<string, React.LazyExoticComponent<ComponentType>> = {
   "01-big-o": lazy(() => import("@/components/minigames/ArrayResizeGame")),
   "03-arrays": lazy(() => import("@/components/minigames/ArrayResizeGame")),
-  "05-linked-lists": lazy(() => import("@/components/minigames/LinkedListMinigame")),
+  "05-linked-lists": lazy(() => import("@/components/minigames/LinkedListMinigameEnhanced")),
   "06-stacks": lazy(() => import("@/components/minigames/StackMinigame")),
   "07-queues": lazy(() => import("@/components/minigames/QueueMinigame")),
   "10-bst": lazy(() => import("@/components/minigames/BSTMinigame")),
