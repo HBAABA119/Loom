@@ -22,9 +22,9 @@ export default function SegmentTreeMinigameEnhanced() {
     const [l, r] = queryRange;
     const n = array.length;
     let sum = 0;
-    for (l += n, r += n; l <= r; l >>= 1, r >>= 1) {
-      if (l % 2 === 1) sum += tree[l++];
-      if (r % 2 === 0) sum += tree[r--];
+    for (let left = l + n, right = r + n; left <= right; left >>= 1, right >>= 1) {
+      if (left % 2 === 1) sum += tree[left++];
+      if (right % 2 === 0) sum += tree[right--];
     }
     setQueryResult(sum);
   };
