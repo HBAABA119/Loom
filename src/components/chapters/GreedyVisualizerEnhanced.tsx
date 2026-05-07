@@ -29,7 +29,7 @@ const generateSteps = (): Step[] => [
 
 export default function GreedyVisualizerEnhanced() {
   const { currentStep: stepIndex, totalSteps, isPlaying, playbackSpeed, togglePlay, pause, setStep, nextStep, prevStep, setTotalSteps, setPlaybackSpeed } = useTimeline();
-  const { setActiveLines } = useCodeHighlight();
+  
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => { setTotalSteps(generateSteps().length); }, [setTotalSteps]);

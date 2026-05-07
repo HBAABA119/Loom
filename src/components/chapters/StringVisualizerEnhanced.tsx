@@ -275,7 +275,7 @@ export default function StringVisualizerEnhanced() {
     setPlaybackSpeed
   } = useTimeline();
   
-  const { setActiveLines } = useCodeHighlight();
+  
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {

@@ -352,7 +352,7 @@ export default function HeapVisualizerEnhanced() {
     setPlaybackSpeed
   } = useTimeline();
   
-  const { setActiveLines } = useCodeHighlight();
+  
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {

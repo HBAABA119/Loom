@@ -385,7 +385,7 @@ export default function GraphTraversalVisualizerEnhanced() {
     setPlaybackSpeed
   } = useTimeline();
   
-  const { setActiveLines } = useCodeHighlight();
+  
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {

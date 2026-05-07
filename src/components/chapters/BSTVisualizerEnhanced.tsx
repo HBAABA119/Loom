@@ -475,7 +475,7 @@ export default function BSTVisualizerEnhanced() {
     setPlaybackSpeed
   } = useTimeline();
   
-  const { setActiveLines } = useCodeHighlight();
+  
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
