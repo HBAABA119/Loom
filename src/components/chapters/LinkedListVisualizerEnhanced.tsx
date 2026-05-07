@@ -232,8 +232,7 @@ function LinkedListVisualizerEnhanced() {
     setPlaybackSpeed
   } = useTimeline();
   
-  const { setActiveLines } = useCodeHighlight();
-  const [currentStep, setCurrentStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
     setTotalSteps(generateSteps().length);
@@ -246,12 +245,7 @@ function LinkedListVisualizerEnhanced() {
   const steps = generateSteps();
   const step = steps[currentStep] || steps[0];
 
-  useEffect(() => {
-    if (step?.codeLines) {
-      setActiveLines(step.codeLines);
-    }
-  }, [step]);
-
+  
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && currentStep < steps.length - 1) {
