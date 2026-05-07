@@ -119,8 +119,7 @@
       "step": 2,
       "title": "Apply Quantum Gates",
       "description": "Transform the state using unitary operations. Each gate rotates the state on the Bloch sphere.",
-      "latex": "|\\psi_1\rangle = U|\\psi_0\rangle, \\quad U^\\dagger U = I",
-      "latex": "|\\psi_1\rangle = U|\\psi_0\rangle, \\quad U^\\dagger U = I",
+      "latex": "|\\psi_1\\rangle = U|\\psi_0\\rangle, \\quad U^\\dagger U = I",
       "visualState": { "theta": "variable", "phi": "variable", "operation": "rotation" }
     },
     {

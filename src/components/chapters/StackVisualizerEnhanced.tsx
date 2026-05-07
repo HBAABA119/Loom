@@ -6,7 +6,7 @@ import {
   Play, Pause, SkipBack, SkipForward, RotateCcw, 
   ChevronLeft, ChevronRight, ArrowDown, ArrowUp
 } from "lucide-react";
-import { useTimeline, useCodeHighlight } from "@/lib/engine/store";
+import { useTimeline } from "@/lib/engine/store";
 
 interface StackElement {
   value: string;
@@ -259,12 +259,7 @@ export default function StackVisualizerEnhanced() {
   const steps = generateSteps();
   const step = steps[currentStep] || steps[0];
 
-  useEffect(() => {
-    if (step?.codeLines) {
-      setActiveLines(step.codeLines);
-    }
-  }, [step]);
-
+  
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && currentStep < steps.length - 1) {

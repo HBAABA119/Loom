@@ -185,22 +185,6 @@ export default function GradientDescentMinigame() {
           });
           break;
         }
-        default:
-          newPos = prevPos;
-      }
-
-      if (useMomentum) {
-        velocity.x = momentum * velocity.x + learningRate * gradient.x;
-        velocity.y = momentum * velocity.y + learningRate * gradient.y;
-        newPos = {
-          x: currentPosition.x - velocity.x,
-          y: currentPosition.y - velocity.y,
-        };
-      } else {
-        newPos = {
-          x: currentPosition.x - learningRate * gradient.x,
-          y: currentPosition.y - learningRate * gradient.y,
-        };
       }
 
       // Clamp to bounds

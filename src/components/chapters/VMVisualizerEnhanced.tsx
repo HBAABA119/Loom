@@ -78,7 +78,7 @@ const bytecodePrograms = [
 
 export default function VMVisualizerEnhanced() {
   const [selectedProgram, setSelectedProgram] = useState(0);
-  const [bytecode, setBytecode] = useState<Instruction[]>(bytecodePrograms[0].bytecode);
+  const [bytecode, setBytecode] = useState<Instruction[]>(bytecodePrograms[0].bytecode as Instruction[]);
   const [vmState, setVmState] = useState<VMState>({
     stack: [],
     locals: {},
@@ -108,7 +108,7 @@ export default function VMVisualizerEnhanced() {
 
   const handleProgramChange = (index: number) => {
     setSelectedProgram(index);
-    setBytecode(bytecodePrograms[index].bytecode);
+    setBytecode(bytecodePrograms[index].bytecode as Instruction[]);
   };
 
   const executeStep = () => {
