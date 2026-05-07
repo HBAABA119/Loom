@@ -1,0 +1,333 @@
+{
+  "id": "crypto-09-pki",
+  "bookId": "book-crypto",
+  "title": "Public Key Infrastructure",
+  "category": "Intermediate",
+  "order": 9,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Public Key Infrastructure (PKI) solves the trust problem in asymmetric cryptography: how do you know a public key really belongs to who it claims? Without this assurance, man-in-the-middle attackers could substitute their own keys. PKI uses a hierarchy of Certificate Authorities (CAs) that cryptographically bind identities to public keys through digitally signed certificates. When you connect to your bank, your browser verifies the bank's certificate against trusted root CAs embedded in the operating system. PKI enables the trust fabric of the internet, securing e-commerce, banking, email, and virtually all online communication. Understanding PKI is essential for anyone deploying secure systems, as certificate management is often where security implementations fail.",
+    "sections": [
+      {
+        "title": "Digital Certificates",
+        "content": "An X.509 certificate is a data structure containing: the subject's identity (domain name, organization), their public key, validity period, issuer (CA) information, and the issuer's digital signature binding these together. The certificate format uses ASN.1 (Abstract Syntax Notation One) encoding, typically serialized as DER (Distinguished Encoding Rules) and represented as PEM (Base64-encoded DER with headers). Certificates contain extensions defining usage constraints—whether the certificate can sign other certificates, be used for TLS authentication, code signing, or email. Extended Key Usage (EKU) and Basic Constraints extensions prevent certificate misuse. Certificate chains link end-entity certificates to root CAs through intermediate CAs, creating a trust path.",
+        "keyPoints": [
+          "X.509: Standard certificate format",
+          "Contains: identity, public key, validity, issuer signature",
+          "Extensions define usage constraints",
+          "Chains: end-entity → intermediate → root CA"
+        ]
+      },
+      {
+        "title": "Certificate Authorities and Trust",
+        "content": "Certificate Authorities are organizations that verify identities and issue certificates. Root CAs are embedded in operating systems and browsers—a self-signed certificate represents ultimate trust. Intermediate CAs receive authority through certificates signed by roots, creating a trust chain. This delegation allows security practices: root keys stay offline in Hardware Security Modules (HSMs) while intermediates handle daily issuance. The trust store in your OS contains ~100-200 root certificates from CAs like DigiCert, Let's Encrypt, and government PKIs. When validating, software builds a chain from the server's certificate up to a trusted root, verifying each signature along the path. If any link fails validation or expires, the entire chain is untrusted.",
+        "keyPoints": [
+          "Root CAs: Embedded in OS/browsers, self-signed",
+          "Intermediate CAs: Delegated authority from roots",
+          "Trust store: ~100-200 trusted root certificates",
+          "Chain validation: verify signatures up to root"
+        ]
+      },
+      {
+        "title": "Certificate Validation",
+        "content": "Validating a certificate requires multiple checks. Signature verification: confirm each certificate's signature using the issuer's public key from the next certificate in the chain. Validity period: check that current date is between Not Before and Not After dates. Revocation status: verify certificate hasn't been revoked via CRL (Certificate Revocation List) or OCSP (Online Certificate Status Protocol). Name validation: confirm the certificate's Subject Alternative Name (SAN) matches the hostname being connected to. Basic constraints: verify CA certificates can sign subordinate certificates. Key usage: confirm certificate is valid for the intended purpose (TLS authentication, signing, etc.). All checks must pass for the certificate to be considered valid.",
+        "keyPoints": [
+          "Signature verification at each chain link",
+          "Validity period checking",
+          "Revocation checking via CRL/OCSP",
+          "Name matching against hostname"
+        ]
+      },
+      {
+        "title": "Let's Encrypt and ACME",
+        "content": "Let's Encrypt revolutionized PKI by offering free certificates through automated issuance. The ACME (Automatic Certificate Management Environment) protocol enables servers to prove domain ownership and receive certificates without human intervention. The process: server generates key pair, sends Certificate Signing Request (CSR) to Let's Encrypt, receives challenge (prove control via HTTP token or DNS record), completes challenge, receives certificate. This automation enabled HTTPS adoption to reach 90%+ of web traffic. Let's Encrypt issues 90-day certificates (encouraging automation) while traditional CAs often issue 1-2 year certificates. The short validity plus automated renewal improves security by limiting exposure from compromised keys and enabling rapid algorithm transitions.",
+        "keyPoints": [
+          "Let's Encrypt: Free, automated certificates",
+          "ACME protocol: Domain validation automation",
+          "90-day certificates: Limits exposure, encourages automation",
+          "Enabled 90%+ HTTPS adoption on the web"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "X.509 Certificate",
+        "description": "Standard format for public key certificates",
+        "latex": "Cert = {Subject, PublicKey, Validity, Issuer, Signature}"
+      },
+      {
+        "name": "Certificate Chain",
+        "description": "Trust path from entity to root CA",
+        "latex": "End-entity ← Intermediate ← Root"
+      },
+      {
+        "name": "SAN",
+        "description": "Subject Alternative Name - list of valid hostnames",
+        "latex": "SAN = {example.com, www.example.com}"
+      },
+      {
+        "name": "OCSP",
+        "description": "Online Certificate Status Protocol for revocation checking",
+        "latex": "OCSP Request → Response: Good / Revoked / Unknown"
+      }
+    ],
+    "complexity": {
+      "chainValidation": "O(n) for n certificates in chain",
+      "signatureVerification": "O(log³ n) using RSA/ECDSA verify",
+      "revocationCheck": "O(1) for OCSP, O(|CRL|) for CRL",
+      "certificateIssuance": "O(1) after domain validation"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Generate Key Pair",
+      "description": "Server generates RSA or ECDSA key pair locally.",
+      "latex": "Generate: (private_key, public_key)",
+      "visualState": {
+        "algorithm": "ECDSA P-256",
+        "keyGeneration": "complete",
+        "privateKey": "stored securely",
+        "publicKey": "to be certified"
+      }
+    },
+    {
+      "step": 2,
+      "title": "Create CSR",
+      "description": "Create Certificate Signing Request containing public key and identity information.",
+      "latex": "CSR = {Subject, PublicKey, Signature} signed with private_key",
+      "visualState": {
+        "csr": {
+          "subject": "CN=example.com",
+          "san": ["example.com", "www.example.com"],
+          "publicKey": "included",
+          "signature": "valid"
+        }
+      }
+    },
+    {
+      "step": 3,
+      "title": "Domain Validation",
+      "description": "CA verifies applicant controls the domain (HTTP challenge, DNS challenge, or email).",
+      "latex": "\\text{Prove control of domain via ACME challenge}",
+      "visualState": {
+        "challengeType": "HTTP-01",
+        "challenge": "Place token at /.well-known/acme-challenge/",
+        "verification": "CA fetches and validates token",
+        "validated": true
+      }
+    },
+    {
+      "step": 4,
+      "title": "Certificate Issuance",
+      "description": "CA signs certificate with its private key, binding identity to public key.",
+      "latex": "Cert = Sign(CA_private, {Subject, PublicKey, Validity, ...})",
+      "visualState": {
+        "issuer": "Let's Encrypt R3",
+        "signatureAlgorithm": "ECDSA with SHA-256",
+        "validity": "90 days",
+        "serialNumber": "assigned"
+      }
+    },
+    {
+      "step": 5,
+      "title": "Install Certificate",
+      "description": "Server installs certificate alongside private key.",
+      "latex": "\\text{Configure: certificate + private_key}",
+      "visualState": {
+        "webServer": "nginx",
+        "certificateFile": "/etc/ssl/cert.pem",
+        "keyFile": "/etc/ssl/key.pem",
+        "installed": true
+      }
+    },
+    {
+      "step": 6,
+      "title": "Client Validation",
+      "description": "When client connects, it receives certificate and validates the chain.",
+      "latex": "\\text{Verify chain up to trusted root}",
+      "visualState": {
+        "received": ["Server Cert", "Intermediate CA"],
+        "trustStore": "ISRG Root X1",
+        "chainValid": true,
+        "hostnameValid": true,
+        "notExpired": true
+      }
+    },
+    {
+      "step": 7,
+      "title": "Secure Connection",
+      "description": "Certificate validated, client uses server's public key for TLS handshake.",
+      "latex": "\\text{Use server_pubkey for ECDHE key exchange}",
+      "visualState": {
+        "connection": "Established",
+        "security": "TLS 1.3",
+        "certificate": "Trusted",
+        "dataFlow": "Encrypted"
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Certificate Contents",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What are the essential components of an X.509 certificate?",
+      "latex": "\\text{X.509 certificate structure}",
+      "hints": [
+        "Identity of the subject",
+        "Public key being certified",
+        "Digital signature from issuer",
+        "Validity period"
+      ],
+      "solution": {
+        "answer": "Subject identity, public key, issuer signature, validity period, and optional extensions",
+        "explanation": "An X.509 certificate contains the subject's identity (hostname/organization), their public key, validity dates, the issuer's name, the issuer's digital signature, and extensions like Subject Alternative Names and Key Usage constraints."
+      }
+    },
+    {
+      "id": "p2",
+      "title": "Root CA Trust",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why are root CA certificates self-signed, and how do we trust them?",
+      "latex": "\\text{Root CA: self-signed certificate}",
+      "hints": [
+        "Root CAs have no higher authority",
+        "Self-signed = signed with own key",
+        "Trust comes from OS/browser distribution"
+      ],
+      "solution": {
+        "answer": "Root CAs are self-signed because there's no higher authority; we trust them because they're pre-installed in operating systems and browsers",
+        "explanation": "Root CAs are at the top of the trust hierarchy, so they sign their own certificates. Trust isn't derived cryptographically but through distribution—Microsoft, Apple, and browser vendors include trusted root certificates in their software after auditing the CAs."
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Certificate Expiry",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why do certificates have expiration dates rather than being valid forever?",
+      "latex": "\\text{Validity: Not Before → Not After}",
+      "hints": [
+        "Keys may be compromised over time",
+        "Cryptographic algorithms become obsolete",
+        "Identity information changes"
+      ],
+      "solution": {
+        "answer": "Expiration limits exposure from compromised keys, enables algorithm upgrades, and ensures identity information stays current",
+        "explanation": "If a private key is stolen without detection, expiration limits the window of vulnerability. It also forces periodic re-validation of identity and allows the industry to transition to stronger cryptographic algorithms over time."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Certificate Revocation",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What happens when a private key is compromised before certificate expiration?",
+      "latex": "\\text{Revocation: CRL and OCSP}",
+      "hints": [
+        "Certificate must be invalidated early",
+        "CRL: List of revoked certificates",
+        "OCSP: Real-time status protocol"
+      ],
+      "solution": {
+        "answer": "The certificate is added to Certificate Revocation Lists (CRLs) and OCSP responders mark it as revoked",
+        "explanation": "When a key is compromised, the CA revokes the certificate by adding its serial number to CRLs and updating OCSP responses. Clients must check these before trusting a certificate, even if it's not expired."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Let's Encrypt vs Traditional CA",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "How does Let's Encrypt differ from traditional commercial CAs?",
+      "latex": "\\text{Let's Encrypt: free, automated, short-lived}",
+      "hints": [
+        "Cost difference",
+        "Validation process",
+        "Certificate lifetime"
+      ],
+      "solution": {
+        "answer": "Let's Encrypt provides free certificates through automated ACME protocol with 90-day validity vs paid manual issuance with 1-2 year validity",
+        "explanation": "Let's Encrypt automated domain validation via ACME protocol, making certificates free and easy to obtain. The 90-day lifetime encourages automation (handling renewal automatically) and limits exposure from compromised keys. Traditional CAs charge for certificates and offer longer validity periods."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "cert-chain",
+    "title": "Certificate Chain Builder",
+    "description": "Learn to build and validate certificate chains! Match certificates to form valid trust paths, identify validation errors, and understand the PKI trust model.",
+    "type": "chain-builder",
+    "instructions": [
+      "Build certificate chains from end-entity to root",
+      "Validate signatures at each step",
+      "Check expiration dates",
+      "Match hostnames to certificates",
+      "Identify and fix chain errors"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Chain Assembly",
+        "description": "Build a basic certificate chain",
+        "task": "build_chain"
+      },
+      {
+        "level": 2,
+        "name": "Validation Check",
+        "description": "Identify validation errors in chains",
+        "task": "validate"
+      },
+      {
+        "level": 3,
+        "name": "Hostname Matching",
+        "description": "Match certificates to correct hostnames",
+        "task": "hostname_match"
+      }
+    ],
+    "scoring": {
+      "correctChain": 50,
+      "validationComplete": 30,
+      "noErrors": 20
+    }
+  },
+  "visualizer": {
+    "type": "cert-chain",
+    "title": "Certificate Chain Visualization",
+    "description": "Interactive visualization of certificate chain validation showing trust paths, signatures, and validation steps",
+    "features": [
+      "Certificate chain hierarchy",
+      "Signature verification flow",
+      "Trust path highlighting",
+      "Validation status indicators"
+    ],
+    "modes": [
+      {
+        "id": "valid-chain",
+        "name": "Valid Chain",
+        "description": "View a properly validated certificate chain"
+      },
+      {
+        "id": "invalid-chain",
+        "name": "Invalid Cases",
+        "description": "See common chain validation failures"
+      },
+      {
+        "id": "acme",
+        "name": "ACME Issuance",
+        "description": "Watch Let's Encrypt certificate issuance"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Certificate Validation with Python",
+        "code": "import ssl\nimport OpenSSL\nfrom datetime import datetime\n\ndef validate_certificate(cert_path, hostname):\n    # Load certificate\n    with open(cert_path, 'rb') as f:\n        cert_data = f.read()\n    \n    cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert_data)\n    \n    # Check expiration\n    not_after = cert.get_notAfter().decode('ascii')\n    expiry = datetime.strptime(not_after, '%Y%m%d%H%M%SZ')\n    if expiry < datetime.utcnow():\n        return False, \"Certificate expired\"\n    \n    # Check hostname\n    subject = cert.get_subject()\n    san = cert.get_extension(2).get_data() if cert.get_extension_count() > 2 else None\n    \n    print(f\"Subject: {subject.CN}\")\n    print(f\"Issuer: {cert.get_issuer().CN}\")\n    print(f\"Valid until: {expiry}\")\n    print(f\"Serial: {cert.get_serial_number()}\")\n    \n    return True, \"Valid\"\n\n# Usage\nvalid, msg = validate_certificate('server.crt', 'example.com')\nprint(f\"Validation: {msg}\")"
+      }
+    ]
+  }
+}

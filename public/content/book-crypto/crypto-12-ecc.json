@@ -1,0 +1,115 @@
+{
+  "id": "crypto-12-ecc",
+  "bookId": "book-crypto",
+  "title": "Elliptic Curve Cryptography",
+  "category": "Advanced",
+  "order": 12,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Elliptic Curve Cryptography (ECC) delivers equivalent security to RSA and DH with dramatically smaller keys—256-bit ECC provides ~3072-bit RSA security. This efficiency makes ECC ideal for mobile devices, IoT, and high-throughput systems. Bitcoin, Ethereum, TLS 1.3, and modern secure messaging rely on ECC. Understanding elliptic curves requires grasping the discrete logarithm problem in elliptic curve groups—a different mathematical foundation than integer factorization.",
+    "sections": [
+      {
+        "title": "Elliptic Curves",
+        "content": "Elliptic curves are defined by equations like y² = x³ + ax + b over finite fields. Points on the curve form a group under point addition: given points P and Q, draw a line through them, find the third intersection with the curve, and reflect across the x-axis to get P+Q. Scalar multiplication—adding a point to itself k times—is the core operation: Q = k*P. This is fast to compute but reversing it (finding k given P and Q) is the Elliptic Curve Discrete Logarithm Problem (ECDLP), which is computationally infeasible for well-chosen curves.",
+        "keyPoints": [
+          "Curve equation: y² = x³ + ax + b",
+          "Point addition geometric operation",
+          "Scalar multiplication: Q = k*P",
+          "ECDLP: Hard reverse problem"
+        ]
+      },
+      {
+        "title": "ECDH and ECDSA",
+        "content": "ECDH (Elliptic Curve Diffie-Hellman) follows the same logic as DH but uses elliptic curve scalar multiplication. Alice and Bob exchange public keys Q_A = d_A*G and Q_B = d_B*G, then compute shared secret S = d_A*Q_B = d_B*Q_A = d_A*d_B*G. ECDSA signatures: choose random k, compute R = k*G, r = R_x mod n, s = k⁻¹(h + r*d) mod n. Signature is (r, s). Bitcoin uses ECDSA with secp256k1 curve.",
+        "keyPoints": [
+          "ECDH: Shared secret from scalar multiplication",
+          "ECDSA: Sign with private key, verify with public",
+          "Smaller keys: 256-bit = 3072-bit RSA security",
+          "Faster computation than RSA"
+        ]
+      },
+      {
+        "title": "Standard Curves",
+        "content": "NIST curves (P-256, P-384, P-521) are widely used but have controversial origins (NSA-designed). Curve25519 (by DJB) is faster, safer, and designed transparently—no suspicious constants. Ed25519 provides EdDSA signatures. secp256k1 (used by Bitcoin) has no known weaknesses but is less widely supported. When choosing curves: prefer Curve25519 for new systems, use NIST curves for compliance, avoid obsolete curves below 256 bits.",
+        "keyPoints": [
+          "P-256: Standard NIST curve",
+          "Curve25519: Fast, secure, transparent design",
+          "secp256k1: Bitcoin curve",
+          "Avoid curves <256 bits"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Point Addition",
+        "description": "Geometric group operation on curve",
+        "latex": "P + Q = R (line intersection)"
+      },
+      {
+        "name": "Scalar Multiplication",
+        "description": "k*P = P + P + ... + P (k times)",
+        "latex": "Q = k \\cdot P"
+      },
+      {
+        "name": "ECDLP",
+        "description": "Elliptic Curve Discrete Log Problem",
+        "latex": "\\text{Given } P, kP, \\text{ find } k"
+      }
+    ],
+    "complexity": {
+      "scalarMul": "O(log k) using double-and-add",
+      "ecdh": "O(log n) for n-bit curve",
+      "ecdlp": "O(2^(n/2)) Pollard's rho"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Domain Parameters",
+      "description": "Agree on curve, base point G, and order n.",
+      "latex": "\\text{Curve } E, \\text{ base point } G, \\text{ order } n",
+      "visualState": {"curve": "Curve25519", "basePoint": "G", "order": "large prime"}
+    },
+    {
+      "step": 2,
+      "title": "Key Generation",
+      "description": "Choose random private key d, compute public key Q = d*G.",
+      "latex": "d \\in [1, n-1], Q = d \\cdot G",
+      "visualState": {"privateKey": "random", "publicKey": "point on curve"}
+    },
+    {
+      "step": 3,
+      "title": "ECDH Exchange",
+      "description": "Alice sends Q_A, Bob sends Q_B, both compute shared secret.",
+      "latex": "S = d_A \\cdot Q_B = d_B \\cdot Q_A = d_A d_B \\cdot G",
+      "visualState": {"sharedSecret": "x-coordinate of point"}
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "ECC Key Size",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What RSA key size provides equivalent security to 256-bit ECC?",
+      "solution": {"answer": "3072-bit RSA", "explanation": "256-bit ECC provides approximately 128-bit security, equivalent to 3072-bit RSA. This is why ECC is preferred for resource-constrained devices."}
+    },
+    {
+      "id": "p2",
+      "title": "ECDLP vs DLP",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why is ECDLP harder than integer discrete logarithm?",
+      "solution": {"answer": "No sub-exponential algorithms known for ECDLP", "explanation": "While integer DLP has sub-exponential algorithms (Number Field Sieve), no such algorithms are known for ECDLP. The best attacks are exponential Pollard's rho."}
+    }
+  ],
+  "minigame": {
+    "id": "ecc-explorer",
+    "title": "Elliptic Curve Explorer",
+    "description": "Explore ECC operations and key exchange",
+    "type": "math-explorer",
+    "levels": [{"level": 1, "name": "Point Operations"}, {"level": 2, "name": "ECDH Key Exchange"}]
+  },
+  "visualizer": {"type": "ecc-curve", "title": "Elliptic Curve Operations"},
+  "codeExample": {"language": "python", "snippets": [{"title": "ECDH with Python", "code": "from Crypto.PublicKey import ECC\n\n# Generate key pairs\nalice_key = ECC.generate(curve='P-256')\nbob_key = ECC.generate(curve='P-256')\n\n# Shared secret\nalice_secret = alice_key.d * bob_key.pointQ\nbob_secret = bob_key.d * alice_key.pointQ"}]}
+}

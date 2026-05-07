@@ -1,0 +1,404 @@
+{
+  "id": "19-disjoint-sets",
+  "bookId": "book-dsa",
+  "title": "Disjoint Set Union (Union-Find)",
+  "category": "Advanced Data Structures",
+  "order": 19,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Disjoint Set Union (DSU) or Union-Find is a data structure for tracking disjoint sets of elements. Supports two operations: find (determine which set an element belongs to) and union (merge two sets). With path compression and union by rank, operations are nearly $O(1)$ amortized. Used in Kruskal's MST, cycle detection, connected components, and dynamic connectivity. This chapter covers DSU structure, optimizations, and applications.",
+    "sections": [
+      {
+        "title": "DSU Structure",
+        "content": "Array parent where parent[i] = parent of element i (or i if root). Array rank for union by rank (tree height estimate). Initially, each element is its own set (parent[i] = i, rank[i] = 0). Find returns representative (root) of set. Union merges two sets by linking their roots.",
+        "structure": {
+          "parent": "parent[i] = parent of i (or i if root)",
+          "rank": "rank[i] = tree height estimate",
+          "initial": "parent[i] = i, rank[i] = 0"
+        }
+      },
+      {
+        "title": "Find Operation",
+        "content": "Find representative of element's set. Traverse parent pointers until root (parent[i] == i). With path compression: flatten tree by making each visited node point directly to root. Makes future finds faster. Time: $O(\\alpha(n))$ amortized (inverse Ackermann function, practically constant).",
+        "algorithm": "def find(x): if parent[x] != x: parent[x] = find(parent[x]); return parent[x];",
+        "complexity": { "time": "$O(\\alpha(n))$ amortized" }
+      },
+      {
+        "title": "Union Operation",
+        "content": "Merge two sets. Find roots of both elements. If same root, already in same set. Else, attach smaller tree under larger tree (union by rank). Update rank if heights equal. Time: $O(\\alpha(n))$ amortized with path compression in find.",
+        "algorithm": "def union(x, y): px, py = find(x), find(y); if px == py: return; if rank[px] < rank[py]: parent[px] = py; elif rank[px] > rank[py]: parent[py] = px; else: parent[py] = px; rank[px] += 1;",
+        "complexity": { "time": "$O(\\alpha(n))$ amortized" }
+      },
+      {
+        "title": "Optimizations",
+        "content": "Path compression: during find, make nodes point directly to root. Flattens tree structure. Union by rank: attach shorter tree under taller tree. Keeps trees shallow. Together, these ensure near-constant time. Without optimizations, operations can be $O(n)$ in worst case (degenerate tree).",
+        "optimizations": [
+          { "name": "Path Compression", "effect": "Flattens tree, future finds faster" },
+          { "name": "Union by Rank", "effect": "Keeps trees shallow" },
+          { "name": "Union by Size", "alternative": "Use size instead of rank" }
+        ]
+      },
+      {
+        "title": "DSU Applications",
+        "content": "Kruskal's MST: detect cycles when adding edges. Connected components: count number of sets after processing all edges. Dynamic connectivity: answer if two nodes are connected. Percolation: model percolation in grids. Image processing: connected component labeling.",
+        "applications": [
+          "Kruskal's MST (cycle detection)",
+          "Connected components",
+          "Dynamic connectivity queries",
+          "Percolation simulation",
+          "Image segmentation"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Representative",
+        "description": "Root element that represents the set. All elements in set have same representative after find with path compression.",
+        "property": "find(x) returns representative"
+      },
+      {
+        "name": "Path Compression",
+        "description": "During find, make each visited node point directly to root. Flattens tree, ensures future finds are O(1).",
+        "effect": "Tree becomes almost flat"
+      },
+      {
+        "name": "Union by Rank",
+        "description": "Attach smaller tree under larger tree's root. Keeps tree height O(log n) or better. Rank is upper bound on height.",
+        "alternative": "Union by size (use subtree size)"
+      },
+      {
+        "name": "Inverse Ackermann",
+        "description": "$\\alpha(n)$ grows extremely slowly (< 5 for all practical n). Makes DSU operations effectively constant time.",
+        "value": "$\\alpha(n) < 5$ for $n < 2^{65536}$"
+      }
+    ],
+    "complexity": {
+      "find": "$O(\\alpha(n))$ amortized",
+      "union": "$O(\\alpha(n))$ amortized",
+      "space": "$O(n)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize DSU",
+      "description": "Create parent array where each element is its own parent. Initialize rank to 0.",
+      "code": "parent = list(range(n)); rank = [0] * n;",
+      "visualState": { "parent": "[0,1,2,...,n-1]", "rank": "all 0" }
+    },
+    {
+      "step": 2,
+      "title": "Find with Path Compression",
+      "description": "Find root, compress path by making nodes point directly to root.",
+      "code": "def find(x): if parent[x] != x: parent[x] = find(parent[x]); return parent[x];",
+      "visualState": { "path": "compressed to root" }
+    },
+    {
+      "step": 3,
+      "title": "Union by Rank",
+      "description": "Find roots, attach smaller tree under larger. Update rank if equal.",
+      "code": "def union(x, y): px, py = find(x), find(y); if px == py: return; if rank[px] < rank[py]: parent[px] = py; elif rank[px] > rank[py]: parent[py] = px; else: parent[py] = px; rank[px] += 1;",
+      "visualState": { "trees": "merged" }
+    },
+    {
+      "step": 4,
+      "title": "Check Connected",
+      "description": "Two elements are connected if find(x) == find(y).",
+      "code": "return find(x) == find(y);",
+      "visualState": { "connected": "same representative" }
+    },
+    {
+      "step": 5,
+      "title": "Count Components",
+      "description": "Count number of unique representatives (roots).",
+      "code": "roots = set(find(i) for i in range(n)); return len(roots);",
+      "visualState": { "components": "number of roots" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Redundant Connection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find edge that can be removed to make tree (n nodes, n edges, one cycle).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find. Add edges one by one. If edge connects already connected components, it's redundant.",
+      "hints": "Union-Find, edge that creates cycle"
+    },
+    {
+      "id": "p2",
+      "title": "Redundant Connection II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find edge to remove in graph with two possible cycles.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find with parent tracking. Handle cases: edge to same node, multiple parents.",
+      "hints": "Union-Find with parent tracking"
+    },
+    {
+      "id": "p3",
+      "title": "Number of Provinces",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count number of connected components in matrix (1 = connected).",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(n^2)$" },
+      "solution": "Union-Find on matrix. Union adjacent 1s. Count unique roots.",
+      "hints": "Union-Find on matrix, count roots"
+    },
+    {
+      "id": "p4",
+      "title": "Graph Valid Tree",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if graph is valid tree (n nodes, n-1 edges, connected, no cycles).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Check n-1 edges. Union-Find: if edge connects already connected components, cycle. Check if one component at end.",
+      "hints": "Union-Find, check n-1 edges and one component"
+    },
+    {
+      "id": "p5",
+      "title": "Accounts Merge",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Merge accounts with same email (each account has list of emails).",
+      "complexity": { "time": "$O(\\sum a_i \\log \\sum a_i)$", "space": "$O(\\sum a_i)$" },
+      "solution": "Union-Find on emails. Accounts with same email connected. Group by root.",
+      "hints": "Union-Find on emails"
+    },
+    {
+      "id": "p6",
+      "title": "Sentence Similarity II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if sentences are similar given similarity pairs (transitive).",
+      "complexity": { "time": "$O(n \\times (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Build graph from pairs. Union-Find on words. Check if each word pair connected.",
+      "hints": "Union-Find on words"
+    },
+    {
+      "id": "p7",
+      "title": "Satisfiability of Equality Equations",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if equality equations are satisfiable (a==b, b==c, a!=c → false).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find for equalities. For inequalities, check if variables in same component.",
+      "hints": "Union-Find for equalities, check inequalities"
+    },
+    {
+      "id": "p8",
+      "title": "Longest Consecutive Sequence",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest consecutive elements sequence.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Hash set (not Union-Find). For each number, if num-1 not in set, it's sequence start.",
+      "hints": "Hash set (not Union-Find)"
+    },
+    {
+      "id": "p9",
+      "title": "Making A Large Island",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Change one 0 to 1 to maximize island size in binary matrix.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS to label islands with sizes. Union-Find or DFS. For each 0, check adjacent islands.",
+      "hints": "Label islands with DFS, check each 0"
+    },
+    {
+      "id": "p10",
+      "title": "Most Stones Removed with Same Row or Column",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find max stones that can be removed (stone removed if shares row/col with another).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Union-Find on rows and columns. Each connected component can have one stone left.",
+      "hints": "Union-Find on rows and columns"
+    },
+    {
+      "id": "p11",
+      "title": "Number of Operations to Make Network Connected",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum operations to connect all computers (can add cable between any two).",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Count connected components. Need components - 1 cables. If cables < n-1, return -1.",
+      "hints": "Count components, need components - 1 cables"
+    },
+    {
+      "id": "p12",
+      "title": "Bricks Falling When Hit",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find bricks that fall after hitting a brick (connected to top = stable).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "Union-Find with virtual top. Remove brick, check connectivity to top.",
+      "hints": "Union-Find with virtual top"
+    },
+    {
+      "id": "p13",
+      "title": "Critical Connections in a Network",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find critical connections (bridges) in network.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Tarjan's algorithm (not Union-Find). Track discovery and low times.",
+      "hints": "Tarjan's algorithm (not Union-Find)"
+    },
+    {
+      "id": "p14",
+      "title": "Detect Cycles in Undirected Graph",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Detect cycle in undirected graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Union-Find. If edge connects already connected components, cycle exists.",
+      "hints": "Union-Find, edge creates cycle"
+    },
+    {
+      "id": "p15",
+      "title": "Detect Cycles in Directed Graph",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Detect cycle in directed graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "DFS with 3 states (not Union-Find). Or Kahn's algorithm.",
+      "hints": "DFS with 3 states (not Union-Find)"
+    },
+    {
+      "id": "p16",
+      "title": "Connecting Cities With Minimum Cost",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum cost to connect all cities (MST).",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(V+E)$" },
+      "solution": "Kruskal's with Union-Find. Sort edges, add if connects different components.",
+      "hints": "Kruskal's, Union-Find"
+    },
+    {
+      "id": "p17",
+      "title": "Optimize Water Distribution",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Minimize cost to provide water (pipes + wells).",
+      "complexity": { "time": "$O((V+E) \\log (V+E))$", "space": "$O(V+E)$" },
+      "solution": "Add virtual well node. Run MST on this graph.",
+      "hints": "Add virtual well node, MST"
+    },
+    {
+      "id": "p18",
+      "title": "Min Cost to Connect All Points",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum cost to connect all points (complete graph, edge = distance).",
+      "complexity": { "time": "$O(n^2 \\log n)$", "space": "$O(n^2)$" },
+      "solution": "Prim's (not Union-Find) or Kruskal's with Union-Find.",
+      "hints": "Prim's or Kruskal's"
+    },
+    {
+      "id": "p19",
+      "title": "Find Critical and Pseudo-Critical Edges",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find edges that must be in all MSTs (critical) and edges in some MSTs (pseudo-critical).",
+      "complexity": { "time": "$O(E^2 \\log V)$", "space": "$O(V+E)$" },
+      "solution": "For each edge, check if MST without it has same weight (pseudo-critical) or higher weight (critical).",
+      "hints": "Check each edge, compare MST weights"
+    },
+    {
+      "id": "p20",
+      "title": "Maximum Minimum Spanning Tree",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find MST that maximizes minimum edge weight (bottleneck MST).",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(V+E)$" },
+      "solution": "Kruskal's with Union-Find (same as regular MST, properties hold).",
+      "hints": "Kruskal's (same as regular MST)"
+    },
+    {
+      "id": "p21",
+      "title": "Reorder Routes to Make All Paths Lead to City Zero",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Minimum edges to reverse so every node can reach node 0.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "BFS from node 0 (not Union-Find). Count wrong-direction edges.",
+      "hints": "BFS from node 0 (not Union-Find)"
+    },
+    {
+      "id": "p22",
+      "title": "Find the City With Smallest Neighbors",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find city with smallest number of neighbors at distance threshold.",
+      "complexity": { "time": "$O(n \\times (E \\log V))$", "space": "$O(V)$" },
+      "solution": "Dijkstra from each city (not Union-Find).",
+      "hints": "Dijkstra from each city (not Union-Find)"
+    },
+    {
+      "id": "p23",
+      "title": "Minimum Number of Vertices to Reach All Nodes",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum vertices to reach all nodes in directed graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Find SCCs (Kosaraju or Tarjan, not Union-Find). Count components with no incoming edges.",
+      "hints": "SCC (not Union-Find)"
+    },
+    {
+      "id": "p24",
+      "title": "Lexicographically Smallest Equivalent String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find lexicographically smallest string given equivalence pairs.",
+      "complexity": { "time": "$O(n \\times 26)$", "space": "$O(26)$" },
+      "solution": "Union-Find on letters. For each position, find smallest equivalent letter.",
+      "hints": "Union-Find on letters"
+    },
+    {
+      "id": "p25",
+      "title": "Remove Max Number of Edges to Keep Graph Fully Traversable",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Max edges to remove while keeping graph traversable (type 1 and type 2 edges).",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(V)$" },
+      "solution": "Kruskal's with Union-Find for each type, count removable edges.",
+      "hints": "Kruskal's for each type"
+    }
+  ],
+  "minigame": {
+    "id": "disjoint-sets",
+    "title": "Union-Find Master",
+    "description": "Master Union-Find! Visualize find, union, and path compression.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Find", "task": "Find representative of element 5" },
+      { "name": "Union", "task": "Union sets containing 3 and 7" },
+      { "name": "Components", "task": "Count connected components" }
+    ]
+  },
+  "visualizer": {
+    "type": "union-find",
+    "title": "Union-Find Visualizer",
+    "description": "Visualize Union-Find operations with path compression and union by rank.",
+    "features": ["Tree visualization", "Path compression animation", "Union by rank", "Component tracking"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Union-Find with Path Compression",
+        "code": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.rank = [0] * n\n    \n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # Path compression\n        return self.parent[x]\n    \n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py:\n            return\n        # Union by rank\n        if self.rank[px] < self.rank[py]:\n            self.parent[px] = py\n        elif self.rank[px] > self.rank[py]:\n            self.parent[py] = px\n        else:\n            self.parent[py] = px\n            self.rank[px] += 1"
+      },
+      {
+        "title": "Redundant Connection",
+        "code": "def findRedundantConnection(edges):\n    uf = UnionFind(len(edges) + 1)\n    \n    for u, v in edges:\n        if uf.find(u) == uf.find(v):\n            return [u, v]  # Cycle found\n        uf.union(u, v)\n    \n    return []"
+      },
+      {
+        "title": "Number of Provinces",
+        "code": "def findCircleNum(isConnected):\n    n = len(isConnected)\n    uf = UnionFind(n)\n    \n    for i in range(n):\n        for j in range(n):\n            if isConnected[i][j] == 1:\n                uf.union(i, j)\n    \n    # Count unique roots\n    roots = set(uf.find(i) for i in range(n))\n    return len(roots)"
+      }
+    ]
+  }
+}

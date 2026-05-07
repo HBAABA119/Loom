@@ -1,0 +1,490 @@
+{
+  "id": "01-big-o",
+  "bookId": "book-dsa",
+  "title": "Big O Notation",
+  "category": "Foundations",
+  "order": 1,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Big O Notation is the mathematical language we use to describe the efficiency of algorithms. It tells us how much an algorithm's resource requirements (time or space) grow relative to the input size. Think of it as a way to compare algorithms fairly—by focusing on their growth patterns rather than machine-specific details. When we say an algorithm is $O(n)$, we're saying its running time grows linearly with the input. If we double the input, we roughly double the time. This notation ignores constants and lower-order terms because as $n$ becomes very large (millions or billions), those smaller factors become irrelevant. Big O gives us the upper bound—the worst-case scenario—ensuring our algorithm will never perform worse than this bound.",
+    "sections": [
+      {
+        "title": "Why Big O Matters",
+        "content": "Imagine you're choosing between two routes to work. Route A takes 20 minutes regardless of traffic. Route B takes 5 minutes with no traffic, but 2 hours during rush hour. Big O helps us analyze the worst-case scenario so we can make informed decisions. In computing, we care about scalability—how algorithms behave when inputs grow from hundreds to millions of items. An $O(n^2)$ algorithm might be fine for 100 items (10,000 operations), but becomes unusable at 1 million items (1 trillion operations). Understanding Big O helps you write code that won't break when your user base grows.",
+        "keyPoints": [
+          "Big O describes growth rate, not exact runtime",
+          "It enables fair comparison between algorithms",
+          "Helps predict performance at scale",
+          "Focuses on worst-case scenarios"
+        ]
+      },
+      {
+        "title": "The Mathematics Behind Big O",
+        "content": "Formally, $f(n) = O(g(n))$ means there exist positive constants $c$ and $n_0$ such that $0 \\leq f(n) \\leq c \\cdot g(n)$ for all $n \\geq n_0$. In plain English: after some point ($n_0$), $f(n)$ is always bounded above by a constant multiple of $g(n)$. This is why we drop constants: $O(2n) = O(n)$ because we can choose $c=2$. We also drop lower-order terms: $O(n^2 + n) = O(n^2)$ because as $n \\to \\infty$, the $n^2$ term dominates. The notation focuses on the asymptotic behavior—what happens as $n$ approaches infinity.",
+        "keyPoints": [
+          "f(n) ∈ O(g(n)) iff ∃ c, n₀ > 0: ∀ n ≥ n₀, f(n) ≤ c · g(n)",
+          "Drop constants: O(2n) = O(n)",
+          "Drop lower-order terms: O(n² + n) = O(n²)",
+          "Focus on asymptotic behavior as n → ∞"
+        ]
+      },
+      {
+        "title": "Common Complexity Classes",
+        "content": "Different problems require different amounts of resources. Here are the most common complexity classes you'll encounter, ordered from fastest to slowest growth:",
+        "keyPoints": [
+          "O(1): Constant time - Array access, hash lookup",
+          "O(log n): Logarithmic - Binary search, balanced BST",
+          "O(n): Linear - Single loop, finding max",
+          "O(n log n): Linearithmic - Efficient sorting",
+          "O(n²): Quadratic - Nested loops, bubble sort",
+          "O(2ⁿ): Exponential - Subset generation",
+          "O(n!): Factorial - Permutations, TSP brute force"
+        ]
+      },
+      {
+        "title": "Analyzing Code for Big O",
+        "content": "To determine Big O, count the fundamental operations relative to input size $n$. A single loop from 1 to $n$ is $O(n)$. Nested loops where both iterate $n$ times are $O(n^2)$. However, if loops are sequential (not nested), we add their complexities: $O(n) + O(n) = O(n)$. For recursive functions, write a recurrence relation. For example, merge sort: $T(n) = 2T(n/2) + O(n)$, which solves to $O(n \\log n)$ by the Master Theorem.",
+        "keyPoints": [
+          "Count fundamental operations relative to input size n",
+          "Single loop: O(n)",
+          "Nested loops: O(n²)",
+          "Sequential loops: O(n) + O(n) = O(n)",
+          "Recursive functions: write recurrence relation"
+        ],
+        "examples": [
+          {
+            "code": "for i in range(n):\n    print(i)",
+            "analysis": "Single loop executes n times: $O(n)$"
+          },
+          {
+            "code": "for i in range(n):\n    for j in range(n):\n        print(i, j)",
+            "analysis": "Nested loops, each n iterations: $n \\times n = O(n^2)$"
+          },
+          {
+            "code": "for i in range(n):\n    print(i)\nfor j in range(n):\n    print(j)",
+            "analysis": "Sequential loops: $O(n) + O(n) = O(n)$"
+          },
+          {
+            "code": "while n > 0:\n    n = n // 2",
+            "analysis": "Halving n each iteration: $O(\\log n)$"
+          }
+        ]
+      },
+      {
+        "title": "Space Complexity",
+        "content": "Space complexity measures additional memory needed as input grows. $O(1)$ space means constant extra memory (a few variables). $O(n)$ space means memory grows linearly with input (e.g., creating a copy of the array). Recursive algorithms use stack space—each recursive call adds a frame. A recursive function with depth $n$ uses $O(n)$ stack space, even if it uses $O(1)$ heap space.",
+        "keyPoints": [
+          "Space complexity ignores input size itself",
+          "Counts only additional/auxiliary space",
+          "Recursive calls consume stack space",
+          "Trade-offs exist between time and space"
+        ]
+      },
+      {
+        "title": "Best, Average, and Worst Case",
+        "content": "Big O typically describes worst-case, but understanding all three scenarios is crucial. Best case: minimum time for any input of size $n$. Average case: expected time over all possible inputs. Worst case: maximum time for any input of size $n$. For Quick Sort: best and average are $O(n \\log n)$, but worst case (already sorted input with bad pivot) is $O(n^2)$. We usually care about worst case for guarantees, but average case for realistic expectations.",
+        "comparisons": [
+          { "algorithm": "Quick Sort", "best": "$O(n \\log n)$", "average": "$O(n \\log n)$", "worst": "$O(n^2)$" },
+          { "algorithm": "Merge Sort", "best": "$O(n \\log n)$", "average": "$O(n \\log n)$", "worst": "$O(n \\log n)$" },
+          { "algorithm": "Linear Search", "best": "$O(1)$", "average": "$O(n)$", "worst": "$O(n)$" },
+          { "algorithm": "Binary Search", "best": "$O(1)$", "average": "$O(\\log n)$", "worst": "$O(\\log n)$" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Asymptotic Analysis",
+        "description": "Studying algorithm behavior as input size approaches infinity. We care about the limiting behavior, not small inputs.",
+        "latex": "\\lim_{n \\to \\infty} \\frac{f(n)}{g(n)}"
+      },
+      {
+        "name": "Tight Bounds",
+        "description": "$O$ gives upper bound, $\\Omega$ gives lower bound, $\\Theta$ gives tight bound (both upper and lower).",
+        "latex": "f(n) = \\Theta(g(n)) \\iff f(n) = O(g(n)) \\text{ and } f(n) = \\Omega(g(n))"
+      },
+      {
+        "name": "Amortized Analysis",
+        "description": "Average time per operation over a sequence. Some operations are expensive but rare, keeping the average low.",
+        "example": "Dynamic array doubling: individual insert is $O(n)$ but amortized is $O(1)$"
+      },
+      {
+        "name": "Master Theorem",
+        "description": "Solves recurrences of form $T(n) = aT(n/b) + f(n)$ for divide-and-conquer algorithms.",
+        "latex": "T(n) = aT(n/b) + O(n^d)"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "Analyzing algorithms: $O(n)$ to $O(n^2)$ depending on code structure",
+      "spaceComplexity": "$O(1)$ auxiliary for analysis, varies by algorithm",
+      "understandingTime": "$O(1)$ - fundamental concept"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Identify the Input",
+      "description": "Determine what $n$ represents. Is it array length? Number of nodes? Input bits?",
+      "latex": "n = \\text{input size (array length, nodes, etc.)}",
+      "visualState": { "n": 8, "inputType": "array" }
+    },
+    {
+      "step": 2,
+      "title": "Count Operations",
+      "description": "Identify fundamental operations (comparisons, assignments, arithmetic) inside loops.",
+      "latex": "\\text{operations} = \\sum_{i=1}^{n} \\text{work per iteration}",
+      "visualState": { "operation": "comparison", "count": 0 }
+    },
+    {
+      "step": 3,
+      "title": "Analyze Loop Structure",
+      "description": "Single loop = $O(n)$, nested loops multiply, sequential loops add.",
+      "latex": "\\text{nested: } O(n) \\times O(n) = O(n^2)",
+      "visualState": { "loopType": "nested", "complexity": "O(n²)" }
+    },
+    {
+      "step": 4,
+      "title": "Drop Constants and Lower Terms",
+      "description": "$O(2n + 5)$ becomes $O(n)$. $O(n^2 + n)$ becomes $O(n^2)$.",
+      "latex": "O(3n^2 + 10n + 50) = O(n^2)",
+      "visualState": { "before": "3n² + 10n + 50", "after": "n²" }
+    },
+    {
+      "step": 5,
+      "title": "Express Final Big O",
+      "description": "State the tightest upper bound that describes the growth rate.",
+      "latex": "T(n) \\in O(n^2)",
+      "visualState": { "finalAnswer": "O(n²)", "growthCurve": "quadratic" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Single Loop Analysis",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "What is the time complexity of this code?\n```python\nfor i in range(n):\n    print(i)\n```",
+      "answer": "$O(n)$",
+      "explanation": "The loop runs exactly $n$ times, performing one operation per iteration. Time grows linearly with input.",
+      "hints": ["Count how many times the loop executes", "Each iteration does constant work $O(1)$", "$n$ iterations × $O(1)$ = $O(n)$"]
+    },
+    {
+      "id": "p2",
+      "title": "Nested Loops",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "Analyze this nested loop structure:\n```python\nfor i in range(n):\n    for j in range(n):\n        print(i * j)\n```",
+      "answer": "$O(n^2)$",
+      "explanation": "Outer loop runs $n$ times. For each outer iteration, inner loop runs $n$ times. Total: $n \\times n = n^2$ operations.",
+      "hints": ["The inner loop runs completely for each outer iteration", "Multiplication of loop bounds", "$n \\times n = n^2$"]
+    },
+    {
+      "id": "p3",
+      "title": "Sequential Loops",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "What is the complexity?\n```python\nfor i in range(n):\n    print(i)\nfor j in range(n):\n    print(j * 2)\n```",
+      "answer": "$O(n)$",
+      "explanation": "Sequential (non-nested) loops add: $O(n) + O(n) = O(2n) = O(n)$. We drop the constant 2.",
+      "hints": ["Loops are not nested inside each other", "Add their complexities", "Drop constant factors in Big O"]
+    },
+    {
+      "id": "p4",
+      "title": "Logarithmic Loop",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Analyze:\n```python\ni = n\nwhile i > 1:\n    i = i // 2\n```",
+      "answer": "$O(\\log n)$",
+      "explanation": "$i$ is halved each iteration. Starting at $n$, it takes $\\log_2 n$ steps to reach 1. This is the hallmark of logarithmic complexity.",
+      "hints": ["Track how $i$ changes: $n, n/2, n/4, n/8, ...$", "How many times can you halve $n$ before reaching 1?", "This is $\\log_2 n$"]
+    },
+    {
+      "id": "p5",
+      "title": "Triangle Pattern",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What is the complexity?\n```python\nfor i in range(n):\n    for j in range(i):\n        print(i, j)\n```",
+      "answer": "$O(n^2)$",
+      "explanation": "Inner loop runs $i$ times where $i$ goes from 0 to $n-1$. Total operations: $\\sum_{i=0}^{n-1} i = \\frac{n(n-1)}{2} = O(n^2)$.",
+      "hints": ["When $i=0$: 0 iterations, $i=1$: 1 iteration, ..., $i=n-1$: $n-1$ iterations", "Sum: $0 + 1 + 2 + ... + (n-1)$", "This sum equals $n(n-1)/2$"]
+    },
+    {
+      "id": "p6",
+      "title": "Three Nested Loops",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "Analyze:\n```python\nfor i in range(n):\n    for j in range(n):\n        for k in range(n):\n            print(i + j + k)\n```",
+      "answer": "$O(n^3)$",
+      "explanation": "Each loop runs $n$ times independently. Total: $n \\times n \\times n = n^3$.",
+      "hints": ["Multiply the bounds of all nested loops", "$n \\times n \\times n$", "This is cubic time"]
+    },
+    {
+      "id": "p7",
+      "title": "Mixed Loop Pattern",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What is the complexity?\n```python\nfor i in range(n):\n    for j in range(n):\n        print(i, j)\nfor k in range(n):\n    print(k)\n```",
+      "answer": "$O(n^2)$",
+      "explanation": "First part is $O(n^2)$, second is $O(n)$. We keep the dominant term: $O(n^2) + O(n) = O(n^2)$.",
+      "hints": ["Analyze each part separately", "First part: $O(n^2)$, Second part: $O(n)$", "Drop lower-order terms: $n^2$ dominates $n$"]
+    },
+    {
+      "id": "p8",
+      "title": "Array Access",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the time complexity of accessing `arr[i]` in an array?",
+      "answer": "$O(1)$ - Constant Time",
+      "explanation": "Arrays store elements contiguously in memory. The address of `arr[i]` is computed as `base_address + i × element_size`. This arithmetic takes constant time regardless of array size or index.",
+      "hints": ["Arrays use contiguous memory", "Address calculation is arithmetic: base + offset", "Same time for any index"]
+    },
+    {
+      "id": "p9",
+      "title": "Binary Search Analysis",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "A binary search algorithm repeatedly divides a sorted array in half. What is its time complexity?",
+      "answer": "$O(\\log n)$",
+      "explanation": "Each comparison eliminates half of the remaining elements. Starting with $n$ elements, after $k$ steps we have $n/2^k$ elements. We stop when $n/2^k = 1$, meaning $k = \\log_2 n$.",
+      "hints": ["Each step halves the search space", "How many times can you divide $n$ by 2?", "$2^k = n$ means $k = \\log n$"]
+    },
+    {
+      "id": "p10",
+      "title": "Recursive Fibonacci",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "Analyze naive recursive Fibonacci:\n```python\ndef fib(n):\n    if n <= 1: return n\n    return fib(n-1) + fib(n-2)\n```",
+      "answer": "$O(2^n)$ or $O(\\phi^n)$ where $\\phi \\approx 1.618$",
+      "explanation": "The recurrence is $T(n) = T(n-1) + T(n-2) + O(1)$. This forms a binary tree of calls with height $n$, giving roughly $2^n$ nodes. The exact bound is related to the golden ratio.",
+      "hints": ["Draw the recursion tree", "It branches 2 ways each call", "Tree height is $n$, so roughly $2^n$ nodes"]
+    },
+    {
+      "id": "p11",
+      "title": "Merge Sort Analysis",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Merge sort divides the array in half, sorts each half recursively, then merges. What is its time complexity?",
+      "answer": "$O(n \\log n)$",
+      "explanation": "Recurrence: $T(n) = 2T(n/2) + O(n)$. The merge step takes $O(n)$. By the Master Theorem or recursion tree: $\\log n$ levels, each doing $O(n)$ work, totaling $O(n \\log n)$.",
+      "hints": ["Recurrence: $T(n) = 2T(n/2) + n$", "Recursion tree has $\\log n$ levels", "Each level does $O(n)$ work"]
+    },
+    {
+      "id": "p12",
+      "title": "Space Complexity of Recursion",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is the space complexity of a recursive function that makes $n$ nested recursive calls before returning?",
+      "answer": "$O(n)$ - for the call stack",
+      "explanation": "Each recursive call adds a stack frame. If the recursion depth is $n$, we need $O(n)$ stack space even if we only use $O(1)$ variables in each call.",
+      "hints": ["Each call pushes a frame onto the stack", "Maximum stack depth equals maximum recursion depth", "This is auxiliary space, not input space"]
+    },
+    {
+      "id": "p13",
+      "title": "Finding Maximum",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "What is the time complexity?\n```python\ndef find_max(arr):\n    max_val = arr[0]\n    for x in arr:\n        if x > max_val:\n            max_val = x\n    return max_val\n```",
+      "answer": "$O(n)$",
+      "explanation": "We iterate through each of $n$ elements exactly once, performing constant work (one comparison and possibly one assignment) per element.",
+      "hints": ["Single loop through all elements", "Constant work per element", "$n$ elements × $O(1)$ = $O(n)$"]
+    },
+    {
+      "id": "p14",
+      "title": "Two-Pointer Technique",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Analyze two-pointer approach:\n```python\ni, j = 0, len(arr) - 1\nwhile i < j:\n    if arr[i] + arr[j] == target:\n        return True\n    elif arr[i] + arr[j] < target:\n        i += 1\n    else:\n        j -= 1\n```",
+      "answer": "$O(n)$",
+      "explanation": "Pointers start at opposite ends and move toward each other. Each iteration moves at least one pointer. Total iterations ≤ $n$, so $O(n)$ time with $O(1)$ space.",
+      "hints": ["Each iteration moves at least one pointer", "Pointers start $n$ apart and converge", "At most $n$ iterations total"]
+    },
+    {
+      "id": "p15",
+      "title": "Building a Heap",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is the time complexity of building a max-heap from an array of $n$ elements using the heapify approach?",
+      "answer": "$O(n)$ - not $O(n \\log n)$ as one might expect",
+      "explanation": "While heapify takes $O(\\log n)$ and we call it $n$ times, most nodes are at the bottom with small heights. The sum $\\sum_{h=0}^{\\log n} \\frac{n}{2^{h+1}} \\cdot O(h) = O(n)$.",
+      "hints": ["Most nodes are leaves with height 0", "Only $\\log n$ nodes have height $\\log n$", "Summing gives linear time"]
+    },
+    {
+      "id": "p16",
+      "title": "Constant Factors",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why is $O(100n)$ simplified to $O(n)$ in Big O notation?",
+      "answer": "Big O describes growth rate, not absolute time",
+      "explanation": "As $n \\to \\infty$, the constant 100 becomes negligible. Formally, we can choose $c=100$ in the Big O definition. Both algorithms grow linearly—we care about the shape of the curve, not its steepness.",
+      "hints": ["Big O is about asymptotic behavior", "Constants don't affect growth pattern", "Focus on what happens as $n$ gets very large"]
+    },
+    {
+      "id": "p17",
+      "title": "Amortized Analysis - Dynamic Array",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "A dynamic array doubles its capacity when full. What's the amortized cost per insertion?",
+      "answer": "$O(1)$ amortized",
+      "explanation": "Most insertions are $O(1)$. Occasionally (when resizing), we pay $O(n)$ to copy elements. But resizing happens at powers of 2: positions 1, 2, 4, 8... The expensive copies are rare enough that average cost per insertion is constant.",
+      "hints": ["Most insertions: just add element", "Resizing happens at 1, 2, 4, 8, 16...", "Total copy cost: $1 + 2 + 4 + ... + n < 2n$"]
+    },
+    {
+      "id": "p18",
+      "title": "Quicksort Worst Case",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "When does QuickSort perform at its worst $O(n^2)$, and why?",
+      "answer": "When the pivot is always the minimum or maximum element",
+      "explanation": "If we pick the first element as pivot and the array is already sorted, partitioning creates one subarray of size $n-1$ and one of size 0. Recurrence: $T(n) = T(n-1) + O(n) = O(n^2)$.",
+      "hints": ["Bad pivot selection leads to unbalanced partitions", "One partition has $n-1$ elements, other has 0", "This creates a linear recursion chain"]
+    },
+    {
+      "id": "p19",
+      "title": "Hash Table Lookup",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What's the average and worst-case time complexity of hash table lookup?",
+      "answer": "Average: $O(1)$, Worst: $O(n)$",
+      "explanation": "With a good hash function and load factor, elements distribute evenly—direct index access is $O(1)$. Worst case: all elements hash to same bucket, creating a linked list requiring $O(n)$ scan.",
+      "hints": ["Good hash = even distribution across buckets", "Direct array access by hash index", "Collisions can degrade to linked list traversal"]
+    },
+    {
+      "id": "p20",
+      "title": "Master Theorem Application",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "Use the Master Theorem to solve: $T(n) = 3T(n/2) + O(n^2)$",
+      "answer": "$O(n^2)$",
+      "explanation": "Here $a=3$, $b=2$, so $n^{\\log_b a} = n^{\\log_2 3} \\approx n^{1.585}$. Since $f(n) = n^2 = \\Omega(n^{\\log_2 3 + \\epsilon})$ and $3(n/2)^2 \\leq cn^2$ for $c < 1$, we're in Case 3: $T(n) = O(n^2)$.",
+      "hints": ["$a=3$ (subproblems), $b=2$ (division factor)", "Compare $f(n)=n^2$ with $n^{\\log_2 3} \\approx n^{1.585}$", "$n^2$ dominates, so Case 3 applies"]
+    },
+    {
+      "id": "p21",
+      "title": "Nested Loop with Different Bounds",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Analyze:\n```python\nfor i in range(n):\n    for j in range(m):\n        print(i, j)\n```",
+      "answer": "$O(n \\cdot m)$",
+      "explanation": "Outer loop runs $n$ times. Inner loop runs $m$ times for each outer iteration. Total: $n \\times m$. If $m = n$, this becomes $O(n^2)$.",
+      "hints": ["Treat $n$ and $m$ as separate variables", "Multiply loop iterations", "$n \\times m$ operations"]
+    },
+    {
+      "id": "p22",
+      "title": "String Concatenation",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "In many languages, string concatenation in a loop is expensive. What's the complexity?\n```python\nresult = \"\"\nfor s in strings:  # n strings, each of length k\n    result += s\n```",
+      "answer": "$O(n^2 \\cdot k)$ or $O(L^2)$ where $L$ is total length",
+      "explanation": "Each concatenation creates a new string and copies all previous characters. First: copy $k$, second: copy $2k$, third: copy $3k$, ... Sum: $k + 2k + 3k + ... + nk = O(n^2 k)$. Use StringBuilder for $O(nk)$.",
+      "hints": ["Each `+=` creates new string + copies old content", "Cost grows: $k, 2k, 3k, ..., nk$", "Sum is arithmetic series: $O(n^2)$"]
+    },
+    {
+      "id": "p23",
+      "title": "Tight vs Upper Bound",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Binary search is often stated as $O(\\log n)$. Can we say it's $O(n)$? Is $O(n)$ a tight bound?",
+      "answer": "Yes it's $O(n)$, but $O(\\log n)$ is the tight bound",
+      "explanation": "$O$ means 'at most.' Binary search is at most $O(n)$ (technically true but loose). The tight bound is $\\Theta(\\log n)$—it grows exactly as fast as $\\log n$, no faster, no slower.",
+      "hints": ["$O$ is an upper bound, can be loose", "$\\Theta$ means tight bound (upper and lower)", "$\\log n$ is much tighter than $n$"]
+    },
+    {
+      "id": "p24",
+      "title": "BFS Time Complexity",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What's the time complexity of BFS on a graph with $V$ vertices and $E$ edges?",
+      "answer": "$O(V + E)$",
+      "explanation": "We visit each vertex once ($O(V)$) and examine each edge once ($O(E)$). In adjacency list representation, sum of all adjacency list lengths equals $2E$ (undirected) or $E$ (directed).",
+      "hints": ["Each vertex enqueued/dequeued once", "Each edge examined once", "Total work proportional to graph size"]
+    },
+    {
+      "id": "p25",
+      "title": "Matrix Multiplication",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "Standard matrix multiplication of two $n \\times n$ matrices:",
+      "answer": "$O(n^3)$",
+      "explanation": "Result has $n^2$ entries. Each entry requires $n$ multiplications and $n-1$ additions (total $O(n)$ work per entry). Total: $n^2 \\times n = O(n^3)$.",
+      "hints": ["Result matrix has $n \\times n = n^2$ entries", "Each entry: dot product of two $n$-length vectors", "$n$ multiplications per entry × $n^2$ entries"]
+    }
+  ],
+  "minigame": {
+    "id": "complexity-guesser",
+    "title": "Complexity Guesser",
+    "description": "Test your Big O intuition! Analyze code snippets and identify their time complexity. Race against the clock to improve your analysis speed.",
+    "type": "quiz-race",
+    "instructions": [
+      "Read the code snippet carefully",
+      "Identify loops, recursion, and data structure operations",
+      "Select the correct Big O notation",
+      "Speed and accuracy both count toward your score"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Beginner",
+        "description": "Single loops and basic patterns",
+        "timeLimit": 30,
+        "problems": [
+          { "code": "for i in range(n): print(i)", "answer": "O(n)", "explanation": "Single loop executing n times" },
+          { "code": "print(arr[5])", "answer": "O(1)", "explanation": "Direct array access is constant time" }
+        ]
+      },
+      {
+        "level": 2,
+        "name": "Intermediate", 
+        "description": "Nested loops and recursion",
+        "timeLimit": 45,
+        "problems": [
+          { "code": "for i in range(n):\\n    for j in range(n):\\n        print(i*j)", "answer": "O(n²)", "explanation": "Nested loops: n × n iterations" },
+          { "code": "while n > 1:\\n    n = n // 2", "answer": "O(log n)", "explanation": "Halving n each iteration" }
+        ]
+      },
+      {
+        "level": 3,
+        "name": "Expert",
+        "description": "Complex patterns and amortized analysis",
+        "timeLimit": 60,
+        "problems": [
+          { "code": "# Merge sort implementation\\ndef sort(arr):\\n    if len(arr) <= 1: return arr\\n    mid = len(arr) // 2\\n    left = sort(arr[:mid])\\n    right = sort(arr[mid:])\\n    return merge(left, right)", "answer": "O(n log n)", "explanation": "Classic divide and conquer: log n levels, n work per level" }
+        ]
+      }
+    ],
+    "scoring": {
+      "correct": 100,
+      "streakBonus": 50,
+      "timeBonus": "max(0, timeRemaining × 2)"
+    }
+  },
+  "visualizer": {
+    "type": "growth-curve-comparison",
+    "title": "Growth Curve Visualizer",
+    "description": "Visual comparison of how different complexity classes grow as input size increases. See why $O(n)$ beats $O(n^2)$ at scale.",
+    "scales": [
+      { "n": 10, "O(1)": 1, "O(log n)": 3, "O(n)": 10, "O(n log n)": 30, "O(n²)": 100, "O(2^n)": 1024 },
+      { "n": 100, "O(1)": 1, "O(log n)": 7, "O(n)": 100, "O(n log n)": 700, "O(n²)": 10000, "O(2^n)": "∞" },
+      { "n": 1000, "O(1)": 1, "O(log n)": 10, "O(n)": 1000, "O(n log n)": 10000, "O(n²)": 1000000, "O(2^n)": "∞" }
+    ],
+    "controls": [
+      { "type": "slider", "name": "n", "min": 1, "max": 1000, "default": 100 },
+      { "type": "checkboxes", "name": "complexities", "options": ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n²)", "O(2^n)"], "default": ["O(n)", "O(n²)"] }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "O(1) - Constant Time",
+        "code": "def get_first_element(arr):\n    return arr[0]  # Direct access, always 1 step"
+      },
+      {
+        "title": "O(n) - Linear Time",
+        "code": "def find_max(arr):\n    max_val = arr[0]\n    for x in arr:  # Loop through n elements\n        if x > max_val:\n            max_val = x\n    return max_val"
+      },
+      {
+        "title": "O(log n) - Logarithmic",
+        "code": "def binary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1  # Halves search space each iteration"
+      }
+    ]
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "id": "arch-02-logic",
+  "bookId": "book-arch",
+  "title": "Logic Gates",
+  "category": "Digital Logic",
+  "order": 2,
+  "estimatedTime": "30 min",
+  "theory": {
+    "overview": "Logic gates are the fundamental building blocks of all digital circuits. They are physical implementations of Boolean algebra operations—AND, OR, NOT, and their derivatives. From the CPU in your phone to the memory in your laptop, every digital device is built from millions or billions of these simple switches working together. Understanding logic gates is like understanding the alphabet before learning to read; it's the essential foundation for everything that follows in computer architecture.",
+    "sections": [
+      {
+        "title": "The Three Basic Gates",
+        "content": "All Boolean logic can be built from just three fundamental gates: AND, OR, and NOT. AND outputs 1 only when ALL inputs are 1. OR outputs 1 when ANY input is 1. NOT (inverter) flips the input: 1 becomes 0, 0 becomes 1. These gates correspond directly to the logical operations of conjunction, disjunction, and negation.",
+        "truthTables": {
+          "AND": [
+            { "A": 0, "B": 0, "OUT": 0 },
+            { "A": 0, "B": 1, "OUT": 0 },
+            { "A": 1, "B": 0, "OUT": 0 },
+            { "A": 1, "B": 1, "OUT": 1 }
+          ],
+          "OR": [
+            { "A": 0, "B": 0, "OUT": 0 },
+            { "A": 0, "B": 1, "OUT": 1 },
+            { "A": 1, "B": 0, "OUT": 1 },
+            { "A": 1, "B": 1, "OUT": 1 }
+          ],
+          "NOT": [
+            { "A": 0, "OUT": 1 },
+            { "A": 1, "OUT": 0 }
+          ]
+        }
+      },
+      {
+        "title": "Universal Gates: NAND and NOR",
+        "content": "Remarkably, you can build ANY digital circuit using only NAND gates (or only NOR gates). This is why NAND gates are called 'universal.' A NAND is an AND followed by a NOT. A NOR is an OR followed by a NOT. Modern CPUs are actually built primarily from NAND gates because they're simpler and faster to manufacture in silicon.",
+        "universalProof": {
+          "NOT_from_NAND": "Connect both NAND inputs together: NAND(A,A) = NOT(A)",
+          "AND_from_NAND": "NAND followed by NAND as NOT: NAND(NAND(A,B), NAND(A,B)) = AND(A,B)",
+          "OR_from_NAND": "Using De Morgan's law: NAND(NOT(A), NOT(B)) = OR(A,B)"
+        }
+      },
+      {
+        "title": "XOR: The Inequality Detector",
+        "content": "XOR (Exclusive OR) outputs 1 when inputs are DIFFERENT. This makes it perfect for comparison operations, addition (sum bit), and encryption (one-time pad). XNOR is its complement—outputting 1 when inputs are the SAME. These gates are crucial for arithmetic circuits and equality checks.",
+        "truthTable": [
+          { "A": 0, "B": 0, "XOR": 0, "XNOR": 1 },
+          { "A": 0, "B": 1, "XOR": 1, "XNOR": 0 },
+          { "A": 1, "B": 0, "XOR": 1, "XNOR": 0 },
+          { "A": 1, "B": 1, "XOR": 0, "XNOR": 1 }
+        ]
+      },
+      {
+        "title": "Gate Delays and Propagation",
+        "content": "Real gates aren't instantaneous. Each gate has a propagation delay—the time for the output to change after an input changes. Typical delays range from picoseconds (ps) in modern chips to nanoseconds (ns) in older designs. When gates are chained, delays add up, creating the critical path that determines maximum clock speed.",
+        "timing": {
+          "modern_cmos": "10-50 picoseconds",
+          "propagation": "Sum of gate delays along the longest path",
+          "setup_time": "Input must be stable before clock edge"
+        }
+      },
+      {
+        "title": "De Morgan's Theorems",
+        "content": "These fundamental theorems show how to convert between AND-OR logic: NOT(A AND B) = (NOT A) OR (NOT B), and NOT(A OR B) = (NOT A) AND (NOT B). They're essential for circuit optimization, allowing designers to transform logic to use fewer gates or faster paths.",
+        "theorems": [
+          { "theorem": "¬(A ∧ B) = ¬A ∨ ¬B", "name": "First Theorem" },
+          { "theorem": "¬(A ∨ B) = ¬A ∧ ¬B", "name": "Second Theorem" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Truth Table",
+        "description": "Complete enumeration of all possible input combinations and their corresponding outputs. For n inputs, there are 2ⁿ rows.",
+        "formula": "2^n \text{ rows for } n \text{ inputs}"
+      },
+      {
+        "name": "Boolean Expression",
+        "description": "Algebraic representation of logic using AND (·), OR (+), and NOT (¬ or overbar).",
+        "example": "F = A·B + ¬A·C"
+      },
+      {
+        "name": "Fan-out",
+        "description": "Number of gate inputs that a single gate output can drive. Limited by current driving capability.",
+        "typical": "4-8 for standard CMOS gates"
+      },
+      {
+        "name": "Fan-in",
+        "description": "Number of inputs to a gate. Higher fan-in increases delay and reduces noise margin.",
+        "typical": "2-4 for optimal performance"
+      }
+    ],
+    "complexity": {
+      "gate_count": "Determines circuit size and cost",
+      " propagation_delay": "Longest path through circuit",
+      "power": "Proportional to switching frequency"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Identify the Inputs",
+      "description": "Determine how many input signals your logic needs and their possible values.",
+      "visualState": { "inputs": ["A", "B", "C"], "numCombinations": 8 }
+    },
+    {
+      "step": 2,
+      "title": "Create Truth Table",
+      "description": "List all input combinations and determine desired output for each.",
+      "visualState": { 
+        "table": [
+          { "inputs": "000", "output": 0 },
+          { "inputs": "001", "output": 1 },
+          { "inputs": "010", "output": 1 },
+          { "inputs": "011", "output": 0 }
+        ]
+      }
+    },
+    {
+      "step": 3,
+      "title": "Derive Boolean Expression",
+      "description": "Convert truth table to sum-of-products or product-of-sums form.",
+      "latex": "F = \bar{A}\bar{B}C + \bar{A}B\bar{C} + ..."
+    },
+    {
+      "step": 4,
+      "title": "Simplify and Implement",
+      "description": "Use Boolean algebra or Karnaugh maps to minimize gates, then draw the circuit.",
+      "visualState": { "gatesNeeded": 4, "optimized": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "AND Gate Behavior",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the output of AND gate when inputs are 1 and 0?",
+      "answer": "0",
+      "explanation": "AND outputs 1 only when BOTH inputs are 1. Since one input is 0, output is 0.",
+      "hints": ["AND = both must be true", "1 AND 0 = 0", "Only 1 AND 1 = 1"]
+    },
+    {
+      "id": "p2",
+      "title": "XOR Truth Table",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is XOR(1, 1)?",
+      "answer": "0",
+      "explanation": "XOR outputs 1 when inputs are DIFFERENT. Both inputs being 1 means they're the same, so output is 0.",
+      "hints": ["XOR = exclusive or", "Different inputs → 1", "Same inputs → 0"]
+    },
+    {
+      "id": "p3",
+      "title": "Boolean Expression",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What is the output of F = A·B + ¬A when A=1, B=0?",
+      "answer": "0",
+      "explanation": "A·B = 1·0 = 0. ¬A = ¬1 = 0. So F = 0 + 0 = 0.",
+      "hints": ["Evaluate each term separately", "A·B means A AND B", "¬A means NOT A"]
+    },
+    {
+      "id": "p4",
+      "title": "NAND as Universal",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "How many NAND gates are needed to create a NOT gate?",
+      "answer": "1",
+      "explanation": "Connect both inputs of a NAND gate to the same signal: NAND(A,A) = NOT(A).",
+      "hints": ["A NAND A = NOT(A)", "Both inputs tied together", "NAND inverts when inputs are same"]
+    },
+    {
+      "id": "p5",
+      "title": "De Morgan's Application",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "Apply De Morgan's theorem to ¬(A ∨ B).",
+      "answer": "¬A ∧ ¬B",
+      "explanation": "De Morgan's second theorem: NOT(A OR B) = (NOT A) AND (NOT B).",
+      "hints": ["De Morgan: ¬(A ∨ B) = ¬A ∧ ¬B", "NOT of OR becomes AND", "Each term gets inverted"]
+    },
+    {
+      "id": "p6",
+      "title": "Half Adder Logic",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Design the Sum output of a half adder using logic gates.",
+      "answer": "Sum = A ⊕ B (XOR)",
+      "explanation": "The sum bit of binary addition is 1 when inputs are different—exactly the XOR function.",
+      "hints": ["0+0=0, 0+1=1, 1+0=1, 1+1=0 (with carry)", "Sum is 1 when inputs differ", "That's XOR!"]
+    }
+  ],
+  "minigame": {
+    "id": "logic-puzzle-master",
+    "title": "Logic Puzzle Master",
+    "description": "Build circuits to match target truth tables! Drag and drop gates, connect wires, and solve increasingly complex logic puzzles.",
+    "type": "circuit-builder",
+    "instructions": [
+      "Drag gates from the palette to the workspace",
+      "Click and drag from gate outputs to inputs to connect wires",
+      "Toggle input switches to test your circuit",
+      "Match all outputs in the target truth table to win",
+      "Use fewer gates for bonus stars!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Basic Gates",
+        "description": "Learn AND, OR, and NOT",
+        "availableGates": ["AND", "OR", "NOT", "Input", "Output"],
+        "target": "Simple 2-input functions",
+        "maxGates": 3
+      },
+      {
+        "level": 2,
+        "name": "Combinations",
+        "description": "Combine multiple gate types",
+        "availableGates": ["AND", "OR", "NOT", "NAND", "Input", "Output"],
+        "target": "3-input functions",
+        "maxGates": 5
+      },
+      {
+        "level": 3,
+        "name": "Universal NAND",
+        "description": "Build any function using only NAND gates",
+        "availableGates": ["NAND", "Input", "Output"],
+        "target": "Complex functions",
+        "maxGates": 8
+      },
+      {
+        "level": 4,
+        "name": "The Half Adder",
+        "description": "Build a circuit that adds two bits",
+        "availableGates": ["AND", "OR", "NOT", "XOR", "NAND", "Input", "Output"],
+        "target": "Sum and Carry outputs",
+        "maxGates": 6
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Logic Gate Simulation",
+        "code": "# Logic gate functions\ndef AND(a, b):\n    return a & b\n\ndef OR(a, b):\n    return a | b\n\ndef NOT(a):\n    return 1 - a  # 1 - 1 = 0, 1 - 0 = 1\n\ndef XOR(a, b):\n    return a ^ b\n\ndef NAND(a, b):\n    return NOT(AND(a, b))\n\ndef NOR(a, b):\n    return NOT(OR(a, b))\n\n# Test all combinations\nprint('A B | AND OR XOR NAND')\nprint('----------------------')\nfor a in [0, 1]:\n    for b in [0, 1]:\n        print(f'{a} {b} |  {AND(a,b)}   {OR(a,b)}   {XOR(a,b)}    {NAND(a,b)}')\n\n# Build half adder\ndef half_adder(a, b):\n    sum_bit = XOR(a, b)\n    carry = AND(a, b)\n    return sum_bit, carry\n\nprint('\\nHalf Adder:')\nprint('A B | Sum Carry')\nfor a in [0, 1]:\n    for b in [0, 1]:\n        s, c = half_adder(a, b)\n        print(f'{a} {b} |  {s}     {c}')"
+      }
+    ]
+  }
+}

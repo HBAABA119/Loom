@@ -1,0 +1,462 @@
+{
+  "id": "04-strings",
+  "bookId": "book-dsa",
+  "title": "Strings",
+  "category": "Linear Structures",
+  "order": 4,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Strings are sequences of characters that form the foundation of text processing in computing. Unlike arrays of numbers, strings have unique properties: they're immutable in many languages, have special encoding considerations (ASCII, UTF-8, UTF-16), and support a rich set of operations like searching, matching, and transformation. Understanding strings deeply is crucial for text processing, parsing, and many algorithmic problems. This chapter covers string representation in memory, common string operations, pattern matching algorithms, and classic string problems you'll encounter in interviews and real applications.",
+    "sections": [
+      {
+        "title": "String Representation in Memory",
+        "content": "Strings are stored as contiguous character arrays, typically with a null terminator ('\\0') in C or with explicit length in higher-level languages. Each character uses 1 byte for ASCII or variable bytes for Unicode (UTF-8 uses 1-4 bytes, UTF-16 uses 2-4 bytes). String length is either stored separately (Python, Java) or determined by scanning for null terminator (C). The choice affects performance: length lookup is $O(1)$ with explicit length, $O(n)$ with null terminator. Concatenation can be expensive in immutable strings—each operation creates a new string and copies all characters, leading to $O(n^2)$ for repeated concatenation in a loop.",
+        "keyPoints": [
+          "ASCII: 1 byte per character, 256 possible characters",
+          "UTF-8: Variable 1-4 bytes, backward compatible with ASCII",
+          "Null terminator: '\\0' marks end in C-style strings",
+          "Immutable strings: operations create new copies"
+        ]
+      },
+      {
+        "title": "String Operations Complexity",
+        "content": "Understanding the cost of string operations is critical. Access by index is $O(1)$—direct offset calculation. Searching for a substring is $O(n \\times m)$ naive, but $O(n + m)$ with KMP or $O(nm)$ average with Rabin-Karp. Concatenation: $O(n + m)$ where $n$ and $m$ are lengths. Substring extraction: $O(k)$ where $k$ is substring length (copy required). String comparison: $O(k)$ where $k$ is length of shorter string (character by character). These operations form building blocks for more complex algorithms.",
+        "complexityTable": [
+          { "operation": "Access by index", "complexity": "$O(1)$", "explanation": "Direct address calculation" },
+          { "operation": "Length lookup", "complexity": "$O(1)$ or $O(n)$", "explanation": "$O(1)$ with stored length, $O(n)$ scanning for null" },
+          { "operation": "Substring", "complexity": "$O(k)$", "explanation": "$k$ = substring length, copy required" },
+          { "operation": "Concatenation", "complexity": "$O(n + m)$", "explanation": "Copy both strings to new buffer" },
+          { "operation": "Comparison", "complexity": "$O(k)$", "explanation": "Compare until mismatch or end" }
+        ]
+      },
+      {
+        "title": "Pattern Matching Algorithms",
+        "content": "Finding a pattern string $P$ within text string $T$ is a fundamental problem. Naive approach slides $P$ through $T$, comparing at each position—$O(n \\times m)$ time. Knuth-Morris-Pratt (KMP) uses a failure function to avoid rechecking known matches, achieving $O(n + m)$. Boyer-Moore skips characters by comparing from right to left and using bad-character and good-suffix heuristics—often sublinear in practice. Rabin-Karp uses rolling hash for $O(n + m)$ average, useful for multiple pattern search.",
+        "algorithms": [
+          { "name": "Naive", "time": "$O(nm)$", "space": "$O(1)$", "description": "Compare at each position" },
+          { "name": "KMP", "time": "$O(n + m)$", "space": "$O(m)$", "description": "Preprocess pattern, skip known matches" },
+          { "name": "Rabin-Karp", "time": "$O(n + m)$ avg", "space": "$O(1)$", "description": "Rolling hash comparison" },
+          { "name": "Boyer-Moore", "time": "$O(n/m)$ avg", "space": "$O(\\Sigma)$", "description": "Skip using bad character heuristic" }
+        ]
+      },
+      {
+        "title": "String Manipulation Techniques",
+        "content": "Two-pointer technique is powerful for string problems. For reversing: swap characters from both ends moving inward ($O(n)$ time, $O(1)$ space). For removing duplicates in sorted string: two pointers—write pointer tracks unique characters, read pointer scans. For palindrome checking: two pointers from ends, compare while moving inward. Sliding window works for substring problems—maintain window and update incrementally. String builder pattern in mutable strings (StringBuilder in Java, list of chars in Python) avoids $O(n^2)$ concatenation cost.",
+        "techniques": [
+          { "technique": "Two pointers", "useCase": "Reversing, palindrome, removing duplicates", "complexity": "$O(n)$ time, $O(1)$ space" },
+          { "technique": "Sliding window", "useCase": "Longest substring with constraints", "complexity": "$O(n)$ time" },
+          { "technique": "StringBuilder", "useCase": "Efficient concatenation", "complexity": "$O(n)$ total vs $O(n^2)$ naive" },
+          { "technique": "Hash map", "useCase": "Character frequency, anagrams", "complexity": "$O(n)$ time, $O(k)$ space" }
+        ]
+      },
+      {
+        "title": "String Encoding and Unicode",
+        "content": "ASCII encodes 128 characters using 7 bits (1 byte). Extended ASCII adds 128 more. Unicode supports all characters with 1,114,112 code points. UTF-8 uses variable length: 1 byte for ASCII, 2-4 bytes for others. UTF-16 uses 2 bytes for BMP characters, 4 bytes for others. UTF-32 uses fixed 4 bytes. Encoding matters for string length (byte count vs character count) and indexing. In UTF-8, you can't safely index by byte offset—must parse characters. Most languages handle this transparently, but understanding it prevents bugs with international text.",
+        "encodings": [
+          { "name": "ASCII", "bytes": "1", "characters": "128", "use": "English text only" },
+          { "name": "UTF-8", "bytes": "1-4", "characters": "1,114,112", "use": "Web standard, variable length" },
+          { "name": "UTF-16", "bytes": "2-4", "characters": "1,114,112", "use": "Windows, Java strings" },
+          { "name": "UTF-32", "bytes": "4", "characters": "1,114,112", "use": "Fixed width, rare" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Immutability",
+        "description": "Strings in many languages cannot be modified in place. Operations create new strings. This affects performance—concatenation in loops is $O(n^2)$.",
+        "solution": "Use StringBuilder or mutable character arrays for repeated modifications"
+      },
+      {
+        "name": "Null Terminator",
+        "description": "C-style strings end with '\\0'. Length determined by scanning until terminator. Cannot contain null byte in valid string.",
+        "tradeoff": "Length lookup $O(n)$, but saves storage for length field"
+      },
+      {
+        "name": "Character Encoding",
+        "description": "How characters map to bytes. ASCII (1 byte), UTF-8 (1-4 bytes), UTF-16 (2-4 bytes). Affects memory usage and byte-level operations.",
+        "implication": "String length ≠ byte count in variable-length encodings"
+      },
+      {
+        "name": "Rolling Hash",
+        "description": "Hash computed incrementally for sliding window. $H_{i+1} = (H_i - c_{i} \\times d^{k-1}) \\times d + c_{i+k}$. Enables $O(1)$ hash update when window slides.",
+        "application": "Rabin-Karp pattern matching, substring comparison"
+      }
+    ],
+    "complexity": {
+      "access": "$O(1)$ by index",
+      "search": "$O(nm)$ naive, $O(n+m)$ with KMP",
+      "concat": "$O(n+m)$",
+      "substring": "$O(k)$ where k = substring length",
+      "space": "$O(n)$ for n characters"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Pointers",
+      "description": "Set up pointers at appropriate positions (both ends for reversal, start for search, etc.)",
+      "visualState": { "left": 0, "right": "length - 1" }
+    },
+    {
+      "step": 2,
+      "title": "Compare Characters",
+      "description": "Compare characters at pointer positions based on operation (equality for palindrome, pattern matching)",
+      "visualState": { "comparison": "s[left] vs s[right]" }
+    },
+    {
+      "step": 3,
+      "title": "Process or Move",
+      "description": "Swap characters for reversal, move pointers for search, update hash for rolling hash",
+      "visualState": { "action": "swap" }
+    },
+    {
+      "step": 4,
+      "title": "Advance Pointers",
+      "description": "Move pointers inward or forward based on algorithm requirements",
+      "visualState": { "left": 1, "right": "length - 2" }
+    },
+    {
+      "step": 5,
+      "title": "Check Termination",
+      "description": "Check if pointers crossed or pattern found. Return result or continue.",
+      "visualState": { "terminated": false, "result": "continue" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Valid Palindrome",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Given a string, determine if it's a palindrome, considering only alphanumeric characters and ignoring case.",
+      "example": "Input: 'A man, a plan, a canal: Panama'. Output: true",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Two pointers from ends. Skip non-alphanumeric. Compare lowercase characters. Move inward. If all match, return true.",
+      "hints": ["Two pointers from both ends", "Skip non-alphanumeric characters", "Compare case-insensitively"]
+    },
+    {
+      "id": "p2",
+      "title": "Longest Palindromic Substring",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find the longest palindromic substring in a string.",
+      "example": "Input: 'babad'. Output: 'bab' or 'aba'",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(1)$" },
+      "solution": "Expand around center. For each character (and between characters), expand outward while palindrome. Track maximum length. Or use Manacher's algorithm for $O(n)$.",
+      "hints": ["Palindrome expands around center", "Consider odd and even length palindromes", "For each position, expand both ways"]
+    },
+    {
+      "id": "p3",
+      "title": "Longest Substring Without Repeating Characters",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find the length of the longest substring without repeating characters.",
+      "example": "Input: 'abcabcbb'. Output: 3 ('abc')",
+      "complexity": { "time": "$O(n)$", "space": "$O(min(m,n))$ where m is charset size" },
+      "solution": "Sliding window with hash map. Track character → index. When duplicate found, move start to max(start, last_index + 1). Update max length.",
+      "hints": ["Sliding window with two pointers", "Hash map stores last seen index of each character", "When duplicate, move window start past duplicate"]
+    },
+    {
+      "id": "p4",
+      "title": "Valid Anagram",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Given two strings, check if they're anagrams (contain same characters with same frequency).",
+      "example": "s='anagram', t='nagaram'. Output: true",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$ (fixed alphabet)" },
+      "solution": "Count character frequencies in array of size 26. Increment for s, decrement for t. If any count non-zero, not anagram. Or sort both and compare.",
+      "hints": ["Anagrams have same character counts", "Array of 26 for lowercase letters", "Sort and compare is $O(n \\log n)$ alternative"]
+    },
+    {
+      "id": "p5",
+      "title": "Group Anagrams",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Group anagrams together from an array of strings.",
+      "example": "Input: ['eat','tea','tan','ate','nat','bat']. Output: [['eat','tea','ate'],['tan','nat'],['bat']]",
+      "complexity": { "time": "$O(n \\times k \\log k)$", "space": "$O(n \\times k)$" },
+      "solution": "For each string, sort characters to get key. Use hash map: key → list of strings. Return all values. Or use character count as key.",
+      "hints": ["Anagrams have same sorted characters", "Use sorted string as hash map key", "Character count array as key avoids sorting"]
+    },
+    {
+      "id": "p6",
+      "title": "Longest Common Prefix",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find the longest common prefix string amongst an array of strings.",
+      "example": "Input: ['flower','flow','flight']. Output: 'fl'",
+      "complexity": { "time": "$O(n \\times m)$", "space": "$O(1)$" },
+      "solution": "Take first string as reference. Compare each character with all other strings. Stop when mismatch found. Return prefix up to that point.",
+      "hints": ["Take first string as reference", "Compare character by character across all strings", "Stop at first mismatch"]
+    },
+    {
+      "id": "p7",
+      "title": "String to Integer (atoi)",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Convert string to 32-bit signed integer, handling whitespace, signs, overflow, and invalid input.",
+      "example": "Input: '   -42'. Output: -42",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Skip whitespace. Check for sign. Build number digit by digit. Check for overflow before each addition. Stop at non-digit. Clamp to INT_MIN/INT_MAX.",
+      "hints": ["Handle whitespace and sign first", "Build number digit by digit: result = result * 10 + digit", "Check overflow before multiplying"]
+    },
+    {
+      "id": "p8",
+      "title": "Integer to String (itoa)",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Convert integer to string representation, handling negative numbers and zero.",
+      "example": "Input: 123. Output: '123'",
+      "complexity": { "time": "$O(\\log_{10} n)$", "space": "$O(\\log_{10} n)$" },
+      "solution": "Handle zero and negative. Extract digits by modulo 10, reverse order. Use character array, fill from end. Add sign if negative. Reverse or fill correctly.",
+      "hints": ["Extract digits: num % 10 gives last digit", "Digits come out in reverse order", "Fill string from end or reverse at end"]
+    },
+    {
+      "id": "p9",
+      "title": "Implement strStr()",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return index of first occurrence of needle in haystack, or -1 if not found.",
+      "example": "haystack='hello', needle='ll'. Output: 2",
+      "complexity": { "time": "$O(n \\times m)$", "space": "$O(1)$" },
+      "solution": "Slide needle through haystack. At each position, compare characters. If all match, return index. If end reached, return -1. Can optimize with KMP.",
+      "hints": ["Slide pattern through text", "Compare character by character at each position", "Return first match index or -1"]
+    },
+    {
+      "id": "p10",
+      "title": "Count and Say",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Generate nth term of count-and-say sequence: 1, 11, 21, 1211, 111221, ... (read previous term)",
+      "example": "n=4. Output: '1211'",
+      "complexity": { "time": "$O(2^n)$", "space": "$O(2^n)$" },
+      "solution": "Iterative: start with '1'. For each step, read current term: count consecutive same digits, append count then digit. Repeat n-1 times.",
+      "hints": ["Read previous term: '111221' → 'three 1s, two 2s, one 1' → '312211'", "Count consecutive same characters", "Build new string from counts and digits"]
+    },
+    {
+      "id": "p11",
+      "title": "Minimum Window Substring",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum window in s containing all characters of t (including duplicates).",
+      "example": "s='ADOBECODEBANC', t='ABC'. Output: 'BANC'",
+      "complexity": { "time": "$O(n)$", "space": "$O(k)$ where k is alphabet size" },
+      "solution": "Sliding window with two pointers. Count characters in t. Expand right pointer, include characters. When all required found, contract left pointer to minimize window. Track minimum.",
+      "hints": ["Sliding window: expand right, contract left", "Track required vs current character counts", "When all found, try to shrink window"]
+    },
+    {
+      "id": "p12",
+      "title": "Check Inclusion",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if s2 contains permutation of s1.",
+      "example": "s1='ab', s2='eidbaooo'. Output: true",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Sliding window of size len(s1). Count characters in s1. Slide window through s2, update counts. When counts match, return true.",
+      "hints": ["Permutation has same character counts", "Fixed-size sliding window", "Compare character counts"]
+    },
+    {
+      "id": "p13",
+      "title": "Reorganize String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange string so no two adjacent characters are same. Return empty if impossible.",
+      "example": "s='aab'. Output: 'aba'",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Count character frequencies. Use max heap: always pick most frequent character not same as previous. Place, decrement count, push back. If any character count > (n+1)/2, impossible.",
+      "hints": ["Most frequent character must be placed first", "Use max heap to always pick most frequent", "If any count > (n+1)/2, impossible"]
+    },
+    {
+      "id": "p14",
+      "title": "Basic Calculator",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Evaluate expression string with +, -, (, ).",
+      "example": "s='1 + 1'. Output: 2. s=' 2-1 + 2 '. Output: 3",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Use stack for signs. When seeing number, add with current sign. When seeing '(', push result and sign, reset. When seeing ')', pop and combine.",
+      "hints": ["Stack to handle parentheses", "Track current sign (+1 or -1)", "Push state before '(', pop after ')'"]
+    },
+    {
+      "id": "p15",
+      "title": "Decode Ways",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given encoded message where 'A'=1, 'B'=2, ..., 'Z'=26, count ways to decode.",
+      "example": "s='12'. Output: 2 ('AB' or 'L')",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "DP: dp[i] = ways to decode up to i. dp[i] = dp[i-1] if s[i-1] valid, + dp[i-2] if s[i-2:i] valid (10-26). Space-optimized to two variables.",
+      "hints": ["DP: ways to decode depends on previous 1-2 characters", "Single digit (1-9) and two digits (10-26) both valid", "Space-optimized: only need previous two values"]
+    },
+    {
+      "id": "p16",
+      "title": "Word Break",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Given string and word dictionary, determine if string can be segmented into space-separated dictionary words.",
+      "example": "s='leetcode', wordDict=['leet','code']. Output: true",
+      "complexity": { "time": "$O(n^3)$", "space": "$O(n)$" },
+      "solution": "DP: dp[i] = true if s[0:i] can be segmented. For each i, check all words: if word matches ending at i and dp[i-len(word)] true, dp[i] = true.",
+      "hints": ["DP: can segment up to position i if any valid word ends at i", "Check all dictionary words at each position", "dp[0] = true (empty string)"]
+    },
+    {
+      "id": "p17",
+      "title": "Word Ladder",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest transformation sequence from beginWord to endWord, changing one letter at a time, using dictionary words.",
+      "example": "begin='hit', end='cog', dict=['hot','dot','dog','lot','log','cog']. Output: 5 (hit→hot→dot→dog→cog)",
+      "complexity": { "time": "$O(n \\times m^2)$", "space": "$O(n \\times m^2)$" },
+      "solution": "BFS from beginWord. For each word, try changing each position to each letter. If in dict and not visited, add to queue. Track distance. Return when reach endWord.",
+      "hints": ["BFS finds shortest path", "Generate all possible one-letter mutations", "Use visited set to avoid cycles"]
+    },
+    {
+      "id": "p18",
+      "title": "Reverse Words in String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Reverse order of words in string, removing extra spaces.",
+      "example": "s='the sky is blue'. Output: 'blue is sky the'",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Split by whitespace, reverse array, join with single space. Or two-pass: reverse entire string, then reverse each word individually.",
+      "hints": ["Split into words, reverse array, join", "Or reverse entire string, then reverse each word", "Handle multiple spaces"]
+    },
+    {
+      "id": "p19",
+      "title": "Zigzag Conversion",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Write string in zigzag pattern on given rows, then read row by row.",
+      "example": "s='PAYPALISHIRING', numRows=3. Output: 'PAHNAPLSIIGYIR'",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Create row strings. Iterate through s, append to appropriate row based on direction (down/up). Change direction at top/bottom. Concatenate all rows.",
+      "hints": ["Track current row and direction", "Change direction at row 0 and row numRows-1", "Concatenate rows at end"]
+    },
+    {
+      "id": "p20",
+      "title": "Find All Anagrams in String",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all start indices of p's anagrams in s.",
+      "example": "s='cbaebabacd', p='abc'. Output: [0,6]",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Sliding window of size len(p). Count characters in p. Slide window through s, update counts. When counts match, add start index to result.",
+      "hints": ["Fixed-size sliding window", "Character count comparison", "Slide and update counts incrementally"]
+    },
+    {
+      "id": "p21",
+      "title": "Longest Repeating Character Replacement",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find length of longest substring with same letters after at most k replacements.",
+      "example": "s='ABAB', k=2. Output: 4",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Sliding window. Track max frequency of any character in window. Window valid if (length - maxFreq) ≤ k. Expand right, shrink left if invalid. Track max length.",
+      "hints": ["Window valid if: length - max frequency ≤ k", "Sliding window with two pointers", "Track max frequency in current window"]
+    },
+    {
+      "id": "p22",
+      "title": "Multiply Strings",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Multiply two non-negative integers represented as strings, return product as string.",
+      "example": "num1='2', num2='3'. Output: '6'",
+      "complexity": { "time": "$O(n \\times m)$", "space": "$O(n + m)$" },
+      "solution": "Simulate grade-school multiplication. Result array size n+m. For each digit in num1, multiply with each digit in num2, add to appropriate position. Handle carries.",
+      "hints": ["Grade-school multiplication algorithm", "Result has at most n+m digits", "Handle carries at end"]
+    },
+    {
+      "id": "p23",
+      "title": "Serialize and Deserialize Binary Tree",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Serialize binary tree to string, deserialize string back to tree.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Serialize: BFS or DFS, use 'null' for missing. Join with delimiter. Deserialize: split string, reconstruct tree using same traversal.",
+      "hints": ["Use preorder or level-order traversal", "Use delimiter and marker for null", "Deserialize using same traversal order"]
+    },
+    {
+      "id": "p24",
+      "title": "Edit Distance",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum operations to convert word1 to word2 (insert, delete, replace).",
+      "example": "word1='horse', word2='ros'. Output: 3",
+      "complexity": { "time": "$O(n \\times m)$", "space": "$O(n \\times m)$ or $O(min(n,m))$" },
+      "solution": "DP: dp[i][j] = min operations to convert word1[0:i] to word2[0:j]. dp[i][j] = min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+(word1[i-1]!=word2[j-1]))",
+      "hints": ["DP with 2D table", "Three operations: insert, delete, replace", "Base case: converting to/from empty string"]
+    },
+    {
+      "id": "p25",
+      "title": "Distinct Subsequences",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count number of distinct subsequences of s equal to t.",
+      "example": "s='rabbbit', t='rabbit'. Output: 3",
+      "complexity": { "time": "$O(n \\times m)$", "space": "$O(n \\times m)$ or $O(m)$" },
+      "solution": "DP: dp[i][j] = distinct subsequences of s[0:i] equal to t[0:j]. If s[i-1]==t[j-1]: dp[i][j] = dp[i-1][j] + dp[i-1][j-1]. Else: dp[i][j] = dp[i-1][j].",
+      "hints": ["DP: count ways to match t in s", "If characters match, can include or exclude s[i-1]", "Space-optimized to single row"]
+    }
+  ],
+  "minigame": {
+    "id": "string-manipulation",
+    "title": "String Master",
+    "description": "Master string operations through interactive challenges. Race against time to solve string puzzles!",
+    "type": "quiz-race",
+    "levels": [
+      {
+        "level": 1,
+        "name": "Basics",
+        "challenges": [
+          { "task": "Reverse 'hello'", "answer": "olleh", "timeLimit": 10 },
+          { "task": "Is 'racecar' a palindrome?", "answer": "yes", "timeLimit": 5 }
+        ]
+      },
+      {
+        "level": 2,
+        "name": "Operations",
+        "challenges": [
+          { "task": "Concatenate 'hello' + 'world'", "answer": "helloworld", "timeLimit": 15 },
+          { "task": "Remove vowels from 'beautiful'", "answer": "btfl", "timeLimit": 20 }
+        ]
+      },
+      {
+        "level": 3,
+        "name": "Algorithms",
+        "challenges": [
+          { "task": "Longest palindrome in 'babad'", "answer": "bab", "timeLimit": 30 },
+          { "task": "Anagram check: 'listen', 'silent'", "answer": "yes", "timeLimit": 10 }
+        ]
+      }
+    ]
+  },
+  "visualizer": {
+    "type": "string-operations",
+    "title": "String Operations Visualizer",
+    "description": "Visualize string algorithms: two-pointer operations, pattern matching, and transformations step by step.",
+    "algorithms": ["reverse", "palindrome-check", "pattern-match", "substring-search"],
+    "features": [
+      "Character-by-character animation",
+      "Pointer movement visualization",
+      "Comparison highlighting",
+      "Step counter with explanation"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Two Pointer Palindrome Check",
+        "code": "def is_palindrome(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        if s[left] != s[right]:\n            return False\n        left += 1\n        right -= 1\n    return True  # O(n) time, O(1) space"
+      },
+      {
+        "title": "Sliding Window - Longest Substring",
+        "code": "def length_of_longest_substring(s):\n    char_index = {}\n    max_len = start = 0\n    for i, char in enumerate(s):\n        if char in char_index and char_index[char] >= start:\n            start = char_index[char] + 1\n        char_index[char] = i\n        max_len = max(max_len, i - start + 1)\n    return max_len  # O(n) time"
+      },
+      {
+        "title": "StringBuilder Pattern",
+        "code": "# Bad: O(n²) due to repeated copying\ns = ''\nfor i in range(1000):\n    s += str(i)  # Creates new string each time\n\n# Good: O(n)\nparts = []\nfor i in range(1000):\n    parts.append(str(i))\ns = ''.join(parts)  # Single copy"
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "engine-11-exceptions",
+  "bookId": "book-engine",
+  "title": "Exception Handling & Stack Unwinding",
+  "category": "Advanced",
+  "order": 11,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Exception handling provides structured error recovery without propagating error codes through every function. When an exception is thrown, the runtime unwinds the stack, looking for an appropriate catch handler. Understanding exceptions helps write robust code and debug stack traces.",
+    "sections": [
+      {
+        "title": "Throw and Catch",
+        "content": "Throwing creates an exception object and begins stack unwinding. Catch blocks specify which exception types they handle. Uncaught exceptions terminate the program.",
+        "examples": [
+          { "code": "throw new Error('failed')", "explanation": "Creates exception and begins unwinding" }
+        ]
+      },
+      {
+        "title": "Stack Unwinding",
+        "content": "As the stack unwinds, destructors run for local objects (in C++), finally blocks execute (in Java/Python), and frame-by-frame cleanup occurs until a handler is found.",
+        "keyPoints": [
+          "Destructors run during unwinding",
+          "Finally blocks always execute",
+          "Search for matching catch handler"
+        ]
+      },
+      {
+        "title": "Zero-Cost Exceptions",
+        "content": "Modern implementations use exception tables to avoid overhead when no exceptions occur. The cost is only paid when an exception is actually thrown."
+      }
+    ],
+    "keyConcepts": [
+      { "name": "Exception Object", "description": "Contains error information and stack trace" },
+      { "name": "Exception Table", "description": "Maps code addresses to handlers" },
+      { "name": "Landing Pad", "description": "Code location where exception handler begins" }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Throwing an Exception",
+      "content": "The throw statement creates an exception object and initiates stack unwinding. Control transfers to the first matching catch block up the call stack."
+    },
+    {
+      "number": 2,
+      "title": "Unwinding Process",
+      "content": "For each stack frame: 1) Locate exception table entry for current PC, 2) Run destructors for local objects, 3) Check for catch handler, 4) Pop frame if no handler found."
+    },
+    {
+      "number": 3,
+      "title": "Matching Handlers",
+      "content": "The runtime checks exception type against catch parameters. Inheritance hierarchies are respected (catch Derived matches Base* handlers). Ellipsis (...) catches everything."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Stack Unwinding",
+      "difficulty": "Medium",
+      "description": "Function A calls B, B calls C, C throws. B has catch, A has catch. Where is the exception caught?",
+      "solution": "Caught in B. Unwinding stops at the first matching handler, so B's catch receives control."
+    },
+    {
+      "id": 2,
+      "title": "RAII & Exceptions",
+      "difficulty": "Hard",
+      "description": "Why does RAII work well with exceptions?",
+      "solution": "Destructors are called during stack unwinding, guaranteeing cleanup of resources (memory, locks, files) even when exceptions occur."
+    }
+  ],
+  "minigame": {
+    "id": "stack-unwind",
+    "title": "Stack Unwinding Challenge",
+    "type": "interactive",
+    "description": "Trace exception propagation through the call stack"
+  },
+  "visualizer": {
+    "id": "exception-flow",
+    "title": "Exception Flow Visualizer",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "cpp",
+    "code": "// Exception handling implementation (simplified)\nstruct ExceptionRecord {\n    void* exception_object;\n    std::type_info* type;\n};\n\nstruct UnwindFrame {\n    void* pc;           // current instruction\n    void* frame_ptr;    // frame pointer\n    void* landing_pad;  // catch handler or cleanup\n};\n\nvoid unwind_stack(ExceptionRecord* ex) {\n    UnwindContext ctx;\n    _Unwind_Init(&ctx);\n    \n    while (true) {\n        UnwindFrame* frame = _Unwind_GetCurrentFrame(&ctx);\n        \n        // Find exception table entry for this PC\n        LSDA* lsda = find_lsda(frame->pc);\n        Handler* handler = find_handler(lsda, ex->type);\n        \n        if (handler) {\n            // Found a catch handler\n            frame->landing_pad = handler->code;\n            _Unwind_SetGR(&ctx, 0, ex);  // Pass exception to handler\n            _Unwind_Resume(&ctx);\n            return;\n        }\n        \n        // Run destructors (cleanup phase)\n        if (has_cleanup(lsda)) {\n            run_destructors(frame);\n        }\n        \n        // Pop frame and continue unwinding\n        if (!_Unwind_PopFrame(&ctx)) {\n            terminate();  // No handler found\n        }\n    }\n}"
+  }
+}

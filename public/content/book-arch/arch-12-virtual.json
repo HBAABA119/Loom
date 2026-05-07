@@ -1,0 +1,259 @@
+{
+  "id": "arch-12-virtual",
+  "bookId": "book-arch",
+  "title": "Virtual Memory",
+  "category": "Memory",
+  "order": 12,
+  "estimatedTime": "40 min",
+  "theory": {
+    "overview": "Virtual memory is one of computing's most powerful abstractions—it gives each program the illusion of having the entire address space to itself, while the hardware and operating system secretly map these virtual addresses to physical RAM locations. This decoupling enables features impossible with physical addressing alone: memory protection (programs can't corrupt each other), efficient memory sharing (shared libraries), demand paging (running programs larger than physical RAM), and seamless multitasking. Understanding virtual memory reveals how modern operating systems create secure, stable, and efficient computing environments.",
+    "sections": [
+      {
+        "title": "Why Virtual Memory?",
+        "content": "Without virtual memory, programs directly manipulate physical addresses, leading to chaos: programs can read/write each other's memory, must be loaded at specific addresses, and can't run if they don't fit in RAM. Virtual memory solves these problems by adding an address translation layer. Each program sees a contiguous virtual address space (typically 0 to 2^64 on 64-bit systems) while the Memory Management Unit (MMU) translates virtual to physical on every access.",
+        "benefits": {
+          "isolation": "Programs cannot access each other's memory",
+          "relocation": "Program can run at any physical location",
+          "sharing": "Same physical memory mapped to multiple processes",
+          "protection": "Read/write/execute permissions per page",
+          "capacity": "Programs larger than physical RAM via swapping"
+        }
+      },
+      {
+        "title": "Pages and Frames: The Translation Unit",
+        "content": "Virtual and physical memory are divided into fixed-size blocks. Virtual pages (typically 4KB, but also 2MB/1GB huge pages) map to physical page frames. The translation: virtual page number → physical frame number, with the page offset unchanged. This page-based approach makes translation table sizes manageable—a 4GB address space with 4KB pages needs only 1 million page entries (4GB/4KB), not billions of byte-level entries.",
+        "sizes": {
+          "standard": "4 KB (most common)",
+          "huge": "2 MB or 1 GB (reduces TLB pressure)",
+          "offset": "12 bits for 4KB (2^12 = 4096)"
+        }
+      },
+      {
+        "title": "Page Tables: The Translation Map",
+        "content": "Page tables store virtual-to-physical mappings. Each process has its own page table hierarchy. x86-64 uses a 4-level page table: the virtual address splits into 4 index portions (each 9 bits = 512 entries) plus offset. The CPU walks this tree: CR3 register points to top-level (PML4), which points to PDPT, which points to PD, which points to PT, which contains the physical frame number. This multi-level approach keeps tables compact—unused portions need no allocated pages.",
+        "pageWalk": [
+          "CR3 → PML4 base",
+          "PML4 entry → PDPT base",
+          "PDPT entry → PD base", 
+          "PD entry → PT base",
+          "PT entry → Physical frame"
+        ]
+      },
+      {
+        "title": "TLB: Translation Cache",
+        "content": "Page table walks are slow (4-5 memory accesses). The Translation Lookaside Buffer (TLB) caches recent translations. On each memory access, the MMU first checks the TLB. A TLB hit completes translation in 1 cycle. A TLB miss triggers a page table walk (slow) then caches the result. TLBs are small (64-1024 entries), fully or set associative, and critical for performance. Context switches flush TLBs (or use ASIDs to avoid it).",
+        "tlbCharacteristics": {
+          "entries": "64-1024 typical",
+          "hitTime": "< 1 cycle",
+          "missPenalty": "4-100+ cycles (page walk)",
+          "hitRate": "95-99% typical"
+        }
+      },
+      {
+        "title": "Page Faults and Demand Paging",
+        "content": "When the MMU finds no valid mapping (page not present), it raises a page fault exception. The OS handler: validates the access (if invalid, kill program with segfault); allocates a physical page if needed; loads data from disk if swapped out; updates the page table; restarts the faulting instruction. This demand paging enables running programs larger than physical memory—only actively used pages reside in RAM.",
+        "pageFaultProcess": [
+          "MMU signals page fault",
+          "OS receives control",
+          "Check: valid access?",
+          "Allocate physical frame",
+          "Load from disk if needed",
+          "Update page table",
+          "Resume process"
+        ]
+      },
+      {
+        "title": "Memory Protection and Permissions",
+        "content": "Each page table entry contains permission bits: Present (page in memory), Read/Write (allow writes), User/Supervisor (access ring), Execute Disable (NX bit—prevents code execution from data pages, blocking many exploits), and Accessed/Dirty (for page replacement algorithms). These hardware-enforced permissions create the security boundary between applications and the kernel.",
+        "permissionBits": {
+          "P": "Present (in physical memory)",
+          "R/W": "Read/Write (0=read-only)",
+          "U/S": "User/Supervisor (0=kernel only)",
+          "NX": "No Execute (prevent code execution)",
+          "A": "Accessed (page was read)",
+          "D": "Dirty (page was written)"
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "MMU",
+        "description": "Memory Management Unit. Hardware that translates virtual to physical addresses on every memory access.",
+        "location": "Integrated in CPU"
+      },
+      {
+        "name": "Page Table Entry (PTE)",
+        "description": "Contains physical frame number, permission bits, and status bits for one page mapping.",
+        "size": "4-8 bytes"
+      },
+      {
+        "name": "TLB Miss",
+        "description": "When translation not in TLB. Requires slow page table walk.",
+        "penalty": "4-100+ cycles"
+      },
+      {
+        "name": "Segmentation Fault",
+        "description": "Program accessing invalid memory. OS kills program with SIGSEGV.",
+        "cause": "Accessing unmapped or protected page"
+      }
+    ],
+    "complexity": {
+      "translation": "O(1) with TLB hit, O(page_table_levels) with miss",
+      "pageWalk": "4-5 memory accesses",
+      "tlbLookup": "O(1) parallel comparison"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Split Virtual Address",
+      "description": "Divide virtual address into page number and offset components.",
+      "visualState": { "va": "0x12345678", "vpn": "0x12345", "offset": "0x678" }
+    },
+    {
+      "step": 2,
+      "title": "TLB Lookup",
+      "description": "Check TLB for cached translation of virtual page number.",
+      "visualState": { "tlbHit": false, "vpn": "0x12345" }
+    },
+    {
+      "step": 3,
+      "title": "Page Table Walk",
+      "description": "Traverse page table levels: PML4→PDPT→PD→PT to find PTE.",
+      "visualState": { "levels": 4, "path": ["PML4", "PDPT", "PD", "PT"] }
+    },
+    {
+      "step": 4,
+      "title": "Construct Physical Address",
+      "description": "Combine physical frame number from PTE with original offset.",
+      "visualState": { "pfn": "0xABCDE", "offset": "0x678", "pa": "0xABCDE678" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Virtual Memory Purpose",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What does virtual memory provide that physical memory doesn't?",
+      "answer": "Memory isolation and protection",
+      "explanation": "Virtual memory allows each process to have its own isolated address space with protection from other processes and controlled access permissions.",
+      "hints": ["Process isolation", "Protection", "Separate address spaces"]
+    },
+    {
+      "id": "p2",
+      "title": "Page Size",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the standard page size on most x86-64 systems?",
+      "answer": "4 KB",
+      "explanation": "The standard page size is 4 KB (4096 bytes). Systems also support huge pages (2MB, 1GB) for large memory applications.",
+      "hints": ["Most common size", "4 kilobytes", "4096 bytes"]
+    },
+    {
+      "id": "p3",
+      "title": "TLB Function",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is the purpose of the TLB?",
+      "answer": "Cache recent address translations",
+      "explanation": "The Translation Lookaside Buffer caches recent virtual-to-physical translations to avoid slow page table walks on every access.",
+      "hints": ["Translation cache", "Speed up address translation", "Avoid page table walk"]
+    },
+    {
+      "id": "p4",
+      "title": "Page Fault Cause",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "When does a page fault occur?",
+      "answer": "Accessing a page not in physical memory",
+      "explanation": "Page faults occur when accessing a page not present in RAM—either swapped out to disk, not yet allocated, or invalid (causing segfault).",
+      "hints": ["Page not present", "Not in physical memory", "Swapped or unmapped"]
+    },
+    {
+      "id": "p5",
+      "title": "Address Translation",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "If virtual page 0x100 maps to physical frame 0x200 and offset is 0x500, what is the physical address?",
+      "answer": "0x200500",
+      "explanation": "Physical address = (frame × page_size) + offset = (0x200 × 0x1000) + 0x500 = 0x200000 + 0x500 = 0x200500.",
+      "hints": ["Frame 0x200", "Offset 0x500", "Combine: 0x200500"]
+    },
+    {
+      "id": "p6",
+      "title": "Page Table Levels",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why do x86-64 systems use multi-level page tables instead of a single large table?",
+      "answer": "Save space for sparse address spaces",
+      "explanation": "Multi-level tables only allocate pages for used address regions. A single table for 64-bit addresses would require enormous memory (512GB for 4KB pages).",
+      "hints": ["Sparse address spaces", "Don't allocate unused regions", "Space efficiency"]
+    }
+  ],
+  "minigame": {
+    "id": "virtual-voyager",
+    "title": "Virtual Voyager",
+    "description": "Navigate the virtual memory system! Translate addresses, manage TLBs, handle page faults, and optimize memory access patterns. Master the art of address translation!",
+    "type": "simulation-strategy",
+    "instructions": [
+      "Virtual addresses appear and need translation",
+      "First check TLB for fast translation",
+      "On TLB miss, walk the page table",
+      "Handle page faults by allocating frames",
+      "Update page tables and TLB after translations",
+      "Minimize page table walks for best performance!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Basic Translation",
+        "description": "Single-level page table",
+        "pageTable": "1 level",
+        "tlb": false,
+        "timeLimit": 60,
+        "targetScore": 1000
+      },
+      {
+        "level": 2,
+        "name": "TLB Caching",
+        "description": "Add TLB for speed",
+        "pageTable": "1 level",
+        "tlb": true,
+        "tlbSize": 8,
+        "timeLimit": 90,
+        "targetScore": 2000
+      },
+      {
+        "level": 3,
+        "name": "Multi-Level Tables",
+        "description": "4-level page table walk",
+        "pageTable": "4 levels",
+        "tlb": true,
+        "tlbSize": 16,
+        "timeLimit": 120,
+        "targetScore": 3000
+      },
+      {
+        "level": 4,
+        "name": "Page Faults",
+        "description": "Handle demand paging",
+        "pageTable": "4 levels",
+        "tlb": true,
+        "pageFaults": true,
+        "swapping": true,
+        "timeLimit": 180,
+        "targetScore": 4500
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Virtual Memory Simulator",
+        "code": "class PageTableEntry:\n    def __init__(self):\n        self.present = False\n        self.frame = 0\n        self.read_write = True\n        self.user_supervisor = True\n        self.accessed = False\n        self.dirty = False\n\nclass VirtualMemorySystem:\n    def __init__(self, num_frames=16):\n        self.num_frames = num_frames\n        self.frames = [None] * num_frames  # None = free\n        self.page_table = {}  # vpn -> PTE\n        self.tlb = {}  # vpn -> (frame, access_count)\n        self.tlb_accesses = 0\n        self.tlb_hits = 0\n        self.page_faults = 0\n        self.page_size = 4096\n    \n    def get_vpn_offset(self, va):\n        vpn = va // self.page_size\n        offset = va % self.page_size\n        return vpn, offset\n    \n    def tlb_lookup(self, vpn):\n        self.tlb_accesses += 1\n        if vpn in self.tlb:\n            self.tlb_hits += 1\n            frame, _ = self.tlb[vpn]\n            return frame\n        return None\n    \n    def tlb_update(self, vpn, frame):\n        # Simple FIFO TLB\n        if len(self.tlb) >= 8:\n            oldest = min(self.tlb.keys(), key=lambda k: self.tlb[k][1])\n            del self.tlb[oldest]\n        self.tlb[vpn] = (frame, self.tlb_accesses)\n    \n    def allocate_frame(self):\n        for i, frame in enumerate(self.frames):\n            if frame is None:\n                return i\n        # Page replacement: simple FIFO\n        victim = self.page_faults % self.num_frames\n        # Would write back if dirty\n        old_vpn = self.frames[victim]\n        if old_vpn in self.page_table:\n            self.page_table[old_vpn].present = False\n        return victim\n    \n    def translate(self, va, is_write=False):\n        vpn, offset = self.get_vpn_offset(va)\n        \n        # Check TLB first\n        frame = self.tlb_lookup(vpn)\n        if frame is not None:\n            return (frame * self.page_size) + offset\n        \n        # TLB miss - check page table\n        if vpn not in self.page_table:\n            self.page_table[vpn] = PageTableEntry()\n        \n        pte = self.page_table[vpn]\n        \n        if not pte.present:\n            # Page fault!\n            self.page_faults += 1\n            frame = self.allocate_frame()\n            self.frames[frame] = vpn\n            pte.present = True\n            pte.frame = frame\n        \n        # Update access bits\n        pte.accessed = True\n        if is_write:\n            pte.dirty = True\n        \n        # Update TLB\n        self.tlb_update(vpn, pte.frame)\n        \n        return (pte.frame * self.page_size) + offset\n    \n    def get_stats(self):\n        tlb_hit_rate = self.tlb_hits / self.tlb_accesses if self.tlb_accesses > 0 else 0\n        return {\n            'tlb_accesses': self.tlb_accesses,\n            'tlb_hits': self.tlb_hits,\n            'tlb_hit_rate': tlb_hit_rate,\n            'page_faults': self.page_faults\n        }\n\n# Test\nvm = VirtualMemorySystem(num_frames=4)\n\n# Sequential access (good locality)\nprint('Sequential access:')\nfor i in range(8):\n    addr = i * 4  # 4-byte words\n    pa = vm.translate(addr)\n    print(f'  VA 0x{addr:04X} -> PA 0x{pa:04X}')\n\nstats = vm.get_stats()\nprint(f'\\nTLB Hit Rate: {stats[\"tlb_hit_rate\"]:.1%}')\nprint(f'Page Faults: {stats[\"page_faults\"]}')\n\n# Random access (poor locality)\nvm2 = VirtualMemorySystem(num_frames=4)\nprint('\\nRandom access:')\nimport random\nfor _ in range(8):\n    addr = random.randint(0, 32) * 4\n    pa = vm2.translate(addr)\n    print(f'  VA 0x{addr:04X} -> PA 0x{pa:04X}')\n\nstats2 = vm2.get_stats()\nprint(f'\\nTLB Hit Rate: {stats2[\"tlb_hit_rate\"]:.1%}')\nprint(f'Page Faults: {stats2[\"page_faults\"]}')"
+      }
+    ]
+  }
+}

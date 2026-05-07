@@ -1,0 +1,134 @@
+{
+  "id": "09-multi-qubit-gates",
+  "bookId": "book-quantum",
+  "title": "Multi-Qubit Gates",
+  "category": "Intermediate",
+  "order": 9,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Multi-qubit gates operate on two or more qubits simultaneously, enabling the entanglement and complex operations essential for quantum algorithms. While single-qubit gates manipulate individual qubit states (rotating the Bloch sphere), multi-qubit gates create correlations between qubits. The controlled-NOT (CNOT) gate is the most fundamental two-qubit gate, flips the target qubit only when the control qubit is |1⟩. More complex gates like Toffoli (CCNOT) and Fredkin (CSWAP) extend this to three qubits. These gates form the building blocks of quantum arithmetic, error correction, and universal quantum computation. Understanding how to decompose complex operations into primitive gates is essential for quantum circuit design.",
+    "sections": [
+      {
+        "title": "The CNOT Gate",
+        "content": "The CNOT (Controlled-NOT) is the fundamental two-qubit gate. It has a control qubit and a target qubit. When the control is |0⟩, the target stays unchanged. When the control is |1⟩, the target flips (X gate applied). In matrix form, CNOT is an 4×4 matrix that acts on the two-qubit state space. CNOT is its own inverse—applying it twice returns the original state. When the control is in superposition, CNOT creates entanglement: CNOT(|+0⟩) = (|00⟩ + |11⟩)/√2 = |Φ⁺⟩. This ability to entangle makes CNOT essential for universal quantum computation.",
+        "matrix": "\\text{CNOT} = \\begin{pmatrix} 1 & 0 & 0 & 0 \\\ 0 & 1 & 0 & 0 \\\ 0 & 0 & 0 & 1 \\\ 0 & 0 & 1 & 0 \\\end{pmatrix}",
+        "truthTable": [
+          { "control": "|0⟩", "target": "|0⟩", "output": "|00⟩" },
+          { "control": "|0⟩", "target": "|1⟩", "output": "|01⟩" },
+          { "control": "|1⟩", "target": "|0⟩", "output": "|11⟩" },
+          { "control": "|1⟩", "target": "|1⟩", "output": "|10⟩" }
+        ]
+      },
+      {
+        "title": "Controlled-U Operations",
+        "content": "The CNOT generalizes to controlled-U gates, where any single-qubit unitary U is applied to the target only when the control is |1⟩. For arbitrary U, the controlled-U requires decomposition. If U has a continuous parameter θ, we can vary the rotation. Important examples: Controlled-Z (CZ) applies Z to target when control is |1⟩; it's symmetric in control/target. Controlled-phase gates are crucial for QFT implementations. The general decomposition: controlled-U = |0⟩⟨0| ⊗ I + |1⟩⟨1| ⊗ U. Any controlled-U can be implemented with CNOTs and single-qubit gates.",
+        "examples": [
+          { "gate": "CZ", "description": "Applies Z gate to target when control is |1⟩" },
+          { "gate": "CPhase(θ)", "description": "Applies phase rotation e^(iθ) to |11⟩ component" },
+          { "gate": "CR_k", "description": "Controlled rotation by 2π/2^k for QFT" }
+        ]
+      },
+      {
+        "title": "Toffoli Gate (CCNOT)",
+        "content": "The Toffoli gate is a 3-qubit gate with two control qubits and one target. The target flips only when both controls are |1⟩. It's universal for classical computation—any classical circuit can be built from Toffoli gates alone. In quantum computing, Toffoli plus single-qubit gates forms a universal gate set. Toffoli is essential for: reversible arithmetic (adders, multipliers), error correction (syndrome measurement), and Grover's algorithm (oracle construction). A Toffoli can be decomposed into 6 CNOTs and various single-qubit gates. The matrix is 8×8 with a swap between |110⟩ and |111⟩ basis states.",
+        "decomposition": "6 CNOTs + 7 single-qubit T and S gates",
+        "applications": ["Reversible AND gate", "Quantum adders", "Error correction", "Grover oracles"]
+      },
+      {
+        "title": "Fredkin Gate (CSWAP)",
+        "content": "The Fredkin gate (controlled-SWAP) is another 3-qubit gate. It swaps two target qubits only when the control qubit is |1⟩. Fredkin is its own inverse and conserves the number of 1s in the computational basis (conservative). It's useful for: implementing multiplexers, conditional routing of quantum information, and certain quantum algorithms. Like Toffoli, Fredkin is universal for classical computation when combined with single-qubit gates. The Fredkin can be decomposed into 5 Toffoli gates or directly into CNOTs and single-qubit gates.",
+        "properties": ["Self-inverse", "Conservative (preserves Hamming weight)", "Classically universal"],
+        "decomposition": "5 Toffoli gates or 7 CNOTs + single-qubit gates"
+      },
+      {
+        "title": "Swap and iSWAP Gates",
+        "content": "The SWAP gate exchanges two qubits: SWAP|ab⟩ = |ba⟩. It's a 4×4 permutation matrix. Three CNOTs in sequence implement SWAP: CNOT₁₂, CNOT₂₁, CNOT₁₂. This is useful when qubits can't physically move but need their states exchanged. The iSWAP gate goes further: iSWAP|01⟩ = i|10⟩ and iSWAP|10⟩ = i|01⟩, leaving |00⟩ and |11⟩ unchanged. The phase factors are important for maintaining quantum coherence. iSWAP is native in many superconducting qubit systems because it naturally arises from capacitive coupling between qubits.",
+        "implementations": [
+          { "gate": "SWAP", "sequence": "CNOT₁₂, CNOT₂₁, CNOT₁₂" },
+          { "gate": "iSWAP", "native": "Superconducting qubit coupling" },
+          { "gate": "√SWAP", "native": "Used for creating entanglement" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Controlled Operations",
+        "description": "A gate applied conditionally based on the state of a control qubit. CNOT is the prototype, but any unitary U can be controlled.",
+        "importance": "Essential for conditional logic and entanglement creation"
+      },
+      {
+        "name": "Classical Universality",
+        "description": "Toffoli and Fredkin gates alone are sufficient to implement any classical Boolean function reversibly.",
+        "contrast": "Quantum universality requires single-qubit rotations plus any entangling gate"
+      },
+      {
+        "name": "Gate Decomposition",
+        "description": "Breaking complex multi-qubit gates into sequences of CNOTs and single-qubit gates.",
+        "significance": "Required for running algorithms on hardware with limited gate sets"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "CNOT: 1 time step, Toffoli: ~6-7 CNOT equivalents",
+      "circuitDepth": "Multi-controlled gates increase depth linearly with controls"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "CNOT Basics",
+      "description": "Apply CNOT with computational basis states to understand the truth table.",
+      "latex": "\\text{CNOT}|10\\rangle = |11\\rangle, \\text{CNOT}|11\\rangle = |10\\rangle",
+      "visualState": { "control": "|1⟩", "targetBefore": "|0⟩", "targetAfter": "|1⟩" }
+    },
+    {
+      "step": 2,
+      "title": "Creating Entanglement",
+      "description": "Put control in superposition, then apply CNOT to create Bell state.",
+      "latex": "|+0\\rangle \\xrightarrow{\\text{CNOT}} \\frac{|00\\rangle + |11\\rangle}{\\\sqrt{2}} = |\\\Phi^+\\rangle",
+      "visualState": { "before": "Product state", "after": "Maximally entangled" }
+    },
+    {
+      "step": 3,
+      "title": "Multi-Controlled Gates",
+      "description": "Build Toffoli using CNOTs and single-qubit gates for reversible computation.",
+      "latex": "\\text{CCNOT}|110\\rangle = |111\\rangle",
+      "visualState": { "gate": "Toffoli", "qubits": 3 }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "CNOT Direction",
+      "difficulty": "Easy",
+      "description": "You apply CNOT with qubit A as control and qubit B as target. If A is |+⟩ and B is |0⟩, what is the resulting state?",
+      "options": ["|+0⟩", "|Φ⁺⟩ (Bell state)", "|+-⟩", "|00⟩"],
+      "correctAnswer": 1,
+      "explanation": "CNOT|+0⟩ = CNOT((|00⟩ + |10⟩)/√2) = (|00⟩ + |11⟩)/√2 = |Φ⁺⟩. The superposition in the control creates entanglement.",
+      "hint": "Expand |+⟩ in the computational basis, then apply CNOT to each term."
+    },
+    {
+      "id": "p2",
+      "title": "Toffoli Count",
+      "difficulty": "Medium",
+      "description": "How many Toffoli gates are needed to implement a Fredkin gate?",
+      "options": ["1", "3", "5", "7"],
+      "correctAnswer": 2,
+      "explanation": "A Fredkin gate can be decomposed into 5 Toffoli gates. Alternatively, it can be implemented with 7 CNOTs and some single-qubit gates.",
+      "hint": "Fredkin is CSWAP (controlled-SWAP). Think about how to build SWAP from basic gates."
+    },
+    {
+      "id": "p3",
+      "title": "CNOT for Bell Measurement",
+      "difficulty": "Medium",
+      "description": "Given an arbitrary Bell state, what sequence disentangles it into computational basis states?",
+      "options": ["Apply H to both qubits", "Apply CNOT then H on control", "Apply CNOT then H on first qubit", "Apply Z then X"],
+      "correctAnswer": 2,
+      "explanation": "CNOT converts Bell states to computational basis states: CNOT|Φ⁺⟩ = |+0⟩, CNOT|Ψ⁺⟩ = |+1⟩. Then H on first qubit completes the transformation.",
+      "hint": "Bell states are created by CNOT from product states. The inverse process disentangles them."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n\n# CNOT matrix\nCNOT = np.array([\n    [1, 0, 0, 0],\n    [0, 1, 0, 0],\n    [0, 0, 0, 1],\n    [0, 0, 1, 0]\n])\n\n# Apply CNOT to create Bell state\nplus_0 = np.array([1/np.sqrt(2), 0, 1/np.sqrt(2), 0])  # |+0⟩\nbell_state = CNOT @ plus_0\nprint(f\"Bell state |Φ⁺⟩: {bell_state}\")\n\n# Toffoli (CCNOT) 8x8 matrix\nToffoli = np.eye(8)\nToffoli[6, 6] = 0  # |110⟩ index\nToffoli[6, 7] = 1  # -> |111⟩\nToffoli[7, 7] = 0\nToffoli[7, 6] = 1  # |111⟩ -> |110⟩\n\n# Test Toffoli\ntest_state = np.zeros(8)\ntest_state[6] = 1  # |110⟩\nresult = Toffoli @ test_state\nprint(f\"Toffoli|110⟩ = |111⟩: {result}\")",
+    "qsharp": "namespace Quantum.MultiQubit {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Diagnostics;\n    \n    // Bell state creation with CNOT\n    operation CreateBellState() : (Result, Result) {\n        use (control, target) = (Qubit(), Qubit());\n        \n        // Put control in superposition\n        H(control);\n        \n        // Apply CNOT\n        CNOT(control, target);\n        \n        // Now in Bell state |Φ⁺⟩\n        DumpMachine();\n        \n        let result1 = M(control);\n        let result2 = M(target);\n        \n        return (result1, result2);\n    }\n    \n    // Toffoli gate demonstration\n    operation ToffoliDemo() : (Result, Result, Result) {\n        use (a, b, c) = (Qubit(), Qubit(), Qubit());\n        \n        // Set up |110⟩\n        X(a);\n        X(b);\n        \n        // Apply Toffoli (CCNOT)\n        CCNOT(a, b, c);\n        \n        // Now in |111⟩\n        let resultA = M(a);\n        let resultB = M(b);\n        let resultC = M(c);\n        \n        return (resultA, resultB, resultC);\n    }\n    \n    @EntryPoint()\n    operation Main() : Unit {\n        Message(\"Creating Bell state...\");\n        let (r1, r2) = CreateBellState();\n        Message($\"Bell measurement: ({r1}, {r2}) - always correlated!\");\n    }\n}"
+  }
+}

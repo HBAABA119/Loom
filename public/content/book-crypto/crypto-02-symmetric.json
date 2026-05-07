@@ -1,0 +1,351 @@
+{
+  "id": "crypto-02-symmetric",
+  "bookId": "book-crypto",
+  "title": "Symmetric Encryption",
+  "category": "Foundations",
+  "order": 2,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Symmetric encryption powers the secure communication we rely on every day—from messaging apps to banking transactions. Unlike classical ciphers that operate letter by letter, modern symmetric ciphers process data in blocks using complex substitution-permutation networks. At their heart lies the fundamental principle: the same secret key both locks (encrypts) and unlocks (decrypts) the message. This creates a challenge—how do you securely share the key?—which we'll solve later with asymmetric cryptography. For now, understand that symmetric encryption provides speed and strength: AES-256, the current standard, withstands all known attacks even from nation-state adversaries with supercomputers.",
+    "sections": [
+      {
+        "title": "From Classical to Modern",
+        "content": "Classical ciphers failed because they preserved statistical patterns—letter frequencies in ciphertext mirrored plaintext. Modern symmetric ciphers solve this through confusion (obscuring the relationship between key and ciphertext) and diffusion (spreading plaintext influence across entire ciphertext). Claude Shannon established these principles in 1949. Confusion means changing one key bit should change about half the ciphertext bits. Diffusion means changing one plaintext bit should affect many ciphertext bits. Together they create avalanche effect: tiny input changes cause completely different outputs, defeating frequency analysis completely.",
+        "keyPoints": [
+          "Confusion: Complex relationship between key and ciphertext",
+          "Diffusion: Each plaintext bit affects many ciphertext bits",
+          "Avalanche effect: Small input change → completely different output",
+          "Statistical patterns in plaintext are hidden in ciphertext"
+        ]
+      },
+      {
+        "title": "Block Ciphers",
+        "content": "Modern encryption operates on fixed-size blocks—typically 128 bits (16 bytes)—rather than individual characters. If plaintext is longer than one block, we use modes of operation to chain blocks together securely. The core block cipher transforms an n-bit plaintext block into an n-bit ciphertext block using a secret key. This transformation must be reversible (for decryption) but computationally indistinguishable from random without the key. Block ciphers iterate multiple rounds of substitution and permutation, with each round using a subkey derived from the main key through a key schedule algorithm.",
+        "keyPoints": [
+          "Fixed block size: AES uses 128 bits, DES used 64 bits",
+          "Key size determines security: 128-bit, 256-bit keys",
+          "Multiple rounds (10-14) of substitution and permutation",
+          "Subkeys generated from master key via key schedule"
+        ]
+      },
+      {
+        "title": "AES: The Modern Standard",
+        "content": "The Advanced Encryption Standard (AES) replaced DES in 2001 after a global competition. AES operates on 128-bit blocks with keys of 128, 192, or 256 bits. It uses a substitution-permutation network with 10-14 rounds depending on key size. Each round consists of four operations: SubBytes (byte substitution using lookup table), ShiftRows (transposition), MixColumns (diffusion through matrix multiplication), and AddRoundKey (XOR with round key). No practical attack exists against full AES—brute forcing a 256-bit key would require more energy than exists in the observable universe. AES powers TLS/SSL (HTTPS), VPNs, disk encryption, and virtually all secure digital communication.",
+        "keyPoints": [
+          "AES-128: 10 rounds, AES-192: 12 rounds, AES-256: 14 rounds",
+          "Each round: SubBytes → ShiftRows → MixColumns → AddRoundKey",
+          "Final round omits MixColumns for reversibility",
+          "Widely implemented in hardware (AES-NI instructions)"
+        ]
+      },
+      {
+        "title": "Modes of Operation",
+        "content": "Raw block ciphers only encrypt single blocks. To encrypt longer messages, we use modes of operation. ECB (Electronic Codebook) encrypts each block independently—identical plaintext blocks produce identical ciphertext, revealing patterns. Never use ECB. CBC (Cipher Block Chaining) XORs each plaintext block with the previous ciphertext block before encrypting, propagating changes through the chain. CTR (Counter) mode turns a block cipher into a stream cipher by encrypting incrementing counters and XORing with plaintext. CTR allows parallel encryption/decryption and is widely used today. GCM (Galois/Counter Mode) adds authentication, providing both confidentiality and integrity verification.",
+        "keyPoints": [
+          "ECB: Never use—identical blocks → identical ciphertext",
+          "CBC: Chaining with IV, sequential processing required",
+          "CTR: Parallelizable, treats block cipher as stream cipher",
+          "GCM: Provides encryption + authentication (AEAD)"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Confusion and Diffusion",
+        "description": "Shannon's principles for strong ciphers",
+        "latex": "Confusion: complex key-ciphertext relationship, Diffusion: spread plaintext influence"
+      },
+      {
+        "name": "Block Size",
+        "description": "AES processes 128-bit blocks (16 bytes)",
+        "latex": "Block = 128 bits = 16 bytes"
+      },
+      {
+        "name": "Key Space Size",
+        "description": "Number of possible AES-256 keys",
+        "latex": "2^256 ≈ 1.15 × 10^77 possible keys"
+      },
+      {
+        "name": "Rounds",
+        "description": "AES-256 performs 14 rounds of transformation",
+        "latex": "Rounds = 6 + (key_bits / 32) = 14 for AES-256"
+      }
+    ],
+    "complexity": {
+      "encryption": "O(n) for n-bit message, constant per block",
+      "aesRounds": "O(1) per 128-bit block, fixed 10-14 rounds",
+      "keySchedule": "O(1) - subkey generation is preprocessing",
+      "bruteForce": "O(2^key_bits) - infeasible for 128+ bit keys"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Prepare Data and Key",
+      "description": "Convert plaintext to 128-bit blocks. Pad if necessary. Generate or load encryption key.",
+      "latex": "Plaintext = [16 bytes], Key = 256 bits",
+      "visualState": {
+        "plaintextBlocks": [[72, 69, 76, 76, 79, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+        "keySize": 256,
+        "mode": "CBC"
+      }
+    },
+    {
+      "step": 2,
+      "title": "Initial Round - AddRoundKey",
+      "description": "XOR the plaintext block with the first round key (derived from master key).",
+      "latex": "State = Plaintext XOR RoundKey[0]",
+      "visualState": {
+        "operation": "addRoundKey",
+        "stateMatrix": ["4C", "69", "6B", "65", "20", "61", "20", "6E", "65", "6E", "63", "72", "79", "70", "74", "65"],
+        "roundKey": ["AB", "CD", "EF", "01", "23", "45", "67", "89", "FE", "DC", "BA", "98", "76", "54", "32", "10"]
+      }
+    },
+    {
+      "step": 3,
+      "title": "SubBytes Transformation",
+      "description": "Substitute each byte using the AES S-box lookup table. Provides non-linearity.",
+      "latex": "For each byte b: b' = S-Box[b]",
+      "visualState": {
+        "operation": "subBytes",
+        "sBox": "Non-linear substitution table",
+        "byteTransformation": "4C → 29, 69 → F9, 6B → 7F..."
+      }
+    },
+    {
+      "step": 4,
+      "title": "ShiftRows",
+      "description": "Shift each row of the state matrix cyclically. Row 0: no shift, Row 1: 1 byte left, Row 2: 2 bytes, Row 3: 3 bytes.",
+      "latex": "Row 1: [a,b,c,d] → [b,c,d,a]",
+      "visualState": {
+        "operation": "shiftRows",
+        "before": [[29, F9, 7F, 84], [E7, 2C, FA, 2B], [6D, 96, 7F, 03], [97, 5D, D3, 42]],
+        "after": [[29, F9, 7F, 84], [2C, FA, 2B, E7], [7F, 03, 6D, 96], [42, 97, 5D, D3]]
+      }
+    },
+    {
+      "step": 5,
+      "title": "MixColumns",
+      "description": "Mix each column using matrix multiplication in GF(2^8). Spreads influence across columns.",
+      "latex": "Each column multiplied by fixed matrix in Galois Field",
+      "visualState": {
+        "operation": "mixColumns",
+        "matrix": [[2, 3, 1, 1], [1, 2, 3, 1], [1, 1, 2, 3], [3, 1, 1, 2]],
+        "description": "GF(2^8) multiplication with reduction polynomial"
+      }
+    },
+    {
+      "step": 6,
+      "title": "Repeat Rounds",
+      "description": "Perform SubBytes → ShiftRows → MixColumns → AddRoundKey for rounds 2 through 13.",
+      "latex": "Repeat for rounds 2 to N-1 (round 2-13 for AES-256)",
+      "visualState": {
+        "currentRound": 2,
+        "totalRounds": 14,
+        "progress": "2/14"
+      }
+    },
+    {
+      "step": 7,
+      "title": "Final Round",
+      "description": "Final round omits MixColumns. Perform SubBytes → ShiftRows → AddRoundKey.",
+      "latex": "Final = AddRoundKey(ShiftRows(SubBytes(State)))",
+      "visualState": {
+        "operation": "finalRound",
+        "finalCiphertext": "A3, F4, 8B, 2C, 9D, 1E, 7A, 5F, 6C, 0D, E2, 8A, 4B, 9C, 1F, 2D",
+        "round": 14
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Block Size Calculation",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "How many 128-bit AES blocks are needed to encrypt a 1000-byte message?",
+      "latex": "Blocks = ceil(1000 / 16)",
+      "hints": [
+        "AES block size is 128 bits = 16 bytes",
+        "Divide message size by block size",
+        "Round up to nearest whole block"
+      ],
+      "solution": {
+        "answer": "63 blocks",
+        "explanation": "1000 bytes / 16 bytes per block = 62.5 → rounded up to 63 blocks. Last block needs padding."
+      }
+    },
+    {
+      "id": "p2",
+      "title": "ECB vs CBC Pattern",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "You encrypt an image using ECB mode. What pattern will be visible in the ciphertext?",
+      "latex": "ECB(plaintext) = identical blocks produce identical ciphertext",
+      "hints": [
+        "ECB encrypts each block independently",
+        "Identical 16-byte blocks produce same output",
+        "Large uniform areas in image remain recognizable"
+      ],
+      "solution": {
+        "answer": "The original image structure remains visible because identical pixel blocks produce identical ciphertext blocks",
+        "explanation": "ECB does not hide patterns. This is why ECB is insecure and should never be used for anything important."
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Brute Force Time",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "A supercomputer can try 10^15 keys per second. How long would it take to brute force AES-128?",
+      "latex": "Time = 2^128 / 10^15 seconds",
+      "hints": [
+        "2^128 ≈ 3.4 × 10^38 possible keys",
+        "Divide by attempts per second",
+        "Convert to years for perspective"
+      ],
+      "solution": {
+        "answer": "≈ 10^13 years (10 trillion years)",
+        "explanation": "3.4 × 10^38 keys ÷ 10^15 keys/sec = 3.4 × 10^23 seconds ≈ 10^13 years. For comparison, the universe is 1.4 × 10^10 years old."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Avalanche Effect",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "If you flip one bit in the plaintext, approximately what percentage of ciphertext bits should change in a good cipher?",
+      "latex": "Expected change ≈ 50% of bits",
+      "hints": [
+        "Avalanche effect spreads changes throughout",
+        "Good diffusion makes output unpredictable",
+        "50% is the ideal for random-like behavior"
+      ],
+      "solution": {
+        "answer": "Approximately 50%",
+        "explanation": "In a well-designed cipher like AES, changing one input bit should change about half the output bits on average. This creates the avalanche effect."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Key Schedule",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why does AES use a key schedule to generate round keys instead of using the master key directly?",
+      "latex": "RoundKey[i] = f(MasterKey, i)",
+      "hints": [
+        "Each round needs its own 128-bit key",
+        "Key schedule introduces non-linearity",
+        "Prevents relating different rounds cryptanalytically"
+      ],
+      "solution": {
+        "answer": "The key schedule provides different subkeys for each round, preventing attacks that exploit round similarities and ensuring proper mixing of key material throughout the cipher",
+        "explanation": "Using the same key for all rounds would make the cipher vulnerable to slide attacks and other cryptanalytic techniques. The key schedule ensures each round has unique, related-but-different key material."
+      }
+    },
+    {
+      "id": "p6",
+      "title": "Mode Selection",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "Which mode should you use for: (a) Random access to encrypted database records, (b) Streaming video encryption, (c) Secure messaging with integrity?",
+      "latex": "Requirements: random access, streaming, authentication",
+      "hints": [
+        "CTR allows random access (no chaining)",
+        "CTR is also good for streaming (parallelizable)",
+        "GCM provides authenticated encryption (AEAD)"
+      ],
+      "solution": {
+        "answer": "(a) CTR or XTS, (b) CTR, (c) GCM",
+        "explanation": "CTR mode allows decrypting any block independently. GCM combines CTR encryption with authentication for integrity verification—essential for secure messaging."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "aes-puzzle",
+    "title": "AES Round Master",
+    "description": "Learn AES by building each round yourself! Arrange the operations (SubBytes, ShiftRows, MixColumns, AddRoundKey) in the correct order to complete encryption rounds.",
+    "type": "puzzle-builder",
+    "instructions": [
+      "Drag operations into the correct sequence for each round",
+      "Learn which operations are in each round",
+      "Final round is different - no MixColumns!",
+      "Complete all 14 rounds for AES-256 mastery"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Round Basics",
+        "description": "Learn the four AES operations",
+        "availableOps": ["SubBytes", "ShiftRows", "MixColumns", "AddRoundKey"],
+        "targetSequence": ["AddRoundKey", "SubBytes", "ShiftRows", "MixColumns"],
+        "rounds": 1
+      },
+      {
+        "level": 2,
+        "name": "Full Round Sequence",
+        "description": "Build complete encryption rounds",
+        "availableOps": ["SubBytes", "ShiftRows", "MixColumns", "AddRoundKey"],
+        "targetSequence": ["SubBytes", "ShiftRows", "MixColumns", "AddRoundKey"],
+        "rounds": 3
+      },
+      {
+        "level": 3,
+        "name": "Final Round Challenge",
+        "description": "Remember: final round skips MixColumns!",
+        "availableOps": ["SubBytes", "ShiftRows", "MixColumns", "AddRoundKey"],
+        "targetSequence": ["SubBytes", "ShiftRows", "AddRoundKey"],
+        "isFinalRound": true,
+        "rounds": 2
+      }
+    ],
+    "scoring": {
+      "correctPlacement": 10,
+      "roundCompletion": 50,
+      "perfectBonus": 100,
+      "timeBonus": "seconds_remaining"
+    }
+  },
+  "visualizer": {
+    "type": "aes-animation",
+    "title": "AES Encryption Visualizer",
+    "description": "Step through AES encryption round by round, watching how plaintext transforms through each operation",
+    "features": [
+      "State matrix visualization (4x4 bytes)",
+      "S-Box substitution animation",
+      "Row shifting visualization",
+      "MixColumns matrix multiplication",
+      "Round key generation display"
+    ],
+    "modes": [
+      {
+        "id": "single-block",
+        "name": "Single Block Encryption",
+        "description": "Watch one 128-bit block encrypt through all rounds"
+      },
+      {
+        "id": "round-detail",
+        "name": "Round Deep Dive",
+        "description": "Examine each operation within a round in detail"
+      },
+      {
+        "id": "compare",
+        "name": "Avalanche Effect",
+        "description": "Compare two encryptions differing by one bit"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "AES Encryption with PyCryptodome",
+        "code": "from Crypto.Cipher import AES\nfrom Crypto.Util.Padding import pad\nimport os\n\n# Generate a random 256-bit key\nkey = os.urandom(32)  # 32 bytes = 256 bits\n\n# Generate random IV for CBC mode\niv = os.urandom(16)   # 16 bytes = 128 bits\n\n# Create cipher and encrypt\ncipher = AES.new(key, AES.MODE_CBC, iv=iv)\nplaintext = b\"Secret message here!\"\npadded = pad(plaintext, AES.block_size)\nciphertext = cipher.encrypt(padded)\n\nprint(f\"Ciphertext: {ciphertext.hex()}\")\n\n# Decrypt\ndecipher = AES.new(key, AES.MODE_CBC, iv=iv)\ndecrypted = decipher.decrypt(ciphertext)\nprint(f\"Decrypted: {decrypted}\")"
+      },
+      {
+        "title": "AES-GCM (Authenticated Encryption)",
+        "code": "from Crypto.Cipher import AES\nimport os\n\nkey = os.urandom(32)\nnonce = os.urandom(12)  # GCM uses nonce instead of IV\n\n# GCM provides encryption AND authentication\ncipher = AES.new(key, AES.MODE_GCM, nonce=nonce)\n\n# Associated data (authenticated but not encrypted)\ncipher.update(b\"header data\")\n\nplaintext = b\"Secret message\"\nciphertext, tag = cipher.encrypt_and_digest(plaintext)\n\nprint(f\"Ciphertext: {ciphertext.hex()}\")\nprint(f\"Auth tag: {tag.hex()}\")  # 16 bytes authentication tag\n\n# Decryption verifies the tag automatically\ndecipher = AES.new(key, AES.MODE_GCM, nonce=nonce)\ndecipher.update(b\"header data\")\ndecrypted = decipher.decrypt_and_verify(ciphertext, tag)\nprint(f\"Verified: {decrypted}\")"
+      }
+    ]
+  }
+}

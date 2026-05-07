@@ -1,0 +1,90 @@
+{
+  "id": "engine-15-profiling",
+  "bookId": "book-engine",
+  "title": "Profiling & Performance Analysis",
+  "category": "Advanced",
+  "order": 15,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Profiling measures program performance to identify bottlenecks. Tools like CPU profilers, memory profilers, and flame graphs reveal where time is spent and memory is allocated. Understanding profiling helps optimize hot paths and reduce resource usage.",
+    "sections": [
+      {
+        "title": "Sampling vs Instrumentation",
+        "content": "Sampling periodically interrupts the program to see what's running (low overhead, statistical). Instrumentation adds code to track execution (precise, higher overhead).",
+        "keyPoints": [
+          "Sampling: low overhead, statistical",
+          "Instrumentation: precise, higher overhead",
+          "Choose based on use case"
+        ]
+      },
+      {
+        "title": "Flame Graphs",
+        "content": "Visual representation of call stacks. The x-axis is population (not time), y-axis is stack depth. Wide bars indicate hot paths worth optimizing.",
+        "examples": [
+          { "code": "flamegraph.svg", "explanation": "Wide bars = functions consuming most CPU time" }
+        ]
+      },
+      {
+        "title": "Hardware Counters",
+        "content": "CPU performance counters measure cache misses, branch mispredictions, cycles per instruction, and other low-level metrics. These reveal micro-architectural bottlenecks."
+      },
+      {
+        "title": "Memory Profiling",
+        "content": "Track allocations, detect leaks, identify fragmentation. Tools like Valgrind, AddressSanitizer, and heap profilers show where memory is consumed and if it's properly freed."
+      }
+    ],
+    "keyConcepts": [
+      { "name": "Hot Path", "description": "Code executed frequently, worth optimizing" },
+      { "name": "Cache Miss", "description": "Data not in CPU cache, causes delay" },
+      { "name": "Branch Misprediction", "description": "CPU guesses wrong branch direction" }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Setting Up Profiling",
+      "content": "Choose appropriate profiler for your needs: perf (Linux), Instruments (macOS), VTune (Intel), or language-specific tools. Compile with debug symbols for accurate source mapping."
+    },
+    {
+      "number": 2,
+      "title": "Capturing Data",
+      "content": "Run representative workloads. Sampling profilers need enough samples for statistical significance. Instrumentation may need release builds with frame pointers preserved."
+    },
+    {
+      "number": 3,
+      "title": "Analyzing Results",
+      "content": "Identify hot functions (most time spent), call patterns (who calls hot functions), and opportunity areas (functions consuming more time than expected)."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Sampling Accuracy",
+      "difficulty": "Medium",
+      "description": "A function runs for 1ms in a 10-second execution. With 1000 samples, will it appear?",
+      "solution": "Expected 0.1 samples (1ms/10000ms * 1000). It might not appear or appear once. Short-running functions may be invisible to sampling."
+    },
+    {
+      "id": 2,
+      "title": "Cache Miss Profile",
+      "difficulty": "Hard",
+      "description": "A loop has high L1 cache miss rate. What's a likely cause?",
+      "solution": "Strided access pattern or data structure layout. Solutions: cache blocking/tiling, structure of arrays instead of array of structures, prefetching."
+    }
+  ],
+  "minigame": {
+    "id": "performance-detective",
+    "title": "Performance Detective",
+    "type": "interactive",
+    "description": "Analyze profile data to identify and fix performance bottlenecks"
+  },
+  "visualizer": {
+    "id": "flame-graph",
+    "title": "Flame Graph Visualizer",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "c",
+    "code": "// Simple sampling profiler (signal-based)\n#include <signal.h>\n#include <ucontext.h>\n\ntypedef struct Sample {\n    void* pc;          // program counter\n    void* stack[64];   // call stack\n    int depth;         // stack depth\n} Sample;\n\n#define MAX_SAMPLES 100000\nstatic Sample samples[MAX_SAMPLES];\nstatic int sample_count = 0;\n\nvoid profiler_handler(int sig, siginfo_t* info, void* context) {\n    if (sample_count >= MAX_SAMPLES) return;\n    \n    ucontext_t* uc = (ucontext_t*)context;\n    void** bp = (void**)uc->uc_mcontext.gregs[REG_RBP];\n    void* pc = (void*)uc->uc_mcontext.gregs[REG_RIP];\n    \n    Sample* s = &samples[sample_count++];\n    s->pc = pc;\n    s->depth = 0;\n    \n    // Walk stack frame chain\n    while (bp && s->depth < 64) {\n        s->stack[s->depth++] = pc;\n        pc = bp[1];      // return address\n        bp = (void**)bp[0];  // previous frame pointer\n    }\n}\n\nvoid start_profiler() {\n    struct sigaction sa = {\n        .sa_sigaction = profiler_handler,\n        .sa_flags = SA_SIGINFO\n    };\n    sigemptyset(&sa.sa_mask);\n    sigaction(SIGPROF, &sa, NULL);\n    \n    // Sample every 10ms\n    struct itimerval timer = {\n        .it_interval = {0, 10000},  // 10ms\n        .it_value = {0, 10000}\n    };\n    setitimer(ITIMER_PROF, &timer, NULL);\n}\n\n// Later: symbolize PC values and aggregate into flame graph"
+  }
+}

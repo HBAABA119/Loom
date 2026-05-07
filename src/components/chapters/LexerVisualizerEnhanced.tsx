@@ -34,7 +34,7 @@ const tokenTypeColors: Record<string, string> = {
   COMMENT: "#8b949e",
 };
 
-export default function LexerVisualizerEnhanced() {
+function LexerVisualizerEnhanced() {
   const [selectedExample, setSelectedExample] = useState(0);
   const [currentCode, setCurrentCode] = useState(sourceCodeExamples[0].code);
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -425,3 +425,5 @@ export default function LexerVisualizerEnhanced() {
     </div>
   );
 }
+
+export default LexerVisualizerEnhanced;

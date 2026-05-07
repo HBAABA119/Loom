@@ -217,7 +217,7 @@ const generateSteps = (): Step[] => [
   },
 ];
 
-export default function LinkedListVisualizerEnhanced() {
+function LinkedListVisualizerEnhanced() {
   const { 
     currentStep: stepIndex, 
     totalSteps, 
@@ -525,3 +525,5 @@ export default function LinkedListVisualizerEnhanced() {
     </div>
   );
 }
+
+export default LinkedListVisualizerEnhanced;

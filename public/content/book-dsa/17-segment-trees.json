@@ -1,0 +1,395 @@
+{
+  "id": "17-segment-trees",
+  "bookId": "book-dsa",
+  "title": "Segment Trees",
+  "category": "Advanced Data Structures",
+  "order": 17,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Segment Tree is a binary tree data structure for range queries and point updates on arrays. Each node stores information about a segment (range) of the array. Supports range queries (sum, min, max, GCD) and point updates in $O(\\log n)$ time. Build in $O(n)$. Used in competitive programming for range query problems. This chapter covers segment tree structure, operations, lazy propagation for range updates, and applications.",
+    "sections": [
+      {
+        "title": "Segment Tree Structure",
+        "content": "Binary tree where each node represents a segment of the array. Root represents entire array [0, n-1]. Left child represents [l, mid], right child represents [mid+1, r]. Leaf nodes represent single elements. Height = O(log n). Total nodes = 2n-1 (or 4n for safe array allocation). Each node stores aggregate (sum, min, max) of its segment.",
+        "keyPoints": [
+          "Root = entire array",
+          "Leaves = single elements",
+          "Height = O(log n)"
+        ]
+      },
+      {
+        "title": "Build Operation",
+        "content": "Build tree recursively from array. For leaf node, store array value. For internal node, combine children's values (sum = left + right, min = min(left, right), max = max(left, right)). Time: O(n). Space: O(n) for tree array.",
+        "examples": [
+          { "code": "build(node, l, r)", "explanation": "Recursively build tree from array" }
+        ]
+      },
+      {
+        "title": "Point Update",
+        "content": "Update single element at index. Recursively find leaf, update it, then recompute all ancestors. Time: O(log n). Propagate changes up the tree.",
+        "keyPoints": [
+          "Update leaf node",
+          "Recompute ancestors",
+          "O(log n) time"
+        ]
+      },
+      {
+        "title": "Range Query",
+        "content": "Query aggregate over range [ql, qr]. Recursively traverse: if segment completely outside, return neutral. If completely inside, return node value. If partial, recurse on both children and combine. Time: O(log n).",
+        "examples": [
+          { "code": "query(node, l, r, ql, qr)", "explanation": "Returns aggregate over range" }
+        ]
+      },
+      {
+        "title": "Lazy Propagation",
+        "content": "For range updates (add value to all elements in range). Lazy propagation defers updates until needed. Each node has lazy value (pending update). When visiting node, apply lazy to node, propagate to children. Enables range updates in O(log n).",
+        "keyPoints": [
+          "Defer updates",
+          "Store pending lazy values",
+          "O(log n) range updates"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Segment Representation",
+        "description": "Each node represents a contiguous segment of the array. Root = entire array, leaves = single elements."
+      },
+      {
+        "name": "Combine Function",
+        "description": "Function to combine two child values into parent value. Depends on query type: sum = a+b, min = min(a,b), max = max(a,b), GCD = gcd(a,b)."
+      },
+      {
+        "name": "Neutral Element",
+        "description": "Identity for combine function. For sum: 0, min: infinity, max: -infinity, GCD: 0. Used when segment is outside query range."
+      },
+      {
+        "name": "Lazy Value",
+        "description": "Pending update to be applied to segment. Stored at node, propagated to children when needed. Enables efficient range updates."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Build Tree",
+      "description": "Recursively build tree from array. Leaves store array values, internal nodes store aggregates.",
+      "code": "def build(node, l, r): if l == r: tree[node] = arr[l]; else: mid = (l+r)//2; build(left, l, mid); build(right, mid+1, r); tree[node] = combine(tree[left], tree[right]);",
+      "visualState": { "tree": "built", "leaves": "array values" }
+    },
+    {
+      "step": 2,
+      "title": "Point Update",
+      "description": "Navigate to leaf, update value, recompute ancestors.",
+      "code": "def update(node, l, r, idx, val): if l == r: tree[node] = val; else: mid = (l+r)//2; if idx <= mid: update(left, l, mid, idx, val); else: update(right, mid+1, r, idx, val); tree[node] = combine(tree[left], tree[right]);",
+      "visualState": { "path": "to leaf", "ancestors": "recomputed" }
+    },
+    {
+      "step": 3,
+      "title": "Range Query",
+      "description": "Query range [ql, qr]. Combine results from relevant segments.",
+      "code": "def query(node, l, r, ql, qr): if ql > r or qr < l: return neutral; if ql <= l and r <= qr: return tree[node]; mid = (l+r)//2; return combine(query(left, l, mid, ql, qr), query(right, mid+1, r, ql, qr));",
+      "visualState": { "segments": "combined" }
+    },
+    {
+      "step": 4,
+      "title": "Lazy Propagation - Apply",
+      "description": "When visiting node with lazy value, apply to node value and propagate to children.",
+      "code": "def apply_lazy(node, l, r, val): tree[node] += val * (r - l + 1); lazy[node] += val;",
+      "visualState": { "lazy": "applied" }
+    },
+    {
+      "step": 5,
+      "title": "Lazy Propagation - Push",
+      "description": "Before recursing, push lazy value to children.",
+      "code": "def push(node, l, r): if lazy[node] != 0: mid = (l+r)//2; apply_lazy(left, l, mid, lazy[node]); apply_lazy(right, mid+1, r, lazy[node]); lazy[node] = 0;",
+      "visualState": { "children": "updated" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Range Sum Query - Mutable",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement range sum with point updates using segment tree.",
+      "complexity": { "update": "$O(\\log n)$", "sumRange": "$O(\\log n)$" },
+      "solution": "Segment tree with sum as combine function. Build, update, query as described.",
+      "hints": "Segment tree, sum combine"
+    },
+    {
+      "id": "p2",
+      "title": "Range Sum Query - Immutable",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Multiple range sum queries on immutable array (prefix sum).",
+      "complexity": { "preprocess": "$O(n)$", "query": "$O(1)$" },
+      "solution": "Prefix sum array. sumRange(i,j) = prefix[j+1] - prefix[i].",
+      "hints": "Prefix sum (not segment tree)"
+    },
+    {
+      "id": "p3",
+      "title": "Range Minimum Query",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Range minimum query with point updates.",
+      "complexity": { "update": "$O(\\log n)$", "query": "$O(\\log n)$" },
+      "solution": "Segment tree with min as combine function. Neutral = ∞.",
+      "hints": "Segment tree, min combine"
+    },
+    {
+      "id": "p4",
+      "title": "Range Maximum Query",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Range maximum query with point updates.",
+      "complexity": { "update": "$O(\\log n)$", "query": "$O(\\log n)$" },
+      "solution": "Segment tree with max as combine function. Neutral = -∞.",
+      "hints": "Segment tree, max combine"
+    },
+    {
+      "id": "p5",
+      "title": "Range Sum Query 2D",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "2D range sum with point updates.",
+      "complexity": { "update": "$O(\\log m \\times \\log n)$", "query": "$O(\\log m \\times \\log n)$" },
+      "solution": "2D segment tree or 2D Fenwick tree. Segment tree of segment trees.",
+      "hints": "2D segment tree or 2D BIT"
+    },
+    {
+      "id": "p6",
+      "title": "Range Addition and Range Sum",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Range add (add value to range) and range sum queries.",
+      "complexity": { "update": "$O(\\log n)$", "query": "$O(\\log n)$" },
+      "solution": "Segment tree with lazy propagation. Store sum and lazy at each node.",
+      "hints": "Lazy propagation"
+    },
+    {
+      "id": "p7",
+      "title": "Count of Range Sum",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count range sums in [lower, upper].",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Prefix sum + BIT/segment tree for counting prefix sums in range.",
+      "hints": "Prefix sum + BIT for counting"
+    },
+    {
+      "id": "p8",
+      "title": "Range Module",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Track ranges, add range, remove range, query if number in any range.",
+      "complexity": { "add": "$O(\\log n)$", "remove": "$O(\\log n)$", "query": "$O(\\log n)$" },
+      "solution": "Segment tree with interval tracking or ordered set of intervals.",
+      "hints": "Segment tree or ordered set"
+    },
+    {
+      "id": "p9",
+      "title": "Falling Squares",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Simulate falling squares, track height after each drop.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Segment tree with range max query and range update.",
+      "hints": "Segment tree, range max"
+    },
+    {
+      "id": "p10",
+      "title": "Number of Longest Increasing Subsequence",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find number of LIS in array.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Segment tree with (length, count) pairs. Coordinate compression.",
+      "hints": "Segment tree with (length, count)"
+    },
+    {
+      "id": "p11",
+      "title": "Reverse Pairs",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count pairs i < j where nums[i] > 2 * nums[j].",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Segment tree or BIT. Process from right, count smaller elements.",
+      "hints": "BIT or segment tree from right"
+    },
+    {
+      "id": "p12",
+      "title": "Count of Smaller Numbers After Self",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "For each element, count smaller elements to its right.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "BIT or segment tree. Process from right, query count of smaller.",
+      "hints": "BIT or segment tree from right"
+    },
+    {
+      "id": "p13",
+      "title": "Count of Range Maximum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count occurrences of maximum in range.",
+      "complexity": { "update": "$O(\\log n)$", "query": "$O(\\log n)$" },
+      "solution": "Segment tree with (max, count) pairs.",
+      "hints": "Segment tree with (max, count)"
+    },
+    {
+      "id": "p14",
+      "title": "My Calendar I",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Book events if no overlap. Check if new event overlaps with existing.",
+      "complexity": { "book": "$O(\\log n)$" },
+      "solution": "Segment tree or ordered set of intervals.",
+      "hints": "Segment tree or ordered set"
+    },
+    {
+      "id": "p15",
+      "title": "My Calendar II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Book events if no triple overlap (max 2 events can overlap).",
+      "complexity": { "book": "$O(\\log n)$" },
+      "solution": "Segment tree tracking overlap count. Or two ordered sets.",
+      "hints": "Segment tree with overlap count"
+    },
+    {
+      "id": "p16",
+      "title": "My Calendar III",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Return maximum number of overlapping events after booking.",
+      "complexity": { "book": "$O(\\log n)$" },
+      "solution": "Segment tree with range add and range max query.",
+      "hints": "Segment tree, range add, range max"
+    },
+    {
+      "id": "p17",
+      "title": "Range GCD Query",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Range GCD query with point updates.",
+      "complexity": { "update": "$O(\\log n)$", "query": "$O(\\log n)$" },
+      "solution": "Segment tree with GCD as combine function.",
+      "hints": "Segment tree, GCD combine"
+    },
+    {
+      "id": "p18",
+      "title": "XOR Queries of a Subarray",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Range XOR query with point updates.",
+      "complexity": { "update": "$O(\\log n)$", "query": "$O(\\log n)$" },
+      "solution": "Segment tree with XOR as combine function.",
+      "hints": "Segment tree, XOR combine"
+    },
+    {
+      "id": "p19",
+      "title": "Product of the Last K Numbers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Product of last k numbers, handle zeros.",
+      "complexity": { "add": "$O(1)$", "getProduct": "$O(k)$ or $O(\\log n)$" },
+      "solution": "Segment tree or prefix product with zero tracking.",
+      "hints": "Prefix product with zero handling"
+    },
+    {
+      "id": "p20",
+      "title": "Range Frequency Queries",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Count frequency of value in range.",
+      "complexity": { "query": "$O(\\log n)$" },
+      "solution": "Segment tree of hash maps or offline with Mo's algorithm.",
+      "hints": "Segment tree of hash maps"
+    },
+    {
+      "id": "p21",
+      "title": "K-th Smallest in Range",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find k-th smallest element in range.",
+      "complexity": { "query": "$O(\\log^2 n)$" },
+      "solution": "Segment tree of sorted vectors with binary search.",
+      "hints": "Merge sort tree"
+    },
+    {
+      "id": "p22",
+      "title": "Majority Element in Range",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find majority element (appears > n/2 times) in range.",
+      "complexity": { "query": "$O(\\log n)$" },
+      "solution": "Segment tree with (candidate, count) pairs using Boyer-Moore.",
+      "hints": "Segment tree with Boyer-Moore"
+    },
+    {
+      "id": "p23",
+      "title": "Number of Subarrays with Bounded Maximum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count subarrays with max in [L, R].",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Two pointers or segment tree with range max.",
+      "hints": "Two pointers or segment tree"
+    },
+    {
+      "id": "p24",
+      "title": "Longest Well-Performing Interval",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find longest interval where hours[i] > 8 for > half the time.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Transform to prefix sum, use hash map or segment tree.",
+      "hints": "Prefix sum + hash map"
+    },
+    {
+      "id": "p25",
+      "title": "Create Sorted Array Through Instructions",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Cost to create sorted array (count smaller and larger elements).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "BIT or segment tree for counting smaller/larger.",
+      "hints": "BIT for counting"
+    }
+  ],
+  "minigame": {
+    "id": "segment-tree-builder",
+    "title": "Segment Tree Master",
+    "description": "Master segment trees! Build, update, and query interactively.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Build", "task": "Build segment tree for array [1,3,5,7,9,11]" },
+      { "name": "Update", "task": "Update index 2 to 10" },
+      { "name": "Query", "task": "Query sum of range [1,4]" }
+    ]
+  },
+  "visualizer": {
+    "type": "segment-tree",
+    "title": "Segment Tree Visualizer",
+    "description": "Visualize segment tree build, update, and query operations.",
+    "features": ["Tree visualization", "Segment highlighting", "Update animation", "Query path display"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Segment Tree - Range Sum",
+        "code": "class SegmentTree:\n    def __init__(self, data):\n        self.n = len(data)\n        self.tree = [0] * (4 * self.n)\n        self.build(0, 0, self.n - 1, data)\n    \n    def build(self, node, l, r, data):\n        if l == r:\n            self.tree[node] = data[l]\n        else:\n            mid = (l + r) // 2\n            self.build(2*node+1, l, mid, data)\n            self.build(2*node+2, mid+1, r, data)\n            self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]\n    \n    def update(self, node, l, r, idx, val):\n        if l == r:\n            self.tree[node] = val\n        else:\n            mid = (l + r) // 2\n            if idx <= mid:\n                self.update(2*node+1, l, mid, idx, val)\n            else:\n                self.update(2*node+2, mid+1, r, idx, val)\n            self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]\n    \n    def query(self, node, l, r, ql, qr):\n        if ql > r or qr < l:\n            return 0\n        if ql <= l and r <= qr:\n            return self.tree[node]\n        mid = (l + r) // 2\n        return self.query(2*node+1, l, mid, ql, qr) + self.query(2*node+2, mid+1, r, ql, qr)"
+      },
+      {
+        "title": "Lazy Propagation - Range Add",
+        "code": "class LazySegmentTree:\n    def __init__(self, n):\n        self.n = n\n        self.tree = [0] * (4 * n)\n        self.lazy = [0] * (4 * n)\n    \n    def apply(self, node, l, r, val):\n        self.tree[node] += val * (r - l + 1)\n        self.lazy[node] += val\n    \n    def push(self, node, l, r):\n        if self.lazy[node] != 0:\n            mid = (l + r) // 2\n            self.apply(2*node+1, l, mid, self.lazy[node])\n            self.apply(2*node+2, mid+1, r, self.lazy[node])\n            self.lazy[node] = 0\n    \n    def range_add(self, node, l, r, ql, qr, val):\n        if ql > r or qr < l:\n            return\n        if ql <= l and r <= qr:\n            self.apply(node, l, r, val)\n            return\n        self.push(node, l, r)\n        mid = (l + r) // 2\n        self.range_add(2*node+1, l, mid, ql, qr, val)\n        self.range_add(2*node+2, mid+1, r, ql, qr, val)\n        self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]"
+      },
+      {
+        "title": "Range Minimum Query",
+        "code": "class MinSegmentTree:\n    def __init__(self, data):\n        self.n = len(data)\n        self.tree = [float('inf')] * (4 * self.n)\n        self.build(0, 0, self.n - 1, data)\n    \n    def build(self, node, l, r, data):\n        if l == r:\n            self.tree[node] = data[l]\n        else:\n            mid = (l + r) // 2\n            self.build(2*node+1, l, mid, data)\n            self.build(2*node+2, mid+1, r, data)\n            self.tree[node] = min(self.tree[2*node+1], self.tree[2*node+2])\n    \n    def query(self, node, l, r, ql, qr):\n        if ql > r or qr < l:\n            return float('inf')\n        if ql <= l and r <= qr:\n            return self.tree[node]\n        mid = (l + r) // 2\n        return min(self.query(2*node+1, l, mid, ql, qr), \n                   self.query(2*node+2, mid+1, r, ql, qr))"
+      }
+    ]
+  }
+}

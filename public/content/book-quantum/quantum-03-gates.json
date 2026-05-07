@@ -1,0 +1,168 @@
+{
+  "id": "quantum-03-gates",
+  "bookId": "book-quantum",
+  "title": "Single-Qubit Gates",
+  "category": "Foundations",
+  "order": 3,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Single-qubit gates are unitary operations that rotate the qubit state on the Bloch sphere. They form the building blocks of quantum circuits. Every single-qubit gate can be represented as a 2×2 unitary matrix $U$ where $U^\\dagger U = I$ (the identity). Geometrically, these gates rotate the Bloch vector around some axis. The most fundamental gates are the Pauli gates (X, Y, Z) which rotate by 180° around their respective axes, and the Hadamard gate which creates superposition by rotating around an axis at 45° between X and Z.",
+    "sections": [
+      {
+        "title": "The Pauli Gates",
+        "content": "The Pauli matrices are the quantum analogs of classical bit-flip and phase-flip operations. X (NOT gate) flips $|0\rangle \\leftrightarrow |1\rangle$. Z flips the phase of $|1\rangle$ (leaving $|0\rangle$ unchanged). Y does both: it flips the bit AND adds a phase. Mathematically: $X = |0\rangle\\langle 1| + |1\rangle\\langle 0|$, $Z = |0\rangle\\langle 0| - |1\rangle\\langle 1|$, $Y = i|1\rangle\\langle 0| - i|0\rangle\\langle 1|$. On the Bloch sphere: X is a 180° rotation around X-axis, Y around Y-axis, Z around Z-axis. Importantly, $X^2 = Y^2 = Z^2 = I$—applying any Pauli gate twice returns to the original state.",
+        "matrices": {
+          "X": "$\\begin{pmatrix} 0 & 1 \\\\\ 1 & 0 \\\end{pmatrix}$",
+          "Y": "$\\begin{pmatrix} 0 & -i \\\\\ i & 0 \\\end{pmatrix}$",
+          "Z": "$\\begin{pmatrix} 1 & 0 \\\\\ 0 & -1 \\\end{pmatrix}$"
+        },
+        "actions": [
+          { "gate": "X", "effect": "Bit flip", "bloch": "180° around X axis" },
+          { "gate": "Y", "effect": "Bit + phase flip", "bloch": "180° around Y axis" },
+          { "gate": "Z", "effect": "Phase flip", "bloch": "180° around Z axis" }
+        ]
+      },
+      {
+        "title": "The Hadamard Gate",
+        "content": "The Hadamard gate ($H$) is arguably the most important single-qubit gate. It creates superposition from computational basis states: $H|0\rangle = |+\rangle$ and $H|1\rangle = |-\rangle$. Its matrix is symmetric and unitary: $H = \frac{1}{\\sqrt{2}}\begin{pmatrix} 1 & 1 \\\ 1 & -1 \\end{pmatrix}$. Geometrically, H is a 180° rotation around the axis at 45° between X and Z (the line x=z, y=0). This means $H$ exchanges the X and Z axes: $HXH = Z$ and $HZH = X$. The Hadamard gate is self-inverse: $H^2 = I$, so applying it twice returns to the original state.",
+        "latex": "H = \\frac{1}{\\\sqrt{2}}\\begin{pmatrix} 1 & 1 \\\\\ 1 & -1 \\\end{pmatrix}, \\\quad H|0\\rangle = |+\\rangle, \\\quad H|1\\rangle = |-\\rangle",
+        "keyPoints": [
+          "Creates equal superposition from |0⟩ or |1⟩",
+          "Self-inverse: H² = I",
+          "Swaps X and Z basis states: HXH = Z, HZH = X",
+          "Essential for quantum parallelism and algorithms"
+        ]
+      },
+      {
+        "title": "Phase Gates (S and T)",
+        "content": "Phase gates rotate the qubit around the Z-axis of the Bloch sphere, changing the relative phase between $|0\rangle$ and $|1\rangle$ without changing their magnitudes. The S gate adds a phase of $i$ (90° rotation): $S|0\rangle = |0\rangle$, $S|1\rangle = i|1\rangle$. The T gate adds a phase of $e^{i\\pi/4}$ (45° rotation). These are crucial for creating complex superpositions needed in algorithms. Note that $S = T^2$ and $Z = S^2$, forming a hierarchy: T (π/4), S (π/2), Z (π).",
+        "matrices": {
+          "S": "$\\begin{pmatrix} 1 & 0 \\\\\ 0 & i \\\end{pmatrix} = \\begin{pmatrix} 1 & 0 \\\\\ 0 & e^{i\\\pi/2} \\\end{pmatrix}$",
+          "T": "$\\begin{pmatrix} 1 & 0 \\\\\ 0 & e^{i\\\pi/4} \\\end{pmatrix}$"
+        },
+        "relationships": ["T⁸ = I", "T² = S", "S² = Z", "Z² = I"]
+      },
+      {
+        "title": "Rotation Gates (Rx, Ry, Rz)",
+        "content": "General rotations around the Bloch sphere axes are parameterized by an angle $\theta$. The rotation gates are: $R_x(\theta) = e^{-i\theta X/2}$, $R_y(\theta) = e^{-i\theta Y/2}$, $R_z(\theta) = e^{-i\theta Z/2}$. Any single-qubit gate can be decomposed into rotations: $U = R_z(\\alpha)R_y(\beta)R_z(\\gamma)$ up to a global phase. This is the Z-Y decomposition. The Pauli gates are special cases: $X = -iR_x(\\pi)$, $Y = -iR_y(\\pi)$, $Z = -iR_z(\\pi)$.",
+        "latex": "R_x(\\theta) = \\begin{pmatrix} \\\cos(\\theta/2) & -i\\\sin(\\theta/2) \\\\\ -i\\\sin(\\theta/2) & \\\cos(\\theta/2) \\\end{pmatrix}",
+        "universal": "Any single-qubit unitary can be written with 3 parameters: U = e^(iα) Rz(β) Ry(γ) Rz(δ)"
+      },
+      {
+        "title": "Universal Gate Sets",
+        "content": "A set of gates is universal if any quantum computation can be approximated arbitrarily well using only those gates. For single-qubit gates alone, {H, T} is universal—any single-qubit rotation can be approximated. Combined with CNOT (a two-qubit gate), {H, T, CNOT} is universal for all quantum computations. The Solovay-Kitaev theorem states that any single-qubit gate can be approximated to precision $\\epsilon$ using $O(\\log^c(1/\\epsilon))$ gates from a universal set. In practice, quantum computers provide a native gate set and compilers decompose algorithms into these.",
+        "universalSets": [
+          { "set": "{H, T, CNOT}", "type": "Exactly universal for single + multi-qubit" },
+          { "set": "{Rx, Ry, Rz, CNOT}", "type": "Continuously parameterizable" },
+          { "set": "{Tofolli, H}", "type": "Classical reversible + H for superposition" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Unitarity",
+        "description": "Quantum gates must be unitary: $U^\\dagger U = I$. This preserves the normalization of quantum states (probabilities sum to 1) and is reversible.",
+        "consequence": "All quantum operations are reversible except measurement"
+      },
+      {
+        "name": "Clifford Gates",
+        "description": "A group of gates including {H, S, CNOT, Pauli} that map Pauli operators to Pauli operators under conjugation. Classically simulable but essential for error correction.",
+        "property": "Clifford + T gate = universal"
+      },
+      {
+        "name": "Euler Decomposition",
+        "description": "Any single-qubit gate can be written as $U = e^{i\\alpha} R_z(\beta) R_y(\\gamma) R_z(\\delta)$. This shows we need at most 3 rotation parameters plus a global phase.",
+        "use": "Gate compilation and optimization"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "Single-qubit gate: $O(1)$ time on quantum computer",
+      "spaceComplexity": "Matrix representation: $O(1)$ (2×2 matrix)",
+      "compilation": "Arbitrary rotation approximated to precision ε using $O(\\log(1/\\epsilon))$ Clifford+T gates"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Qubit",
+      "description": "Start with a qubit in state $|0\rangle$.",
+      "latex": "|\\psi_0\rangle = |0\rangle = \begin{pmatrix} 1 \\\ 0 \\end{pmatrix}",
+      "visualState": { "gate": "none", "theta": 0, "phi": 0 }
+    },
+    {
+      "step": 2,
+      "title": "Apply X Gate (Optional)",
+      "description": "If needed, flip the bit to start from $|1\rangle$.",
+      "latex": "X|0\rangle = |1\rangle = \begin{pmatrix} 0 \\\ 1 \\end{pmatrix}",
+      "visualState": { "gate": "X", "theta": 180, "phi": 0 }
+    },
+    {
+      "step": 3,
+      "title": "Create Superposition with H",
+      "description": "Apply Hadamard to create an equal superposition.",
+      "latex": "H|0\rangle = \frac{|0\rangle + |1\rangle}{\\sqrt{2}} = |+\rangle",
+      "visualState": { "gate": "H", "theta": 90, "phi": 0 }
+    },
+    {
+      "step": 4,
+      "title": "Add Phase with S Gate",
+      "description": "Rotate around Z-axis to add relative phase.",
+      "latex": "S|+\rangle = \frac{|0\rangle + i|1\rangle}{\\sqrt{2}} = |i+\rangle",
+      "visualState": { "gate": "S", "theta": 90, "phi": 90 }
+    },
+    {
+      "step": 5,
+      "title": "Final Rotation with T Gate",
+      "description": "Apply finer phase rotation for precise state preparation.",
+      "latex": "T|i+\rangle = \frac{|0\rangle + e^{i3\\pi/4}|1\rangle}{\\sqrt{2}}",
+      "visualState": { "gate": "T", "theta": 90, "phi": 135 }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Pauli Gate Composition",
+      "difficulty": "Easy",
+      "description": "What is $XZX$? (Apply X, then Z, then X)",
+      "options": ["$X$", "$Y$", "$Z$", "$I$"],
+      "correctAnswer": 2,
+      "explanation": "XZX = -Z. Since X flips $|0\rangle \\leftrightarrow |1\rangle$, conjugating Z by X swaps which basis state gets the phase flip. Actually $XZX = |1\rangle\\langle 1| - |0\rangle\\langle 0| = -Z$. Note: global phase -1 is usually ignored.",
+      "hint": "Check how XZX acts on |0⟩ and |1⟩."
+    },
+    {
+      "id": "p2",
+      "title": "Hadamard Conjugation",
+      "difficulty": "Medium",
+      "description": "Which gate is equivalent to $HZH$?",
+      "options": ["$H$", "$X$", "$Y$", "$S$"],
+      "correctAnswer": 1,
+      "explanation": "$HZH = X$. The Hadamard gate swaps X and Z axes on the Bloch sphere. Conjugating Z by H gives the operator that acts like X (bit flip). Similarly, $HXH = Z$.",
+      "hint": "H creates |+⟩ from |0⟩. What operation flips |+⟩ to |−⟩?"
+    },
+    {
+      "id": "p3",
+      "title": "Phase Gate Power",
+      "difficulty": "Medium",
+      "description": "How many T gates equal one S gate?",
+      "options": ["1", "2", "4", "8"],
+      "correctAnswer": 1,
+      "explanation": "$T^2 = S$. T adds phase $e^{i\\pi/4}$, S adds phase $e^{i\\pi/2} = i$. Since $(e^{i\\pi/4})^2 = e^{i\\pi/2}$, two T gates equal one S gate.",
+      "hint": "$S = \\begin{pmatrix} 1 & 0 \\\ 0 & i \\\end{pmatrix}$ and $T = \\begin{pmatrix} 1 & 0 \\\ 0 & e^{i\\\pi/4} \\\end{pmatrix}$."
+    },
+    {
+      "id": "p4",
+      "title": "Rotation Decomposition",
+      "difficulty": "Hard",
+      "description": "Express the X gate using rotation gates: $X = e^{i\\alpha} R_z(\beta) R_y(\\gamma) R_z(\\delta)$. What is $\\gamma$?",
+      "options": ["$0$", "$\\\pi/2$", "$\\\pi$", "$2\\\pi$"],
+      "correctAnswer": 2,
+      "explanation": "X is a 180° rotation around the X-axis. In the Euler decomposition, this requires $\\gamma = \\pi$ (a rotation around Y by π). Specifically: $X = -i R_z(-\\pi/2) R_y(\\pi) R_z(\\pi/2)$.",
+      "hint": "X rotates around the X-axis by 180°. The middle rotation in the decomposition is around Y."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n\n# Define Pauli matrices\nX = np.array([[0, 1], [1, 0]])\nY = np.array([[0, -1j], [1j, 0]])\nZ = np.array([[1, 0], [0, -1]])\nI = np.eye(2)\n\n# Hadamard\nH = np.array([[1, 1], [1, -1]]) / np.sqrt(2)\n\n# Phase gates\nS = np.array([[1, 0], [0, 1j]])\nT = np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]])\n\n# Verify properties\nprint('Pauli squares equal I:')\nprint(f'X² = {np.allclose(X @ X, I)}')\nprint(f'Y² = {np.allclose(Y @ Y, I)}')\nprint(f'Z² = {np.allclose(Z @ Z, I)}')\n\nprint('\\nHadamard properties:')\nprint(f'H² = I: {np.allclose(H @ H, I)}')\nprint(f'HZH = X: {np.allclose(H @ Z @ H, X)}')\nprint(f'HXH = Z: {np.allclose(H @ X @ H, Z)}')\n\nprint('\\nPhase gate relationships:')\nprint(f'T² = S: {np.allclose(T @ T, S)}')\nprint(f'S² = Z: {np.allclose(S @ S, Z)}')\n\n# Create rotation matrix\ndef Rx(theta):\n    return np.array([[np.cos(theta/2), -1j*np.sin(theta/2)],\n                     [-1j*np.sin(theta/2), np.cos(theta/2)]])\n\nprint('\\nRotation gate: Rx(π) ≈ X (up to phase)')\nprint(Rx(np.pi))",
+    "qsharp": "namespace Quantum.SingleQubitGates {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Measurement;\n    \n    @EntryPoint()\n    operation DemonstrateGates() : Unit {\n        // Demonstrate Pauli X\n        use q = Qubit();\n        X(q);  // Flip to |1⟩\n        let resultX = M(q);\n        Message($\"After X on |0⟩: {resultX}\");\n        \n        // Demonstrate Hadamard\n        Reset(q);\n        H(q);\n        let resultH = MResetX(q);  // Measure in X basis\n        Message($\"After H, measuring in X basis: {resultH} (should be Zero = |+⟩)\");\n        \n        // Demonstrate phase gates\n        use q2 = Qubit();\n        H(q2);\n        S(q2);\n        T(q2);\n        Message(\"Applied H, S, T sequence\");\n    }\n}",
+    "quipper": "import Quipper\n\ngateDemo :: Circ (Bit, Bit)\ngateDemo = do\n  -- Create two qubits\n  q1 <- qinit True   -- |0⟩\n  q2 <- qinit True   -- |0⟩\n  \n  -- Apply gates to q1: X then H\n  q1 <- gate_X q1\n  q1 <- hadamard q1  -- Now in |-⟩ state\n  \n  -- Apply gates to q2: H then S then T\n  q2 <- hadamard q2\n  q2 <- gate_S q2\n  q2 <- gate_T q2\n  \n  -- Measure both\n  (q1, b1) <- measure_qubit q1\n  (q2, b2) <- measure_qubit q2\n  \n  return (b1, b2)"
+  }
+}

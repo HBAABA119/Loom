@@ -1,0 +1,503 @@
+{
+  "id": "02-memory",
+  "bookId": "book-dsa",
+  "title": "Memory Management",
+  "category": "Foundations",
+  "order": 2,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Understanding how memory works is fundamental to writing efficient programs. Memory management is the bridge between abstract data structures and physical hardware. Every variable you create, every array you allocate, every object you instantiate occupies real space in your computer's memory. Poor memory management leads to wasted resources, slow performance, and crashes. This chapter explores the memory hierarchy—from fast but small CPU registers to slow but vast disk storage—and teaches you how data structures map to memory. You'll learn why arrays offer $O(1)$ access but slow insertion, why linked lists excel at insertion but cache poorly, and how to make memory-aware design decisions.",
+    "sections": [
+      {
+        "title": "The Memory Hierarchy",
+        "content": "Computer memory is organized in a hierarchy based on speed and cost. At the top are CPU registers—tiny, ultra-fast storage locations directly inside the processor. Below them are L1, L2, and L3 caches (SRAM), progressively larger but slower. Main memory (DRAM) holds your active program data. Below that are SSDs and hard drives for persistent storage. The key principle: smaller is faster. Accessing L1 cache might take 1 nanosecond, while accessing main memory takes 100 nanoseconds, and disk access takes milliseconds—millions of times slower.",
+        "hierarchy": [
+          { "level": "Registers", "size": "~1 KB", "accessTime": "< 1 ns", "technology": "SRAM", "managedBy": "Compiler" },
+          { "level": "L1 Cache", "size": "~64 KB", "accessTime": "1-2 ns", "technology": "SRAM", "managedBy": "Hardware" },
+          { "level": "L2 Cache", "size": "~512 KB", "accessTime": "3-10 ns", "technology": "SRAM", "managedBy": "Hardware" },
+          { "level": "L3 Cache", "size": "~16 MB", "accessTime": "10-20 ns", "technology": "SRAM", "managedBy": "Hardware" },
+          { "level": "Main Memory (RAM)", "size": "8-128 GB", "accessTime": "80-100 ns", "technology": "DRAM", "managedBy": "OS" },
+          { "level": "SSD", "size": "256 GB - 4 TB", "accessTime": "10-100 μs", "technology": "Flash", "managedBy": "OS" },
+          { "level": "Hard Disk", "size": "1-16 TB", "accessTime": "5-10 ms", "technology": "Magnetic", "managedBy": "OS" }
+        ]
+      },
+      {
+        "title": "Stack vs Heap Memory",
+        "content": "Your program uses two primary memory regions: the stack and the heap. The stack is a structured, fast region for local variables and function call management. It's automatically managed—variables are allocated when functions are called and freed when they return. The heap is a large, unstructured pool for dynamic allocation. You request memory with 'new' or 'malloc', and must free it explicitly (or rely on garbage collection). Stack access is fast (cache-friendly, predictable), but limited in size. The heap is large but allocation/deallocation is slower and can fragment.",
+        "comparison": [
+          { "aspect": "Allocation Speed", "stack": "Very Fast (single instruction)", "heap": "Slower (searching, metadata)", "winner": "Stack" },
+          { "aspect": "Deallocation", "stack": "Automatic (function return)", "heap": "Manual or GC overhead", "winner": "Stack" },
+          { "aspect": "Size", "stack": "Small (1-8 MB typical)", "heap": "Large (GBs available)", "winner": "Heap" },
+          { "aspect": "Lifetime", "stack": "Function scope only", "heap": "Programmer controlled", "winner": "Depends" },
+          { "aspect": "Fragmentation", "stack": "None (LIFO)", "heap": "Can fragment", "winner": "Stack" },
+          { "aspect": "Thread Safety", "stack": "Per-thread automatically", "heap": "Requires synchronization", "winner": "Stack" }
+        ]
+      },
+      {
+        "title": "How Arrays Work in Memory",
+        "content": "Arrays are the simplest data structure to understand memory-wise. Elements are stored contiguously—back-to-back in memory. If an array starts at address $A$ and each element takes $S$ bytes, element at index $i$ is at address $A + i \\times S$. This is why array access is $O(1)$—it's simple arithmetic. The CPU can predict and prefetch adjacent elements, making array traversal cache-efficient. However, inserting or deleting requires shifting elements. Growing an array usually requires allocating new memory and copying all elements—expensive $O(n)$ operations.",
+        "diagram": {
+          "type": "memory-layout",
+          "baseAddress": "0x1000",
+          "elementSize": 4,
+          "elements": [
+            { "index": 0, "value": 42, "address": "0x1000" },
+            { "index": 1, "value": 17, "address": "0x1004" },
+            { "index": 2, "value": 88, "address": "0x1008" },
+            { "index": 3, "value": 23, "address": "0x100C" },
+            { "index": 4, "value": 91, "address": "0x1010" }
+          ],
+          "formula": "Address of arr[i] = Base + i × sizeof(element)"
+        }
+      },
+      {
+        "title": "Pointers and References",
+        "content": "A pointer is a variable that stores a memory address. It's the fundamental mechanism for dynamic memory and complex data structures. When you declare `int* p = &x;`, you're storing the address where `x` lives. Dereferencing (`*p`) means 'go to that address.' Pointers enable linked lists, trees, and graphs by letting you connect memory locations that aren't contiguous. However, they introduce complexity: null pointers, dangling pointers (pointing to freed memory), and memory leaks (losing all pointers to allocated memory so it can never be freed).",
+        "pointerOperations": [
+          { "operation": "& (address-of)", "description": "Get the memory address of a variable", "example": "&x returns address of x" },
+          { "operation": "* (dereference)", "description": "Access value at stored address", "example": "*p reads value at address p" },
+          { "operation": "Pointer arithmetic", "description": "Move through memory by element size", "example": "p + 1 moves by sizeof(*p) bytes" },
+          { "operation": "-> (arrow)", "description": "Access struct member via pointer", "example": "p->field is (*p).field" }
+        ]
+      },
+      {
+        "title": "Linked Lists in Memory",
+        "content": "Unlike arrays, linked list nodes are scattered throughout memory, connected by pointers. Each node contains data plus a 'next' pointer (address of the next node). This enables $O(1)$ insertion/deletion if you have the pointer to the node—just update pointers, no shifting needed. But accessing the $i$-th element requires traversing from the head: $O(i)$ time. Cache performance is poor because nodes are scattered, causing cache misses on each hop. Memory overhead is higher—each node stores an extra pointer (4-8 bytes per element).",
+        "diagram": {
+          "type": "linked-list-memory",
+          "head": "0x2000",
+          "nodes": [
+            { "address": "0x2000", "data": 42, "next": "0x5000" },
+            { "address": "0x5000", "data": 17, "next": "0x1000" },
+            { "address": "0x1000", "data": 88, "next": "0x8000" },
+            { "address": "0x8000", "data": 23, "next": "NULL" }
+          ],
+          "visual": "Scattered nodes connected by arrows (pointers)"
+        }
+      },
+      {
+        "title": "Cache Locality",
+        "content": "Cache locality refers to how your memory access patterns affect CPU cache efficiency. Spatial locality means accessing memory locations near recently accessed ones is fast (they're likely in cache). Temporal locality means re-accessing the same memory soon is fast (it's still in cache). Arrays excel at spatial locality—traversing sequentially hits cache repeatedly. Linked lists have poor spatial locality—each node could be anywhere in memory, causing cache misses. This is why arrays often outperform linked lists even for operations where linked lists theoretically have better Big O.",
+        "localityTypes": [
+          { "type": "Spatial Locality", "description": "Accessing adjacent memory locations", "example": "Array traversal: arr[0], arr[1], arr[2]..." },
+          { "type": "Temporal Locality", "description": "Re-accessing same location soon", "example": "Loop counter: i++ accessed every iteration" },
+          { "type": "Cache Miss", "description": "Requested data not in cache, must fetch from RAM", "cost": "80-100 ns vs 1-2 ns cache hit" }
+        ]
+      },
+      {
+        "title": "Memory Allocation Strategies",
+        "content": "When you request heap memory, the allocator finds a suitable block. Different strategies trade off speed and fragmentation. First-fit uses the first block that's large enough—fast but can fragment. Best-fit searches all blocks to find the smallest adequate one—reduces fragmentation but slower. Worst-fit uses the largest block, hoping to leave a usable remainder. Modern allocators use complex hybrid approaches with segregated lists for common sizes. Memory pools pre-allocate chunks for objects of the same size, eliminating per-allocation overhead.",
+        "strategies": [
+          { "strategy": "First-Fit", "speed": "Fast", "fragmentation": "High", "how": "First adequate block" },
+          { "strategy": "Best-Fit", "speed": "Slow", "fragmentation": "Low", "how": "Smallest adequate block" },
+          { "strategy": "Worst-Fit", "speed": "Medium", "fragmentation": "Medium", "how": "Largest block" },
+          { "strategy": "Memory Pools", "speed": "Very Fast", "fragmentation": "None (within pool)", "how": "Pre-allocated fixed-size blocks" }
+        ]
+      },
+      {
+        "title": "Garbage Collection",
+        "content": "In managed languages (Java, Python, JavaScript), you don't manually free memory. Instead, a garbage collector (GC) identifies and reclaims unused memory. Reference counting tracks how many references point to each object—when count hits zero, memory is freed. However, this can't handle cycles (A points to B, B points to A, neither reachable from program). Tracing GCs (mark-and-sweep) periodically traverse from 'roots' (global variables, stack) to mark reachable objects, then sweep unmarked ones. Generational GC exploits the observation that most objects die young—divides heap into young and old generations with different collection strategies.",
+        "gcTypes": [
+          { "type": "Reference Counting", "pros": "Simple, immediate", "cons": "Can't handle cycles, overhead per object" },
+          { "type": "Mark-and-Sweep", "pros": "Handles cycles", "cons": "Pauses program, fragments memory" },
+          { "type": "Generational", "pros": "Efficient (most objects die young)", "cons": "Complex, promotion overhead" },
+          { "type": "Incremental", "pros": "Reduces pause times", "cons": "More total work, complex" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Contiguous Memory",
+        "description": "Elements stored back-to-back in memory. Enables O(1) access via address arithmetic and excellent cache performance.",
+        "examples": ["Arrays", "Vectors", "Strings"]
+      },
+      {
+        "name": "Fragmentation",
+        "description": "When free memory is broken into small, non-contiguous chunks. External fragmentation: free space scattered. Internal: allocated block larger than requested.",
+        "solutions": ["Memory compaction", "Memory pools", "Slab allocation"]
+      },
+      {
+        "name": "Memory Leak",
+        "description": "Allocated memory no longer referenced by program but not freed. Accumulates over time, eventually exhausting available memory.",
+        "detection": ["Valgrind", "AddressSanitizer", "Custom allocators with tracking"]
+      },
+      {
+        "name": "Cache Line",
+        "description": "Cache fetches memory in lines (typically 64 bytes). Accessing one byte brings 63 neighbors into cache. Crucial for data structure performance.",
+        "optimization": "Structure arrays of structs for hot/cold splitting"
+      }
+    ],
+    "complexity": {
+      "stackAllocation": "O(1) - Single pointer increment",
+      "heapAllocation": "O(1) to O(n) depending on allocator and fragmentation",
+      "arrayAccess": "O(1) - Direct address calculation",
+      "pointerDereference": "O(1) - Single memory read"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Request Memory",
+      "description": "Program asks OS/allocator for memory block. Size and alignment requirements specified.",
+      "visualState": { "action": "malloc(100)", "requestedBytes": 100 }
+    },
+    {
+      "step": 2,
+      "title": "Allocator Search",
+      "description": "Allocator searches heap for adequate free block using strategy (first-fit, best-fit, etc.)",
+      "visualState": { "heapState": "scanning", "freeBlocks": 5, "strategy": "best-fit" }
+    },
+    {
+      "step": 3,
+      "title": "Block Allocation",
+      "description": "Block marked as allocated, metadata updated. May split block if larger than requested.",
+      "visualState": { "allocatedBlock": "0x4000-0x4064", "remaining": "0x4064-0x4100" }
+    },
+    {
+      "step": 4,
+      "title": "Return Pointer",
+      "description": "Address of usable memory (after metadata) returned to program.",
+      "visualState": { "returnedPointer": "0x4000", "metadata": "0x3FF0-0x3FFF" }
+    },
+    {
+      "step": 5,
+      "title": "Using Memory",
+      "description": "Program reads/writes to allocated region through returned pointer.",
+      "visualState": { "accessType": "write", "offset": 4, "value": 42 }
+    },
+    {
+      "step": 6,
+      "title": "Free Memory",
+      "description": "Program calls free(). Block marked as available, possibly coalesced with adjacent free blocks.",
+      "visualState": { "action": "free(0x4000)", "coalesced": true, "newFreeBlock": "0x3000-0x4100" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Array Memory Layout",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "An int32 array starts at address 0x1000. What's the address of element at index 5?",
+      "answer": "0x1014 (0x1000 + 5 × 4 = 0x1014)",
+      "explanation": "Each int32 takes 4 bytes. Address calculation: Base + index × element_size = 0x1000 + 5 × 4 = 0x1014.",
+      "hints": ["int32 = 4 bytes", "Formula: address = base + index × size", "0x1000 + 20 = 0x1014"]
+    },
+    {
+      "id": "p2",
+      "title": "Stack vs Heap Allocation",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Where is memory allocated for: `int x = 5;` vs `int* p = malloc(sizeof(int));`?",
+      "answer": "`x` on stack, `p` on stack (pointer), pointed memory on heap",
+      "explanation": "`x` is a local variable → stack. `p` is also a local variable (storing address) → stack. But `malloc` requests memory from heap.",
+      "hints": ["Local variables go on stack", "malloc/new allocate from heap", "Pointer variable and pointed-to memory are separate"]
+    },
+    {
+      "id": "p3",
+      "title": "Cache Performance",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Which has better cache locality: traversing array[1000] sequentially or linked list with 1000 nodes?",
+      "answer": "Array has better cache locality",
+      "explanation": "Array elements are contiguous. When we access array[0], cache loads array[0..15] (assuming 64-byte cache line). Next accesses hit cache. Linked list nodes are scattered—each access likely cache miss.",
+      "hints": ["Arrays store elements back-to-back", "Linked list nodes can be anywhere in memory", "Cache loads memory in contiguous chunks (cache lines)"]
+    },
+    {
+      "id": "p4",
+      "title": "Pointer Arithmetic",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "Given `int* p = 0x1000;` (int is 4 bytes), what is `p + 3`?",
+      "answer": "0x100C (0x1000 + 3 × 4)",
+      "explanation": "Pointer arithmetic scales by the size of the pointed type. `p + n` means address + n × sizeof(*p). So 0x1000 + 3 × 4 = 0x100C.",
+      "hints": ["Pointer arithmetic accounts for type size", "p + 1 moves by sizeof(int) = 4 bytes", "3 × 4 = 12 = 0xC"]
+    },
+    {
+      "id": "p5",
+      "title": "Memory Fragmentation",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "After allocating and freeing memory in this pattern: alloc(100), alloc(100), free(first), what problem might occur?",
+      "answer": "External fragmentation - 100 bytes free but not contiguous with other free space",
+      "explanation": "The freed 100-byte block is surrounded by allocated blocks. If we later need 150 bytes, we can't use that free space even though total free memory might be sufficient.",
+      "hints": ["Freed memory may be surrounded by allocated blocks", "Large allocation needs contiguous space", "Scattered free space = external fragmentation"]
+    },
+    {
+      "id": "p6",
+      "title": "Memory Leak Detection",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "Identify the memory leak:\n```c\nvoid process() {\n    char* buffer = malloc(1024);\n    read_data(buffer);\n    printf(\"%s\", buffer);\n}  // function returns\n```",
+      "answer": "malloc'd buffer is never freed - leaked every call",
+      "explanation": "Each call allocates 1024 bytes but doesn't free it. The pointer `buffer` is local to the function—when function returns, we lose the only reference to that memory. It's leaked.",
+      "hints": ["Is there a free() call?", "What happens to 'buffer' when function returns?", "Local variables disappear, but heap memory persists"]
+    },
+    {
+      "id": "p7",
+      "title": "Struct Padding",
+      "difficulty": "hard",
+      "type": "calculation",
+      "description": "What's the size of `struct { char a; int b; char c; }` on a 32-bit system with 4-byte alignment?",
+      "answer": "12 bytes (not 6)",
+      "explanation": "Compiler adds padding for alignment. `char a` at offset 0, then 3 bytes padding. `int b` at offset 4. `char c` at offset 8, then 3 bytes padding to make total multiple of 4. Total: 1+3+4+1+3 = 12.",
+      "hints": ["Ints must be 4-byte aligned", "Compiler inserts padding after char a", "Struct size rounds up to alignment boundary"]
+    },
+    {
+      "id": "p8",
+      "title": "Garbage Collection Roots",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "In a tracing garbage collector, what are 'roots'?",
+      "answer": "Memory locations known to be reachable: global variables, stack variables, registers",
+      "explanation": "The GC starts from roots—variables it knows are in use—and traces references to mark all reachable objects. Unmarked objects are garbage. Without roots, the GC couldn't determine what's reachable.",
+      "hints": ["Roots are starting points for reachability analysis", "Stack and global variables are always reachable", "From roots, trace all references"]
+    },
+    {
+      "id": "p9",
+      "title": "Double Free Error",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What's wrong with:\n```c\nchar* p = malloc(100);\nfree(p);\nfree(p);  // second free\n```",
+      "answer": "Double free - undefined behavior, can corrupt heap",
+      "explanation": "After first free, memory is returned to allocator. Second free treats same memory as free again. This corrupts heap metadata and can cause crashes or security vulnerabilities.",
+      "hints": ["Memory is freed once", "After free, pointer becomes dangling", "Second free corrupts heap structures"]
+    },
+    {
+      "id": "p10",
+      "title": "Stack Overflow",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What causes a stack overflow?",
+      "answer": "Using more stack space than allocated (infinite recursion, large local arrays)",
+      "explanation": "Stack size is fixed (typically 1-8 MB). Each recursive call adds a stack frame. Infinite recursion or very deep recursion exhausts stack. Large local arrays can also overflow stack.",
+      "hints": ["Stack has fixed size", "Each function call uses stack space", "Infinite recursion never returns, consuming stack"]
+    },
+    {
+      "id": "p11",
+      "title": "Memory Alignment",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why do CPUs require memory alignment (e.g., 4-byte integers at 4-byte boundaries)?",
+      "answer": "Performance and atomicity - unaligned access requires multiple memory operations",
+      "explanation": "Aligned data fits in one cache line and one memory transaction. Unaligned data might span two cache lines, requiring two reads and combining. Some architectures crash on unaligned access.",
+      "hints": ["Memory is read in chunks", "Unaligned data may span chunks", "Multiple operations = slower"]
+    },
+    {
+      "id": "p12",
+      "title": "Virtual Memory",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is virtual memory and why is it used?",
+      "answer": "Abstraction where each process sees contiguous address space, mapped to physical RAM by the OS",
+      "explanation": "Virtual memory lets each program have its own address space starting at 0, isolated from others. The MMU maps virtual to physical addresses. Enables swapping to disk, memory protection, and efficient memory sharing.",
+      "hints": ["Each process has virtual address space", "OS maps virtual → physical", "Enables memory protection and swapping"]
+    },
+    {
+      "id": "p13",
+      "title": "Reference Counting Cycles",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "Why can't reference counting garbage collect: A → B → A (circular reference)?",
+      "answer": "Both A and B have reference count 1 (each points to other), but neither is reachable from program roots",
+      "explanation": "A is referenced by B (count 1), B is referenced by A (count 1). Neither count reaches 0, so neither is freed. But no root points to either—they're leaked. Tracing GC would collect them.",
+      "hints": ["A's count = 1 (from B), B's count = 1 (from A)", "No external references, but counts never reach 0", "Memory is unreachable but not freed"]
+    },
+    {
+      "id": "p14",
+      "title": "Memory Pool Benefits",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "When are memory pools most beneficial?",
+      "answer": "When allocating many objects of same size (e.g., game entities, network packets)",
+      "explanation": "Pools pre-allocate chunks for fixed-size objects, eliminating per-allocation search and reducing fragmentation. Allocation becomes O(1) pointer pop. Deallocation is O(1) push. Common in games and real-time systems.",
+      "hints": ["Pools use fixed-size blocks", "No search for free block needed", "Very fast allocation/deallocation"]
+    },
+    {
+      "id": "p15",
+      "title": "Dangling Pointer",
+      "difficulty": "easy",
+      "type": "analysis",
+      "description": "Identify the bug:\n```c\nchar* get_string() {\n    char str[] = \"hello\";\n    return str;\n}\n```",
+      "answer": "Returns pointer to stack memory that will be freed when function returns",
+      "explanation": "`str` is a local array on the stack. When `get_string` returns, that stack frame is popped—the memory is reused. The returned pointer points to invalid memory (dangling pointer).",
+      "hints": ["str is a local variable", "Local variables are on stack", "Stack memory freed on function return"]
+    },
+    {
+      "id": "p16",
+      "title": "Generational GC Premise",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What observation motivates generational garbage collection?",
+      "answer": "Most objects die young - allocated recently are more likely to become garbage",
+      "explanation": "Generational GC divides heap into young and old generations. Young generation collected frequently (most objects die). Survivors promoted to old generation, collected rarely. This optimizes for the common case.",
+      "hints": ["Observe object lifetimes", "Most allocations are temporary", "Focus collection effort on young objects"]
+    },
+    {
+      "id": "p17",
+      "title": "MMU and Page Tables",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is the role of the Memory Management Unit (MMU)?",
+      "answer": "Hardware that translates virtual addresses to physical addresses using page tables",
+      "explanation": "The MMU is a CPU component that performs address translation. It uses page tables (managed by OS) to map virtual pages to physical frames. Enables isolation, swapping, and memory protection.",
+      "hints": ["MMU is hardware in CPU", "Translates virtual → physical", "Uses page tables for mapping"]
+    },
+    {
+      "id": "p18",
+      "title": "Write-Through vs Write-Back",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Compare write-through and write-back cache policies",
+      "answer": "Write-through: writes to cache AND memory (simpler, slower). Write-back: writes to cache only, writes to memory on eviction (faster, complex)",
+      "explanation": "Write-through ensures consistency but every write hits slow memory. Write-back batches writes—only write to memory when cache line is replaced. Better performance but requires dirty bit tracking.",
+      "hints": ["Write-through always updates memory", "Write-back delays memory update", "Write-back needs dirty bit to track changes"]
+    },
+    {
+      "id": "p19",
+      "title": "False Sharing",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is false sharing in multi-threaded programs?",
+      "answer": "Different threads modifying different variables that happen to be on same cache line, causing unnecessary cache coherence traffic",
+      "explanation": "Cache coherence protocols operate on cache lines (64 bytes). If thread A modifies byte 0 and thread B modifies byte 60 of same cache line, they invalidate each other's caches repeatedly—even though they don't share data. Solution: padding to separate hot variables.",
+      "hints": ["Cache coherence works at cache line granularity", "Different variables can share a cache line", "Independent modifications cause cache invalidations"]
+    },
+    {
+      "id": "p20",
+      "title": "Arena Allocator",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "How does an arena allocator work?",
+      "answer": "Allocates from large pre-allocated chunk. Individual frees not allowed—free entire arena at once.",
+      "explanation": "Arenas (or regions) allocate by bumping a pointer through a large pre-allocated block. Allocation is O(1) pointer increment. No per-object freeing—entire arena freed at once. Useful for phase-based computation.",
+      "hints": ["Pre-allocate large block", "Bump pointer for allocation", "Free everything at once"]
+    },
+    {
+      "id": "p21",
+      "title": "TLB (Translation Lookaside Buffer)",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is the TLB and why is it important?",
+      "answer": "Cache for page table entries, avoiding full page table walk on every memory access",
+      "explanation": "Without TLB, every memory access would require reading page tables (multiple memory accesses). TLB caches recent translations—typically 64-1024 entries. TLB miss is expensive (page table walk). Large pages reduce TLB pressure.",
+      "hints": ["Page tables are in memory", "Reading them adds latency", "TLB caches translations for speed"]
+    },
+    {
+      "id": "p22",
+      "title": "Copy-on-Write",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Explain Copy-on-Write (COW) in virtual memory",
+      "answer": "Multiple processes share same physical pages until one writes, then page is copied",
+      "explanation": "When fork() creates a child process, instead of copying all memory, parent and child share read-only pages marked COW. Either process writing triggers a page fault, kernel copies the page, and writes proceed. Saves memory and time.",
+      "hints": ["Pages shared read-only initially", "Write attempt triggers copy", "Only modified pages are duplicated"]
+    },
+    {
+      "id": "p23",
+      "title": "Buffer Overflow",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What's wrong with:\n```c\nchar buffer[10];\nstrcpy(buffer, \"This string is way too long\");\n```",
+      "answer": "Buffer overflow - writes past end of buffer, corrupting stack/heap",
+      "explanation": "Buffer only holds 10 bytes. strcpy doesn't check bounds and writes 28+ bytes, overwriting adjacent memory. Can corrupt variables, return addresses, or be exploited for code execution.",
+      "hints": ["buffer can only hold 10 chars", "Input string is much longer", "strcpy doesn't check bounds"]
+    },
+    {
+      "id": "p24",
+      "title": "Slab Allocation",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is slab allocation and where is it commonly used?",
+      "answer": "Pre-allocated fixed-size blocks for kernel objects, eliminating fragmentation and allocation overhead",
+      "explanation": "Used in operating system kernels (Linux). Maintains separate pools (slabs) for different object types (process descriptors, file objects, etc.). Objects constructed once, reused without reconstruction. Zero internal fragmentation.",
+      "hints": ["Used in OS kernels", "Separate slabs for each object type", "Objects pre-constructed and reused"]
+    },
+    {
+      "id": "p25",
+      "title": "NUMA Architecture",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is NUMA and why does it matter for performance?",
+      "answer": "Non-Uniform Memory Access - each CPU has local memory, accessing remote memory is slower",
+      "explanation": "In NUMA systems (common in servers), each processor has directly attached local memory. Accessing another processor's memory requires interconnect traversal—slower than local access. NUMA-aware allocation pins memory to requesting CPU's node.",
+      "hints": ["Multiple CPUs with their own memory", "Local memory is faster", "Remote memory access slower"]
+    }
+  ],
+  "minigame": {
+    "id": "memory-allocator",
+    "title": "Memory Allocator Simulator",
+    "description": "Manage a heap! Allocate and free memory blocks using different strategies. Watch fragmentation build up and learn how allocation policies affect memory usage.",
+    "type": "simulation",
+    "instructions": [
+      "You manage a 1024-byte heap",
+      "Click 'Allocate' to request memory blocks of various sizes",
+      "Click 'Free' to return blocks to the heap",
+      "Switch between First-Fit, Best-Fit, and Worst-Fit strategies",
+      "Watch for fragmentation—small free blocks surrounded by allocated blocks"
+    ],
+    "controls": [
+      { "type": "button", "label": "Allocate 100B", "action": "alloc", "size": 100 },
+      { "type": "button", "label": "Allocate 200B", "action": "alloc", "size": 200 },
+      { "type": "button", "label": "Allocate 50B", "action": "alloc", "size": 50 },
+      { "type": "dropdown", "label": "Strategy", "options": ["First-Fit", "Best-Fit", "Worst-Fit"] },
+      { "type": "button", "label": "Compact Memory", "action": "compact" }
+    ],
+    "visualization": {
+      "heapSize": 1024,
+      "blockHeight": 40,
+      "colors": {
+        "allocated": "#ff6b6b",
+        "free": "#4ecdc4",
+        "metadata": "#95a5a6"
+      }
+    }
+  },
+  "visualizer": {
+    "type": "memory-layout",
+    "title": "Memory Layout Visualizer",
+    "description": "See how arrays, linked lists, and structs are laid out in memory. Explore stack vs heap allocation and cache line boundaries.",
+    "views": [
+      {
+        "name": "Array Layout",
+        "description": "Contiguous elements with direct addressing",
+        "demo": {
+          "type": "int32",
+          "count": 8,
+          "baseAddress": "0x1000",
+          "showCacheLines": true
+        }
+      },
+      {
+        "name": "Linked List",
+        "description": "Scattered nodes connected by pointers",
+        "demo": {
+          "nodeCount": 5,
+          "scattered": true,
+          "showPointers": true
+        }
+      },
+      {
+        "name": "Stack Growth",
+        "description": "Watch the stack grow and shrink with function calls",
+        "demo": {
+          "type": "stack-animation",
+          "showFrames": true
+        }
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "c",
+    "snippets": [
+      {
+        "title": "Stack vs Heap Allocation",
+        "code": "void example() {\n    // Stack allocation - automatic, fast, limited size\n    int stack_array[100];\n    int x = 42;\n    \n    // Heap allocation - manual, larger, slower\n    int* heap_array = malloc(100 * sizeof(int));\n    *heap_array = 42;\n    \n    // Must free heap memory!\n    free(heap_array);\n}  // stack_array and x automatically freed here"
+      },
+      {
+        "title": "Memory Layout of Struct",
+        "code": "struct Example {\n    char a;      // 1 byte + 3 bytes padding\n    int b;       // 4 bytes (aligned to 4)\n    char c;      // 1 byte + 3 bytes padding\n};               // Total: 12 bytes (not 6!)\n\n// Optimized order:\nstruct Optimized {\n    int b;       // 4 bytes\n    char a;      // 1 byte\n    char c;      // 1 byte\n    // + 2 bytes padding to align to 4\n};               // Total: 8 bytes"
+      }
+    ]
+  }
+}

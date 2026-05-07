@@ -1,0 +1,273 @@
+{
+  "id": "arch-01-binary",
+  "bookId": "book-arch",
+  "title": "Binary & Number Systems",
+  "category": "Foundations",
+  "order": 1,
+  "estimatedTime": "25 min",
+  "theory": {
+    "overview": "At the heart of every computer lies a simple yet profound concept: everything is represented as binary—ones and zeros. This isn't just a convention; it's a fundamental constraint imposed by the physics of digital electronics. A transistor can either be ON (conducting current, representing 1) or OFF (no current, representing 0). Understanding how we encode complex information using just these two states is the foundation of computer architecture. From counting to representing text, images, and even the instructions that run programs, binary is the universal language of computing.",
+    "sections": [
+      {
+        "title": "Why Binary?",
+        "content": "Computers use binary because electronic circuits have two stable states: high voltage (typically 3.3V or 5V) and low voltage (0V or ground). These states are easy to distinguish even with electrical noise, making binary extremely reliable. While humans use base-10 (decimal) likely because we have 10 fingers, computers use base-2 (binary) because it's the natural representation of electrical signals.",
+        "keyPoints": [
+          "Binary is robust against electrical noise",
+          "Two states are easier to build reliably than ten",
+          "Boolean logic maps directly to binary operations",
+          "All information must be encoded in binary patterns"
+        ]
+      },
+      {
+        "title": "Binary Number Representation",
+        "content": "Each position in a binary number represents a power of 2, just as each position in decimal represents a power of 10. The rightmost bit is 2⁰ (1), next is 2¹ (2), then 2² (4), and so on. To convert binary to decimal, sum the powers of 2 where the bit is 1. For example, binary 1011 = 8 + 2 + 1 = 11 in decimal.",
+        "examples": [
+          {
+            "binary": "1010",
+            "calculation": "8 + 0 + 2 + 0 = 10",
+            "decimal": 10
+          },
+          {
+            "binary": "1111",
+            "calculation": "8 + 4 + 2 + 1 = 15",
+            "decimal": 15
+          },
+          {
+            "binary": "10000",
+            "calculation": "16",
+            "decimal": 16
+          }
+        ]
+      },
+      {
+        "title": "Hexadecimal: Binary's Best Friend",
+        "content": "Reading long binary numbers is tedious and error-prone. Hexadecimal (base-16) provides a compact representation where each hex digit represents exactly 4 bits (a nibble). This makes conversion between binary and hex trivial—just group bits in fours. Hex is used everywhere in computing: memory addresses, color codes, MAC addresses, and more.",
+        "conversionTable": [
+          { "binary": "0000", "hex": "0", "decimal": 0 },
+          { "binary": "0001", "hex": "1", "decimal": 1 },
+          { "binary": "0010", "hex": "2", "decimal": 2 },
+          { "binary": "0011", "hex": "3", "decimal": 3 },
+          { "binary": "0100", "hex": "4", "decimal": 4 },
+          { "binary": "0101", "hex": "5", "decimal": 5 },
+          { "binary": "0110", "hex": "6", "decimal": 6 },
+          { "binary": "0111", "hex": "7", "decimal": 7 },
+          { "binary": "1000", "hex": "8", "decimal": 8 },
+          { "binary": "1001", "hex": "9", "decimal": 9 },
+          { "binary": "1010", "hex": "A", "decimal": 10 },
+          { "binary": "1011", "hex": "B", "decimal": 11 },
+          { "binary": "1100", "hex": "C", "decimal": 12 },
+          { "binary": "1101", "hex": "D", "decimal": 13 },
+          { "binary": "1110", "hex": "E", "decimal": 14 },
+          { "binary": "1111", "hex": "F", "decimal": 15 }
+        ]
+      },
+      {
+        "title": "Signed Numbers: Two's Complement",
+        "content": "How do we represent negative numbers? The solution used by virtually all modern computers is two's complement. The most significant bit (MSB) becomes a sign bit (1 = negative, 0 = positive). To negate a number: invert all bits, then add 1. This representation is elegant because addition and subtraction use the same hardware—no special circuits needed for negative numbers.",
+        "examples": [
+          {
+            "description": "Representing -5 in 8-bit two's complement",
+            "steps": [
+              "Start with +5: 00000101",
+              "Invert bits: 11111010",
+              "Add 1: 11111011 = -5"
+            ]
+          },
+          {
+            "description": "Range of n-bit two's complement",
+            "formula": "[-2^(n-1), 2^(n-1) - 1]",
+            "8bit": "-128 to +127",
+            "32bit": "-2,147,483,648 to +2,147,483,647"
+          }
+        ]
+      },
+      {
+        "title": "Binary Arithmetic",
+        "content": "Binary addition follows the same rules as decimal, just with simpler digit combinations: 0+0=0, 0+1=1, 1+0=1, 1+1=10 (0 with carry 1). Subtraction is performed by adding the two's complement of the subtrahend. This unified approach simplifies hardware design.",
+        "additionExample": {
+          "problem": "Add 5 + 3 in binary",
+          "workings": [
+            "  0101  (5)",
+            "+ 0011  (3)",
+            "  ----",
+            "  1000  (8)"
+          ]
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Bit",
+        "description": "The smallest unit of information—either 0 or 1. Physical implementation: voltage level in a wire or charge in a capacitor.",
+        "latex": "1 \\text{ bit} = \\log_2(2) = 1 \\text{ bit of information}"
+      },
+      {
+        "name": "Byte",
+        "description": "A group of 8 bits. The standard unit for addressing memory. Can represent 256 different values (2⁸).",
+        "latex": "1 \\text{ byte} = 8 \\text{ bits} = 2^8 = 256 \\text{ values}"
+      },
+      {
+        "name": "Word",
+        "description": "The natural unit of data used by a processor. Varies by architecture: 16-bit (old), 32-bit, 64-bit (modern).",
+        "example": "64-bit word = 8 bytes"
+      },
+      {
+        "name": "Two's Complement",
+        "description": "The standard method for representing signed integers. MSB is sign bit. Range: -2^(n-1) to 2^(n-1)-1",
+        "latex": "\\text{Value} = -b_{n-1} \\cdot 2^{n-1} + \\sum_{i=0}^{n-2} b_i \\cdot 2^i"
+      }
+    ],
+    "complexity": {
+      "conversionTime": "$O(n)$ where n = number of bits",
+      "arithmeticTime": "$O(n)$ for n-bit numbers",
+      "space": "$O(n)$ bits to store value n"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Understand the Binary Position Values",
+      "description": "Each bit position represents a power of 2, starting from the right (LSB) as 2⁰.",
+      "visualState": { 
+        "binary": "101101",
+        "positions": [32, 16, 8, 4, 2, 1],
+        "values": [1, 0, 1, 1, 0, 1]
+      }
+    },
+    {
+      "step": 2,
+      "title": "Sum the Active Bits",
+      "description": "Add up all the position values where the bit is 1.",
+      "latex": "32 + 8 + 4 + 1 = 45",
+      "visualState": { "sum": 45, "activeBits": [32, 8, 4, 1] }
+    },
+    {
+      "step": 3,
+      "title": "Handle Hexadecimal Conversion",
+      "description": "Group binary digits in sets of 4 from right to left, convert each group to hex.",
+      "visualState": { 
+        "binary": "101101",
+        "grouped": "0010 1101",
+        "hex": "2D"
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Binary to Decimal",
+      "difficulty": "easy",
+      "type": "conversion",
+      "description": "Convert binary 1101 to decimal.",
+      "answer": "13",
+      "explanation": "8 + 4 + 0 + 1 = 13. The bits at positions 3, 2, and 0 are set.",
+      "hints": ["Position values from right: 1, 2, 4, 8", "Add the values where bits are 1"]
+    },
+    {
+      "id": "p2",
+      "title": "Decimal to Binary",
+      "difficulty": "easy",
+      "type": "conversion",
+      "description": "Convert decimal 25 to binary.",
+      "answer": "11001",
+      "explanation": "16 + 8 + 0 + 0 + 1 = 25. Keep dividing by 2 and tracking remainders.",
+      "hints": ["25 ÷ 2 = 12 remainder 1", "12 ÷ 2 = 6 remainder 0", "Read remainders from bottom to top"]
+    },
+    {
+      "id": "p3",
+      "title": "Binary Addition",
+      "difficulty": "medium",
+      "type": "arithmetic",
+      "description": "Add binary 1011 + 0110.",
+      "answer": "10001",
+      "explanation": "11 + 6 = 17 in decimal, which is 10001 in binary. Remember: 1+1=10 (carry 1).",
+      "hints": ["Add right to left", "1+1=0 with carry 1", "Handle carries properly"]
+    },
+    {
+      "id": "p4",
+      "title": "Hex to Binary",
+      "difficulty": "medium",
+      "type": "conversion",
+      "description": "Convert hex 3F to binary.",
+      "answer": "00111111",
+      "explanation": "3 = 0011, F = 1111. Concatenate: 00111111 = 63 in decimal.",
+      "hints": ["Each hex digit = 4 bits", "3 in binary is 0011", "F in binary is 1111"]
+    },
+    {
+      "id": "p5",
+      "title": "Two's Complement Range",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is the range of signed 8-bit integers?",
+      "answer": "-128 to +127",
+      "explanation": "With 8 bits, one bit is for sign. Range is -2⁷ to 2⁷-1, which is -128 to 127.",
+      "hints": ["n bits can represent 2ⁿ values", "Half negative, half non-negative", "-2^(n-1) to 2^(n-1)-1"]
+    },
+    {
+      "id": "p6",
+      "title": "Negative Number Encoding",
+      "difficulty": "hard",
+      "type": "conversion",
+      "description": "What is the 8-bit two's complement representation of -17?",
+      "answer": "11101111",
+      "explanation": "+17 = 00010001. Invert: 11101110. Add 1: 11101111.",
+      "hints": ["Start with positive 17: 00010001", "Flip all bits: 11101110", "Add 1: 11101111"]
+    },
+    {
+      "id": "p7",
+      "title": "Binary Multiplication",
+      "difficulty": "hard",
+      "type": "arithmetic",
+      "description": "Multiply binary 101 × 011.",
+      "answer": "1111",
+      "explanation": "5 × 3 = 15. Binary 1111 = 8+4+2+1 = 15.",
+      "hints": ["Same as decimal multiplication", "Multiply by each bit, shifted appropriately", "101 × 011 = 101 × (010 + 001)"]
+    }
+  ],
+  "minigame": {
+    "id": "binary-blaster",
+    "title": "Binary Blaster",
+    "description": "Race against the clock to convert numbers between binary, decimal, and hexadecimal! Fast conversions earn combo multipliers.",
+    "type": "speed-challenge",
+    "instructions": [
+      "Convert the given number to the target format",
+      "Type your answer and press Enter or click Submit",
+      "Correct answers build your combo streak",
+      "Wrong answers reset your combo and cost time",
+      "Survive as long as possible to get the highest score!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Binary Basics",
+        "timeLimit": 60,
+        "conversions": ["binary→decimal", "decimal→binary"],
+        "maxValue": 15
+      },
+      {
+        "level": 2,
+        "name": "Hex Hero",
+        "timeLimit": 90,
+        "conversions": ["binary→hex", "hex→binary", "decimal→hex"],
+        "maxValue": 255
+      },
+      {
+        "level": 3,
+        "name": "Master Converter",
+        "timeLimit": 120,
+        "conversions": ["all"],
+        "maxValue": 65535,
+        "includeNegative": true
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Binary Conversion Functions",
+        "code": "# Convert decimal to binary (as string)\ndef dec_to_bin(n, bits=8):\n    return format(n & ((1 << bits) - 1), f'0{bits}b')\n\n# Convert binary string to decimal\ndef bin_to_dec(b):\n    return int(b, 2)\n\n# Convert decimal to hex\ndef dec_to_hex(n):\n    return hex(n)[2:].upper()\n\n# Two's complement negation (8-bit)\ndef negate_8bit(n):\n    return (~n + 1) & 0xFF\n\n# Examples\nprint(dec_to_bin(45))      # 00101101\nprint(bin_to_dec('101101')) # 45\nprint(dec_to_hex(255))      # FF\nprint(negate_8bit(17))      # 239 (11101111 = -17 in two's complement)"
+      }
+    ]
+  }
+}

@@ -270,7 +270,7 @@ const generateSteps = (): Step[] => [
   },
 ];
 
-export default function ArrayVisualizerEnhanced() {
+function ArrayVisualizerEnhanced() {
   const { 
     currentStep: stepIndex, 
     totalSteps, 
@@ -526,3 +526,5 @@ export default function ArrayVisualizerEnhanced() {
     </div>
   );
 }
+
+export default ArrayVisualizerEnhanced;

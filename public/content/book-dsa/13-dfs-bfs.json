@@ -1,0 +1,402 @@
+{
+  "id": "13-dfs-bfs",
+  "bookId": "book-dsa",
+  "title": "DFS & BFS Advanced",
+  "category": "Graphs",
+  "order": 13,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Building on basic graph traversal, this chapter covers advanced BFS/DFS techniques and applications. BFS excels at finding shortest paths in unweighted graphs and level-order processing. DFS is powerful for exploring all paths, cycle detection, and backtracking. Advanced topics include bidirectional BFS, iterative deepening DFS, topological sorting, and detecting cycles in directed graphs. These techniques form the foundation for more complex graph algorithms.",
+    "sections": [
+      {
+        "title": "Bidirectional BFS",
+        "content": "Simultaneous BFS from source and target. When frontiers meet, path found. Reduces search space from $O(b^d)$ to $O(2b^{d/2})$ where b is branching factor, d is depth. Useful for unweighted shortest path when both source and target known. Implementation: two queues, two visited sets. Alternate between expanding each frontier. Check for intersection.",
+        "complexity": { "time": "$O(b^{d/2})$", "space": "$O(b^{d/2})$" },
+        "benefit": "Exponential speedup for large d"
+      },
+      {
+        "title": "Iterative Deepening DFS (IDDFS)",
+        "content": "DFS with increasing depth limit. For depth limit L, run DFS limited to L. If target not found, increment L and repeat. Combines DFS's space efficiency ($O(d)$) with BFS's completeness. Time: $O(b^d)$. Space: $O(d)$. Useful when solution depth unknown and memory is limited.",
+        "algorithm": "For L from 0 to ∞: DFS with depth limit L. If target found, return.",
+        "use": "Memory-constrained environments, unknown depth"
+      },
+      {
+        "title": "Topological Sort",
+        "content": "Linear ordering of vertices in DAG such that for every directed edge u→v, u comes before v. Used for task scheduling, build dependencies. Two methods: DFS (post-order, reverse result) and Kahn's algorithm (BFS with in-degree). Detects cycles: if not all vertices in topological order, cycle exists.",
+        "methods": [
+          { "name": "DFS", "method": "Post-order traversal, reverse result" },
+          { "name": "Kahn's", "method": "BFS, process nodes with 0 in-degree" }
+        ]
+      },
+      {
+        "title": "Cycle Detection",
+        "content": "Undirected: DFS, if neighbor visited and not parent, cycle exists. Directed: DFS with three states (unvisited, visiting, visited). If edge to visiting node, back edge → cycle. Or Kahn's algorithm (if not all processed, cycle). Union-Find also detects cycles in undirected graphs.",
+        "methods": [
+          { "type": "Undirected", "check": "DFS, neighbor visited and not parent" },
+          { "type": "Directed", "check": "DFS with 3 states, back edge" }
+        ]
+      },
+      {
+        "title": "BFS Level Applications",
+        "content": "BFS naturally processes by level. Applications: shortest path in unweighted graph, minimum steps to reach target, level-order tree traversal, counting nodes at each level, finding minimum mutations. Key insight: first time visiting node = shortest distance from source.",
+        "applications": [
+          "Shortest path (unweighted)",
+          "Minimum steps problems",
+          "Level-order traversal",
+          "Distance from source"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Bidirectional Search",
+        "description": "BFS from both ends simultaneously. Meets in middle. Dramatically reduces search space for large depths.",
+        "formula": "Search space reduced from $b^d$ to $2b^{d/2}$"
+      },
+      {
+        "name": "Topological Order",
+        "description": "Linear ordering respecting edge directions. Only possible for DAGs. Multiple valid orders possible.",
+        "property": "If edge u→v, u appears before v in order"
+      },
+      {
+        "name": "Back Edge",
+        "description": "Edge to ancestor in DFS tree indicates cycle in directed graph. Edge to visited non-ancestor is cross edge (no cycle).",
+        "detection": "3-state DFS: unvisited, visiting, visited"
+      },
+      {
+        "name": "In-Degree",
+        "description": "Number of edges entering vertex. Used in Kahn's algorithm for topological sort. Nodes with 0 in-degree can be processed first.",
+        "kahn": "Process nodes with 0 in-degree, decrement neighbors' in-degree"
+      }
+    ],
+    "complexity": {
+      "bidirectionalBFS": "$O(b^{d/2})$ time, $O(b^{d/2})$ space",
+      "iddfs": "$O(b^d)$ time, $O(d)$ space",
+      "topologicalSort": "$O(V+E)$ time, $O(V)$ space",
+      "cycleDetection": "$O(V+E)$ time, $O(V)$ space"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Bidirectional BFS - Initialize",
+      "description": "Two queues: forward from source, backward from target. Two visited sets.",
+      "code": "forwardQ = [source]; backwardQ = [target]; forwardVis = {source}; backwardVis = {target};",
+      "visualState": { "forward": "source", "backward": "target" }
+    },
+    {
+      "step": 2,
+      "title": "Expand Frontier",
+      "description": "Alternate expanding each frontier. Check for intersection (node in both visited sets).",
+      "code": "while forwardQ and backwardQ: expand_forward(); if intersect: return; expand_backward(); if intersect: return;",
+      "visualState": { "expanding": "alternating" }
+    },
+    {
+      "step": 3,
+      "title": "Check Intersection",
+      "description": "If any node in forwardVis is in backwardVis, paths meet. Reconstruct path.",
+      "code": "if forwardVis & backwardVis: return reconstruct_path();",
+      "visualState": { "found": "intersection" }
+    },
+    {
+      "step": 4,
+      "title": "Topological Sort - DFS",
+      "description": "DFS, add node to result after processing all children. Reverse result at end.",
+      "code": "def dfs(node): mark visiting; for child: if not visited: dfs(child); result.append(node);",
+      "visualState": { "order": "post-order" }
+    },
+    {
+      "step": 5,
+      "title": "Cycle Detection",
+      "description": "In directed DFS, if edge to visiting node, cycle found. Return false.",
+      "code": "if state[neighbor] == VISITING: return False; # cycle",
+      "visualState": { "cycle": "detected" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Word Ladder II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all shortest transformation sequences from beginWord to endWord.",
+      "complexity": { "time": "$O(n \\times m^2)$", "space": "$O(n \\times m^2)$" },
+      "solution": "BFS level by level. Build parent map. At end, DFS from endWord to beginWord using parent map to reconstruct all paths.",
+      "hints": "BFS level by level, parent map, reconstruct paths"
+    },
+    {
+      "id": "p2",
+      "title": "Minimum Genetic Mutation",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum mutations to transform start to end using bank.",
+      "complexity": { "time": "$O(n \\times m)$", "space": "$O(n)$" },
+      "solution": "BFS from start. Each level = one mutation. Return level when reach end.",
+      "hints": "BFS, each level = one mutation"
+    },
+    {
+      "id": "p3",
+      "title": "Open the Lock",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum turns to open lock with 4 wheels given deadends.",
+      "complexity": { "time": "$O(10^4)$", "space": "$O(10^4)$" },
+      "solution": "BFS from '0000'. 8 possible moves per state. Skip deadends. Return steps when target reached.",
+      "hints": "BFS, 8 moves per state"
+    },
+    {
+      "id": "p4",
+      "title": "Shortest Path in Binary Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest path from top-left to bottom-right in binary matrix (8 directions).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from (0,0). Queue stores (row, col, distance). Return distance when reach target.",
+      "hints": "BFS, 8 directions"
+    },
+    {
+      "id": "p5",
+      "title": "Shortest Bridge",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest bridge (flip 0 to 1) to connect two islands.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS to find first island, mark cells and add to queue. BFS from island to find nearest cell of second island.",
+      "hints": "DFS to find island, BFS to find second"
+    },
+    {
+      "id": "p6",
+      "title": "Nearest Exit from Entrance",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nearest exit from entrance in maze (4 directions).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from entrance. Queue stores (row, col, distance). Return distance when reach border.",
+      "hints": "BFS, return when reach border"
+    },
+    {
+      "id": "p7",
+      "title": "As Far from Land as Possible",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find water cell with maximum distance to nearest land.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "Multi-source BFS from all land cells. Track distance. Max distance is answer.",
+      "hints": "Multi-source BFS from all land"
+    },
+    {
+      "id": "p8",
+      "title": "01 Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "For each cell, find distance to nearest 0.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "Multi-source BFS from all 0s. Set distance = current + 1.",
+      "hints": "Multi-source BFS from all 0s"
+    },
+    {
+      "id": "p9",
+      "title": "Walls and Gates",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Fill each empty room with distance to nearest gate.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from all gates. Update distance if current + 1 < existing.",
+      "hints": "BFS from all gates"
+    },
+    {
+      "id": "p10",
+      "title": "Course Schedule II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Return ordering of courses to finish all (topological sort).",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Topological sort using DFS or Kahn's. Return order if no cycle.",
+      "hints": "Topological sort"
+    },
+    {
+      "id": "p11",
+      "title": "Alien Dictionary",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Determine order of characters in alien language from sorted words.",
+      "complexity": { "time": "$O(C + E)$", "space": "$O(C + E)$" },
+      "solution": "Build graph from word comparisons. Topological sort. If cycle, invalid.",
+      "hints": "Build graph from word pairs, topological sort"
+    },
+    {
+      "id": "p12",
+      "title": "Sequence Reconstruction",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if sequence is unique topological order of graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Topological sort using Kahn's. If queue ever has >1 node, multiple orders possible.",
+      "hints": "Kahn's algorithm, check queue size"
+    },
+    {
+      "id": "p13",
+      "title": "Course Schedule III",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum time to finish all courses with durations and prerequisites.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Topological sort with priority queue. Process by longest path time.",
+      "hints": "Topological sort with max-heap by time"
+    },
+    {
+      "id": "p14",
+      "title": "Parallel Courses",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum semesters to finish courses with prerequisites.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Topological sort (Kahn's). Count levels (semesters).",
+      "hints": "Kahn's algorithm, count levels"
+    },
+    {
+      "id": "p15",
+      "title": "Find Eventual Safe States",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nodes that eventually reach terminal node in directed graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Reverse graph, BFS from terminals. Nodes reachable in reverse are safe.",
+      "hints": "Reverse graph, BFS from terminals"
+    },
+    {
+      "id": "p16",
+      "title": "Critical Connections",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find critical connections (bridges) in network.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "Tarjan's algorithm. Track discovery and low times. Bridge if low[child] > disc[node].",
+      "hints": "Tarjan's algorithm, discovery and low times"
+    },
+    {
+      "id": "p17",
+      "title": "Detect Cycles in Directed Graph",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Detect cycle in directed graph.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "DFS with 3 states. If edge to visiting node, cycle. Or Kahn's (if not all processed, cycle).",
+      "hints": "DFS with 3 states or Kahn's"
+    },
+    {
+      "id": "p18",
+      "title": "Find if Path Exists in Graph",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if path exists from source to destination.",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V)$" },
+      "solution": "BFS/DFS from source. Check if destination reached.",
+      "hints": "BFS/DFS from source"
+    },
+    {
+      "id": "p19",
+      "title": "All Paths from Source to Target",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all paths from source to target in DAG.",
+      "complexity": { "time": "$O(2^V \\times V + E)$", "space": "$O(V)$" },
+      "solution": "DFS with backtracking. Track current path. Add to result when target reached.",
+      "hints": "DFS with backtracking"
+    },
+    {
+      "id": "p20",
+      "title": "Longest Increasing Path in Matrix",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find longest increasing path in matrix.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS with memoization. Cache longest path from each cell.",
+      "hints": "DFS with memoization"
+    },
+    {
+      "id": "p21",
+      "title": "Word Search II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find all words from dictionary that exist in board (can move in 8 directions).",
+      "complexity": { "time": "$O(m \\times n \\times 4^L)$", "space": "$O(total chars)$" },
+      "solution": "Build Trie from dictionary. DFS from each cell, traverse Trie. Remove word from Trie when found.",
+      "hints": "Trie + DFS"
+    },
+    {
+      "id": "p22",
+      "title": "Reconstruct Itinerary",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Reconstruct itinerary in lexical order given tickets.",
+      "complexity": { "time": "$O(E \\log E)$", "space": "$O(E)$" },
+      "solution": "Hierholzer's algorithm (Eulerian path). DFS, remove edges, add to result in reverse.",
+      "hints": "Hierholzer's algorithm, lexical order"
+    },
+    {
+      "id": "p23",
+      "title": "Cracking the Safe",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest string that contains all n-length combinations of digits 0-k.",
+      "complexity": { "time": "$O(k^n)$", "space": "$O(k^n)$" },
+      "solution": "Hierholzer's algorithm on de Bruijn graph. Each node is n-1 digits, edge is digit.",
+      "hints": "De Bruijn graph, Hierholzer's"
+    },
+    {
+      "id": "p24",
+      "title": "Shortest Path Visiting All Nodes",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest path visiting all nodes in undirected graph.",
+      "complexity": { "time": "$O(2^n \\times n + 2^n \\times E)$", "space": "$O(2^n \\times n)$" },
+      "solution": "BFS on state (node, visited_mask). State space = node × all visited subsets.",
+      "hints": "BFS on (node, visited_mask) state"
+    },
+    {
+      "id": "p25",
+      "title": "Minimum Height Trees",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find roots of minimum height trees (MHTs) in undirected graph.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Topological sort from leaves (nodes with degree 1). Remove leaves layer by layer until ≤2 nodes remain.",
+      "hints": "Remove leaves layer by layer"
+    }
+  ],
+  "minigame": {
+    "id": "bfs-dfs-advanced",
+    "title": "Traversal Master",
+    "description": "Master advanced traversal! Bidirectional BFS, topological sort, and cycle detection.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Bidirectional", "task": "Find shortest path using bidirectional BFS" },
+      { "name": "Topological", "task": "Find topological order of DAG" },
+      { "name": "Cycle", "task": "Detect cycle in directed graph" }
+    ]
+  },
+  "visualizer": {
+    "type": "advanced-traversal",
+    "title": "Advanced Traversal Visualizer",
+    "description": "Visualize bidirectional BFS, topological sort, and cycle detection.",
+    "features": ["Bidirectional search", "Topological ordering", "Cycle highlighting"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Topological Sort (DFS)",
+        "code": "def topological_sort(graph):\n    visited = set()\n    result = []\n    \n    def dfs(node):\n        if node in visited:\n            return\n        visited.add(node)\n        for neighbor in graph[node]:\n            dfs(neighbor)\n        result.append(node)\n    \n    for node in graph:\n        dfs(node)\n    \n    return result[::-1]  # Reverse for topological order"
+      },
+      {
+        "title": "Kahn's Algorithm",
+        "code": "from collections import deque, defaultdict\n\ndef topological_sort_kahn(graph):\n    in_degree = defaultdict(int)\n    for node in graph:\n        for neighbor in graph[node]:\n            in_degree[neighbor] += 1\n    \n    queue = deque([node for node in graph if in_degree[node] == 0])\n    result = []\n    \n    while queue:\n        node = queue.popleft()\n        result.append(node)\n        for neighbor in graph[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    \n    return result if len(result) == len(graph) else []"
+      },
+      {
+        "title": "Cycle Detection (Directed)",
+        "code": "def has_cycle(graph):\n    WHITE, GRAY, BLACK = 0, 1, 2\n    color = {node: WHITE for node in graph}\n    \n    def dfs(node):\n        color[node] = GRAY\n        for neighbor in graph[node]:\n            if color[neighbor] == GRAY:\n                return True  # Back edge\n            if color[neighbor] == WHITE:\n                if dfs(neighbor):\n                    return True\n        color[node] = BLACK\n        return False\n    \n    for node in graph:\n        if color[node] == WHITE:\n            if dfs(node):\n                return True\n    return False"
+      }
+    ]
+  }
+}

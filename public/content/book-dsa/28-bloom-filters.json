@@ -1,0 +1,403 @@
+{
+  "id": "28-bloom-filters",
+  "bookId": "book-dsa",
+  "title": "Bloom Filters",
+  "category": "Probabilistic Data Structures",
+  "order": 28,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Bloom Filter is a space-efficient probabilistic data structure for set membership testing. Uses bit array and multiple hash functions. Can return false positives (says element exists when it doesn't) but never false negatives. Used in databases, caches, spell checkers, and network systems. This chapter covers Bloom filter structure, operations, false positive analysis, and applications.",
+    "sections": [
+      {
+        "title": "Bloom Filter Structure",
+        "content": "Bit array of size m. k hash functions map elements to k positions in array. To add element: set bits at all k hash positions. To query: check if all k bits are set. If any bit is 0, element definitely not in set. If all bits are 1, element probably in set (possible false positive).",
+        "structure": {
+          "bitArray": "size m bits",
+          "hashFunctions": "k independent hash functions",
+          "add": "set bits at k positions",
+          "query": "check all k bits"
+        }
+      },
+      {
+        "title": "Operations",
+        "content": "Add(x): compute k hash values, set bits at those positions. Time: $O(k)$. Query(x): compute k hash values, check if all bits set. Time: $O(k)$. No deletion operation (standard Bloom filter). Counting Bloom Filter variant supports deletion using counters instead of bits.",
+        "complexity": { "add": "$O(k)$", "query": "$O(k)$", "space": "$O(m)$ bits" }
+      },
+      {
+        "title": "False Positive Rate",
+        "content": "Probability of false positive depends on m (size), k (hash functions), n (elements inserted). Formula: $p \\approx (1 - e^{-kn/m})^k$. Optimal k: $k = (m/n) \\ln 2$. For 1% false positive with n elements, need $m \\approx 9.6n$ bits and $k \\approx 7$ hash functions.",
+        "formula": "$p \\approx (1 - e^{-kn/m})^k$",
+        "optimal": "$k = (m/n) \\ln 2$"
+      },
+      {
+        "title": "Hash Functions",
+        "content": "Need k independent hash functions. Can use: different seeds for same hash function, or different hash functions (Murmur, FNV, etc.). Hash functions should be fast and uniformly distributed. Poor hash functions increase false positive rate.",
+        "options": [
+          "Same hash with different seeds",
+          "Different hash functions",
+          "Double hashing technique"
+        ]
+      },
+      {
+        "title": "Bloom Filter vs Hash Set",
+        "content": "Bloom Filter: space-efficient, no false negatives, has false positives, no deletion (standard). Hash Set: more space, exact membership, supports deletion. Choose Bloom Filter when space is critical and false positives acceptable.",
+        "comparison": [
+          { "aspect": "Space", "bloom": "O(m) bits", "hash": "O(n) items" },
+          { "aspect": "Accuracy", "bloom": "Probabilistic", "hash": "Exact" },
+          { "aspect": "Deletion", "bloom": "No (standard)", "hash": "Yes" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "False Positive",
+        "description": "Query returns true for element not in set. Probability depends on m, k, n. Never false negatives.",
+        "formula": "$p \\approx (1 - e^{-kn/m})^k$"
+      },
+      {
+        "name": "Hash Functions",
+        "description": "k independent hash functions map element to k positions. More hash functions reduce false positives but increase computation.",
+        "tradeoff": "More k → lower false positive, slower operations"
+      },
+      {
+        "name": "Bit Array",
+        "description": "Compact representation using bits. Each bit represents whether hash position has been set.",
+        "space": "m bits total"
+      },
+      {
+        "name": "Counting Bloom Filter",
+        "description": "Variant using counters instead of bits. Supports deletion by decrementing counters. Uses more space.",
+        "space": "O(m × counter_size)"
+      }
+    ],
+    "complexity": {
+      "add": "$O(k)$ time",
+      "query": "$O(k)$ time",
+      "space": "$O(m)$ bits",
+      "falsePositive": "$p \\approx (1 - e^{-kn/m})^k$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize",
+      "description": "Create bit array of size m, initialize to 0. Choose k hash functions.",
+      "code": "bit_array = [0] * m; hash_functions = [hash1, hash2, ..., hashk];",
+      "visualState": { "array": "all zeros" }
+    },
+    {
+      "step": 2,
+      "title": "Add Element",
+      "description": "Compute k hash values, set bits at those positions.",
+      "code": "for i in range(k): pos = hash_functions[i](element) % m; bit_array[pos] = 1;",
+      "visualState": { "bits": "set" }
+    },
+    {
+      "step": 3,
+      "title": "Query Element",
+      "description": "Compute k hash values, check if all bits are set.",
+      "code": "for i in range(k): pos = hash_functions[i](element) % m; if bit_array[pos] == 0: return False; return True;",
+      "visualState": { "check": "all bits" }
+    },
+    {
+      "step": 4,
+      "title": "Interpret Result",
+      "description": "False = definitely not in set. True = probably in set (possible false positive).",
+      "code": "if result == False: definitely not; else: probably in set;",
+      "visualState": { "result": "interpreted" }
+    },
+    {
+      "step": 5,
+      "title": "Calculate False Positive Rate",
+      "description": "Calculate probability of false positive based on m, k, n.",
+      "code": "p = (1 - exp(-k*n/m))**k;",
+      "visualState": { "rate": "calculated" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Implement Bloom Filter",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement Bloom Filter with add and query operations.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Bit array + k hash functions. Set bits on add, check all bits on query.",
+      "hints": "Bit array + k hash functions"
+    },
+    {
+      "id": "p2",
+      "title": "Calculate False Positive Rate",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate false positive rate given m, k, n.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "Use formula: p = (1 - e^(-kn/m))^k.",
+      "hints": "Use false positive formula"
+    },
+    {
+      "id": "p3",
+      "title": "Optimal k for Bloom Filter",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find optimal number of hash functions for given m and n.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "k = (m/n) * ln(2).",
+      "hints": "k = (m/n) * ln(2)"
+    },
+    {
+      "id": "p4",
+      "title": "Size for Target False Positive",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate required bit array size for target false positive rate.",
+      "complexity": { "time": "$O(1)$", "space": "$O(1)$" },
+      "solution": "m = -n * ln(p) / (ln(2))^2.",
+      "hints": "m = -n * ln(p) / (ln(2))^2"
+    },
+    {
+      "id": "p5",
+      "title": "Counting Bloom Filter",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement Counting Bloom Filter supporting deletion.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$", "delete": "$O(k)$" },
+      "solution": "Use counters instead of bits. Increment on add, decrement on delete.",
+      "hints": "Counters instead of bits"
+    },
+    {
+      "id": "p6",
+      "title": "Bloom Filter for Spell Check",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter for spell checking (dictionary of words).",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add all dictionary words. Query each word, false positives acceptable.",
+      "hints": "Add dictionary, query words"
+    },
+    {
+      "id": "p7",
+      "title": "Bloom Filter for Cache",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to check if key might be in cache.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add keys to Bloom Filter. Check Bloom Filter before cache lookup.",
+      "hints": "Check Bloom Filter before cache"
+    },
+    {
+      "id": "p8",
+      "title": "Bloom Filter Intersection",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Compute intersection of two Bloom filters (AND operation).",
+      "complexity": { "time": "$O(m)$", "space": "$O(m)$" },
+      "solution": "Bitwise AND of bit arrays. Represents intersection of sets.",
+      "hints": "Bitwise AND of bit arrays"
+    },
+    {
+      "id": "p9",
+      "title": "Bloom Filter Union",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Compute union of two Bloom filters (OR operation).",
+      "complexity": { "time": "$O(m)$", "space": "$O(m)$" },
+      "solution": "Bitwise OR of bit arrays. Represents union of sets.",
+      "hints": "Bitwise OR of bit arrays"
+    },
+    {
+      "id": "p10",
+      "title": "Scalable Bloom Filter",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Implement Bloom Filter that grows as elements are added.",
+      "complexity": { "add": "$O(k)$ amortized", "query": "$O(k)$" },
+      "solution": "When capacity reached, create new filter with larger size, chain filters.",
+      "hints": "Chain multiple filters"
+    },
+    {
+      "id": "p11",
+      "title": "Bloom Filter for Duplicate Detection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Detect duplicates in stream using Bloom Filter.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Query before adding. If returns true, likely duplicate.",
+      "hints": "Query before add"
+    },
+    {
+      "id": "p12",
+      "title": "Bloom Filter for URL Blacklist",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter for URL blacklist (false positives acceptable).",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add blacklisted URLs. Check Bloom Filter before allowing URL.",
+      "hints": "Add blacklist, check URLs"
+    },
+    {
+      "id": "p13",
+      "title": "Bloom Filter for Malware Detection",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter for malware signature detection.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add malware signatures. Check Bloom Filter for file signatures.",
+      "hints": "Add signatures, check files"
+    },
+    {
+      "id": "p14",
+      "title": "Bloom Filter for Database Index",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to avoid disk I/O for non-existent keys.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Check Bloom Filter before disk lookup. Skip if not in Bloom Filter.",
+      "hints": "Check before disk lookup"
+    },
+    {
+      "id": "p15",
+      "title": "Bloom Filter for Web Crawler",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to track visited URLs in web crawler.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add visited URLs. Check Bloom Filter before crawling URL.",
+      "hints": "Track visited URLs"
+    },
+    {
+      "id": "p16",
+      "title": "Bloom Filter for Recommendation",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to filter seen items in recommendation.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add seen items. Check Bloom Filter before recommending.",
+      "hints": "Filter seen items"
+    },
+    {
+      "id": "p17",
+      "title": "Bloom Filter for Password Check",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to check if password is in leaked password list.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add leaked passwords. Check Bloom Filter for new passwords.",
+      "hints": "Check against leaked passwords"
+    },
+    {
+      "id": "p18",
+      "title": "Bloom Filter for Email Spam",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to check if email is from known spam sender.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add spam senders. Check Bloom Filter for email sender.",
+      "hints": "Check spam senders"
+    },
+    {
+      "id": "p19",
+      "title": "Bloom Filter for IP Blacklist",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter for IP blacklist (DDoS protection).",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add blacklisted IPs. Check Bloom Filter for incoming connections.",
+      "hints": "Check incoming IPs"
+    },
+    {
+      "id": "p20",
+      "title": "Bloom Filter for Username Check",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to check if username is taken.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add existing usernames. Check Bloom Filter for new username.",
+      "hints": "Check existing usernames"
+    },
+    {
+      "id": "p21",
+      "title": "Bloom Filter for Hashtag Trending",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to track trending hashtags.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add trending hashtags. Check Bloom Filter for hashtag.",
+      "hints": "Track trending hashtags"
+    },
+    {
+      "id": "p22",
+      "title": "Bloom Filter for Ad Block",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to block ads from known domains.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add ad domains. Check Bloom Filter for request domain.",
+      "hints": "Block ad domains"
+    },
+    {
+      "id": "p23",
+      "title": "Bloom Filter for Content Filter",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to filter inappropriate content.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add inappropriate words. Check Bloom Filter for content.",
+      "hints": "Filter inappropriate words"
+    },
+    {
+      "id": "p24",
+      "title": "Bloom Filter for Geo-fencing",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Use Bloom Filter to check if location is in restricted area.",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Add restricted locations. Check Bloom Filter for location.",
+      "hints": "Check restricted locations"
+    },
+    {
+      "id": "p25",
+      "title": "Bloom Filter for Rate Limiting",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Use Bloom Filter for rate limiting (counting variant).",
+      "complexity": { "add": "$O(k)$", "query": "$O(k)$" },
+      "solution": "Counting Bloom Filter with time-based expiration.",
+      "hints": "Counting with expiration"
+    }
+  ],
+  "minigame": {
+    "id": "bloom-filter",
+    "title": "Bloom Filter Master",
+    "description": "Master Bloom Filters! Add, query, and understand false positives.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Add", "task": "Add elements to Bloom Filter" },
+      { "name": "Query", "task": "Query elements and interpret results" },
+      { "name": "False Positive", "task": "Calculate false positive rate" }
+    ]
+  },
+  "visualizer": {
+    "type": "bloom-filter",
+    "title": "Bloom Filter Visualizer",
+    "description": "Visualize Bloom filter operations, bit array, and hash function mapping.",
+    "features": ["Bit array visualization", "Hash function mapping", "Add animation", "Query animation"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Bloom Filter Implementation",
+        "code": "import hashlib\n\nclass BloomFilter:\n    def __init__(self, size, hash_count):\n        self.size = size\n        self.hash_count = hash_count\n        self.bit_array = [0] * size\n    \n    def _hashes(self, item):\n        hashes = []\n        for i in range(self.hash_count):\n            hash_val = int(hashlib.md5(f\"{item}{i}\".encode()).hexdigest(), 16)\n            hashes.append(hash_val % self.size)\n        return hashes\n    \n    def add(self, item):\n        for pos in self._hashes(item):\n            self.bit_array[pos] = 1\n    \n    def query(self, item):\n        for pos in self._hashes(item):\n            if self.bit_array[pos] == 0:\n                return False\n        return True  # Possibly false positive"
+      },
+      {
+        "title": "False Positive Rate",
+        "code": "import math\n\ndef false_positive_rate(m, k, n):\n    \"\"\"Calculate false positive rate\"\"\"\n    return (1 - math.exp(-k * n / m)) ** k\n\n# Example: m=1000 bits, k=3 hashes, n=100 elements\np = false_positive_rate(1000, 3, 100)\nprint(f\"False positive rate: {p:.4f}\")"
+      },
+      {
+        "title": "Optimal Parameters",
+        "code": "import math\n\ndef optimal_parameters(n, target_p):\n    \"\"\"Calculate optimal m and k for target false positive rate\"\"\"\n    m = -n * math.log(target_p) / (math.log(2) ** 2)\n    k = (m / n) * math.log(2)\n    return int(m), int(k)\n\n# Example: n=1000 elements, target p=0.01 (1%)\nm, k = optimal_parameters(1000, 0.01)\nprint(f\"Optimal size: {m} bits, Optimal k: {k}\")"
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "engine-12-concurrency",
+  "bookId": "book-engine",
+  "title": "Concurrency & Threading",
+  "category": "Advanced",
+  "order": 12,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Concurrency enables programs to do multiple things simultaneously. Threads allow parallel execution, but introduce challenges like race conditions, deadlocks, and data races. Understanding synchronization primitives (mutexes, semaphores, condition variables) is essential for writing correct concurrent code.",
+    "sections": [
+      {
+        "title": "Threads vs Processes",
+        "content": "Processes are isolated with separate memory spaces. Threads share memory within a process, enabling efficient communication but requiring synchronization.",
+        "keyPoints": [
+          "Processes have separate memory",
+          "Threads share memory",
+          "Context switch cheaper for threads"
+        ]
+      },
+      {
+        "title": "Race Conditions",
+        "content": "When multiple threads access shared data without synchronization, the result depends on timing. Classic example: two threads incrementing a counter concurrently can lose increments.",
+        "examples": [
+          { "code": "counter++ // not atomic!", "explanation": "Can lose increments with multiple threads" }
+        ]
+      },
+      {
+        "title": "Deadlocks",
+        "content": "A deadlock occurs when threads wait on each other in a cycle. Prevention requires careful ordering of lock acquisition, or using timeouts and lock hierarchies."
+      }
+    ],
+    "keyConcepts": [
+      { "name": "Mutex", "description": "Mutual exclusion lock for protecting shared data" },
+      { "name": "Semaphore", "description": "Counter for controlling resource access" },
+      { "name": "Data Race", "description": "Unsynchronized access to shared mutable data" }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Thread Creation",
+      "content": "OS threads have their own stack and register state. Creating threads is expensive, so thread pools reuse threads for multiple tasks."
+    },
+    {
+      "number": 2,
+      "title": "Shared State Access",
+      "content": "When multiple threads access shared data, synchronization is needed. Locks provide safety but can cause contention. Atomic operations reduce contention for simple operations."
+    },
+    {
+      "number": 3,
+      "title": "Memory Ordering",
+      "content": "Compilers and CPUs reorder instructions for performance. Fences and atomic operations with proper memory ordering ensure visibility of writes across threads."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Race Condition",
+      "difficulty": "Medium",
+      "description": "Two threads execute 'counter++' concurrently. Initial counter=0. What's the possible range?",
+      "solution": "Possible results: 1 or 2. If both read (0), both write (1), result is 1. If one completes before other starts, result is 2."
+    },
+    {
+      "id": 2,
+      "title": "Deadlock Detection",
+      "difficulty": "Hard",
+      "description": "Thread A locks X then Y. Thread B locks Y then X. What's the issue?",
+      "solution": "Potential deadlock. If A locks X and B locks Y, both wait forever. Fix: always acquire locks in consistent order (X before Y)."
+    }
+  ],
+  "minigame": {
+    "id": "race-condition",
+    "title": "Race Condition Hunter",
+    "type": "interactive",
+    "description": "Identify and fix race conditions in concurrent code"
+  },
+  "visualizer": {
+    "id": "thread-scheduler",
+    "title": "Thread Scheduler Visualizer",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "rust",
+    "code": "// Lock-free stack using atomic operations\npub struct LockFreeStack<T> {\n    head: AtomicPtr<Node<T>>,\n}\n\nstruct Node<T> {\n    data: T,\n    next: *mut Node<T>,\n}\n\nimpl<T> LockFreeStack<T> {\n    pub fn push(&self, data: T) {\n        let new_node = Box::into_raw(Box::new(Node {\n            data,\n            next: std::ptr::null_mut(),\n        }));\n        \n        loop {\n            let head = self.head.load(Ordering::Relaxed);\n            unsafe { (*new_node).next = head; }\n            \n            // Try to atomically swap head to new_node\n            match self.head.compare_exchange(\n                head,\n                new_node,\n                Ordering::Release,\n                Ordering::Relaxed\n            ) {\n                Ok(_) => break,\n                Err(_) => continue, // Retry if head changed\n            }\n        }\n    }\n    \n    pub fn pop(&self) -> Option<T> {\n        loop {\n            let head = self.head.load(Ordering::Acquire);\n            if head.is_null() {\n                return None;\n            }\n            \n            let next = unsafe { (*head).next };\n            \n            match self.head.compare_exchange(\n                head,\n                next,\n                Ordering::Release,\n                Ordering::Acquire\n            ) {\n                Ok(_) => {\n                    return Some(unsafe {\n                        Box::from_raw(head).data\n                    });\n                }\n                Err(_) => continue,\n            }\n        }\n    }\n}"
+  }
+}

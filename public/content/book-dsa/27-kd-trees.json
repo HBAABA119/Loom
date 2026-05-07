@@ -1,0 +1,401 @@
+{
+  "id": "27-kd-trees",
+  "bookId": "book-dsa",
+  "title": "K-D Trees",
+  "category": "Spatial Data Structures",
+  "order": 27,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "K-D Tree (k-dimensional tree) is a space-partitioning data structure for organizing points in k-dimensional space. Each node splits space along one dimension, alternating dimensions at each level. Enables efficient nearest neighbor search and range queries in O(log n) average time. Used in computer graphics, machine learning (k-NN), databases, and spatial indexing. This chapter covers K-D tree construction, search, and applications.",
+    "sections": [
+      {
+        "title": "K-D Tree Structure",
+        "content": "Binary tree where each node represents a k-dimensional point. At depth d, split along dimension d mod k. Left subtree has points with coordinate < split value, right subtree has ≥. Leaf nodes contain points or are empty. Height depends on insertion order. Balanced tree achieved by median split during construction.",
+        "structure": {
+          "node": "k-dimensional point",
+          "split": "dimension = depth mod k",
+          "left": "points with coordinate < split value",
+          "right": "points with coordinate ≥ split value"
+        }
+      },
+      {
+        "title": "Construction",
+        "content": "Build tree by recursively splitting points. Choose median point along current dimension as root (ensures balance). Recursively build left and right subtrees on remaining points. Time: $O(n \\log n)$ for balanced construction. Space: $O(n)$. Unbalanced construction: $O(n^2)$ worst case.",
+        "algorithm": "Choose median by current dimension. Recurse on left (points < median) and right (points ≥ median).",
+        "complexity": { "time": "$O(n \\log n)$ balanced", "space": "$O(n)$" }
+      },
+      {
+        "title": "Nearest Neighbor Search",
+        "content": "Find point closest to query. Recursively search down to leaf, track best distance. On backtrack, check if other branch could have closer point (if split plane is within best distance). Search other branch if needed. Time: $O(\\log n)$ average, $O(n)$ worst.",
+        "algorithm": "Search down to leaf. On backtrack, check if other branch needs searching (split plane within best distance).",
+        "complexity": { "time": "$O(\\log n)$ avg, $O(n)$ worst" }
+      },
+      {
+        "title": "Range Search",
+        "content": "Find all points in axis-aligned bounding box. Recursively check if node's region intersects query range. If intersects, recurse to children. If node's point is in range, add to result. Time: $O(n^{1-1/k} + m)$ where m is result size.",
+        "algorithm": "Check region intersection. If intersects, recurse. Add point if in range.",
+        "complexity": { "time": "$O(n^{1-1/k} + m)$" }
+      },
+      {
+        "title": "K-D Tree vs Other Structures",
+        "content": "K-D Tree: efficient for low dimensions (k ≤ 10), dynamic updates possible. R-Tree: better for higher dimensions, disk-based. Quadtree/Octree: fixed 2D/3D, simpler but less efficient. Grid: simple but memory-intensive for sparse data. Choose K-D Tree for low-dimensional spatial queries.",
+        "comparison": [
+          { "aspect": "Dimensions", "kdtree": "Low (≤10)", "rtree": "Any" },
+          { "aspect": "Updates", "kdtree": "Possible", "quadtree": "Complex" },
+          { "aspect": "Space", "kdtree": "$O(n)$", "grid": "O(range^k)" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Alternating Dimensions",
+        "description": "Split dimension cycles through 0, 1, ..., k-1 as depth increases. Ensures balanced distribution across dimensions.",
+        "formula": "split_dim = depth % k"
+      },
+      {
+        "name": "Median Split",
+        "description": "Choosing median point at each level ensures balanced tree. Essential for efficient search.",
+        "benefit": "Balanced tree → O(log n) search"
+      },
+      {
+        "name": "Bounding Box",
+        "description": "Each node represents a region (bounding box) in k-dimensional space. Used for pruning in range search.",
+        "use": "Prune branches that don't intersect query range"
+      },
+      {
+        "name": "Backtracking",
+        "description": "After reaching leaf, backtrack up tree checking if other branches could contain closer points (split plane within best distance).",
+        "condition": "Check if |query[split_dim] - node[split_dim]| < best_distance"
+      }
+    ],
+    "complexity": {
+      "construction": "$O(n \\log n)$ balanced, $O(n^2)$ worst",
+      "nearestNeighbor": "$O(\\log n)$ avg, $O(n)$ worst",
+      "rangeSearch": "$O(n^{1-1/k} + m)$",
+      "space": "$O(n)$"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Choose Split Dimension",
+      "description": "Determine which dimension to split on (depth % k).",
+      "code": "split_dim = depth % k;",
+      "visualState": { "dimension": "chosen" }
+    },
+    {
+      "step": 2,
+      "title": "Find Median",
+      "description": "Find median point by current dimension for balanced split.",
+      "code": "points.sort(key=lambda p: p[split_dim]); median = points[len(points)//2];",
+      "visualState": { "median": "found" }
+    },
+    {
+      "step": 3,
+      "title": "Create Node",
+      "description": "Create node with median point. Split points into left and right based on split dimension.",
+      "code": "left = points[:mid]; right = points[mid+1:];",
+      "visualState": { "node": "created" }
+    },
+    {
+      "step": 4,
+      "title": "Recurse",
+      "description": "Recursively build left and right subtrees with depth+1.",
+      "code": "node.left = build(left, depth+1); node.right = build(right, depth+1);",
+      "visualState": { "subtrees": "built" }
+    },
+    {
+      "step": 5,
+      "title": "Search",
+      "description": "For nearest neighbor: search down to leaf, backtrack checking other branches if needed.",
+      "code": "search(node, query, depth); if |query[split_dim] - node[split_dim]| < best: search(other_branch);",
+      "visualState": { "search": "completed" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "K Closest Points to Origin",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find k closest points to origin (0,0).",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Max-heap of size k by distance squared. Or K-D tree for multiple queries.",
+      "hints": "Max-heap of size k by distance"
+    },
+    {
+      "id": "p2",
+      "title": "K Closest Points to Target",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find k closest points to target point.",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Max-heap of size k by distance. Or K-D tree for spatial queries.",
+      "hints": "Max-heap by distance"
+    },
+    {
+      "id": "p3",
+      "title": "Points in Rectangle",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count points in axis-aligned rectangle.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Simple iteration (not K-D tree). K-D tree useful for multiple queries.",
+      "hints": "Simple iteration for single query"
+    },
+    {
+      "id": "p4",
+      "title": "K Nearest Neighbors",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find k nearest neighbors to query point.",
+      "complexity": { "time": "$O(n \\log k)$", "space": "$O(k)$" },
+      "solution": "Max-heap of size k by distance. Or K-D tree with k-NN search.",
+      "hints": "Max-heap or K-D tree"
+    },
+    {
+      "id": "p5",
+      "title": "Nearest Neighbor in 2D",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find closest point to query in 2D.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Brute force for single query. K-D tree for multiple queries.",
+      "hints": "Brute force for single query"
+    },
+    {
+      "id": "p6",
+      "title": "Range Search in 2D",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find all points in rectangular range.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Brute force for single query. K-D tree for multiple queries.",
+      "hints": "Brute force for single query"
+    },
+    {
+      "id": "p7",
+      "title": "Construct K-D Tree",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement K-D tree construction with median split.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Recursively split by median, alternating dimensions.",
+      "hints": "Median split, alternate dimensions"
+    },
+    {
+      "id": "p8",
+      "title": "K-D Tree Search",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement nearest neighbor search in K-D tree.",
+      "complexity": { "time": "$O(\\log n)$ avg", "space": "$O(\\log n)$" },
+      "solution": "Search down to leaf, backtrack checking other branches.",
+      "hints": "Backtrack with distance check"
+    },
+    {
+      "id": "p9",
+      "title": "K-D Tree Range Query",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement range search in K-D tree.",
+      "complexity": { "time": "$O(n^{1-1/k} + m)$", "space": "$O(m)$" },
+      "solution": "Check region intersection, recurse if needed.",
+      "hints": "Check region intersection"
+    },
+    {
+      "id": "p10",
+      "title": "K-D Tree Insert",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Insert point into K-D tree.",
+      "complexity": { "time": "$O(\\log n)$ avg", "space": "$O(1)$" },
+      "solution": "Navigate down tree by comparing split dimension, insert at leaf.",
+      "hints": "Navigate by split dimension"
+    },
+    {
+      "id": "p11",
+      "title": "K-D Tree Delete",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Delete point from K-D tree.",
+      "complexity": { "time": "$O(\\log n)$ avg", "space": "$O(\\log n)$" },
+      "solution": "Find node, replace with min from right subtree, rebalance if needed.",
+      "hints": "Replace with min from right subtree"
+    },
+    {
+      "id": "p12",
+      "title": "K-D Tree Balance",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Rebalance K-D tree (rebuild from points).",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Collect all points, rebuild with median split.",
+      "hints": "Collect and rebuild"
+    },
+    {
+      "id": "p13",
+      "title": "K-D Tree Nearest",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nearest neighbor using K-D tree.",
+      "complexity": { "time": "$O(\\log n)$ avg", "space": "$O(\\log n)$" },
+      "solution": "Recursive search with backtracking.",
+      "hints": "Recursive with backtracking"
+    },
+    {
+      "id": "p14",
+      "title": "K-D Tree Range",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Range query using K-D tree.",
+      "complexity": { "time": "$O(n^{1-1/k} + m)$", "space": "$O(m)$" },
+      "solution": "Check region, recurse if intersects.",
+      "hints": "Region intersection check"
+    },
+    {
+      "id": "p15",
+      "title": "K-D Tree k-NN",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find k nearest neighbors using K-D tree.",
+      "complexity": { "time": "$O(k \\log n)$ avg", "space": "$O(k)$" },
+      "solution": "Maintain max-heap of k best points during search.",
+      "hints": "Max-heap of k best"
+    },
+    {
+      "id": "p16",
+      "title": "K-D Tree Construction",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Build K-D tree from points.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Recursive median split.",
+      "hints": "Recursive median split"
+    },
+    {
+      "id": "p17",
+      "title": "K-D Tree Traversal",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Traverse K-D tree (in-order, pre-order, etc.).",
+      "complexity": { "time": "$O(n)$", "space": "$O(\\log n)$" },
+      "solution": "Standard tree traversal with dimension awareness.",
+      "hints": "Standard tree traversal"
+    },
+    {
+      "id": "p18",
+      "title": "K-D Tree Height",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find height of K-D tree.",
+      "complexity": { "time": "$O(n)$", "space": "$O(\\log n)$" },
+      "solution": "Recursive: 1 + max(height(left), height(right)).",
+      "hints": "Recursive height calculation"
+    },
+    {
+      "id": "p19",
+      "title": "K-D Tree Size",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Count nodes in K-D tree.",
+      "complexity": { "time": "$O(n)$", "space": "$O(\\log n)$" },
+      "solution": "Recursive: 1 + size(left) + size(right).",
+      "hints": "Recursive size calculation"
+    },
+    {
+      "id": "p20",
+      "title": "K-D Tree Validate",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if tree is valid K-D tree (correct split dimensions).",
+      "complexity": { "time": "$O(n)$", "space": "$O(\\log n)$" },
+      "solution": "Recursive validation: check split dimension alternates correctly.",
+      "hints": "Check split dimension alternates"
+    },
+    {
+      "id": "p21",
+      "title": "K-D Tree Balance Check",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Check if K-D tree is balanced.",
+      "complexity": { "time": "$O(n)$", "space": "$O(\\log n)$" },
+      "solution": "Check if height is O(log n).",
+      "hints": "Check height is O(log n)"
+    },
+    {
+      "id": "p22",
+      "title": "K-D Tree Print",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Print K-D tree structure.",
+      "complexity": { "time": "$O(n)$", "space": "$O(\\log n)$" },
+      "solution": "Level-order traversal with split dimension info.",
+      "hints": "Level-order traversal"
+    },
+    {
+      "id": "p23",
+      "title": "K-D Tree to Points",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Extract all points from K-D tree.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "In-order traversal collecting points.",
+      "hints": "In-order traversal"
+    },
+    {
+      "id": "p24",
+      "title": "K-D Tree Range Count",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count points in range (don't return points).",
+      "complexity": { "time": "$O(n^{1-1/k})$", "space": "$O(\\log n)$" },
+      "solution": "Range search but count instead of collect.",
+      "hints": "Count instead of collect"
+    },
+    {
+      "id": "p25",
+      "title": "K-D Tree Minimum Bounding Box",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum bounding box of all points in tree.",
+      "complexity": { "time": "$O(n)$", "space": "$O(k)$" },
+      "solution": "Traverse tree, track min and max in each dimension.",
+      "hints": "Track min/max per dimension"
+    }
+  ],
+  "minigame": {
+    "id": "kd-tree",
+    "title": "K-D Tree Master",
+    "description": "Master K-D Trees! Build, search, and visualize spatial partitioning.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Build", "task": "Build K-D tree from 2D points" },
+      { "name": "Search", "task": "Find nearest neighbor" },
+      { "name": "Range", "task": "Range query in rectangle" }
+    ]
+  },
+  "visualizer": {
+    "type": "kd-tree",
+    "title": "K-D Tree Visualizer",
+    "description": "Visualize K-D tree construction, spatial partitioning, and nearest neighbor search.",
+    "features": ["2D/3D visualization", "Split plane animation", "Nearest neighbor search", "Range query highlighting"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "K-D Tree Node",
+        "code": "class KDNode:\n    def __init__(self, point, left=None, right=None):\n        self.point = point  # k-dimensional point\n        self.left = left\n        self.right = right"
+      },
+      {
+        "title": "K-D Tree Construction",
+        "code": "def build_kdtree(points, depth=0):\n    if not points:\n        return None\n    \n    k = len(points[0])\n    axis = depth % k\n    \n    points.sort(key=lambda x: x[axis])\n    median = len(points) // 2\n    \n    node = KDNode(points[median])\n    node.left = build_kdtree(points[:median], depth + 1)\n    node.right = build_kdtree(points[median+1:], depth + 1)\n    \n    return node  # O(n log n)"
+      },
+      {
+        "title": "Nearest Neighbor Search",
+        "code": "def nearest_neighbor(node, point, depth=0, best=None):\n    if node is None:\n        return best\n    \n    k = len(point)\n    axis = depth % k\n    \n    if best is None or distance(point, node.point) < distance(point, best):\n        best = node.point\n    \n    if point[axis] < node.point[axis]:\n        nearer, farther = node.left, node.right\n    else:\n        nearer, farther = node.right, node.left\n    \n    best = nearest_neighbor(nearer, point, depth + 1, best)\n    \n    if abs(point[axis] - node.point[axis]) < distance(point, best):\n        best = nearest_neighbor(farther, point, depth + 1, best)\n    \n    return best"
+      }
+    ]
+  }
+}

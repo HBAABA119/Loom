@@ -1,0 +1,304 @@
+{
+  "id": "engine-06-jit",
+  "bookId": "book-engine",
+  "title": "JIT Compilation",
+  "category": "Advanced",
+  "order": 6,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Just-In-Time (JIT) compilation bridges the gap between interpreted and statically compiled languages. Rather than executing bytecode instruction-by-instruction, the JIT compiler translates hot code paths into native machine code at runtime. This combines the portability of VMs with the speed of native execution. Modern JITs in Java (HotSpot), JavaScript (V8, SpiderMonkey), .NET, and PyPy achieve near-native performance through sophisticated profiling, adaptive optimization, and speculative compilation.",
+    "sections": [
+      {
+        "title": "The Interpreter-JIT Spectrum",
+        "content": "Language implementations span a spectrum: pure interpreters (slowest startup, most portable), JIT compilers (balanced), and ahead-of-time compilers (fastest execution, slowest startup). JIT sits in the middle—interpreting initially for fast startup, then compiling hot code for speed. Tiered compilation adds multiple levels: quick baseline JIT for warm code, optimizing JIT for hot code. This balances startup time and peak performance.",
+        "spectrum": [
+          { "approach": "Pure Interpreter", "startup": "Fast", "peakPerf": "Slow", "examples": ["CPython (before 3.13)", "Ruby (MRI)"] },
+          { "approach": "Baseline JIT", "startup": "Medium", "peakPerf": "Medium", "examples": ["Java C1", ".NET QuickJIT"] },
+          { "approach": "Optimizing JIT", "startup": "Slow", "peakPerf": "Fast", "examples": ["Java C2", "V8 TurboFan"] },
+          { "approach": "AOT Compilation", "startup": "Fastest", "peakPerf": "Fast", "examples": ["C", "Rust", "Go (mostly)", "GraalVM Native Image"] }
+        ]
+      },
+      {
+        "title": "Profiling and Hot Spot Detection",
+        "content": "JITs don't compile everything—they profile to find 'hot' code worth optimizing. Counters track method invocations and loop back-edges. When thresholds are crossed (e.g., 10,000 calls), compilation triggers. Profiling also collects type information: which concrete classes flow through polymorphic call sites, which branches are taken. This data drives speculative optimizations—the JIT optimizes for common cases, inserting guards to fall back if assumptions fail.",
+        "metrics": [
+          { "metric": "Invocation Count", "threshold": "~1000-15000", "purpose": "Detect frequently called methods" },
+          { "metric": "Back-edge Count", "threshold": "~1000-10000", "purpose": "Detect hot loops" },
+          { "metric": "Type Profile", "collection": "Per call site", "purpose": "Enable devirtualization, inline caching" }
+        ]
+      },
+      {
+        "title": "From Bytecode to Machine Code",
+        "content": "JIT compilation involves multiple stages: 1) Bytecode parsing and IR (Intermediate Representation) generation, 2) Profiling-guided optimization on IR, 3) Instruction selection (matching IR to CPU instructions), 4) Register allocation (assigning virtual registers to physical ones), 5) Code emission (writing bytes to executable memory). The result is a block of native code that the VM can jump into, with the same semantics as the original bytecode.",
+        "pipeline": [
+          { "stage": "Parse", "input": "Bytecode", "output": "High-level IR (e.g., SSA)" },
+          { "stage": "Optimize", "input": "High-level IR", "output": "Optimized IR", "techniques": "Inlining, CSE, constant folding" },
+          { "stage": "Lower", "input": "Optimized IR", "output": "Machine-level IR" },
+          { "stage": "Allocate", "input": "Machine IR", "output": "Physical registers assigned" },
+          { "stage": "Emit", "input": "Allocated IR", "output": "Machine code bytes" }
+        ]
+      },
+      {
+        "title": "Key JIT Optimizations",
+        "content": "JITs perform optimizations impossible for static compilers due to runtime information. Inlining replaces calls with callee body, eliminating call overhead. Devirtualization converts virtual calls to direct calls when type is known constant. Escape analysis identifies objects that don't escape their allocating scope, enabling stack allocation instead of heap. Loop unrolling and vectorization use CPU features. Speculative optimizations assume common paths, with deoptimization guards for rare cases.",
+        "optimizations": [
+          { "name": "Inlining", "benefit": "Eliminates call overhead, enables further optimizations across calls", "heuristic": "Callee size < threshold, hot path" },
+          { "name": "Devirtualization", "benefit": "Direct call instead of virtual dispatch", "trigger": "Monomorphic call site (only one receiver type)" },
+          { "name": "Constant Folding", "benefit": "Compute constants at compile time", "example": "x = 2 + 3 → x = 5" },
+          { "name": "Escape Analysis", "benefit": "Stack allocation, scalar replacement", "condition": "Object doesn't escape method" },
+          { "name": "Bounds Check Elimination", "benefit": "Remove array bounds checks", "condition": "Proven safe by analysis" },
+          { "name": "Loop Optimizations", "benefit": "Unrolling, peeling, vectorization", "trigger": "Hot counted loops" }
+        ]
+      },
+      {
+        "title": "Speculation and Deoptimization",
+        "content": "JITs optimize based on observed behavior, but programs can change. A method seeing only Integers might suddenly receive a Float. The JIT speculatively optimized for Integers, so it inserted a 'guard' (type check). When the guard fails, execution deoptimizes—jumps back to the interpreter or less-optimized code, which handles the general case. The JIT may later recompile with updated profiling data.",
+        "process": [
+          "1. Profile: Only Integers seen at add() call site",
+          "2. Speculate: Compile specialized integer_add() version",
+          "3. Guard: Insert 'if not Integer → deopt' check",
+          "4. Fast path: Optimized integer addition",
+          "5. Guard fails: Deoptimize to interpreter",
+          "6. Re-profile: Now Integers and Floats seen",
+          "7. Re-compile: Generic version or dual paths"
+        ]
+      },
+      {
+        "title": "On-Stack Replacement (OSR)",
+        "content": "What if a long-running loop becomes hot while the method containing it is still executing? OSR solves this: the JIT compiles the loop body and jumps from interpreted code to compiled mid-execution. The stack frame is transformed to match the compiled version's layout, and execution continues in machine code. This ensures even long-running loops get optimized without waiting for method exit.",
+        "scenario": "Method foo() has a loop running 1M iterations. After 10K iterations, loop becomes hot. OSR compiles loop and switches to native code at iteration 10,001."
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Warmup",
+        "description": "The period where code runs in interpreter while JIT profiles. Peak performance only after warmup completes.",
+        "benchmarking": "Always include warmup iterations in benchmarks"
+      },
+      {
+        "name": "Compilation Threshold",
+        "description": "Counter value triggering JIT compilation. Balances compilation overhead vs optimization benefit.",
+        "tuning": "Lower for faster compilation, higher for more profiling data"
+      },
+      {
+        "name": "Speculative Optimization",
+        "description": "Optimize for observed patterns, with guards for unexpected cases. Enables aggressive optimization of common paths.",
+        "risk": "Deoptimization overhead when speculation fails"
+      },
+      {
+        "name": "Deoptimization",
+        "description": "Safely reverting from compiled code to interpreter when assumptions fail. Preserves program correctness.",
+        "mechanism": "Guard failure triggers unwind to interpreter state"
+      }
+    ],
+    "complexity": {
+      "compilationTime": "O(codeSize) for baseline JIT, O(codeSize * optimizationDepth) for optimizing JIT",
+      "peakPerformance": "Near C++ performance for type-stable code",
+      "memoryOverhead": "O(compiledCodeSize) for generated native code"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Execute in Interpreter",
+      "description": "Start by interpreting bytecode. Fast startup, immediate execution, while collecting profiling data.",
+      "visualState": { "mode": "interpreting", "invocationCount": 1, "compilationQueue": [], "ir": null }
+    },
+    {
+      "step": 2,
+      "title": "Profile Hot Code",
+      "description": "Increment counters on method entry and loop back-edges. Track types at call sites and branches.",
+      "visualState": { "invocationCount": 1500, "typeProfile": { "callSite1": ["Integer: 98%", "Float: 2%"] }, "thresholdReached": true }
+    },
+    {
+      "step": 3,
+      "title": "Build Intermediate Representation",
+      "description": "Parse bytecode into IR (often SSA form). IR is platform-independent, enabling optimizations.",
+      "visualState": { "irNodes": 25, "ssaForm": true, "basicBlocks": 5, "phase": "ir_build" }
+    },
+    {
+      "step": 4,
+      "title": "Optimize IR",
+      "description": "Apply profiling-guided optimizations: inline hot calls, devirtualize based on type profile, constant fold.",
+      "visualState": { "inlined": 2, "devirtualized": 1, "constantsFolded": 3, "irNodes": 18, "phase": "optimize" }
+    },
+    {
+      "step": 5,
+      "title": "Generate Machine Code",
+      "description": "Lower IR to target CPU instructions, allocate registers, emit binary code to executable memory region.",
+      "visualState": { "nativeInstructions": 42, "registersUsed": 6, "codeSize": "168 bytes", "phase": "codegen" }
+    },
+    {
+      "step": 6,
+      "title": "Install and Link",
+      "description": "Install compiled code in method cache. Future calls jump directly to native code. Insert OSR entry points.",
+      "visualState": { "mode": "compiled", "entryPoint": "0x7f3a...", "callTarget": "native", "osrEnabled": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "JIT vs Interpreter Speed",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why is JIT-compiled code faster than interpreted bytecode?",
+      "answer": "No dispatch overhead, direct CPU execution, optimized machine code with registers",
+      "explanation": "Interpreter has dispatch loop overhead per instruction. JIT removes this, uses CPU registers instead of stack, and applies optimizations.",
+      "hints": ["Interpreter: fetch-decode-dispatch loop", "JIT: direct machine code", "Optimizations across bytecode"]
+    },
+    {
+      "id": "p2",
+      "title": "Warmup Period",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why do JIT-based systems need a 'warmup' period to reach peak performance?",
+      "answer": "Time needed to profile hot code and compile it to native code",
+      "explanation": "Initially everything runs in interpreter. Hot code detection and compilation happens over time. Peak perf only after hot paths are compiled.",
+      "hints": ["Start in interpreter", "Compile only hot code", "Compilation takes time"]
+    },
+    {
+      "id": "p3",
+      "title": "Inlining Benefit",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What are the benefits of inlining method calls in JIT compilation?",
+      "answer": "Eliminates call overhead and enables optimizations across method boundaries",
+      "explanation": "Call overhead: save registers, push args, jump, prologue, epilogue, return. Inlining removes all this and lets optimizer work on combined code.",
+      "hints": ["Remove call/return overhead", "Optimize caller+callee together", "Constant propagation across"]
+    },
+    {
+      "id": "p4",
+      "title": "Devirtualization",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "How does JIT devirtualization work and when can it apply?",
+      "answer": "When type profile shows monomorphic call site, convert virtual call to direct call",
+      "explanation": "If 100% of calls at a site use class Dog, JIT compiles direct call to Dog.speak() with guard, instead of virtual dispatch table lookup.",
+      "hints": ["Type profile shows single receiver type", "Virtual → Direct call", "Guard for deoptimization if wrong type"]
+    },
+    {
+      "id": "p5",
+      "title": "Speculative Guard",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What is the purpose of 'guards' in speculative JIT compilation?",
+      "answer": "Verify assumptions still hold; trigger deoptimization if violated",
+      "explanation": "Guard is runtime check: 'if assumption wrong → deoptimize'. Enables aggressive optimization of expected case with safe fallback.",
+      "hints": ["Assumption check", "Fast path optimized", "Slow path deoptimizes"]
+    },
+    {
+      "id": "p6",
+      "title": "On-Stack Replacement",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What problem does On-Stack Replacement (OSR) solve?",
+      "answer": "Optimizing long-running loops before method exits",
+      "explanation": "Without OSR, hot loop in long method would stay interpreted until method returns. OSR switches to compiled code mid-loop.",
+      "hints": ["Long-running loops", "Method hasn't returned", "Switch to compiled mid-execution"]
+    },
+    {
+      "id": "p7",
+      "title": "Compilation Threshold",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Why don't JITs compile code immediately on first execution?",
+      "answer": "Compilation overhead exceeds benefit for cold code; profiling needs multiple runs",
+      "explanation": "Compiling everything immediately would slow startup. Many methods run only once—interpreting is faster for them. Thresholds ensure we compile only hot code worth optimizing.",
+      "hints": ["Compilation takes time", "Cold code not worth compiling", "Balance overhead vs benefit"]
+    },
+    {
+      "id": "p8",
+      "title": "Escape Analysis",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "How does escape analysis enable optimization?",
+      "answer": "Objects that don't escape method can be stack-allocated or scalar-replaced, avoiding heap allocation",
+      "explanation": "If new Point() is only used locally and not returned/stored globally, JIT can allocate on stack (frees when method returns) or eliminate entirely (scalar replacement).",
+      "hints": ["Track if object 'escapes' scope", "No escape = stack allocation", "Scalar replacement = remove object entirely"]
+    },
+    {
+      "id": "p9",
+      "title": "Deoptimization Cost",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What happens when a speculative optimization proves wrong at runtime?",
+      "answer": "Execution deoptimizes—jumps to interpreter or less-optimized code. State is reconstructed.",
+      "explanation": "Guard fails → unwind to safe point → reconstruct interpreter stack frame → continue in interpreter. Later may recompile with updated profile.",
+      "hints": ["Guard failure", "Unwind and reconstruct state", "Fallback to interpreter"]
+    },
+    {
+      "id": "p10",
+      "title": "Tiered Compilation",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why do modern VMs use tiered compilation (C1 + C2 in JVM)?",
+      "answer": "Balance between quick compilation (C1) and peak performance (C2). C1 for warmup, C2 for hot code.",
+      "explanation": "C1 (client) compiles quickly with basic optimizations for decent speed. C2 (server) takes longer but applies aggressive optimizations. Code graduates from interp→C1→C2 based on heat.",
+      "hints": ["C1: fast compile, medium speed", "C2: slow compile, peak speed", "Code tiers up with heat"]
+    }
+  ],
+  "minigame": {
+    "id": "jit-optimizer",
+    "title": "Speed Demon JIT",
+    "description": "Become a JIT compiler! Profile code, decide what to optimize, and watch your compiled code race against the interpreter. Learn optimization trade-offs and compete on the execution speed leaderboard.",
+    "type": "strategy-simulation",
+    "instructions": [
+      "Watch bytecode execute in the interpreter",
+      "Profile to identify hot methods and loops",
+      "Select optimizations (inline, unroll, vectorize)",
+      "Compile and race against baseline",
+      "Balance compilation time vs runtime speed"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Baseline Builder",
+        "description": "Learn basic compilation pipeline",
+        "setup": { "bytecode": "simple_loop", "optimizations": ["none", "basic"], "threshold": 1000 },
+        "goal": "Compile the hot loop and beat interpreter by 3x"
+      },
+      {
+        "level": 2,
+        "name": "Inlining Master",
+        "description": "Optimize with method inlining",
+        "setup": { "bytecode": "method_calls", "optimizations": ["inline", "constant_fold"], "callDepth": 3 },
+        "goal": "Inline 3 levels of calls and eliminate call overhead"
+      },
+      {
+        "level": 3,
+        "name": "Speculation Guru",
+        "description": "Use speculative optimizations with guards",
+        "setup": { "bytecode": "polymorphic_calls", "typeProfile": "mostly_stable", "deoptChance": 0.1 },
+        "goal": "Speculate correctly 90% of the time, handle deoptimization gracefully"
+      }
+    ],
+    "scoring": {
+      "speedup": "interpreter_time / compiled_time",
+      "compilationTime": "lower is better",
+      "deoptRate": "lower is better",
+      "efficiency": "speedup / compilation_time"
+    }
+  },
+  "visualizer": {
+    "type": "jit-simulation",
+    "title": "JIT Compilation Visualizer",
+    "description": "Watch the JIT compilation pipeline in action. See bytecode transform through IR stages, observe optimization decisions, and compare interpreter vs compiled execution speeds. Profile data drives the visualization.",
+    "features": [
+      "Bytecode execution profiling",
+      "IR transformation stages",
+      "Optimization decision display",
+      "Machine code generation",
+      "Interpreter vs JIT speed comparison",
+      "Deoptimization visualization"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Simple JIT Concept",
+        "code": "'''Conceptual demo of JIT compilation flow.\nReal JITs are complex (thousands of lines).\nThis shows the key stages conceptually.'''\n\nfrom dataclasses import dataclass\nfrom typing import Dict, List, Callable, Any\nfrom enum import Enum, auto\n\nclass BytecodeOp(Enum):\n    LOAD_CONST = auto()\n    LOAD_VAR = auto()\n    STORE_VAR = auto()\n    ADD = auto()\n    SUB = auto()\n    MUL = auto()\n    JUMP = auto()\n    JUMP_IF_FALSE = auto()\n    CALL = auto()\n    RETURN = auto()\n\n@dataclass\nclass Instruction:\n    op: BytecodeOp\n    operand: Any = None\n\n# Simulated 'machine code' - actually just Python functions\nNativeCode = Callable[[], Any]\n\nclass SimpleJIT:\n    '''Toy JIT showing compilation stages'''\n    \n    def __init__(self):\n        self.interpreter_counters: Dict[int, int] = {}  # Method IDs\n        self.compiled_methods: Dict[int, NativeCode] = {}\n        self.COMPILATION_THRESHOLD = 10\n    \n    def execute_bytecode(self, method_id: int, bytecode: List[Instruction], vars: Dict):\n        '''Execute with profiling'''\n        \n        # Profile: count invocations\n        count = self.interpreter_counters.get(method_id, 0) + 1\n        self.interpreter_counters[method_id] = count\n        \n        # Check if we should JIT compile\n        if count == self.COMPILATION_THRESHOLD and method_id not in self.compiled_methods:\n            print(f'\\n[JIT] Method {method_id} reached threshold ({count}), compiling...')\n            native_code = self.compile_method(bytecode)\n            self.compiled_methods[method_id] = native_code\n            print(f'[JIT] Compilation complete! Future calls use native code\\n')\n        \n        # Use compiled version if available\n        if method_id in self.compiled_methods:\n            print(f'  [NATIVE] Executing compiled code for method {method_id}')\n            return self.compiled_methods[method_id]()\n        \n        # Otherwise interpret\n        print(f'  [INTERP] Executing method {method_id} (count={count})')\n        return self.interpret(bytecode, vars)\n    \n    def interpret(self, bytecode: List[Instruction], vars: Dict) -> Any:\n        '''Simple stack-based interpreter'''\n        pc = 0\n        stack = []\n        \n        while pc < len(bytecode):\n            instr = bytecode[pc]\n            \n            if instr.op == BytecodeOp.LOAD_CONST:\n                stack.append(instr.operand)\n            elif instr.op == BytecodeOp.LOAD_VAR:\n                stack.append(vars.get(instr.operand, 0))\n            elif instr.op == BytecodeOp.STORE_VAR:\n                vars[instr.operand] = stack.pop()\n            elif instr.op == BytecodeOp.ADD:\n                b, a = stack.pop(), stack.pop()\n                stack.append(a + b)\n            elif instr.op == BytecodeOp.SUB:\n                b, a = stack.pop(), stack.pop()\n                stack.append(a - b)\n            elif instr.op == BytecodeOp.MUL:\n                b, a = stack.pop(), stack.pop()\n                stack.append(a * b)\n            elif instr.op == BytecodeOp.RETURN:\n                return stack.pop() if stack else None\n            \n            pc += 1\n        \n        return None\n    \n    def compile_method(self, bytecode: List[Instruction]) -> NativeCode:\n        '''Toy compiler: creates optimized Python function\n        Real JIT would generate machine code'''\n        \n        # Stage 1: Parse (already have bytecode, create IR conceptually)\n        print('  [Stage 1] Bytecode parsed')\n        \n        # Stage 2: Optimize\n        print('  [Stage 2] Applying optimizations:')\n        \n        # Simple constant folding\n        optimized = []\n        i = 0\n        while i < len(bytecode):\n            instr = bytecode[i]\n            \n            # Constant folding: LOAD_CONST + LOAD_CONST + ADD → LOAD_CONST(result)\n            if (i + 2 < len(bytecode) and\n                instr.op == BytecodeOp.LOAD_CONST and\n                bytecode[i+1].op == BytecodeOp.LOAD_CONST and\n                bytecode[i+2].op == BytecodeOp.ADD):\n                result = instr.operand + bytecode[i+1].operand\n                optimized.append(Instruction(BytecodeOp.LOAD_CONST, result))\n                print(f'    - Constant folded: {instr.operand} + {bytecode[i+1].operand} = {result}')\n                i += 3\n            else:\n                optimized.append(instr)\n                i += 1\n        \n        # Stage 3: Code generation (create Python function)\n        print('  [Stage 3] Generating native code')\n        \n        def native_execute():\n            '''Simulated 'native' code - actually still Python\n            but conceptually this is machine code'''\n            # Stack machine simulation but 'optimized'\n            stack = []\n            for instr in optimized:\n                if instr.op == BytecodeOp.LOAD_CONST:\n                    stack.append(instr.operand)\n                elif instr.op == BytecodeOp.ADD:\n                    stack.append(stack.pop() + stack.pop())\n                elif instr.op == BytecodeOp.RETURN:\n                    return stack[-1] if stack else None\n            return stack[-1] if stack else None\n        \n        return native_execute\n\n# Demo\nprint('=' * 50)\nprint('Simple JIT Compilation Demo')\nprint('=' * 50)\n\njit = SimpleJIT()\n\n# Simple method: computes 5 + 3 * 2\n# Optimized to just return 11 (constant folding)\nmethod_bytecode = [\n    Instruction(BytecodeOp.LOAD_CONST, 5),\n    Instruction(BytecodeOp.LOAD_CONST, 3),\n    Instruction(BytecodeOp.LOAD_CONST, 2),\n    Instruction(BytecodeOp.MUL),\n    Instruction(BytecodeOp.ADD),\n    Instruction(BytecodeOp.RETURN)\n]\n\n# Execute multiple times to trigger JIT\nfor i in range(12):\n    result = jit.execute_bytecode(method_id=1, bytecode=method_bytecode, vars={})\n\nprint(f'\\nFinal result: {result}')\nprint(f'\\nCompiled methods: {list(jit.compiled_methods.keys())}')\nprint(f'Interpreter invocation counts: {jit.interpreter_counters}')"
+      }
+    ]
+  }
+}

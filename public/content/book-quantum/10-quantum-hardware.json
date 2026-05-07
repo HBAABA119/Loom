@@ -1,0 +1,135 @@
+{
+  "id": "10-quantum-hardware",
+  "bookId": "book-quantum",
+  "title": "Quantum Hardware & Decoherence",
+  "category": "Advanced",
+  "order": 10,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Quantum hardware implementations face the fundamental challenge of maintaining coherent quantum states in a noisy environment. Unlike classical bits that are robust against small perturbations, qubits are extremely sensitive to environmental noise—a problem called decoherence. This chapter explores the leading physical implementations of qubits: superconducting circuits, trapped ions, photonics, and neutral atoms. Each has distinct advantages in coherence time, connectivity, gate speed, and scalability. Understanding decoherence mechanisms (T1 energy relaxation and T2 dephasing) is crucial for error correction and algorithm design. Current NISQ (Noisy Intermediate-Scale Quantum) devices have 10s to 1000s of qubits with gate error rates of 0.1-1%, driving the need for error mitigation and correction strategies.",
+    "sections": [
+      {
+        "title": "Superconducting Qubits",
+        "content": "Superconducting circuits are currently the most advanced quantum computing platform, used by IBM, Google, and Rigetti. They use Josephson junctions—nanoscale superconductor-insulator-superconductor sandwiches—to create non-linear inductance. The transmon qubit (transmission-line shunted plasma oscillation) is the most common design, storing quantum information in oscillating current patterns. Pros: fast gates (~10-100 ns), mature fabrication using semiconductor techniques, and natural strong coupling for multi-qubit gates. Cons: millikelvin operating temperatures requiring dilution refrigerators, short coherence times (T1 ~ 100 μs, T2 ~ 100 μs), and sensitivity to charge noise. Recent advances include: tunable couplers for reduced crosstalk, 3D transmons for longer coherence, and processors with 1000+ qubits.",
+        "coherenceTimes": { "T1": "~100 microseconds", "T2": "~100 microseconds", "gateTime": "~10-100 nanoseconds" },
+        "operatingTemperature": "~15 millikelvin",
+        "gateFidelity": "99.5% for single-qubit, 99% for two-qubit"
+      },
+      {
+        "title": "Trapped Ion Quantum Computers",
+        "content": "Trapped ions, pioneered at NIST and used by IonQ and Quantinuum, confine individual atomic ions in electromagnetic traps. Quantum information is stored in internal atomic states (hyperfine or Zeeman sublevels). Laser pulses manipulate qubit states and create entanglement through Coulomb interactions. Pros: extremely high gate fidelities (99.9%+), all-to-all connectivity (any qubit can interact with any other), and identical qubits (no manufacturing variation). Cons: slower gates (~10-100 μs due to motional sideband transitions), complexity of laser systems, and challenges scaling beyond ~50 qubits in a single trap. Modular approaches using ion shuttling between traps may enable larger systems.",
+        "coherenceTimes": { "T1": "~minutes to hours", "T2": "~1-10 seconds", "gateTime": "~10-100 microseconds" },
+        "fidelity": "99.9%+ (highest among all platforms)",
+        "connectivity": "All-to-all (fully connected)"
+      },
+      {
+        "title": "Photonic Quantum Computing",
+        "content": "Photonic systems use individual photons as qubits, typically encoding information in polarization, path, or time-bin degrees of freedom. Used by PsiQuantum, Xanadu, and many academic groups. Pros: room temperature operation, natural integration with quantum communication and networking, and photons don't interact with environment (no decoherence during transmission). Cons: deterministic two-qubit gates are difficult (photons don't naturally interact), requiring measurement-based or nonlinear approaches. Probabilistic gates and photon loss are major challenges. Recent progress includes: fusion-based quantum computing for scalability, improved single-photon sources and detectors, and integrated photonic chips for miniaturization.",
+        "advantages": ["Room temperature operation", "Natural networking capability", "No decoherence in transmission"],
+        "challenges": ["No natural photon-photon interaction", "Photon loss", "Probabilistic gates"],
+        "approach": "Measurement-based quantum computing (MBQC)"
+      },
+      {
+        "title": "Decoherence: T1 and T2",
+        "content": "Decoherence is the loss of quantum information due to interaction with the environment. Two primary timescales: T1 (longitudinal relaxation time)—time for excited state |1⟩ to decay to ground state |0⟩, analogous to energy dissipation. T2 (transverse relaxation or dephasing time)—time for quantum superposition to lose phase coherence. T2 is always ≤ 2T1 and often much shorter due to pure dephasing mechanisms. Decoherence limits circuit depth: if gate time is t_g and error rate is ε, maximum operations ~ 1/ε. Current NISQ devices have coherence-limited circuit depths of ~10-1000 gates. Error correction requires physical error rates below ~0.1% and thousands of physical qubits per logical qubit.",
+        "formulas": [
+          "Population decay: P₁(t) = e^(-t/T₁)",
+          "Coherence decay: ρ₀₁(t) = ρ₀₁(0)e^(-t/T₂)",
+          "Total dephasing: 1/T₂ = 1/(2T₁) + 1/T_φ (pure dephasing)"
+        ],
+        "circuitDepthLimit": "Max gates ≈ min(T₁, T₂) / t_gate × (error threshold)"
+      },
+      {
+        "title": "Error Rates and NISQ Era",
+        "content": "Current quantum devices are in the NISQ (Noisy Intermediate-Scale Quantum) era: 50-1000+ qubits with noise levels too high for full error correction. Single-qubit gate error rates: 0.01-0.1%. Two-qubit gate error rates: 0.1-1%. Readout errors: 0.5-5%. State-of-the-art systems achieve ~99.9% single-qubit and ~99.5% two-qubit fidelities. Error sources vary by platform: for superconducting qubits—charge noise, flux noise, and materials losses; for trapped ions—laser phase noise and motional heating; for photonics—detector dark counts and source impurity. Error mitigation techniques include: zero-noise extrapolation, probabilistic error cancellation, and symmetry-based verification. True fault-tolerant quantum computing requires logical qubits encoded with quantum error correction codes.",
+        "errorBudget": [
+          { "source": "Single-qubit gates", "rate": "0.01-0.1%" },
+          { "source": "Two-qubit gates", "rate": "0.1-1%" },
+          { "source": "Measurement", "rate": "0.5-5%" },
+          { "source": "State preparation", "rate": "0.1-1%" }
+        ],
+        "targetForFTQC": "Error rates < 0.1% with 1000:1 physical:logical qubit ratio"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Coherence Time",
+        "description": "Characteristic time before quantum information is lost to environment. Longer is better.",
+        "types": "T1 (energy relaxation), T2 (phase decoherence)"
+      },
+      {
+        "name": "Gate Fidelity",
+        "description": "Measure of how accurately a quantum gate performs its intended operation.",
+        "formula": "F = |⟨ψ_target|U_actual|ψ_initial⟩|² averaged over input states"
+      },
+      {
+        "name": "NISQ Era",
+        "description": "Noisy Intermediate-Scale Quantum: current era of 50-1000+ qubit devices without full error correction.",
+        "timeline": "2018-present, transition to fault-tolerant expected late 2020s-2030s"
+      }
+    ],
+    "complexity": {
+      "decayRate": "Γ = 1/T₁ for amplitude damping, Γ_φ = 1/T_φ for phase damping",
+      "errorBudget": "Sum of all error sources must be below threshold (~1%)"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Platform Comparison",
+      "description": "Compare superconducting, trapped ion, and photonic qubits across key metrics.",
+      "latex": "\\text{Fidelity} \\times \\text{Speed} \\times \\text{Scalability} = \\text{Quantum Volume}",
+      "visualState": { "metrics": ["Coherence time", "Gate fidelity", "Connectivity", "Scalability"] }
+    },
+    {
+      "step": 2,
+      "title": "Decoherence Modeling",
+      "description": "Model exponential decay of quantum coherence over time.",
+      "latex": "\\rho(t) = \\begin{pmatrix} |\\\alpha|^2 & \\\alpha\\beta^* e^{-t/T_2} \\\\\ \\\alpha^*\\beta e^{-t/T_2} & |\\beta|^2 e^{-t/T_1} \\\end{pmatrix}",
+      "visualState": { "decay": "exponential", "timescales": ["T₁", "T₂"] }
+    },
+    {
+      "step": 3,
+      "title": "Error Budget",
+      "description": "Calculate maximum circuit depth given error rates.",
+      "latex": "N_{max} \\\approx \\frac{1}{n \\\cdot \\\epsilon_{avg}} \\text{ for n qubits with avg error } \\\epsilon",
+      "visualState": { "depthLimit": "function of error rate and qubit count" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Coherence Calculation",
+      "difficulty": "Easy",
+      "description": "A superconducting qubit has T₁ = 100 μs and T₂ = 150 μs. What limits the coherence time?",
+      "options": ["T₁ only", "T₂ only", "Both equally", "Neither - they indicate different decoherence"],
+      "correctAnswer": 1,
+      "explanation": "T₂ ≤ 2T₁ always. Here T₂ is larger than T₁, so T₁ (energy relaxation) is the limiting factor. However, T₂ specifically measures phase coherence which is often more critical for algorithms.",
+      "hint": "Compare T₁ and T₂/2. The smaller value limits coherence."
+    },
+    {
+      "id": "p2",
+      "title": "Gate Count Limit",
+      "difficulty": "Medium",
+      "description": "With T₁ = 100 μs, T₂ = 100 μs, and gate time 50 ns, what's the approximate maximum number of gates before significant decoherence?",
+      "options": ["100", "500", "1000", "2000"],
+      "correctAnswer": 2,
+      "explanation": "Number of gates ≈ coherence time / gate time = 100 μs / 50 ns = 100,000 ns / 50 ns = 2000. But with error accumulation, practical limit is ~1000 gates. T₂ being equal to T₁ helps.",
+      "hint": "Convert μs to ns: 100 μs = 100,000 ns. Divide by gate time."
+    },
+    {
+      "id": "p3",
+      "title": "Platform Selection",
+      "difficulty": "Medium",
+      "description": "For a quantum algorithm requiring high-fidelity two-qubit gates with all-to-all connectivity, which platform is most suitable?",
+      "options": ["Superconducting (nearest-neighbor)", "Trapped ions", "Photonic", "Neutral atoms"],
+      "correctAnswer": 1,
+      "explanation": "Trapped ions offer all-to-all connectivity and the highest two-qubit gate fidelities (99.9%+). Superconducting qubits typically have nearest-neighbor connectivity. Photonics struggles with deterministic two-qubit gates.",
+      "hint": "Consider which platform has both high fidelity and complete connectivity."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# Decoherence model\ndef decoherence_model(t, T1, T2, initial_state):\n    \"\"\"\n    Model qubit state evolution under decoherence\n    initial_state: [alpha, beta] for |ψ⟩ = α|0⟩ + β|1⟩\n    \"\"\"\n    alpha, beta = initial_state\n    \n    # Population decay (T1 process)\n    p1_t = np.abs(beta)**2 * np.exp(-t / T1)\n    p0_t = 1 - p1_t\n    \n    # Coherence decay (T2 process)\n    coherence = alpha * np.conj(beta) * np.exp(-t / T2)\n    \n    return p0_t, p1_t, np.abs(coherence)\n\n# Parameters\nT1 = 100e-6  # 100 microseconds\nT2 = 80e-6   # 80 microseconds (T2 < T1 is common)\nt_gate = 50e-9  # 50 nanosecond gates\n\n# Time array\nt = np.linspace(0, 5*T1, 1000)\n\n# Initial state |+⟩\ninitial = [1/np.sqrt(2), 1/np.sqrt(2)]\n\n# Calculate decoherence\np0, p1, coherence = decoherence_model(t, T1, T2, initial)\n\n# Plot\nplt.figure(figsize=(10, 6))\nplt.semilogy(t * 1e6, p1, label='P(|1⟩) - Population', linewidth=2)\nplt.semilogy(t * 1e6, coherence, label='|ρ₀₁| - Coherence', linewidth=2)\nplt.axhline(y=1/np.e, color='r', linestyle='--', label='1/e threshold')\nplt.xlabel('Time (μs)')\nplt.ylabel('Probability / Coherence')\nplt.title('Qubit Decoherence: T₁ = 100μs, T₂ = 80μs')\nplt.legend()\nplt.grid(True, alpha=0.3)\nplt.show()\n\nprint(f\"Max gates (theoretical): {int(T2 / t_gate)}\")\nprint(f\"Population at T₁: {np.exp(-1):.3f}\")\nprint(f\"Coherence at T₂: {np.exp(-1):.3f}\")",
+    "qsharp": "namespace Quantum.Hardware {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Diagnostics;\n    \n    // Demonstrate T1 decay by waiting and measuring\n    operation T1Decay(waitTime : Double) : Result {\n        use q = Qubit();\n        \n        // Prepare |1⟩\n        X(q);\n        \n        // Wait (simulated by idle operations)\n        for (i in 0..Int(waitTime)) {\n            // Idle - in real hardware, this would be actual wait time\n            Identity(q);\n        }\n        \n        // Measure population of |1⟩\n        let result = M(q);\n        Reset(q);\n        \n        return result;\n    }\n    \n    // Ramsey experiment for T2 measurement\n    operation RamseyExperiment(waitTime : Double, phase : Double) : Result {\n        use q = Qubit();\n        \n        // Prepare superposition\n        H(q);\n        \n        // Wait with phase evolution\n        Rz(phase, q);\n        \n        // Rotate back and measure\n        H(q);\n        let result = M(q);\n        Reset(q);\n        \n        return result;\n    }\n    \n    @EntryPoint()\n    operation CharacterizeQubit() : Unit {\n        Message(\"Characterizing qubit coherence...\");\n        \n        // Run multiple trials to estimate T1\n        mutable oneCount = 0;\n        for (i in 0..99) {\n            let result = T1Decay(0.0);\n            if (result == One) {\n                set oneCount += 1;\n            }\n        }\n        Message($\"Initial |1⟩ population: {IntAsDouble(oneCount) / 100.0}\");\n    }\n}"
+  }
+}

@@ -1,0 +1,416 @@
+{
+  "id": "08-searching",
+  "bookId": "book-dsa",
+  "title": "Searching Algorithms",
+  "category": "Algorithms",
+  "order": 8,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Searching is the process of finding a specific element within a data structure. The choice of search algorithm depends on data organization: linear search works on unsorted data ($O(n)$), binary search requires sorted data ($O(\\log n)$). Binary search is one of the most important algorithms—repeatedly halving the search space. Variations include searching in rotated sorted arrays, finding first/last occurrence, and searching in 2D matrices. This chapter covers linear search, binary search, and their variants with practical applications.",
+    "sections": [
+      {
+        "title": "Linear Search",
+        "content": "Linear search scans through elements sequentially until target found or end reached. Time complexity: $O(n)$ best/average/worst. Space: $O(1)$. Simple and works on unsorted data. Used when data is small, unsorted, or when searching for multiple occurrences. Can be optimized with sentinel (place target at end to avoid bounds check) or with early exit conditions.",
+        "complexity": { "time": "$O(n)$", "space": "$O(1)$" }
+      },
+      {
+        "title": "Binary Search",
+        "content": "Binary search works on sorted arrays. Compare target with middle element. If equal, return index. If target < middle, search left half. If target > middle, search right half. Repeat until found or search space exhausted. Time: $O(\\log n)$ comparisons. Space: $O(1)$ iterative, $O(\\log n)$ recursive. Key insight: each comparison halves search space.",
+        "algorithm": "low=0, high=n-1. While low≤high: mid=(low+high)//2. If arr[mid]==target: return mid. If target<arr[mid]: high=mid-1. Else: low=mid+1. Return -1.",
+        "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" }
+      },
+      {
+        "title": "Binary Search Variants",
+        "content": "Finding first occurrence: when arr[mid]==target, continue searching left (high=mid-1) to find earlier occurrence. Finding last occurrence: when arr[mid]==target, continue searching right (low=mid+1). Finding insertion position: return low when loop ends (position where target would be inserted). These variants are essential for problems with duplicates.",
+        "variants": [
+          { "name": "First occurrence", "modification": "When found, high=mid-1 to search left" },
+          { "name": "Last occurrence", "modification": "When found, low=mid+1 to search right" },
+          { "name": "Insertion position", "modification": "Return low when loop ends" }
+        ]
+      },
+      {
+        "title": "Search in Rotated Sorted Array",
+        "content": "Rotated sorted array: [4,5,6,7,0,1,2] (sorted then rotated). Binary search still works but need to determine which half is sorted. If arr[low] ≤ arr[mid], left half is sorted. Check if target in left half range. Else search right. Similar logic for right half sorted. Time: $O(\\log n)$.",
+        "logic": "Determine sorted half by comparing arr[low] and arr[mid]. Check if target in sorted half range. Narrow search accordingly.",
+        "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" }
+      },
+      {
+        "title": "Search in 2D Matrix",
+        "content": "For matrix sorted row-wise and column-wise, start from top-right corner. If target > current, move down (all values in current row are smaller). If target < current, move left (all values in current column are larger). Time: $O(m+n)$. For fully sorted matrix (each row sorted, first element of each row > last of previous), treat as 1D sorted array with binary search.",
+        "approaches": [
+          { "type": "Row/col sorted", "method": "Start top-right, move down or left", "complexity": "$O(m+n)$" },
+          { "type": "Fully sorted", "method": "Binary search on flattened index", "complexity": "$O(\\log(mn))$" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Search Space Reduction",
+        "description": "Binary search reduces search space by half each iteration. $n \\rightarrow n/2 \\rightarrow n/4 \\rightarrow ... \\rightarrow 1$. Total iterations: $\\log_2 n$.",
+        "formula": "After k iterations: search space = $n / 2^k$. When $n / 2^k = 1$, $k = \\log_2 n$"
+      },
+      {
+        "name": "Mid Calculation",
+        "description": "mid = (low + high) // 2 can overflow for large values. Use mid = low + (high - low) // 2 to prevent overflow.",
+        "safe": "mid = low + (high - low) // 2"
+      },
+      {
+        "name": "Termination Condition",
+        "description": "Loop while low ≤ high. When low > high, search space empty. Return low for insertion position (where target would go).",
+        "invariant": "Target always in [low, high] if it exists"
+      },
+      {
+        "name": "Duplicate Handling",
+        "description": "For first/last occurrence, don't return immediately when found. Continue searching in one direction to find boundary.",
+        "pattern": "First: search left after finding. Last: search right after finding"
+      }
+    ],
+    "complexity": {
+      "linearSearch": "$O(n)$ time, $O(1)$ space",
+      "binarySearch": "$O(\\log n)$ time, $O(1)$ space",
+      "rotatedSearch": "$O(\\log n)$ time, $O(1)$ space",
+      "2DMatrix": "$O(m+n)$ or $O(\\log(mn))$ time"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Bounds",
+      "description": "Set low = 0, high = n-1 (last index).",
+      "code": "low = 0; high = n - 1;",
+      "visualState": { "low": 0, "high": 9, "searchSpace": "[0,9]" }
+    },
+    {
+      "step": 2,
+      "title": "Calculate Mid",
+      "description": "mid = low + (high - low) // 2 to avoid overflow.",
+      "code": "mid = low + (high - low) // 2;",
+      "visualState": { "mid": 4 }
+    },
+    {
+      "step": 3,
+      "title": "Compare",
+      "description": "Compare arr[mid] with target. If equal, return mid.",
+      "code": "if arr[mid] == target: return mid;",
+      "visualState": { "comparison": "arr[4] vs target" }
+    },
+    {
+      "step": 4,
+      "title": "Narrow Search",
+      "description": "If target < arr[mid], high = mid - 1. Else low = mid + 1.",
+      "code": "if target < arr[mid]: high = mid - 1; else: low = mid + 1;",
+      "visualState": { "newBounds": "halved search space" }
+    },
+    {
+      "step": 5,
+      "title": "Repeat or Return",
+      "description": "Repeat until low > high. Return -1 if not found.",
+      "code": "return -1;",
+      "visualState": { "result": "index or -1" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Binary Search",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Implement binary search on sorted array. Return index of target or -1.",
+      "example": "nums=[-1,0,3,5,9,12], target=9. Output: 4",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Standard binary search. low=0, high=n-1. While low≤high: mid=(low+high)//2. Compare and narrow. Return index or -1.",
+      "hints": ["Use low + (high - low) // 2 for mid", "Narrow search based on comparison", "Return -1 if low > high"]
+    },
+    {
+      "id": "p2",
+      "title": "Search Insert Position",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find index where target would be inserted to maintain sorted order.",
+      "example": "nums=[1,3,5,6], target=5. Output: 2. target=2. Output: 1",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search. When loop ends (low > high), return low (insertion position).",
+      "hints": ["Standard binary search", "Return low when loop ends", "low is insertion position"]
+    },
+    {
+      "id": "p3",
+      "title": "First Bad Version",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find first bad version where isBadVersion(n) returns true for all n >= first bad.",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search on version numbers. If isBadVersion(mid), search left (first bad could be earlier). Else search right.",
+      "hints": ["Binary search on versions", "If bad, search left for first", "If good, search right"]
+    },
+    {
+      "id": "p4",
+      "title": "Search in Rotated Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Search target in rotated sorted array (no duplicates).",
+      "example": "nums=[4,5,6,7,0,1,2], target=0. Output: 4",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Determine which half is sorted. Check if target in sorted half. Narrow search accordingly.",
+      "hints": ["Check if left half sorted: arr[low] ≤ arr[mid]", "If target in sorted range, search there", "Else search other half"]
+    },
+    {
+      "id": "p5",
+      "title": "Find Minimum in Rotated Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum element in rotated sorted array (no duplicates).",
+      "example": "nums=[3,4,5,1,2]. Output: 1",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search. If arr[mid] > arr[high], min is in right half. Else min is in left half (including mid).",
+      "hints": ["Compare arr[mid] with arr[high]", "If arr[mid] > arr[high], min in right", "Else min in left (including mid)"]
+    },
+    {
+      "id": "p6",
+      "title": "Find Peak Element",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find peak element (greater than neighbors). Array may have multiple peaks.",
+      "example": "nums=[1,2,3,1]. Output: 2 (index of 3)",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search. If arr[mid] < arr[mid+1], peak is in right half. Else peak is in left half (including mid).",
+      "hints": ["Compare arr[mid] with arr[mid+1]", "If arr[mid] < arr[mid+1], go right", "Else go left (mid could be peak)"]
+    },
+    {
+      "id": "p7",
+      "title": "Search a 2D Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Search target in matrix where each row sorted, first of each row > last of previous.",
+      "example": "matrix=[[1,3,5,7],[10,11,16,20]], target=3. Output: true",
+      "complexity": { "time": "$O(\\log(mn))$", "space": "$O(1)$" },
+      "solution": "Treat as 1D sorted array. Binary search on index 0 to m*n-1. Convert index to (row, col): row = index // n, col = index % n.",
+      "hints": ["Flatten to 1D conceptually", "Binary search on index 0 to m*n-1", "Convert index to (row, col)"]
+    },
+    {
+      "id": "p8",
+      "title": "Search 2D Matrix II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Search target in matrix sorted row-wise and column-wise.",
+      "example": "matrix=[[1,4,7,11],[2,5,8,12]], target=5. Output: true",
+      "complexity": { "time": "$O(m+n)$", "space": "$O(1)$" },
+      "solution": "Start from top-right. If target > current, move down. If target < current, move left. Continue until found or out of bounds.",
+      "hints": ["Start from top-right corner", "Move down if target > current", "Move left if target < current"]
+    },
+    {
+      "id": "p9",
+      "title": "Find First and Last Position",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find first and last position of target in sorted array with duplicates.",
+      "example": "nums=[5,7,7,8,8,10], target=8. Output: [3,4]",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Two binary searches. First: when found, continue left (high=mid-1). Last: when found, continue right (low=mid+1).",
+      "hints": ["Two binary searches", "First: search left after finding", "Last: search right after finding"]
+    },
+    {
+      "id": "p10",
+      "title": "Single Element in Sorted Array",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find single element in sorted array where all others appear twice.",
+      "example": "nums=[1,1,2,3,3,4,4,8,8]. Output: 2",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search on even indices. If arr[mid] == arr[mid+1], single is on right. Else single is on left.",
+      "hints": ["Single is at even index before pair", "Check arr[mid] vs arr[mid+1]", "Always search on even indices"]
+    },
+    {
+      "id": "p11",
+      "title": "Guess Number Higher or Lower",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Guess number between 1 and n. API tells if guess is higher, lower, or correct.",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search. If guess(target) returns -1 (too high), search lower. If 1 (too low), search higher.",
+      "hints": ["Standard binary search", "Use API to compare", "Narrow search based on response"]
+    },
+    {
+      "id": "p12",
+      "title": "H-Index II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find h-index given sorted citations array (citations[i] >= n-i means h-index >= n-i).",
+      "example": "citations=[0,1,3,5,6]. Output: 3",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search. Find largest n-i where citations[i] >= n-i. Return n-i.",
+      "hints": ["h-index = n-i if citations[i] >= n-i", "Binary search for largest valid n-i", "Return n-i"]
+    },
+    {
+      "id": "p13",
+      "title": "Capacity To Ship Packages",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum capacity to ship all weights within D days (must ship in order).",
+      "example": "weights=[1,2,3,4,5,6,7,8,9,10], D=5. Output: 15",
+      "complexity": { "time": "$O(n \\log S)$", "space": "$O(1)$" },
+      "solution": "Binary search on capacity (low=max weight, high=sum). Check if can ship within D days with given capacity.",
+      "hints": ["Binary search on capacity", "Check feasibility for each capacity", "Minimum capacity that works"]
+    },
+    {
+      "id": "p14",
+      "title": "Koko Eating Bananas",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum eating speed (bananas/hour) to finish all piles in H hours.",
+      "example": "piles=[3,6,7,11], H=8. Output: 4",
+      "complexity": { "time": "$O(n \\log M)$", "space": "$O(1)$" },
+      "solution": "Binary search on speed (low=1, high=max pile). Calculate hours needed for each speed. Find minimum feasible speed.",
+      "hints": ["Binary search on speed", "Hours = sum(ceil(pile/speed))", "Find minimum speed where hours ≤ H"]
+    },
+    {
+      "id": "p15",
+      "title": "Split Array Largest Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Split array into m subarrays to minimize largest sum among subarrays.",
+      "example": "nums=[7,2,5,10,8], m=2. Output: 18 ([7,2,5] and [10,8])",
+      "complexity": { "time": "$O(n \\log S)$", "space": "$O(1)$" },
+      "solution": "Binary search on max sum (low=max element, high=sum). Check if can split into ≤ m subarrays with max sum ≤ mid.",
+      "hints": ["Binary search on max sum", "Greedy check: count subarrays needed", "Find minimum feasible max sum"]
+    },
+    {
+      "id": "p16",
+      "title": "Minimum Size Subarray Sum",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimal length subarray with sum ≥ target (positive numbers only).",
+      "example": "target=7, nums=[2,3,1,2,4,3]. Output: 2 ([4,3])",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Sliding window. Expand right, add to sum. When sum ≥ target, shrink left while maintaining condition. Track min length.",
+      "hints": ["Sliding window with two pointers", "Expand right, shrink left", "Track minimum valid window"]
+    },
+    {
+      "id": "p17",
+      "title": "Find Smallest Letter",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find smallest letter greater than target (wrap around if none).",
+      "example": "letters=['c','f','j'], target='a'. Output: 'c'",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search. If letters[mid] > target, search left. Else search right. Return letters[low % n].",
+      "hints": ["Binary search", "Return letters[low % n] for wrap", "low is insertion position"]
+    },
+    {
+      "id": "p18",
+      "title": "Median of Two Sorted Arrays",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find median of two sorted arrays (combined).",
+      "example": "nums1=[1,3], nums2=[2]. Output: 2.0",
+      "complexity": { "time": "$O(\\log(min(m,n)))$", "space": "$O(1)$" },
+      "solution": "Binary search on smaller array. Find partition such that elements on left ≤ elements on right. Calculate median from boundary elements.",
+      "hints": ["Binary search on smaller array", "Find correct partition", "Median from boundary elements"]
+    },
+    {
+      "id": "p19",
+      "title": "Search in Rotated Array II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Search target in rotated sorted array with duplicates.",
+      "complexity": { "time": "$O(n)$ worst, $O(\\log n)$ average", "space": "$O(1)$" },
+      "solution": "Similar to no-duplicate case, but when arr[low] == arr[mid] == arr[high], can't determine sorted half. Increment low, decrement high.",
+      "hints": ["Handle arr[low] == arr[mid] == arr[high]", "Increment low, decrement high in this case", "Otherwise same as no-duplicate"]
+    },
+    {
+      "id": "p20",
+      "title": "Find Minimum in Rotated Array II",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find minimum in rotated sorted array with duplicates.",
+      "complexity": { "time": "$O(n)$ worst, $O(\\log n)$ average", "space": "$O(1)$" },
+      "solution": "Binary search. If arr[mid] > arr[high], min in right. If arr[mid] < arr[high], min in left. If equal, decrement high.",
+      "hints": ["Handle arr[mid] == arr[high]", "Decrement high when equal", "Otherwise standard logic"]
+    },
+    {
+      "id": "p21",
+      "title": "Pow(x, n)",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Calculate x^n efficiently.",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(\\log n)$" },
+      "solution": "Binary exponentiation. x^n = (x^(n/2))^2 if n even, = x * x^(n-1) if n odd. Handle negative n.",
+      "hints": ["Binary exponentiation", "n even: square result of n/2", "n odd: multiply by x"]
+    },
+    {
+      "id": "p22",
+      "title": "Sqrt(x)",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find integer square root of x (floor of sqrt).",
+      "example": "x=8. Output: 2",
+      "complexity": { "time": "$O(\\log x)$", "space": "$O(1)$" },
+      "solution": "Binary search on [0, x]. If mid*mid == x, return mid. If mid*mid < x, search right. Else search left.",
+      "hints": ["Binary search on [0, x]", "Compare mid*mid with x", "Return mid when mid*mid ≤ x < (mid+1)^2"]
+    },
+    {
+      "id": "p23",
+      "title": "Valid Perfect Square",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if number is perfect square.",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search on [1, n/2]. Check if mid*mid == n. Or use math: n == int(sqrt(n))^2.",
+      "hints": ["Binary search for sqrt", "Check if mid*mid == n", "Or use built-in sqrt"]
+    },
+    {
+      "id": "p24",
+      "title": "Find Right Interval",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "For each interval, find right interval (start ≥ current end) with smallest start.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Sort intervals by start, store original indices. For each interval, binary search for smallest start ≥ its end.",
+      "hints": ["Sort by start, track original indices", "Binary search for each interval's end", "Return original index"]
+    },
+    {
+      "id": "p25",
+      "title": "Arranging Coins",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find number of complete rows of coins in staircase (k rows need k(k+1)/2 coins).",
+      "example": "n=5. Output: 2 (rows: [1,2])",
+      "complexity": { "time": "$O(\\log n)$", "space": "$O(1)$" },
+      "solution": "Binary search on number of rows. Check if k(k+1)/2 ≤ n. Find maximum k satisfying this.",
+      "hints": ["Binary search on rows", "Check k(k+1)/2 ≤ n", "Return maximum valid k"]
+    }
+  ],
+  "minigame": {
+    "id": "binary-search-game",
+    "title": "Binary Search Master",
+    "description": "Guess the number using binary search! Fewer guesses = higher score.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Easy", "range": "1-100", "targetGuesses": 7 },
+      { "name": "Medium", "range": "1-1000", "targetGuesses": 10 },
+      { "name": "Hard", "range": "1-10000", "targetGuesses": 14 }
+    ]
+  },
+  "visualizer": {
+    "type": "binary-search",
+    "title": "Binary Search Visualizer",
+    "description": "Visualize binary search step by step with search space halving.",
+    "features": ["Search space highlighting", "Mid calculation", "Comparison animation", "Step counter"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Standard Binary Search",
+        "code": "def binary_search(nums, target):\n    low, high = 0, len(nums) - 1\n    \n    while low <= high:\n        mid = low + (high - low) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    \n    return -1  # O(log n) time"
+      },
+      {
+        "title": "First Occurrence",
+        "code": "def find_first(nums, target):\n    low, high = 0, len(nums) - 1\n    result = -1\n    \n    while low <= high:\n        mid = low + (high - low) // 2\n        if nums[mid] == target:\n            result = mid\n            high = mid - 1  # Search left\n        elif nums[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    \n    return result"
+      },
+      {
+        "title": "Binary Search on Answer",
+        "code": "def min_capacity(weights, D):\n    low, high = max(weights), sum(weights)\n    \n    def can_ship(capacity):\n        days = 1\n        current = 0\n        for w in weights:\n            if current + w > capacity:\n                days += 1\n                current = w\n            else:\n                current += w\n        return days <= D\n    \n    while low < high:\n        mid = (low + high) // 2\n        if can_ship(mid):\n            high = mid\n        else:\n            low = mid + 1\n    \n    return low"
+      }
+    ]
+  }
+}

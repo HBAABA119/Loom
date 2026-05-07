@@ -1,0 +1,86 @@
+{
+  "id": "engine-10-linker",
+  "bookId": "book-engine",
+  "title": "Linkers & Loaders",
+  "category": "Advanced",
+  "order": 10,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Linkers combine compiled object files into a single executable program. They resolve symbol references, relocate code and data, and handle shared libraries. Understanding linking helps debug missing symbol errors, understand library dependencies, and optimize program load time.",
+    "sections": [
+      {
+        "title": "Symbol Resolution",
+        "content": "The linker matches symbol references (uses) to their definitions. Undefined references cause link errors. Multiple definitions of the same symbol cause duplicate symbol errors.",
+        "keyPoints": [
+          "Match references to definitions",
+          "Undefined symbols cause errors",
+          "Duplicate symbols cause errors"
+        ]
+      },
+      {
+        "title": "Relocation",
+        "content": "Object files contain placeholder addresses. The linker fills in actual addresses based on where sections end up in memory, adjusting all references accordingly.",
+        "examples": [
+          { "code": "CALL 0x0000", "explanation": "Placeholder becomes CALL 0x1234 after relocation" }
+        ]
+      },
+      {
+        "title": "Static vs Dynamic Linking",
+        "content": "Static linking embeds library code in the executable (larger, self-contained). Dynamic linking loads libraries at runtime (smaller, shared, requires .dll/.so files)."
+      }
+    ],
+    "keyConcepts": [
+      { "name": "Symbol Table", "description": "Maps symbol names to addresses" },
+      { "name": "Relocation Entry", "description": "Information for address adjustment" },
+      { "name": "Shared Library", "description": "Code loaded at runtime and shared between processes" }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Object File Anatomy",
+      "content": "Examine .o files: code sections (.text), data sections (.data, .bss), symbol tables, and relocation entries. Tools like objdump reveal this structure."
+    },
+    {
+      "number": 2,
+      "title": "Symbol Resolution Algorithm",
+      "content": "The linker maintains a symbol table. For each input file, it adds new definitions and resolves pending references. Duplicate definitions cause errors (unless weak symbols)."
+    },
+    {
+      "number": 3,
+      "title": "Relocation Processing",
+      "content": "After assigning final addresses, the linker patches all relocatable references. PC-relative addressing reduces relocations needed for position-independent code."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Symbol Resolution",
+      "difficulty": "Medium",
+      "description": "File A calls 'foo()', File B defines 'foo()', File C also defines 'foo()'. What happens?",
+      "solution": "Link error: multiple definition of 'foo'. The linker rejects duplicate strong symbols."
+    },
+    {
+      "id": 2,
+      "title": "Dynamic Linking",
+      "difficulty": "Hard",
+      "description": "Why does dynamic linking reduce memory usage?",
+      "solution": "Shared libraries are loaded once and mapped into multiple processes' address spaces. Code pages are shared read-only across processes."
+    }
+  ],
+  "minigame": {
+    "id": "symbol-linker",
+    "title": "Symbol Linker",
+    "type": "interactive",
+    "description": "Resolve symbols between object files and handle relocations"
+  },
+  "visualizer": {
+    "id": "linking-process",
+    "title": "Linking Process Visualizer",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "c",
+    "code": "// Simplified linker symbol resolution\nvoid link(ObjectFile** inputs, int n) {\n    SymbolTable global;\n    \n    for (int i = 0; i < n; i++) {\n        ObjectFile* obj = inputs[i];\n        \n        // Add definitions\n        for (Symbol* sym = obj->exports; sym; sym = sym->next) {\n            if (lookup(global, sym->name)) {\n                error(\"Duplicate symbol: %s\", sym->name);\n            }\n            insert(global, sym->name, sym->value);\n        }\n        \n        // Resolve references\n        for (Reloc* rel = obj->relocs; rel; rel = rel->next) {\n            Symbol* def = lookup(global, rel->symbol);\n            if (!def) {\n                error(\"Undefined reference: %s\", rel->symbol);\n            }\n            // Patch the reference\n            patch(obj, rel->offset, def->value + rel->addend);\n        }\n    }\n}"
+  }
+}

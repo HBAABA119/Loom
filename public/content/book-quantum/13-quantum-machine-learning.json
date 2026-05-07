@@ -1,0 +1,136 @@
+{
+  "id": "13-quantum-machine-learning",
+  "bookId": "book-quantum",
+  "title": "Quantum Machine Learning",
+  "category": "Applications",
+  "order": 13,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Quantum Machine Learning (QML) explores how quantum computers can enhance machine learning tasks. The field encompasses several paradigms: quantum-enhanced classical learning (using quantum subroutines for classical data), fully quantum learning on quantum data, and classical simulation of quantum learning algorithms. Key approaches include: quantum kernel methods (estimating classically intractable kernel functions), quantum neural networks (parameterized quantum circuits as trainable models), and quantum generative models (learning quantum probability distributions). Potential quantum advantages stem from: exponential feature spaces (encoding data in quantum amplitudes), quantum parallelism for evaluating many hypotheses simultaneously, and natural handling of probabilistic models. Current challenges include: input/output bottlenecks (loading classical data), barren plateaus in training landscapes, and proving speedups for practical problems. The field is rapidly evolving with theoretical frameworks like quantum probably approximately correct (PAC) learning.",
+    "sections": [
+      {
+        "title": "Quantum Feature Maps and Kernels",
+        "content": "Quantum kernel methods embed classical data into quantum Hilbert spaces where separation may be easier. The quantum feature map: Φ(x) = U(x)|0⟩ where U(x) is a parameterized circuit encoding data x. The quantum kernel K(x,y) = |⟨0|U†(x)U(y)|0⟩|² measures similarity in this exponentially large space. Classical kernels (RBF, polynomial) map to spaces growing polynomially with dimension. Quantum kernels can access spaces of dimension 2^n for n qubits. For certain structured datasets, quantum kernels show exponential advantage over any classical kernel method. Implementation: prepare U(x)|0⟩, apply U†(y), measure probability of returning to |0⟩. Used with classical SVM: quantum computer evaluates kernel matrix, classical optimizer finds decision boundary. Challenges: kernel estimation requires many shots, and the feature map must be carefully designed for the problem.",
+        "featureMap": "\\\Phi(x) = U(x)|0\\rangle \\\in \\\mathcal{H}_{2^n}",
+        "kernel": "K(x, y) = |\\\langle 0|U^\\\dagger(x)U(y)|0\\rangle|^2",
+        "advantage": "Exponential feature space dimension vs polynomial for classical"
+      },
+      {
+        "title": "Quantum Neural Networks",
+        "content": "Quantum Neural Networks (QNNs) use parameterized quantum circuits as trainable models. Variational Quantum Classifiers (VQCs) encode data, apply parameterized layers, and measure expectation values for classification. The circuit architecture: data encoding (e.g., angle encoding x → R(x)), variational layers (alternating rotations and entanglers), and measurement (expectation of Pauli operators). Training uses gradient descent: gradients computed via parameter-shift rule (∂E/∂θ = [E(θ+s) - E(θ-s)]/(2sin(s))). QNNs face the barren plateau problem—gradients vanish exponentially in circuit depth. Strategies include: local cost functions, problem-specific ansatzes, and good initialization. Hybrid approaches use quantum layers within classical neural networks (pennylane, TensorFlow Quantum). Applications: small molecule property prediction, quantum data classification, and as components in larger ML pipelines.",
+        "architecture": [
+          "Data encoding: x → U(x)|0⟩",
+          "Variational layers: W(θ) = ∏ᵢ e^{-iθᵢHᵢ}",
+          "Measurement: expectation values → classical output"
+        ],
+        "training": "Gradient descent with parameter-shift rule for gradients",
+        "platforms": ["PennyLane", "TensorFlow Quantum", "Qiskit Machine Learning"]
+      },
+      {
+        "title": "Quantum Generative Models",
+        "content": "Quantum generative models learn to sample from complex probability distributions. Born machines use the probabilistic nature of quantum measurement: train a circuit so that measurement outcomes match a target distribution. The Born rule: P(x) = |⟨x|ψ(θ)⟩|². Training minimizes distance between target and learned distributions (KL divergence, MMD). Quantum circuit Born machines (QCBMs) show promise for modeling quantum data naturally. Quantum GANs (QGANs) pit a generator circuit against a discriminator (quantum or classical). The generator creates fake samples, discriminator tries to distinguish real from fake. Applications: quantum state preparation, financial modeling, and drug discovery molecular distributions. Advantages: natural probabilistic output, potential to sample from distributions hard for classical MCMC methods.",
+        "bornRule": "P(x; \\theta) = |\\\langle x|\\\psi(\\theta)\\rangle|^2",
+        "training": "Minimize distance: \\\min_\\theta D(P_{target}, P_\\theta)",
+        "applications": ["Quantum state preparation", "Financial modeling", "Molecular distributions"]
+      },
+      {
+        "title": "Quantum Optimization for ML",
+        "content": "Quantum optimization algorithms can accelerate ML training. QAOA and quantum annealing solve combinatorial optimization problems arising in ML: feature selection, clustering (K-means as QUBO), and neural network architecture search. The QUBO (Quadratic Unconstrained Binary Optimization) formulation maps these to Ising Hamiltonians. For example, K-means clustering minimizes: H = Σᵢ Σₖ z_{ik} ||x_i - μₖ||² with binary variables z_{ik} indicating cluster assignment. Training classical neural networks involves non-convex optimization—quantum tunneling might escape local minima. Quantum Boltzmann machines (QBMs) generalize classical RBMs with quantum weights. Sampling from thermal states of quantum Hamiltonians may offer advantages for training energy-based models. Practical applications remain limited by NISQ constraints, but hybrid approaches show promise.",
+        "quboForm": "\\\min_z z^T Q z + c^T z \\text{ where } z \\\in \\\{0,1\\\}^n",
+        "mapping": "ML problems → QUBO → Ising Hamiltonian → QAOA/annealing",
+        "applications": ["Feature selection", "Clustering", "Architecture search"]
+      },
+      {
+        "title": "Quantum Advantage in Learning",
+        "content": "What learning problems admit quantum speedup? Theoretical frameworks: Quantum PAC learning studies sample complexity—how many training examples are needed. Some concept classes are efficiently learnable quantumly but not classically. Quantum statistical query models show potential exponential reductions in query complexity. For specific problems: quantum recommendation systems offer exponential speedup in certain regimes, quantum principal component analysis (qPCA) for low-rank approximations, and quantum support vector machines for specific kernels. However, data loading is a major bottleneck: encoding n classical bits into n qubits takes O(n) time, negating exponential speedups for end-to-end tasks. Current focus: quantum data natively (quantum sensors, other quantum systems) where loading isn't needed, and hybrid algorithms where quantum subroutines accelerate specific bottlenecks.",
+        "speedupTypes": [
+          { "problem": "Recommendation systems", "speedup": "Exponential (in certain regimes)" },
+          { "problem": "PCA", "speedup": "Exponential for low-rank matrices" },
+          { "problem": "Linear systems", "speedup": "Exponential (HHL algorithm)" }
+        ],
+        "bottleneck": "Data loading: O(n) to encode n classical values"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Quantum Feature Space",
+        "description": "Hilbert space of dimension 2^n created by encoding n qubits, potentially offering richer representations.",
+        "contrast": "Classical feature spaces grow polynomially"
+      },
+      {
+        "name": "Parameter-Shift Rule",
+        "description": "Method to compute exact gradients of expectation values using two circuit evaluations.",
+        "formula": "∂E/∂θ = [E(θ+s) - E(θ-s)] / (2sin(s))"
+      },
+      {
+        "name": "Born Machine",
+        "description": "Generative model using quantum measurement probabilities to represent distributions.",
+        "training": "Match P_θ(x) = |⟨x|ψ(θ)⟩|² to target distribution"
+      }
+    ],
+    "complexity": {
+      "kernelEvaluation": "O(shots) per kernel entry, O(m²) entries for m data points",
+      "training": "Classical optimization over parameters",
+      "inference": "O(circuit depth) per evaluation"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Data Encoding",
+      "description": "Map classical data into quantum state amplitudes or angles.",
+      "latex": "x \\\in \\\mathbb{R}^d \\rightarrow |\\\psi(x)\\rangle = U(x)|0\\rangle^{\\\otimes n}",
+      "visualState": { "encoding": "angle/amplitude", "qubits": "log(d) to d" }
+    },
+    {
+      "step": 2,
+      "title": "Quantum Processing",
+      "description": "Apply parameterized quantum circuit to extract features or make predictions.",
+      "latex": "|\\\phi(x; \\theta)\\rangle = W(\\theta)|\\\psi(x)\\rangle",
+      "visualState": { "layers": "parameterized", "measurements": "expectation values" }
+    },
+    {
+      "step": 3,
+      "title": "Hybrid Training",
+      "description": "Use quantum computer for forward pass, classical optimizer for parameter updates.",
+      "latex": "\\theta \\\leftarrow \\theta - \\\eta \\nabla_\\theta \\\mathcal{L}(\\theta)",
+      "visualState": { "gradients": "parameter-shift rule", "convergence": "iterative" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Feature Space Dimension",
+      "difficulty": "Easy",
+      "description": "A quantum feature map uses 10 qubits. What is the dimension of the feature space?",
+      "options": ["10", "100", "1,024", "10,000"],
+      "correctAnswer": 2,
+      "explanation": "n qubits create a Hilbert space of dimension 2^n. For n=10: 2^10 = 1,024. This exponential scaling is a key potential advantage of quantum kernels.",
+      "hint": "The feature space dimension is 2^n for n qubits."
+    },
+    {
+      "id": "p2",
+      "title": "Parameter-Shift Rule",
+      "difficulty": "Medium",
+      "description": "To compute the gradient of an expectation value, how many circuit evaluations does the parameter-shift rule require?",
+      "options": ["1", "2", "3", "4"],
+      "correctAnswer": 1,
+      "explanation": "The parameter-shift rule requires 2 circuit evaluations: one at θ+s and one at θ-s. This gives an exact gradient (unlike finite differences which approximate).",
+      "hint": "The formula needs E(θ+s) and E(θ-s)."
+    },
+    {
+      "id": "p3",
+      "title": "Born Machine Sampling",
+      "difficulty": "Medium",
+      "description": "A quantum Born machine is trained to match a target distribution. What is the output probability of measuring basis state |x⟩?",
+      "options": ["⟨x|ψ⟩", "|⟨x|ψ⟩|²", "|⟨x|ψ⟩|", "⟨ψ|x⟩⟨x|ψ⟩"],
+      "correctAnswer": 1,
+      "explanation": "By the Born rule, measurement probability is the amplitude squared: P(x) = |⟨x|ψ(θ)⟩|². This gives a natural probabilistic output from the quantum circuit.",
+      "hint": "The Born rule states P = |amplitude|²."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\nfrom scipy.optimize import minimize\n\n# Simple Quantum Neural Network for binary classification\n\ndef angle_encoding(x, n_qubits):\n    \"\"\"Encode 2D data x into n_qubits via angle encoding\"\"\"\n    # Repeat features to fill qubits\n    angles = np.tile(x, (n_qubits // 2) + 1)[:n_qubits]\n    return angles\n\ndef variational_circuit(params, n_qubits):\n    \"\"\"\n    Simplified variational circuit (simulated)\n    Returns state vector as function of parameters\n    \"\"\"\n    # In real implementation, this would be quantum circuit\n    # Here we simulate with a simple parameterized rotation\n    from scipy.linalg import expm\n    \n    # Create a simple Hamiltonian from parameters\n    H = np.zeros((2**n_qubits, 2**n_qubits))\n    for i, p in enumerate(params):\n        # Add Pauli Z terms\n        if i < n_qubits:\n            Z_term = np.eye(2**n_qubits)\n            for j in range(n_qubits):\n                if j == i:\n                    Z_term = np.kron(Z_term, np.diag([1, -1])) if j == 0 else np.kron(np.diag([1, -1]), Z_term)\n            H += p * Z_term\n    \n    # Evolution\n    U = expm(-1j * H)\n    return U\n\ndef qnn_predict(x, params, n_qubits):\n    \"\"\"Quantum neural network prediction\"\"\"\n    # Encode data\n    angles = angle_encoding(x, n_qubits)\n    \n    # Prepare state (simplified: product of rotations)\n    psi = np.ones(2**n_qubits) / np.sqrt(2**n_qubits)\n    \n    # Apply variational circuit\n    U = variational_circuit(params, n_qubits)\n    psi = U @ psi\n    \n    # Measure expectation of Z on first qubit\n    Z = np.diag([1, -1])\n    Z_full = np.eye(2**(n_qubits-1))\n    for _ in range(n_qubits-1):\n        Z_full = np.kron(Z_full, np.eye(2))\n    Z_full = np.kron(Z, Z_full)\n    \n    expectation = np.real(psi.conj().T @ Z_full @ psi)\n    return expectation\n\ndef loss(params, X, y, n_qubits):\n    \"\"\"Binary cross-entropy loss\"\"\"\n    predictions = [qnn_predict(x, params, n_qubits) for x in X]\n    # Convert expectation to probability via sigmoid\n    probs = 1 / (1 + np.exp(-np.array(predictions)))\n    # Binary cross-entropy\n    epsilon = 1e-15\n    loss_val = -np.mean(y * np.log(probs + epsilon) + (1-y) * np.log(1 - probs + epsilon))\n    return loss_val\n\n# Example usage\nn_qubits = 4\nn_params = 8\n\n# Dummy data (2D points, binary labels)\nnp.random.seed(42)\nX = np.random.randn(20, 2)\ny = (X[:, 0] + X[:, 1] > 0).astype(int)\n\n# Initialize and optimize\nparams_init = np.random.randn(n_params) * 0.1\nresult = minimize(lambda p: loss(p, X, y, n_qubits), params_init, method='COBYLA')\n\nprint(f\"Initial loss: {loss(params_init, X, y, n_qubits):.4f}\")\nprint(f\"Final loss: {result.fun:.4f}\")\nprint(f\"Optimization success: {result.success}\")",
+    "qsharp": "namespace Quantum.MachineLearning {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Math;\n    \n    // Angle encoding of classical data\n    operation AngleEncoding(features : Double[], qubits : Qubit[]) : Unit {\n        for (i in 0..Length(features)-1) {\n            if (i < Length(qubits)) {\n                Ry(features[i], qubits[i]);\n            }\n        }\n    }\n    \n    // Variational layer with RX, RZ rotations and CNOT entanglers\n    operation VariationalLayer(params : Double[], qubits : Qubit[]) : Unit {\n        let n = Length(qubits);\n        \n        // Single-qubit rotations\n        for (i in 0..n-1) {\n            if (2*i < Length(params)) {\n                Rx(params[2*i], qubits[i]);\n            }\n            if (2*i+1 < Length(params)) {\n                Rz(params[2*i+1], qubits[i]);\n            }\n        }\n        \n        // Entangling layer: CNOT chain\n        for (i in 0..n-2) {\n            CNOT(qubits[i], qubits[i+1]);\n        }\n    }\n    \n    // Quantum Neural Network forward pass\n    operation QNNForward(features : Double[], params : Double[]) : Result {\n        use qubits = Qubit[Length(features)];\n        \n        // Encode data\n        AngleEncoding(features, qubits);\n        \n        // Apply variational circuit\n        VariationalLayer(params, qubits);\n        \n        // Measure expectation (simplified: measure first qubit)\n        let result = M(qubits[0]);\n        \n        ResetAll(qubits);\n        return result;\n    }\n    \n    // Kernel evaluation: |<0|U†(x)U(y)|0>|²\n    operation QuantumKernel(x : Double[], y : Double[]) : Double {\n        use qs = Qubit[Length(x)];\n        \n        // Prepare U(y)|0⟩\n        AngleEncoding(y, qs);\n        \n        // Apply U†(x) by reversing angle encoding\n        for (i in 0..Length(x)-1) {\n            Ry(-x[i], qs[i]);\n        }\n        \n        // Measure probability of |0...0⟩\n        let allZeros = AllZero(qs);\n        ResetAll(qs);\n        \n        // In practice, run multiple shots and estimate probability\n        return allZeros ? 1.0 | 0.0;\n    }\n    \n    @EntryPoint()\n    operation QMLDemo() : Unit {\n        let features = [0.5, 0.3];\n        let params = [0.1, 0.2, 0.3, 0.4];\n        \n        let prediction = QNNForward(features, params);\n        Message($\"QNN prediction: {prediction}\");\n    }\n}"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "id": "quantum-08-crypto",
+  "bookId": "book-quantum",
+  "title": "Quantum Cryptography",
+  "category": "Applications",
+  "order": 8,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Quantum cryptography uses quantum mechanical properties to perform cryptographic tasks. The most well-known is Quantum Key Distribution (QKD), which allows two parties to produce a shared random secret key known only to them, with security guaranteed by the laws of quantum physics rather than computational assumptions. The no-cloning theorem and the fact that measurement disturbs quantum states enable detection of eavesdroppers. If an attacker tries to intercept and measure the quantum states, they inevitably introduce detectable errors. BB84, developed by Bennett and Brassard in 1984, was the first QKD protocol and remains widely used today.",
+    "sections": [
+      {
+        "title": "The BB84 Protocol",
+        "content": "BB84 uses four quantum states forming two bases: rectilinear (0°) {|0⟩, |1⟩} and diagonal (45°) {|+⟩, |-⟩}. Alice randomly chooses a bit (0 or 1) and a basis (rectilinear or diagonal), then sends the corresponding state. Bob randomly chooses a basis to measure in. After transmission, they publicly compare bases (not the bits). When bases match, they keep the bit; when they differ, they discard it. On average, 50% of bits are kept. They then sacrifice some bits to check for errors—any significant error rate indicates eavesdropping. Finally, they perform error correction and privacy amplification to get the final key.",
+        "steps": [
+          "Alice: random bit + random basis → encode state",
+          "Send quantum state to Bob",
+          "Bob: random basis → measure",
+          "Publicly compare bases, keep matching bits",
+          "Check error rate on sample bits",
+          "Error correction and privacy amplification"
+        ],
+        "states": [
+          { "bit": 0, "rectilinear": "|0⟩", "diagonal": "|+⟩" },
+          { "bit": 1, "rectilinear": "|1⟩", "diagonal": "|-⟩" }
+        ]
+      },
+      {
+        "title": "Security from Quantum Mechanics",
+        "content": "BB84's security comes from three quantum principles. First, the no-cloning theorem: an eavesdropper (Eve) cannot make a perfect copy of an unknown quantum state to measure later. Second, measurement disturbance: measuring in the wrong basis disturbs the state. If Eve measures a state in one basis but Alice and Bob use the other, Eve introduces a 50% error rate in that bit. Third, non-orthogonal states cannot be perfectly distinguished. Since |0⟩ and |+⟩ are not orthogonal, there's no measurement that can reliably tell them apart. Eve's attack necessarily introduces errors that Alice and Bob can detect.",
+        "attackAnalysis": [
+          { "attack": "Intercept-resend", "errorRate": "25% average", "detectable": "Yes" },
+          { "attack": "Entanglement-based", "errorRate": "Depends", "detectable": "Usually" },
+          { "attack": "Photon-number splitting", "errorRate": "0% on single photons", "mitigation": "Use weak coherent pulses or single-photon sources" }
+        ]
+      },
+      {
+        "title": "E91 Protocol and Bell Tests",
+        "content": "Ekert's 1991 protocol (E91) uses entangled Bell pairs instead of individual states. A source generates |Φ⁺⟩ pairs, sending one qubit to Alice and one to Bob. They each measure in randomly chosen bases. Unlike BB84, neither party chooses the state—they both receive correlated randomness from the entangled pair. E91 can use Bell's inequality violation to certify security. If correlations violate Bell's inequality (S > 2), this certifies quantum behavior and that no eavesdropper could have predetermined results. Device-independent QKD uses this principle to guarantee security even with untrusted hardware.",
+        "protocol": "|Φ⁺⟩ → split → Alice measures randomly, Bob measures randomly",
+        "advantage": "Neither party needs to prepare states; both receive true randomness",
+        "securityProof": "Bell violation > 2 guarantees no local hidden variable attack"
+      },
+      {
+        "title": "Post-Quantum Cryptography",
+        "content": "While QKD protects key distribution, most cryptography (signatures, encryption of large data) relies on computational hardness. Shor's algorithm breaks RSA, DSA, and ECDSA. Post-quantum cryptography (PQC) uses problems believed hard for quantum computers. Lattice-based cryptography (learning with errors, ring-LWE) is the leading approach—NIST standardized Kyber (key encapsulation) and Dilithium (signatures) in 2024. Hash-based signatures (SPHINCS+) and code-based cryptography (McEliece) are also standardized. These run on classical computers but resist quantum attacks. The transition to PQC is underway across governments and industry.",
+        "nistStandards": [
+          { "algorithm": "CRYSTALS-Kyber", "type": "Key Encapsulation Mechanism", "hardness": "Module-LWE" },
+          { "algorithm": "CRYSTALS-Dilithium", "type": "Digital Signature", "hardness": "Module-LWE + Module-SIS" },
+          { "algorithm": "SPHINCS+", "type": "Digital Signature", "hardness": "Hash functions" },
+          { "algorithm": "FALCON", "type": "Digital Signature", "hardness": "NTRU lattice" }
+        ]
+      },
+      {
+        "title": "Quantum Random Number Generation",
+        "content": "True randomness is essential for cryptography. Classical computers generate pseudo-random numbers from deterministic algorithms. Quantum mechanics provides intrinsic randomness through measurement. A qubit in |+⟩ state, when measured in the Z basis, gives 0 or 1 with equal probability—fundamentally unpredictable. Commercial Quantum Random Number Generators (QRNGs) use various implementations: photon path splitting, phase noise in lasers, or radioactive decay. These devices output random bits at Mbps to Gbps rates with entropy certified by quantum physics, not statistical tests alone.",
+        "implementations": [
+          { "method": "Photon beam splitter", "randomness": "Which path photon takes" },
+          { "method": "Phase noise", "randomness": "Quantum fluctuations in laser phase" },
+          { "method": "Vacuum fluctuations", "randomness": "Homodyne measurement of vacuum" }
+        ],
+        "certification": "Device-independent protocols use Bell tests to certify quantum randomness without trusting the device"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Information-Theoretic Security",
+        "description": "Security guaranteed by the laws of physics, not computational assumptions. Even an adversary with unlimited computing power cannot break it.",
+        "contrast": "vs Computational security (RSA, AES) which relies on hardness assumptions"
+      },
+      {
+        "name": "Privacy Amplification",
+        "description": "Process to extract a shorter, uniformly random key from a longer string that may be partially known to an adversary. Uses universal hash functions.",
+        "input": "n bits with Eve knowing at most t bits",
+        "output": "n-t bits that Eve knows essentially nothing about"
+      },
+      {
+        "name": "Decoy State QKD",
+        "description": "Defense against photon-number splitting attacks. Alice randomly varies pulse intensity. Eve cannot distinguish decoy states from signal states.",
+        "benefit": "Allows secure QKD with weak coherent pulses instead of true single photons"
+      },
+      {
+        "name": "Measurement-Device-Independent QKD",
+        "description": "Protocol where the measurement device can be untrusted. Removes side-channel attacks on detectors, a major vulnerability in traditional QKD.",
+        "setup": "Both parties send quantum states to an untrusted central node that performs Bell measurement"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "Key generation: O(n) qubits for n-bit key",
+      "security": "Information-theoretic (quantum mechanical)",
+      "distance": "Limited by photon loss (typically < 100-400 km fiber)"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "State Preparation",
+      "description": "Alice generates random bits and random bases, encoding each bit in the chosen basis.",
+      "latex": "\\text{Bit } b \\\in \\\{0,1\\\}, \\text{ Basis } \\\in \\\{\\text{rect}, \\text{diag}\\\}",
+      "visualState": { "encoding": "BB84 states", "example": "bit 0 + diag basis = |+⟩" }
+    },
+    {
+      "step": 2,
+      "title": "Quantum Transmission",
+      "description": "Alice sends quantum states to Bob through a quantum channel (optical fiber or free space).",
+      "latex": "|\\\psi\\rangle \\xrightarrow{\\text{channel}} |\\\psi'\\rangle",
+      "visualState": { "channel": "quantum", "loss": "some photons may be lost" }
+    },
+    {
+      "step": 3,
+      "title": "Measurement",
+      "description": "Bob randomly chooses a basis for each received photon and measures.",
+      "latex": "\\text{Random measurement basis} \\rightarrow \\text{outcome}",
+      "visualState": { "matching": "50% match Alice's basis on average" }
+    },
+    {
+      "step": 4,
+      "title": "Sifting",
+      "description": "Alice and Bob publicly compare bases (not the bits) and keep only bits where bases matched.",
+      "latex": "\\text{Keep if: Basis}_A = \\text{Basis}_B",
+      "visualState": { "retained": "~50% of bits", "discarded": "~50% of bits" }
+    },
+    {
+      "step": 5,
+      "title": "Error Estimation",
+      "description": "Compare a subset of bits to estimate error rate. High error indicates eavesdropping.",
+      "latex": "\\text{Error rate} > 11\\\% \\Rightarrow \\text{abort}",
+      "visualState": { "threshold": "typically 11-20%", "action": "abort if exceeded" }
+    },
+    {
+      "step": 6,
+      "title": "Key Distillation",
+      "description": "Apply error correction to fix legitimate errors, then privacy amplification to remove Eve's information.",
+      "latex": "\\text{Final key: } k \\text{ bits with information-theoretic security}",
+      "visualState": { "errorCorrection": "Cascade or LDPC", "privacyAmp": "universal hashing" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "BB84 Sifting",
+      "difficulty": "Easy",
+      "description": "In BB84, Alice sends 1000 qubits. On average, how many bits remain after sifting (comparing bases)?",
+      "options": ["250", "500", "750", "1000"],
+      "correctAnswer": 1,
+      "explanation": "Bob chooses the correct basis 50% of the time by random chance. So about 500 bits remain after sifting. If he chooses wrong basis, the measurement outcome is uncorrelated with Alice's bit.",
+      "hint": "Bob's random basis matches Alice's with probability 1/2."
+    },
+    {
+      "id": "p2",
+      "title": "Intercept-Resend Attack",
+      "difficulty": "Medium",
+      "description": "Eve performs an intercept-resend attack on BB84. She measures in rectilinear or diagonal basis (random) and resends what she measures. What's the error rate Alice and Bob detect?",
+      "options": ["0%", "12.5%", "25%", "50%"],
+      "correctAnswer": 2,
+      "explanation": "When bases match (50% of time), Eve introduces no error. When bases differ (50%), Eve's wrong-basis measurement randomizes the bit, causing 50% error on those bits. Overall: 0.5 × 0 + 0.5 × 0.5 = 25% error rate.",
+      "hint": "Error only occurs when Alice and Bob's bases match but Eve's differed."
+    },
+    {
+      "id": "p3",
+      "title": "No-Cloning and Security",
+      "difficulty": "Medium",
+      "description": "Why does the no-cloning theorem make QKD secure?",
+      "options": ["Eve cannot copy the key after it's generated", "Eve cannot make copies to measure in both bases", "It prevents man-in-the-middle attacks", "It encrypts the classical channel"],
+      "correctAnswer": 1,
+      "explanation": "If Eve could clone, she could make two copies, measure one in rectilinear basis and one in diagonal, getting full information. No-cloning prevents this—she must measure in one basis and risk disturbing the state if wrong.",
+      "hint": "What would Eve do if she could perfectly clone the quantum states?"
+    },
+    {
+      "id": "p4",
+      "title": "Entanglement-Based QKD",
+      "difficulty": "Hard",
+      "description": "In E91 protocol using |Φ⁺⟩, if Alice measures 0 in rectilinear basis, what is Bob's state before measurement?",
+      "options": ["|0⟩", "|1⟩", "|+⟩", "Can't be determined"],
+      "correctAnswer": 0,
+      "explanation": "|Φ⁺⟩ = (|00⟩ + |11⟩)/√2. If Alice measures 0, the state collapses to |00⟩, so Bob's qubit is definitely |0⟩. Similarly, if Alice measures 1, Bob gets |1⟩. The correlation is perfect when they measure in the same basis.",
+      "hint": "The Bell state has perfect correlations in the rectilinear basis."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\nimport random\n\ndef bb84_simulation(n_bits=1000, eavesdrop=False):\n    \"\"\"Simulate BB84 QKD protocol\"\"\"\n    \n    # Alice's preparation\n    alice_bits = [random.randint(0, 1) for _ in range(n_bits)]\n    alice_bases = [random.choice(['R', 'D']) for _ in range(n_bits)]  # Rectilinear or Diagonal\n    \n    # Encode states (simulated)\n    # R basis: 0->|0⟩, 1->|1⟩\n    # D basis: 0->|+⟩, 1->|−⟩\n    \n    # Bob's measurement\n    bob_bases = [random.choice(['R', 'D']) for _ in range(n_bits)]\n    bob_results = []\n    \n    for i in range(n_bits):\n        # Simulate state transmission and measurement\n        if eavesdrop and random.random() < 0.5:  # Eve intercepts 50% of time\n            eve_basis = random.choice(['R', 'D'])\n            # Eve measures (potentially disturbing if wrong basis)\n            if eve_basis != alice_bases[i]:\n                # Wrong basis - Eve randomizes the bit\n                eve_result = random.randint(0, 1)\n            else:\n                eve_result = alice_bits[i]\n            \n            # Eve resends in her basis\n            transmitted_bit = eve_result\n            transmitted_basis = eve_basis\n        else:\n            transmitted_bit = alice_bits[i]\n            transmitted_basis = alice_bases[i]\n        \n        # Bob measures\n        if bob_bases[i] == transmitted_basis:\n            bob_results.append(transmitted_bit)\n        else:\n            # Wrong basis - random outcome\n            bob_results.append(random.randint(0, 1))\n    \n    # Sifting: keep bits where bases match\n    sifted_indices = [i for i in range(n_bits) if alice_bases[i] == bob_bases[i]]\n    alice_sifted = [alice_bits[i] for i in sifted_indices]\n    bob_sifted = [bob_results[i] for i in sifted_indices]\n    \n    # Calculate error rate\n    errors = sum(1 for i in range(len(alice_sifted)) if alice_sifted[i] != bob_sifted[i])\n    error_rate = errors / len(alice_sifted) if alice_sifted else 0\n    \n    print(f'Total bits sent: {n_bits}')\n    print(f'Bits after sifting: {len(sifted_indices)}')\n    print(f'Error rate: {error_rate:.1%}')\n    \n    if eavesdrop:\n        print(f'Eavesdropping detected: {error_rate > 0.20}')\n    \n    return alice_sifted, bob_sifted\n\n# Run simulation\nprint('=== Without eavesdropper ===')\nalice_key, bob_key = bb84_simulation(1000, eavesdrop=False)\n\nprint('\\n=== With eavesdropper ===')\nalice_key_e, bob_key_e = bb84_simulation(1000, eavesdrop=True)",
+    "qsharp": "namespace Quantum.Cryptography {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Measurement;\n    \n    // BB84 state preparation\n    operation PrepareBB84State(bit : Bool, basis : Bool, q : Qubit) : Unit {\n        // basis: false = rectilinear (Z), true = diagonal (X)\n        // bit: false = 0/+, true = 1/-\n        \n        if (bit) {\n            X(q);  // |1⟩ or |-⟩ component\n        }\n        \n        if (basis) {\n            H(q);  // Switch to X basis for |+⟩/|-⟩\n        }\n    }\n    \n    // BB84 measurement\n    operation MeasureBB84(basis : Bool, q : Qubit) : Bool {\n        if (basis) {\n            H(q);  // Rotate from X to Z basis\n        }\n        return ResultAsBool(M(q));\n    }\n    \n    @EntryPoint()\n    operation BB84Demo() : (Int, Int) {\n        use q = Qubit();\n        \n        mutable matches = 0;\n        mutable errors = 0;\n        \n        for (i in 0..99) {\n            // Alice's random choices\n            let aliceBit = (i % 2) == 0;  // Simplified: alternating bits\n            let aliceBasis = (i % 3) != 0;  // Mix of bases\n            \n            // Prepare state\n            PrepareBB84State(aliceBit, aliceBasis, q);\n            \n            // Bob's random measurement basis\n            let bobBasis = (i % 4) < 2;\n            let bobResult = MeasureBB84(bobBasis, q);\n            \n            // Check if bases match\n            if (aliceBasis == bobBasis) {\n                set matches += 1;\n                if (aliceBit != bobResult) {\n                    set errors += 1;\n                }\n            }\n            \n            Reset(q);\n        }\n        \n        Message($\"Sifted bits: {matches}, Errors: {errors}\");\n        return (matches, errors);\n    }\n}",
+    "quipper": "import Quipper\n\n-- BB84 state preparation\nprepareBB84 :: Bool -> Bool -> Circ Qubit\nprepareBB84 bit basis = do\n  q <- qinit (not bit)  -- |0⟩ if bit=False, |1⟩ if bit=True\n  if basis then  -- Diagonal basis\n    q <- hadamard q\n    return q\n  else  -- Rectilinear basis\n    return q\n\n-- BB84 measurement (in specified basis)\nmeasureBB84 :: Bool -> Qubit -> Circ (Qubit, Bit)\nmeasureBB84 basis q = do\n  q <- if basis then hadamard q else return q\n  (q, b) <- measure_qubit q\n  return (q, b)\n\n-- Simulate BB84 protocol\nbb84Protocol :: Circ ([Bit], [Bit])\nbb84Protocol = do\n  -- Generate 10 random bits and bases for Alice\n  let n = 10\n  aliceBits <- replicateM n (generate_random_bit)\n  aliceBases <- replicateM n (generate_random_bit)\n  \n  -- Bob's random bases\n  bobBases <- replicateM n (generate_random_bit)\n  \n  -- Prepare, transmit, measure\n  bobResults <- sequence [do\n    q <- prepareBB84 ab aBasis\n    (_, b) <- measureBB84 bBasis q\n    return b\n    | (ab, aBasis, bBasis) <- zip3 aliceBits aliceBases bobBases]\n  \n  -- Sifting: find matching bases\n  let siftedAlice = [ab | (ab, aBasis, bBasis) <- zip3 aliceBits aliceBases bobBases, aBasis == bBasis]\n  let siftedBob = [br | (br, aBasis, bBasis) <- zip3 bobResults aliceBases bobBases, aBasis == bBasis]\n  \n  return (siftedAlice, siftedBob)\n  where\n    generate_random_bit = return False  -- Placeholder for random"
+  }
+}

@@ -1,0 +1,288 @@
+{
+  "id": "ai-04-gradient",
+  "bookId": "book-ai",
+  "title": "Gradient Descent",
+  "category": "Training",
+  "order": 4,
+  "estimatedTime": "40 min",
+  "theory": {
+    "overview": "Gradient Descent is the engine that powers neural network training. It's an optimization algorithm that minimizes the loss function by iteratively moving in the direction of steepest decrease. Imagine standing on a mountain in thick fog—you feel the slope under your feet and take a step downhill. Repeat until you reach the valley (minimum loss). This simple yet powerful idea, combined with backpropagation for computing gradients, enables neural networks to learn from data by adjusting billions of parameters.",
+    "sections": [
+      {
+        "title": "The Core Idea",
+        "content": "At its heart, gradient descent is calculus in action. The gradient points in the direction of greatest increase, so we move in the opposite direction. The learning rate controls step size—too small and learning is slow, too large and we might overshoot the minimum.",
+        "latex": "w_{new} = w_{old} - \\eta \\nabla L(w_{old})$",
+        "intuition": "Subtract the gradient (scaled by learning rate) from current weights to reduce loss"
+      },
+      {
+        "title": "Types of Gradient Descent",
+        "content": "The choice of how many samples to use for each gradient calculation creates a spectrum from precise but slow to fast but noisy.",
+        "types": [
+          {
+            "name": "Batch Gradient Descent",
+            "description": "Use ALL training data for each update",
+            "pros": ["Stable convergence", "Deterministic"],
+            "cons": ["Slow on large datasets", "Memory intensive"],
+            "updateRule": "$\\nabla L = \\frac{1}{N}\\sum_{i=1}^N \\nabla L_i$"
+          },
+          {
+            "name": "Stochastic Gradient Descent (SGD)",
+            "description": "Use ONE random sample per update",
+            "pros": ["Fast iterations", "Escapes local minima", "Online learning"],
+            "cons": ["Noisy updates", "Oscillations near minimum"],
+            "updateRule": "$\\nabla L = \\nabla L_i$ for random $i$"
+          },
+          {
+            "name": "Mini-batch Gradient Descent",
+            "description": "Use a small batch (32-512 samples)",
+            "pros": ["Fast computation (vectorized)", "Reduced noise", "Good convergence"],
+            "cons": ["Hyperparameter tuning needed", "Still some noise"],
+            "updateRule": "$\\nabla L = \\frac{1}{m}\\sum_{i=1}^m \\nabla L_i$ where $m$ = batch size",
+            "bestPractice": "This is the standard choice in deep learning"
+          }
+        ]
+      },
+      {
+        "title": "Learning Rate: The Critical Hyperparameter",
+        "content": "The learning rate is arguably the most important hyperparameter. Too high: loss explodes or oscillates. Too low: training takes forever or gets stuck in poor local minima.",
+        "scenarios": [
+          { "lr": "0.001", "behavior": "Very slow, might get stuck", "useCase": "Fine-tuning pre-trained models" },
+          { "lr": "0.01", "behavior": "Steady, reliable", "useCase": "General training default" },
+          { "lr": "0.1", "behavior": "Fast but may oscillate", "useCase": "Simple problems, shallow networks" },
+          { "lr": "1.0+", "behavior": "Usually unstable", "useCase": "Rarely used, special architectures" }
+        ],
+        "schedules": [
+          { "name": "Step Decay", "formula": "$\\eta = \\eta_0 \\cdot \\gamma^{\\lfloor epoch/s \\rfloor}$", "description": "Drop learning rate every s epochs" },
+          { "name": "Exponential Decay", "formula": "$\\eta = \\eta_0 \\cdot e^{-kt}$", "description": "Smooth exponential decrease" },
+          { "name": "Cosine Annealing", "formula": "$\\eta = \\eta_{min} + \\frac{1}{2}(\\eta_{max} - \\eta_{min})(1 + \\cos(\\frac{T_{cur}}{T_{max}}\\pi))$", "description": "Smooth cosine curve, warm restarts" },
+          { "name": "ReduceLROnPlateau", "formula": "Manual", "description": "Drop LR when validation loss plateaus" }
+        ]
+      },
+      {
+        "title": "Challenges in Optimization",
+        "content": "The loss landscape of deep neural networks is complex—full of local minima, saddle points, and flat regions. Understanding these challenges helps diagnose training issues.",
+        "challenges": [
+          {
+            "name": "Local Minima",
+            "description": "Points where gradient is zero but not the global minimum",
+            "reality": "In high dimensions, local minima are rare; saddle points dominate"
+          },
+          {
+            "name": "Saddle Points",
+            "description": "Points where gradient is zero but it's a minimum in some directions, maximum in others",
+            "problem": "Gradient descent can get stuck or slow down significantly",
+            "solution": "Momentum methods help escape"
+          },
+          {
+            "name": "Ill-Conditioning",
+            "description": "Loss curves are much steeper in some directions than others",
+            "symptom": "Slow progress in flat directions, instability in steep directions",
+            "solution": "Adaptive optimizers (Adam, RMSprop) normalize per-parameter"
+          },
+          {
+            "name": "Plateaus",
+            "description": "Flat regions where gradients are near zero",
+            "problem": "Learning essentially stops",
+            "solution": "Momentum, adaptive learning rates"
+          }
+        ]
+      },
+      {
+        "title": "Momentum and Acceleration",
+        "content": "Momentum adds 'velocity' to parameter updates, accumulating gradients over time. This helps in consistent directions and dampens oscillations—like a ball rolling down a hill gaining speed.",
+        "classicMomentum": {
+          "velocity": "$v_t = \\gamma v_{t-1} + \\eta \\nabla L(w_t)$",
+          "update": "$w_{t+1} = w_t - v_t$",
+          "gamma": "Typically 0.9, controls decay of velocity"
+        },
+        "nesterov": {
+          "description": "Look ahead to where momentum will take us, then compute gradient",
+          "formula": "$v_t = \\gamma v_{t-1} + \\eta \\nabla L(w_t - \\gamma v_{t-1})$",
+          "benefit": "More responsive, reduces overshooting"
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Loss Landscape",
+        "description": "The high-dimensional surface defined by the loss function over all possible parameter values.",
+        "analogy": "Like a mountain range where valleys are minima and peaks are maxima"
+      },
+      {
+        "name": "Convergence",
+        "description": "Reaching a point where loss stops decreasing significantly (ideally at a minimum).",
+        "criteria": "Loss changes < threshold for N consecutive epochs"
+      },
+      {
+        "name": "Epoch vs Iteration",
+        "description": "An epoch is one full pass through all training data. An iteration is one parameter update (one batch).",
+        "formula": "iterations_per_epoch = N / batch_size"
+      },
+      {
+        "name": "Stochasticity",
+        "description": "Randomness in SGD from sampling batches. Helps escape sharp minima and can improve generalization.",
+        "benefit": "Noise acts as implicit regularization"
+      }
+    ],
+    "complexity": {
+      "perIteration": "$O(batch\\_size \\cdot n\\_params)$—compute gradients for batch",
+      "perEpoch": "$O(N \\cdot n\\_params)$ where N = training set size",
+      "totalTraining": "$O(epochs \\cdot N \\cdot n\\_params)$",
+      "note": "Most computation is in forward/backward passes, not the update itself"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Parameters",
+      "description": "Start with random weights (typically small values) and set learning rate.",
+      "latex": "w_0 \\sim \\mathcal{N}(0, 0.01), \\quad \\eta = 0.01$",
+      "visualState": { "w": 2.5, "learningRate": 0.1, "loss": 6.25 }
+    },
+    {
+      "step": 2,
+      "title": "Compute Gradient",
+      "description": "Calculate the slope of the loss function at current position.",
+      "latex": "\\nabla L(w_0) = 2w_0 = 5$",
+      "visualState": { "gradient": 5, "w": 2.5 }
+    },
+    {
+      "step": 3,
+      "title": "Update Parameters",
+      "description": "Move in the opposite direction of the gradient (downhill).",
+      "latex": "w_1 = w_0 - \\eta \\nabla L(w_0) = 2.5 - 0.1(5) = 2.0$",
+      "visualState": { "w_new": 2.0, "step": -0.5, "loss_new": 4.0 }
+    },
+    {
+      "step": 4,
+      "title": "Evaluate New Loss",
+      "description": "Check if loss decreased (it should!).",
+      "latex": "L(w_1) = w_1^2 = 4.0 < 6.25 = L(w_0)$ ✓",
+      "visualState": { "loss_old": 6.25, "loss_new": 4.0, "improved": true }
+    },
+    {
+      "step": 5,
+      "title": "Repeat Until Convergence",
+      "description": "Continue until gradient is near zero or max iterations reached.",
+      "latex": "\\text{Stop when } |\\nabla L| < \\epsilon \\text{ or } t > T_{max}$",
+      "visualState": { "iterations": 100, "final_w": 0.01, "final_loss": 0.0001 }
+    },
+    {
+      "step": 6,
+      "title": "Add Momentum",
+      "description": "With momentum, we accumulate velocity for faster convergence.",
+      "latex": "v_t = 0.9v_{t-1} + \\eta \\nabla L, \\quad w_{t+1} = w_t - v_t$",
+      "visualState": { "velocity": 0.45, "momentum": 0.9, "fasterConvergence": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Simple Gradient Descent",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "For $L(w) = w^2$, start at $w_0 = 3$, learning rate $\\eta = 0.2$. Compute $w_1$ and $w_2$.",
+      "answer": "$w_1 = 1.8$, $w_2 = 1.08$",
+      "explanation": "$\\nabla L = 2w$. $w_1 = 3 - 0.2(6) = 1.8$. $w_2 = 1.8 - 0.2(3.6) = 1.08$. Loss decreases: 9 → 3.24 → 1.1664.",
+      "hints": ["\\nabla(w^2) = 2w", "Update: $w \\leftarrow w - \\eta(2w)$", "$w_1 = 3 - 0.2(6) = 1.8$"]
+    },
+    {
+      "id": "p2",
+      "title": "Learning Rate Impact",
+      "difficulty": "medium",
+      "type": "comparison",
+      "description": "For $L(w) = w^2$ starting at $w = 5$, compare convergence with $\\eta = 0.1$, $\\eta = 0.5$, $\\eta = 1.1$.",
+      "answer": "$\\eta = 0.1$: converges slowly | $\\eta = 0.5$: converges optimally | $\\eta = 1.1$: DIVERGES (oscillates outward)",
+      "explanation": "With $\\eta > 1$, we overshoot: $w_1 = 5 - 1.1(10) = -6$, then $w_2 = -6 - 1.1(-12) = 7.2$, growing larger each step!",
+      "hints": ["For $w^2$, stability requires $\\eta < 1$", "Check: $w_{new} = w(1 - 2\\eta)$", "$|1 - 2\\eta| < 1$ for convergence"]
+    },
+    {
+      "id": "p3",
+      "title": "Momentum Velocity",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "With $\\gamma = 0.9$, $\\eta = 0.1$, gradients: $g_1 = 5$, $g_2 = 4$, $g_3 = 3$. Compute velocities $v_1$, $v_2$, $v_3$.",
+      "answer": "$v_1 = 0.5$, $v_2 = 0.85$, $v_3 = 1.065$",
+      "explanation": "$v_1 = 0.9(0) + 0.1(5) = 0.5$ | $v_2 = 0.9(0.5) + 0.1(4) = 0.85$ | $v_3 = 0.9(0.85) + 0.1(3) = 1.065$. Velocity accumulates when gradients are consistent!",
+      "hints": ["$v_t = \\gamma v_{t-1} + \\eta g_t$", "Start with $v_0 = 0$", "Velocity builds up over time"]
+    },
+    {
+      "id": "p4",
+      "title": "Batch Size Trade-offs",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "For a dataset of 10,000 examples, compare batch sizes 1 (SGD), 100, and 10,000 (batch GD).",
+      "answer": "SGD: 10,000 noisy updates per epoch, fast iteration, escapes minima | Batch 100: 100 smoother updates, vectorized, good balance | Batch 10,000: 1 precise update, slow, may get stuck",
+      "explanation": "Small batches provide noise (regularization) and frequent updates but high variance. Large batches have lower variance but less exploration. Mini-batch (32-512) is the sweet spot for GPU efficiency.",
+      "hints": ["Updates per epoch = N / batch_size", "Small batch = more noise", "Large batch = better gradient estimate"]
+    },
+    {
+      "id": "p5",
+      "title": "Saddle Point Escape",
+      "difficulty": "hard",
+      "type": "scenario",
+      "description": "At a saddle point, gradient is zero in all directions. How does gradient descent escape?",
+      "answer": "Pure GD gets stuck! But SGD's noise from random sampling provides perturbations that can push off the saddle. Momentum also helps by continuing motion from previous steps.",
+      "explanation": "In high dimensions, saddle points are much more common than local minima. SGD's stochasticity is actually a feature here—it naturally escapes saddles. This is one reason SGD often outperforms batch GD in deep learning.",
+      "hints": ["Exact zero gradient means no update", "Noise can provide escape direction", "Momentum carries you through flat regions"]
+    },
+    {
+      "id": "p6",
+      "title": "Learning Rate Schedule",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Design a learning rate schedule for training a ResNet on ImageNet for 90 epochs.",
+      "answer": "Warmup: epochs 1-5, linearly increase from 0 to 0.1 | Main training: epochs 6-30 at 0.1 | Decay: drop to 0.01 at epoch 30, 0.001 at epoch 60 | Cosine annealing alternative: smooth decay from 0.1 to 0 following cosine curve",
+      "explanation": "Warmup prevents early instability. Step decay is simple and effective. Cosine annealing with warm restarts (SGDR) can find better minima. Common practice: reduce LR when validation loss plateaus.",
+      "hints": ["Start with warmup", "Drop LR by 10× when loss plateaus", "Cosine annealing is popular now"]
+    }
+  ],
+  "minigame": {
+    "id": "gradient-descent-adventure",
+    "title": "Valley Descender",
+    "description": "Navigate through a 3D loss landscape to find the global minimum. Control your learning rate and momentum to escape local minima and saddle points.",
+    "instructions": [
+      "You are a hiker in fog—you can only feel the slope (gradient) under your feet",
+      "Adjust learning rate: too small = slow, too large = fall off cliff",
+      "Enable momentum to build speed in consistent directions",
+      "Reach the valley floor (minimum loss) as fast as possible!",
+      "Avoid getting trapped in local minima or saddle points"
+    ],
+    "controls": [
+      {
+        "id": "learningRate",
+        "label": "Learning Rate",
+        "type": "slider",
+        "min": 0.001,
+        "max": 1.0,
+        "step": 0.001,
+        "default": 0.1
+      },
+      {
+        "id": "momentum",
+        "label": "Momentum (γ)",
+        "type": "slider",
+        "min": 0,
+        "max": 0.99,
+        "step": 0.01,
+        "default": 0.9
+      },
+      {
+        "id": "batchSize",
+        "label": "Batch Size",
+        "type": "select",
+        "options": ["1 (SGD)", "32", "128", "Full Batch"]
+      },
+      {
+        "id": "landscape",
+        "label": "Loss Landscape",
+        "type": "select",
+        "options": ["Simple Bowl", "Multiple Valleys", "Saddle Point", "Rosenbrock"]
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# ==================== Gradient Descent Variants ====================\n\ndef gradient_descent(f, df, x0, lr=0.1, epochs=100):\n    \"\"\"\n    Vanilla gradient descent\n    f: function to minimize\n    df: derivative of f\n    x0: initial point\n    \"\"\"\n    x = x0\n    history = [x]\n    \n    for _ in range(epochs):\n        grad = df(x)\n        x = x - lr * grad\n        history.append(x)\n    \n    return np.array(history)\n\ndef sgd(f, df, x0, lr=0.1, epochs=100, noise_std=0.1):\n    \"\"\"Stochastic gradient descent with simulated noise\"\"\"\n    x = x0\n    history = [x]\n    \n    for _ in range(epochs):\n        # Add noise to simulate stochasticity\n        noisy_grad = df(x) + np.random.normal(0, noise_std)\n        x = x - lr * noisy_grad\n        history.append(x)\n    \n    return np.array(history)\n\ndef momentum_gd(f, df, x0, lr=0.1, gamma=0.9, epochs=100):\n    \"\"\"Gradient descent with momentum\"\"\"\n    x = x0\n    v = 0\n    history = [x]\n    \n    for _ in range(epochs):\n        grad = df(x)\n        v = gamma * v + lr * grad\n        x = x - v\n        history.append(x)\n    \n    return np.array(history)\n\ndef nesterov_gd(f, df, x0, lr=0.1, gamma=0.9, epochs=100):\n    \"\"\"Nesterov accelerated gradient\"\"\"\n    x = x0\n    v = 0\n    history = [x]\n    \n    for _ in range(epochs):\n        # Look ahead\n        lookahead = x - gamma * v\n        grad = df(lookahead)\n        v = gamma * v + lr * grad\n        x = x - v\n        history.append(x)\n    \n    return np.array(history)\n\ndef adam(f, df, x0, lr=0.1, beta1=0.9, beta2=0.999, eps=1e-8, epochs=100):\n    \"\"\"Adam optimizer\"\"\"\n    x = x0\n    m = 0  # first moment\n    v = 0  # second moment\n    history = [x]\n    \n    for t in range(1, epochs + 1):\n        grad = df(x)\n        \n        # Update biased moments\n        m = beta1 * m + (1 - beta1) * grad\n        v = beta2 * v + (1 - beta2) * (grad ** 2)\n        \n        # Bias correction\n        m_hat = m / (1 - beta1 ** t)\n        v_hat = v / (1 - beta2 ** t)\n        \n        # Update\n        x = x - lr * m_hat / (np.sqrt(v_hat) + eps)\n        history.append(x)\n    \n    return np.array(history)\n\n# ==================== Learning Rate Schedules ====================\n\ndef step_decay(initial_lr, epoch, drop_rate=0.5, epochs_drop=10):\n    \"\"\"Step decay: drop LR every epochs_drop epochs\"\"\"\n    return initial_lr * (drop_rate ** (epoch // epochs_drop))\n\ndef exponential_decay(initial_lr, epoch, k=0.1):\n    \"\"\"Exponential decay\"\"\"\n    return initial_lr * np.exp(-k * epoch)\n\ndef cosine_annealing(initial_lr, epoch, max_epochs, min_lr=0):\n    \"\"\"Cosine annealing learning rate\"\"\"\n    return min_lr + 0.5 * (initial_lr - min_lr) * (1 + np.cos(np.pi * epoch / max_epochs))\n\ndef warmup_schedule(epoch, warmup_epochs, base_lr, target_lr):\n    \"\"\"Linear warmup\"\"\"\n    if epoch < warmup_epochs:\n        return base_lr + (target_lr - base_lr) * epoch / warmup_epochs\n    return target_lr\n\n# ==================== Test Functions ====================\n\ndef rosenbrock(x, y, a=1, b=100):\n    \"\"\"Rosenbrock function - classic optimization test\"\"\"\n    return (a - x)**2 + b * (y - x**2)**2\n\ndef rosenbrock_grad(xy, a=1, b=100):\n    x, y = xy\n    dx = -2*(a - x) - 4*b*x*(y - x**2)\n    dy = 2*b*(y - x**2)\n    return np.array([dx, dy])\n\ndef rastrigin(x, A=10):\n    \"\"\"Rastrigin function - many local minima\"\"\"\n    n = len(x)\n    return A * n + np.sum(x**2 - A * np.cos(2 * np.pi * x))\n\n# ==================== Visualization ====================\n\ndef visualize_convergence():\n    \"\"\"Compare different optimizers on a simple quadratic\"\"\"\n    f = lambda x: x**2\n    df = lambda x: 2*x\n    \n    x0 = 5.0\n    lr = 0.1\n    epochs = 50\n\n    # Run optimizers\n    hist_gd = gradient_descent(f, df, x0, lr, epochs)\n    hist_momentum = momentum_gd(f, df, x0, lr, gamma=0.9, epochs=epochs)\n    hist_nesterov = nesterov_gd(f, df, x0, lr, gamma=0.9, epochs=epochs)\n    \n    # Plot\n    fig, axes = plt.subplots(1, 2, figsize=(14, 5))\n    \n    # Trajectory\n    axes[0].plot(hist_gd, 'b-o', label='GD', markersize=4)\n    axes[0].plot(hist_momentum, 'r-s', label='Momentum', markersize=4)\n    axes[0].plot(hist_nesterov, 'g-^', label='Nesterov', markersize=4)\n    axes[0].axhline(y=0, color='k', linestyle='--', alpha=0.5)\n    axes[0].set_xlabel('Iteration')\n    axes[0].set_ylabel('x value')\n    axes[0].set_title('Convergence Trajectory')\n    axes[0].legend()\n    axes[0].grid(True, alpha=0.3)\n    \n    # Loss over time\n    losses_gd = [f(x) for x in hist_gd]\n    losses_momentum = [f(x) for x in hist_momentum]\n    losses_nesterov = [f(x) for x in hist_nesterov]\n    \n    axes[1].semilogy(losses_gd, 'b-o', label='GD', markersize=4)\n    axes[1].semilogy(losses_momentum, 'r-s', label='Momentum', markersize=4)\n    axes[1].semilogy(losses_nesterov, 'g-^', label='Nesterov', markersize=4)\n    axes[1].set_xlabel('Iteration')\n    axes[1].set_ylabel('Loss (log scale)')\n    axes[1].set_title('Loss Convergence')\n    axes[1].legend()\n    axes[1].grid(True, alpha=0.3)\n    \n    plt.tight_layout()\n    plt.show()\n\ndef visualize_lr_schedules():\n    \"\"\"Plot different learning rate schedules\"\"\"\n    epochs = np.arange(100)\n    initial_lr = 0.1\n    \n    schedules = {\n        'Constant': [initial_lr] * 100,\n        'Step Decay': [step_decay(initial_lr, e) for e in epochs],\n        'Exponential': [exponential_decay(initial_lr, e) for e in epochs],\n        'Cosine Annealing': [cosine_annealing(initial_lr, e, 100) for e in epochs]\n    }\n    \n    plt.figure(figsize=(10, 6))\n    for name, lrs in schedules.items():\n        plt.plot(epochs, lrs, label=name, linewidth=2)\n    \n    plt.xlabel('Epoch')\n    plt.ylabel('Learning Rate')\n    plt.title('Learning Rate Schedules')\n    plt.legend()\n    plt.grid(True, alpha=0.3)\n    plt.show()\n\n# Run visualizations\nif __name__ == \"__main__\":\n    visualize_convergence()\n    visualize_lr_schedules()\n    \n    print(\"\\n=== Gradient Descent Demo ===\")\n    print(\"Optimizing f(x) = x² from x₀ = 5\")\n    \n    f = lambda x: x**2\n    df = lambda x: 2*x\n    \n    result = gradient_descent(f, df, x0=5.0, lr=0.1, epochs=50)\n    print(f\"Final x: {result[-1]:.6f}\")\n    print(f\"Final loss: {f(result[-1]):.6f}\")\n    \n    print(\"\\nWith momentum (faster convergence):\")\n    result_m = momentum_gd(f, df, x0=5.0, lr=0.1, gamma=0.9, epochs=50)\n    print(f\"Final x: {result_m[-1]:.6f}\")\n    print(f\"Final loss: {f(result_m[-1]):.6f}\")"
+  }
+}

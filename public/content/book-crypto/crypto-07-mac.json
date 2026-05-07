@@ -1,0 +1,315 @@
+{
+  "id": "crypto-07-mac",
+  "bookId": "book-crypto",
+  "title": "Message Authentication Codes",
+  "category": "Intermediate",
+  "order": 7,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Encryption provides confidentiality—preventing eavesdroppers from reading messages. But what if an attacker modifies ciphertext? Decryption would produce garbled output, or worse, subtly altered data that goes undetected. Message Authentication Codes (MACs) solve this by providing integrity assurance: cryptographic proof that a message hasn't been tampered with. Combined with encryption (Authenticated Encryption with Associated Data, or AEAD), MACs ensure both secrecy and integrity. HMAC (Hash-based MAC) and CMAC (Cipher-based MAC) are the two dominant constructions, powering TLS, IPsec, and virtually all secure protocols. Understanding MACs is essential because integrity attacks can be devastating—modifying encrypted financial transactions or authentication tokens can compromise entire systems.",
+    "sections": [
+      {
+        "title": "The Need for Authentication",
+        "content": "Encryption alone doesn't guarantee message integrity. Consider CBC mode: flipping bits in ciphertext causes predictable changes in plaintext. An attacker could modify encrypted transactions without knowing the key. MACs provide a checksum that only parties sharing a secret key can generate and verify. A MAC takes a message and secret key, producing a fixed-size authentication tag. The recipient recomputes the MAC on received data using the shared key—if it matches the received tag, the message is authentic. Without the secret key, an attacker cannot forge a valid MAC for modified data. This provides integrity: any modification is detected because the recomputed MAC won't match.",
+        "keyPoints": [
+          "Encryption ≠ Integrity: ciphertext can be modified",
+          "MAC provides tamper detection",
+          "Requires shared secret key",
+          "Any modification invalidates the MAC"
+        ]
+      },
+      {
+        "title": "HMAC: Hash-Based MAC",
+        "content": "HMAC, standardized in RFC 2104, combines a cryptographic hash function (like SHA-256) with a secret key. The construction is: HMAC(K, m) = H((K' XOR opad) || H((K' XOR ipad) || m)) where K' is the key padded to block size, ipad = 0x36 repeated, opad = 0x5C repeated. This double-hash construction provides security even when the underlying hash has some weaknesses. The outer hash prevents length extension attacks on Merkle-Damgard constructions like SHA-256. HMAC is widely used in TLS, JWT signing, API authentication, and password reset tokens. Its security proof shows that HMAC is secure if the compression function of the hash is a pseudorandom function.",
+        "keyPoints": [
+          "HMAC uses hash function internally (usually SHA-256)",
+          "Two-pass: inner and outer hash",
+          "Prevents length extension attacks",
+          "Security: secure if hash compression function is PRF"
+        ]
+      },
+      {
+        "title": "CMAC and Galois MAC",
+        "content": "CMAC (Cipher-based MAC) uses block ciphers like AES instead of hash functions. It encrypts the message in CBC mode, keeping only the final block as the MAC tag. The construction includes key derivation to create subkeys that prevent certain attacks. GMAC is part of GCM (Galois/Counter Mode), providing authentication alongside AES encryption. GCM uses universal hashing in GF(2^128)—fast in hardware and parallelizable. The authentication in GCM doesn't require a separate key; it's derived from the encryption key. AEAD modes like GCM are now preferred because they provide both confidentiality and authentication in a single, efficient construction. ChaCha20-Poly1305 provides similar AEAD properties with a stream cipher.",
+        "keyPoints": [
+          "CMAC: AES-based MAC",
+          "GMAC: Universal hashing in GF(2^128)",
+          "GCM: Combines CTR encryption + GMAC authentication",
+          "AEAD: Single construction for encryption + auth"
+        ]
+      },
+      {
+        "title": "Timing Attacks and Verification",
+        "content": "Naive MAC verification compares tags byte-by-byte, returning false on first mismatch. This creates a timing side-channel: attackers can measure response times to guess the correct MAC one byte at a time. The solution: constant-time comparison that always checks all bytes regardless of mismatches. Additionally, never use MAC-then-encrypt (encrypting the MAC alongside data) because this can allow padding oracle attacks. Encrypt-then-MAC is secure: encrypt first, then MAC the ciphertext. Modern AEAD modes like GCM handle this correctly. Always use constant-time comparison for MAC verification in security-critical code.",
+        "keyPoints": [
+          "Timing attacks: measure comparison time to forge MACs",
+          "Constant-time comparison: always check all bytes",
+          "Encrypt-then-MAC: correct order",
+          "AEAD: Built-in protection against these issues"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "HMAC Formula",
+        "description": "Hash-based MAC construction",
+        "latex": "HMAC(K,m) = H((K xor opad) || H((K xor ipad) || m))"
+      },
+      {
+        "name": "MAC Tag",
+        "description": "Fixed-size authentication output",
+        "latex": "tag = MAC(K, message), |tag| = fixed"
+      },
+      {
+        "name": "Verification",
+        "description": "Recompute and compare in constant time",
+        "latex": "verify: MAC(K, m) == tag, constant-time compare"
+      },
+      {
+        "name": "AEAD",
+        "description": "Authenticated Encryption with Associated Data",
+        "latex": "encrypt(m, ad) -> (ciphertext, tag)"
+      }
+    ],
+    "complexity": {
+      "hmac": "O(n) for n-bit message + 2 hash operations",
+      "cmac": "O(n) using block cipher",
+      "verification": "O(n) with constant-time comparison",
+      "forgery": "O(2^n) for n-bit MAC tag"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Key Preparation",
+      "description": "Pad or hash the secret key K to match hash block size (64 bytes for SHA-256).",
+      "latex": "K' = H(K) if |K| > block_size, else K padded",
+      "visualState": {
+        "key": "secret_key",
+        "keySize": 32,
+        "blockSize": 64,
+        "paddedKey": "secret_key padded with zeros"
+      }
+    },
+    {
+      "step": 2,
+      "title": "Inner Padding",
+      "description": "XOR padded key with ipad (0x36 repeated) to create inner key.",
+      "latex": "inner_key = K' xor ipad",
+      "visualState": {
+        "ipad": "363636...36",
+        "operation": "xor",
+        "result": "inner_key"
+      }
+    },
+    {
+      "step": 3,
+      "title": "Inner Hash",
+      "description": "Concatenate inner key with message and compute hash.",
+      "latex": "inner_hash = H(inner_key || message)",
+      "visualState": {
+        "input": "inner_key + message",
+        "hash": "SHA-256",
+        "output": "32-byte hash"
+      }
+    },
+    {
+      "step": 4,
+      "title": "Outer Padding",
+      "description": "XOR padded key with opad (0x5C repeated) to create outer key.",
+      "latex": "outer_key = K' xor opad",
+      "visualState": {
+        "opad": "5C5C5C...5C",
+        "operation": "xor",
+        "result": "outer_key"
+      }
+    },
+    {
+      "step": 5,
+      "title": "Outer Hash",
+      "description": "Concatenate outer key with inner hash and compute final HMAC.",
+      "latex": "HMAC = H(outer_key || inner_hash)",
+      "visualState": {
+        "input": "outer_key + inner_hash",
+        "hash": "SHA-256",
+        "output": "32-byte HMAC"
+      }
+    },
+    {
+      "step": 6,
+      "title": "Verification",
+      "description": "Recipient recomputes HMAC and compares in constant time.",
+      "latex": "constant_time_compare(computed_hmac, received_hmac)",
+      "visualState": {
+        "computed": "a3f5c2...",
+        "received": "a3f5c2...",
+        "comparison": "constant_time",
+        "result": "match"
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "HMAC Purpose",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What security property does HMAC provide that raw SHA-256 does not?",
+      "latex": "HMAC(K, m) vs H(m)",
+      "hints": [
+        "SHA-256 is deterministic and public",
+        "Anyone can compute SHA-256",
+        "HMAC requires secret key"
+      ],
+      "solution": {
+        "answer": "Authentication and forgery resistance",
+        "explanation": "Anyone can compute SHA-256(m), so an attacker could modify a message and compute a new valid hash. HMAC requires the secret key, so only authorized parties can create valid MACs."
+      }
+    },
+    {
+      "id": "p2",
+      "title": "MAC Tag Size",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "If you truncate an HMAC-SHA256 tag to 8 bits (1 byte), how many attempts to forge it by guessing?",
+      "latex": "|tag| = 8 bits",
+      "hints": [
+        "With 8 bits, there are 256 possible values",
+        "Random guessing succeeds 1/256 of the time",
+        "This is why MACs should be at least 128 bits"
+      ],
+      "solution": {
+        "answer": "256 attempts on average",
+        "explanation": "An 8-bit tag has only 256 possible values. An attacker can forge it by trying all 256 possibilities. Standard HMAC-SHA256 uses 256-bit tags, requiring 2^256 attempts."
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Timing Attack",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why is this MAC comparison vulnerable: if (mac1[i] != mac2[i]) return false;",
+      "latex": "\\text{Early return on mismatch}",
+      "hints": [
+        "Comparison returns immediately on first difference",
+        "Time taken reveals position of mismatch",
+        "Attacker can guess byte by byte"
+      ],
+      "solution": {
+        "answer": "It leaks timing information that allows byte-by-byte MAC forgery",
+        "explanation": "If the comparison returns early on mismatch, an attacker measuring response time can determine when they guessed a byte correctly (takes longer). They can forge the MAC one byte at a time with 256×len(tag) attempts instead of 2^len(tag)."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "AEAD Benefits",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What are the advantages of AEAD modes like AES-GCM over separate encryption + MAC?",
+      "latex": "AEAD: single key, single pass, built-in safety",
+      "hints": [
+        "One key instead of two",
+        "Single pass over data",
+        "No composition mistakes possible"
+      ],
+      "solution": {
+        "answer": "Single key management, single-pass efficiency, and automatic correct composition",
+        "explanation": "AEAD uses one key for both encryption and authentication, requires only one pass over the data, and cannot be misconfigured (unlike separate encrypt-then-MAC which developers might implement incorrectly)."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Length Extension",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why does raw SHA-256(key || message) have length extension vulnerabilities but HMAC doesn't?",
+      "latex": "SHA(K || m) vs HMAC(K, m)",
+      "hints": [
+        "SHA-256 processes data in 512-bit blocks",
+        "Internal state after processing K||m is known",
+        "HMAC's outer hash prevents this"
+      ],
+      "solution": {
+        "answer": "SHA-256's internal state after hashing key+message allows extending the message; HMAC's outer hash prevents this",
+        "explanation": "In raw SHA-256(key||msg), knowing the hash output reveals the internal state, allowing an attacker to compute SHA-256(key||msg||extension) without knowing the key. HMAC's outer hash layer (H((K' XOR opad) || inner_hash)) means the attacker cannot access the intermediate state."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "mac-forge",
+    "title": "MAC Authentication Challenge",
+    "description": "Test your understanding of message authentication! Generate valid MACs, detect tampered messages, and learn to implement secure verification.",
+    "type": "authentication-challenge",
+    "instructions": [
+      "Generate MACs for given messages",
+      "Identify which messages have valid MACs",
+      "Detect tampered messages",
+      "Practice constant-time verification"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "MAC Generation",
+        "description": "Learn to generate HMAC tags",
+        "task": "generate",
+        "mode": "guided"
+      },
+      {
+        "level": 2,
+        "name": "Tamper Detection",
+        "description": "Identify which messages have been modified",
+        "task": "detect",
+        "mode": "challenge"
+      },
+      {
+        "level": 3,
+        "name": "Timing Attack Defense",
+        "description": "Implement constant-time comparison",
+        "task": "constant_time",
+        "mode": "implementation"
+      }
+    ],
+    "scoring": {
+      "correctMAC": 10,
+      "tamperDetected": 20,
+      "secureImplementation": 50
+    }
+  },
+  "visualizer": {
+    "type": "hmac-flow",
+    "title": "HMAC Construction",
+    "description": "Visualize the two-pass HMAC construction with inner and outer hashing",
+    "features": [
+      "Key padding visualization",
+      "ipad/opad XOR operations",
+      "Inner hash computation",
+      "Outer hash computation",
+      "Final tag generation"
+    ],
+    "modes": [
+      {
+        "id": "step-by-step",
+        "name": "Step by Step",
+        "description": "Watch HMAC construction phase by phase"
+      },
+      {
+        "id": "compare",
+        "name": "Compare Hash vs HMAC",
+        "description": "See why raw hashing is vulnerable"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "HMAC with Python",
+        "code": "import hmac\nimport hashlib\n\n# Secret key and message\nkey = b'secret_key_12345'\nmessage = b'Hello, World!'\n\n# Generate HMAC\nmac = hmac.new(key, message, hashlib.sha256)\ntag = mac.hexdigest()\n\nprint(f\"Message: {message}\")\nprint(f\"HMAC: {tag}\")\n\n# Verify (in production, use constant-time comparison)\ndef verify_mac(key, message, expected_tag):\n    computed = hmac.new(key, message, hashlib.sha256).hexdigest()\n    # Use hmac.compare_digest for constant-time comparison\n    return hmac.compare_digest(computed, expected_tag)\n\nis_valid = verify_mac(key, message, tag)\nprint(f\"Valid: {is_valid}\")  # True"
+      },
+      {
+        "title": "AES-GCM AEAD",
+        "code": "from Crypto.Cipher import AES\nfrom Crypto.Random import get_random_bytes\n\n# Key and nonce (must be unique per encryption!)\nkey = get_random_bytes(32)\nnonce = get_random_bytes(12)\n\n# Message and associated data (authenticated but not encrypted)\nmessage = b'Secret message'\nassociated_data = b'Metadata: user=123'\n\n# Encrypt with GCM (built-in authentication)\ncipher = AES.new(key, AES.MODE_GCM, nonce=nonce)\ncipher.update(associated_data)\nciphertext, tag = cipher.encrypt_and_digest(message)\n\nprint(f\"Ciphertext: {ciphertext.hex()}\")\nprint(f\"Auth tag: {tag.hex()}\")\n\n# Decrypt and verify\ndecipher = AES.new(key, AES.MODE_GCM, nonce=nonce)\ndecipher.update(associated_data)\ntry:\n    decrypted = decipher.decrypt_and_verify(ciphertext, tag)\n    print(f\"Verified: {decrypted}\")\nexcept ValueError:\n    print(\"MAC verification failed - message tampered!\")"
+      }
+    ]
+  }
+}

@@ -1,0 +1,302 @@
+{
+  "id": "engine-01-lexer",
+  "bookId": "book-engine",
+  "title": "Lexical Analysis & Tokenization",
+  "category": "Foundations",
+  "order": 1,
+  "estimatedTime": "40 min",
+  "theory": {
+    "overview": "Lexical analysis is the first phase of compilation—transforming raw source code into a stream of meaningful tokens. Think of it as the compiler's 'reading' phase: it scans characters, groups them into logical units (tokens), and discards whitespace and comments. Every programming language starts here, from Python to JavaScript to C++. Understanding tokenization helps you write better code, debug syntax errors, and even build your own domain-specific languages.",
+    "sections": [
+      {
+        "title": "What is a Token?",
+        "content": "A token is the smallest unit of meaning in source code. Just like words in a sentence, tokens carry semantic value. Examples include: keywords (`if`, `while`, `return`), identifiers (`myVariable`, `calculateSum`), operators (`+`, `==`, `->`), literals (`42`, `"hello"`, `3.14`), and delimiters (`(`, `)`, `{`, `}`, `;`). The lexer recognizes patterns using regular expressions or finite automata, grouping characters into these categories.",
+        "keyPoints": [
+          "Tokens are the 'words' of programming languages",
+          "Each token has a type (keyword, identifier, operator, etc.)",
+          "Whitespace is typically discarded during tokenization",
+          "Comments are stripped out and don't become tokens"
+        ]
+      },
+      {
+        "title": "The Tokenization Process",
+        "content": "Tokenization follows a systematic pipeline: 1) Read source code character by character, 2) Recognize patterns using rules, 3) Create token objects with type and value, 4) Handle errors for unrecognized characters. The lexer uses lookahead when needed—for example, distinguishing `=` (assignment) from `==` (equality) requires peeking at the next character. Keywords are typically checked before identifiers, so `while` becomes a keyword token, not an identifier.",
+        "examples": [
+          {
+            "code": "let x = 42 + y;",
+            "tokens": ["LET(keyword)", "x(identifier)", "=(operator)", "42(number)", "+(operator)", "y(identifier)", ";(delimiter)"]
+          },
+          {
+            "code": "if (count >= 10) { return; }",
+            "tokens": ["IF(keyword)", "((delimiter)", "count(identifier)", ">=(operator)", "10(number)", ")(delimiter)", "{(delimiter)", "RETURN(keyword)", ";(delimiter)", "}(delimiter)"]
+          }
+        ]
+      },
+      {
+        "title": "Finite State Machines",
+        "content": "Lexers are often implemented as Deterministic Finite Automata (DFA)—state machines where each state represents what we're currently reading. We start in an 'initial' state. Seeing a letter transitions to 'identifier' state. Seeing a digit after that stays in 'identifier' (for variables like `var1`). Seeing an operator character transitions to 'operator' state. This formal approach ensures no ambiguity and enables efficient O(n) tokenization where n is source code length.",
+        "keyPoints": [
+          "DFA provides O(n) tokenization time",
+          "Each state handles specific character patterns",
+          "States transition based on input characters",
+          "Final states emit tokens"
+        ]
+      },
+      {
+        "title": "Handling Edge Cases",
+        "content": "Real-world lexers face complex scenarios: string literals with escape sequences (`\"hello\\nworld\"`), multi-line comments that need nesting, heredocs in languages like Python and Ruby, number formats (hex `0xFF`, binary `0b1010`, scientific `1.5e-10`). A robust lexer needs state tracking for string interpolation and proper error recovery—if an unclosed string is detected, the lexer should report the line and column where it started.",
+        "examples": [
+          {
+            "code": "\"Hello\\nWorld\"",
+            "explanation": "String with newline escape - lexer processes \\n as single newline character"
+          },
+          {
+            "code": "0x1A3F",
+            "explanation": "Hexadecimal number - recognized by 0x prefix"
+          },
+          {
+            "code": "/* nested /* comment */ */",
+            "explanation": "Some languages support nested block comments"
+          }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Maximal Munch Rule",
+        "description": "When multiple token patterns match, choose the longest match. `>>=` is one operator, not `>` followed by `>=`."
+      },
+      {
+        "name": "Token Classification",
+        "description": "Keywords are reserved identifiers. Contextual keywords (like `async` in some languages) require special handling."
+      },
+      {
+        "name": "Lexer Generator",
+        "description": "Tools like Lex, Flex, ANTLR generate optimized DFAs from regex-based token specifications."
+      },
+      {
+        "name": "Error Recovery",
+        "description": "Good lexers skip invalid characters, report errors with line/column info, and continue tokenizing."
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "$O(n)$ where $n$ = source code length",
+      "spaceComplexity": "$O(1)$ for DFA state, $O(k)$ for $k$ tokens output",
+      "understandingTime": "$O(k)$ where $k$ = number of token types"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Lexer State",
+      "description": "Set position to start of source, initialize empty token list, prepare keyword lookup table.",
+      "visualState": { "position": 0, "line": 1, "column": 1, "tokens": [] }
+    },
+    {
+      "step": 2,
+      "title": "Skip Whitespace",
+      "description": "Advance past spaces, tabs, newlines. Track line/column for error reporting.",
+      "visualState": { "action": "skip_whitespace", "currentChar": " " }
+    },
+    {
+      "step": 3,
+      "title": "Identify Token Type",
+      "description": "Check current character: letter → identifier/keyword, digit → number, quote → string, special char → operator/delimiter.",
+      "visualState": { "action": "classify", "currentChar": "l", "predictedType": "identifier" }
+    },
+    {
+      "step": 4,
+      "title": "Extract Token Value",
+      "description": "Consume characters until pattern breaks. For identifiers: letters, digits, underscores. Apply maximal munch.",
+      "visualState": { "action": "consume", "accumulated": "let", "lookahead": " " }
+    },
+    {
+      "step": 5,
+      "title": "Create Token Object",
+      "description": "Package type, value, line, column into token. Keywords take precedence over identifiers.",
+      "visualState": { "token": { "type": "KEYWORD", "value": "let", "line": 1, "col": 1 } }
+    },
+    {
+      "step": 6,
+      "title": "Repeat or Terminate",
+      "description": "Continue from step 2 until end of input. Emit EOF token when complete.",
+      "visualState": { "position": "end", "tokens": 7, "status": "complete" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Tokenize Simple Expression",
+      "difficulty": "easy",
+      "type": "tokenization",
+      "description": "Tokenize: `x = 5 + 3`",
+      "answer": ["x(identifier)", "=(operator)", "5(number)", "+(operator)", "3(number)"],
+      "explanation": "Each distinct element becomes a token. The variable x, assignment operator, numbers, and plus operator are separate tokens.",
+      "hints": ["Separate by whitespace and operators", "Numbers are literal tokens", "x is an identifier"]
+    },
+    {
+      "id": "p2",
+      "title": "Identify Keywords vs Identifiers",
+      "difficulty": "easy",
+      "type": "classification",
+      "description": "Classify each token in: `if (while_true) return 1;`",
+      "answer": ["if(keyword)", "( (delimiter)", "while_true(identifier)", ") (delimiter)", "return(keyword)", "1(number)", ";(delimiter)"],
+      "explanation": "`if` and `return` are keywords. `while_true` is an identifier (underscore makes it one word, different from keyword `while`).",
+      "hints": ["Keywords are reserved words", "Identifiers can contain underscores", "Maximal munch applies"]
+    },
+    {
+      "id": "p3",
+      "title": "String with Escapes",
+      "difficulty": "medium",
+      "type": "tokenization",
+      "description": "How many tokens result from: `print(\"Hello\\nWorld\");`",
+      "answer": "5 tokens",
+      "explanation": "Tokens: print(identifier), ((delimiter), \"Hello\\nWorld\"(string), )(delimiter), ;(delimiter). The \\n escape becomes part of the string's value, not separate tokens.",
+      "hints": ["The string is ONE token with processed escapes", "print is an identifier (function name)", "Parentheses and semicolon are separate"]
+    },
+    {
+      "id": "p4",
+      "title": "Multi-Character Operators",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Tokenize: `a >= b && c != d`",
+      "answer": ["a(identifier)", ">=(operator)", "b(identifier)", "&&(operator)", "c(identifier)", "!=(operator)", "d(identifier)"],
+      "explanation": "Multi-char operators >=, &&, != are single tokens (maximal munch). Not > followed by =, or & followed by &.",
+      "hints": ["Apply maximal munch rule", ">= is one token, not two", "&& is logical AND, one token"]
+    },
+    {
+      "id": "p5",
+      "title": "Number Formats",
+      "difficulty": "medium",
+      "type": "classification",
+      "description": "Classify: `42 3.14 0xFF 0b1010 1.5e10`",
+      "answer": ["42(integer)", "3.14(float)", "0xFF(hex)", "0b1010(binary)", "1.5e10(scientific)"],
+      "explanation": "Different numeric literals have different prefixes and formats. The lexer recognizes each pattern.",
+      "hints": ["0x prefix means hexadecimal", "0b prefix means binary", "e notation is scientific"]
+    },
+    {
+      "id": "p6",
+      "title": "Comment Handling",
+      "difficulty": "easy",
+      "type": "tokenization",
+      "description": "How many tokens from: `x = 5; // set x to 5\\ny = 10;`",
+      "answer": "7 tokens",
+      "explanation": "Tokens: x, =, 5, ;, y, =, 10, ;. The // comment and everything after it on that line is discarded. Newline ends the comment.",
+      "hints": ["Comments are stripped, not tokenized", "// is line comment to end of line", "Newline ends comment, not a token itself"]
+    },
+    {
+      "id": "p7",
+      "title": "Complex Expression",
+      "difficulty": "medium",
+      "type": "tokenization",
+      "description": "Tokenize: `result = (a + b) * c - d / e;`",
+      "answer": ["result(identifier)", "=(operator)", "((delimiter)", "a(identifier)", "+(operator)", "b(identifier)", ")(delimiter)", "*(operator)", "c(identifier)", "-(operator)", "d(identifier)", "/(operator)", "e(identifier)", ";(delimiter)"],
+      "explanation": "Each operator, identifier, parenthesis, and semicolon is a separate token. Parentheses create clear grouping.",
+      "hints": ["Parentheses are separate delimiter tokens", "Each operator is its own token", "Identifiers include result, a, b, c, d, e"]
+    },
+    {
+      "id": "p8",
+      "title": "Lexer Complexity",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the time complexity of lexical analysis for n characters of source code?",
+      "answer": "$O(n)$",
+      "explanation": "Each character is examined a constant number of times (typically once, sometimes twice for lookahead). Linear scan through the input.",
+      "hints": ["Each character processed constant times", "No nested loops over input", "Single pass through source"]
+    },
+    {
+      "id": "p9",
+      "title": "Ambiguity Resolution",
+      "difficulty": "hard",
+      "type": "analysis",
+      "description": "In a language where `>>` is right-shift and `>=` is greater-equal, how should `>>=` be tokenized?",
+      "answer": "Single token: >>=(operator) - right-shift assignment",
+      "explanation": "Maximal munch rule: longest match wins. >>= is 3 chars, >> is 2, >= is 2, > is 1. The 3-char operator >>= (right-shift-assign) is chosen.",
+      "hints": ["Apply maximal munch", "Longest valid token wins", " >>= exists in C-style languages"]
+    },
+    {
+      "id": "p10",
+      "title": "Line Continuation",
+      "difficulty": "hard",
+      "type": "tokenization",
+      "description": "Python uses `\\` for line continuation. How many tokens: `x = 1 \\\\\n    + 2`?",
+      "answer": "4 tokens: x, =, 1, +, 2 simplified to x, =, 3 (but actually x, =, 1, +, 2 -> 5 tokens)",
+      "explanation": "The backslash-newline is removed by lexer before tokenization. Result: x, =, 1, +, 2 (5 tokens). The values combine at parse/execution time, not lex.",
+      "hints": ["Line continuation is removed", "Newline after \\ is not a token separator", "Operators and values remain separate tokens"]
+    }
+  ],
+  "minigame": {
+    "id": "token-master",
+    "title": "Token Master",
+    "description": "Test your lexical analysis skills! Race against time to identify correct tokens from code snippets. Learn to recognize patterns and apply maximal munch.",
+    "type": "speed-classification",
+n    "instructions": [
+      "Read the code snippet displayed",
+      "Identify each token and its type",
+      "Click tokens in order to classify them",
+      "Watch out for multi-character operators!",
+      "Speed and accuracy both count"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Token Rookie",
+        "description": "Simple identifiers, numbers, and basic operators",
+        "timeLimit": 45,
+        "problems": [
+          { "code": "x = 42", "tokens": ["identifier", "operator", "number"] },
+          { "code": "a + b", "tokens": ["identifier", "operator", "identifier"] },
+          { "code": "return 0", "tokens": ["keyword", "number"] }
+        ]
+      },
+      {
+        "level": 2,
+        "name": "Pattern Detective",
+        "description": "Keywords, strings, and multi-char operators",
+        "timeLimit": 60,
+        "problems": [
+          { "code": "if (x >= 10)", "tokens": ["keyword", "delimiter", "identifier", "operator", "number", "delimiter"] },
+          { "code": 'msg = "hello"', "tokens": ["identifier", "operator", "string"] },
+          { "code": "a && b || c", "tokens": ["identifier", "operator", "identifier", "operator", "identifier"] }
+        ]
+      },
+      {
+        "level": 3,
+        "name": "Lexer Expert",
+        "description": "Complex expressions with edge cases",
+        "timeLimit": 75,
+        "problems": [
+          { "code": "0xFF + 0b1010", "tokens": ["hex", "operator", "binary"] },
+          { "code": "x += y -= 5", "tokens": ["identifier", "operator", "identifier", "operator", "number"] },
+          { "code": "/* comment */ z", "tokens": ["identifier"] }
+        ]
+      }
+    ],
+    "scoring": {
+      "correct": 100,
+      "streakBonus": 25,
+      "timeBonus": "max(0, timeRemaining)"
+    }
+  },
+  "visualizer": {
+    "type": "lexer-simulation",
+    "title": "Lexer Visualization",
+    "description": "Watch how a lexer processes source code in real-time. See characters transform into tokens, observe state transitions, and understand maximal munch in action.",
+    "features": [
+      "Character-by-character processing",
+      "State machine visualization",
+      "Token stream output",
+      "Error highlighting",
+      "Speed control"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Simple Lexer",
+        "code": "class Token:\n    def __init__(self, type, value, line, col):\n        self.type = type\n        self.value = value\n        self.line = line\n        self.col = col\n    def __repr__(self):\n        return f'Token({self.type}, {self.value!r})'\n\nclass Lexer:\n    KEYWORDS = {'if', 'else', 'while', 'return', 'let'}\n    \n    def __init__(self, source):\n        self.source = source\n        self.pos = 0\n        self.line = 1\n        self.col = 1\n        self.tokens = []\n    \n    def peek(self, offset=0):\n        pos = self.pos + offset\n        return self.source[pos] if pos < len(self.source) else '\\0'\n    \n    def advance(self):\n        char = self.peek()\n        self.pos += 1\n        if char == '\\n':\n            self.line += 1\n            self.col = 1\n        else:\n            self.col += 1\n        return char\n    \n    def skip_whitespace(self):\n        while self.peek() in ' \\t\\n\\r':\n            self.advance()\n    \n    def read_string(self):\n        start_line, start_col = self.line, self.col\n        self.advance()  # skip opening quote\n        value = ''\n        while self.peek() != '"' and self.peek() != '\\0':\n            if self.peek() == '\\\\':\n                self.advance()\n                escape = self.advance()\n                value += {'n': '\\n', 't': '\\t', '\\': '\\'}.get(escape, escape)\n            else:\n                value += self.advance()\n        self.advance()  # skip closing quote\n        return Token('STRING', value, start_line, start_col)\n    \n    def read_number(self):\n        start_line, start_col = self.line, self.col\n        value = ''\n        while self.peek().isdigit():\n            value += self.advance()\n        if self.peek() == '.' and self.peek(1).isdigit():\n            value += self.advance()\n            while self.peek().isdigit():\n                value += self.advance()\n        return Token('NUMBER', float(value) if '.' in value else int(value), start_line, start_col)\n    \n    def read_identifier(self):\n        start_line, start_col = self.line, self.col\n        value = ''\n        while self.peek().isalnum() or self.peek() == '_':\n            value += self.advance()\n        type = 'KEYWORD' if value in self.KEYWORDS else 'IDENTIFIER'\n        return Token(type, value, start_line, start_col)\n    \n    def tokenize(self):\n        while self.pos < len(self.source):\n            self.skip_whitespace()\n            if self.pos >= len(self.source):\n                break\n            \n            char = self.peek()\n            start_line, start_col = self.line, self.col\n            \n            if char == '"':\n                self.tokens.append(self.read_string())\n            elif char.isdigit():\n                self.tokens.append(self.read_number())\n            elif char.isalpha() or char == '_':\n                self.tokens.append(self.read_identifier())\n            elif char in '+-*/=<>!':\n                # Multi-char operators (maximal munch)\n                op = self.advance()\n                if self.peek() == '=':\n                    op += self.advance()\n                self.tokens.append(Token('OPERATOR', op, start_line, start_col))\n            elif char in '();{}[]':\n                self.tokens.append(Token('DELIMITER', self.advance(), start_line, start_col))\n            else:\n                raise SyntaxError(f'Unexpected character {char!r} at {self.line}:{self.col}')\n        \n        self.tokens.append(Token('EOF', None, self.line, self.col))\n        return self.tokens\n\n# Example usage\nlexer = Lexer('let x = 42 + \"hello\"')\ntokens = lexer.tokenize()\nfor t in tokens:\n    print(t)"
+      }
+    ]
+  }
+}

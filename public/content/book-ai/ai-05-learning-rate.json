@@ -1,0 +1,276 @@
+{
+  "id": "ai-05-learning-rate",
+  "bookId": "book-ai",
+  "title": "Learning Rate & Optimizers",
+  "category": "Training",
+  "order": 5,
+  "estimatedTime": "35 min",
+  "theory": {
+    "overview": "While vanilla gradient descent works, modern deep learning relies on sophisticated optimizers that adapt learning rates per-parameter and incorporate momentum. These algorithms—RMSprop, AdaGrad, and especially Adam—solve real problems: some parameters need bigger updates than others, gradients vary wildly across dimensions, and we want to escape saddle points quickly. Understanding these optimizers helps you train faster, converge better, and achieve state-of-the-art results.",
+    "sections": [
+      {
+        "title": "The Problem: One Size Doesn't Fit All",
+        "content": "In deep networks, different layers and parameters have vastly different gradient scales. Early layers (detecting edges in images) need different updates than late layers (classifying objects). Sparse features (rare words) need larger updates than frequent ones. A single global learning rate is suboptimal—some parameters need speed, others need caution.",
+        "example": "In word embeddings, the word 'the' appears constantly—its embedding needs tiny updates. 'Pneumonoultramicroscopicsilicovolcanoconiosis' appears once—its embedding needs a big update."
+      },
+      {
+        "title": "AdaGrad: Per-Parameter Learning Rates",
+        "content": "AdaGrad accumulates squared gradients for each parameter, then divides the learning rate by the square root of this sum. Frequently updated parameters get smaller effective learning rates; rarely updated ones get larger rates.",
+        "updateRule": "$\\theta_{t+1} = \\theta_t - \\frac{\\eta}{\\sqrt{G_t + \\epsilon}} \\odot g_t$ where $G_t = \\sum_{\\tau=1}^t g_\\tau \\odot g_\\tau$",
+        "pros": ["No manual tuning per parameter", "Good for sparse data"],
+        "cons": ["Learning rate monotonically decreases—eventually stops learning", "Aggressive decay can be too strong"]
+      },
+      {
+        "title": "RMSprop: Exponential Moving Average",
+        "content": "RMSprop fixes AdaGrad's aggressive learning rate decay by using an exponentially weighted moving average of squared gradients instead of accumulating all history. This keeps the effective learning rate from vanishing.",
+        "updateRule": "$E[g^2]_t = \\gamma E[g^2]_{t-1} + (1-\\gamma)g_t^2$, then $\\theta_{t+1} = \\theta_t - \\frac{\\eta}{\\sqrt{E[g^2]_t + \\epsilon}}g_t$",
+        "typicalGamma": "0.9 (decay rate)",
+        "intuition": "Recent gradients matter more than ancient ones"
+      },
+      {
+        "title": "Adam: Adaptive Momentum",
+        "content": "Adam (Adaptive Moment Estimation) combines the best of both worlds: momentum (first moment) and adaptive learning rates (second moment). It maintains moving averages of both the gradient and its square, then applies bias correction for early iterations. Adam is the default optimizer for most deep learning—it's robust and works well across many problems with minimal tuning.",
+        "algorithm": [
+          "m_t = \\beta_1 m_{t-1} + (1-\\beta_1)g_t (gradient moving avg)",
+          "v_t = \\beta_2 v_{t-1} + (1-\\beta_2)g_t^2 (squared gradient moving avg)",
+          "m\\hat{}_t = m_t / (1-\\beta_1^t) (bias correction)",
+          "v\\hat{}_t = v_t / (1-\\beta_2^t) (bias correction)",
+          "\\theta_{t+1} = \\theta_t - \\eta \\cdot m\\hat{}_t / (\\sqrt{v\\hat{}_t} + \\epsilon)"
+        ],
+        "defaults": { "beta1": "0.9 (momentum)", "beta2": "0.999 (second moment)", "epsilon": "1e-8 (numerical stability)" },
+        "recommendation": "Default choice for most deep learning projects"
+      },
+      {
+        "title": "Adam Variants and Alternatives",
+        "content": "While Adam works well, researchers have developed improvements for specific scenarios. Understanding when to use each can improve your results.",
+        "variants": [
+          {
+            "name": "AdamW",
+            "improvement": "Decouples weight decay from gradient update",
+            "formula": "$\\theta_{t+1} = \\theta_t - \\eta(\\frac{m\\hat{}_t}{\\sqrt{v\\hat{}_t} + \\epsilon} + \\lambda\\theta_t)$",
+            "use": "Recommended over Adam—better weight regularization"
+          },
+          {
+            "name": "AMSGrad",
+            "improvement": "Uses max of past v_t instead of current—ensures convergence",
+            "problemSolved": "Adam can fail to converge on some convex problems",
+            "use": "When you need convergence guarantees"
+          },
+          {
+            "name": "Nadam",
+            "improvement": "Nesterov momentum + Adam",
+            "benefit": "Better lookahead behavior",
+            "use": "When you want Adam's adaptivity with Nesterov's responsiveness"
+          }
+        ]
+      },
+      {
+        "title": "SGD with Momentum: Still Relevant",
+        "content": "Despite Adam's popularity, SGD with momentum often achieves better generalization (test performance) on computer vision tasks. The theory suggests that the noise in SGD acts as implicit regularization. Many state-of-the-art results use carefully tuned SGD with momentum rather than Adam.",
+        "whenToUse": [
+          "Computer vision (ResNet, EfficientNet)",
+          "When you have time to tune hyperparameters",
+          "When generalization matters more than training speed"
+        ],
+        "typicalSettings": { "lr": "0.1 (decayed)", "momentum": "0.9", "weight_decay": "1e-4" }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Second Moment",
+        "description": "Expected value of squared gradients—measures variance/uncertainty in gradients.",
+        "usedIn": "AdaGrad, RMSprop, Adam for adaptive scaling"
+      },
+      {
+        "name": "Bias Correction",
+        "description": "In Adam, initial moments are biased toward zero. Correction factor $(1-\\beta^t)$ compensates.",
+        "whyNeeded": "Early iterations have unreliable moving averages"
+      },
+      {
+        "name": "Weight Decay vs L2 Regularization",
+        "description": "L2 regularization adds penalty to loss; weight decay subtracts from weights directly. AdamW decouples these properly.",
+        "difference": "Subtle but important for adaptive optimizers"
+      },
+      {
+        "name": "Effective Learning Rate",
+        "description": "The actual step size taken: $\\eta_{eff} = \\eta / \\sqrt{v}$. Different per parameter in adaptive methods.",
+        "contrast": "Vanilla GD has same $\\eta_{eff}$ for all parameters"
+      }
+    ],
+    "complexity": {
+      "memory": "$O(n)$—stores 1-2 additional values per parameter (momentum, second moment)",
+      "compute": "$O(n)$—simple element-wise operations per parameter",
+      "overhead": "Negligible compared to forward/backward passes"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Vanilla SGD",
+      "description": "Start with basic gradient descent. All parameters use the same learning rate.",
+      "latex": "w \\leftarrow w - \\eta \\nabla L(w)$",
+      "visualState": { "optimizer": "sgd", "learningRate": 0.01, "adaptivity": "none" }
+    },
+    {
+      "step": 2,
+      "title": "Add Momentum",
+      "description": "Accumulate velocity for faster progress in consistent directions.",
+      "latex": "v \\leftarrow \\beta v + \\nabla L(w), \\quad w \\leftarrow w - \\eta v$",
+      "visualState": { "optimizer": "sgd_momentum", "momentum": 0.9, "velocity": 0.5 }
+    },
+    {
+      "step": 3,
+      "title": "AdaGrad Accumulation",
+      "description": "Sum squared gradients for adaptive per-parameter scaling.",
+      "latex": "G \\leftarrow G + (\\nabla L)^2, \\quad w \\leftarrow w - \\frac{\\eta}{\\sqrt{G}} \\nabla L$",
+      "visualState": { "optimizer": "adagrad", "accumulated": 2.5, "effectiveLR": 0.006 }
+    },
+    {
+      "step": 4,
+      "title": "RMSprop Smoothing",
+      "description": "Use exponential moving average instead of accumulation.",
+      "latex": "E[g^2] \\leftarrow \\gamma E[g^2] + (1-\\gamma)(\\nabla L)^2$",
+      "visualState": { "optimizer": "rmsprop", "ema": 1.8, "gamma": 0.9 }
+    },
+    {
+      "step": 5,
+      "title": "Adam: Combine Both Moments",
+      "description": "Maintain moving averages of gradient (momentum) and squared gradient (adaptivity).",
+      "latex": "m \\leftarrow \\beta_1 m + (1-\\beta_1)g, \\quad v \\leftarrow \\beta_2 v + (1-\\beta_2)g^2$",
+      "visualState": { "optimizer": "adam", "firstMoment": 0.3, "secondMoment": 0.5 }
+    },
+    {
+      "step": 6,
+      "title": "Bias Correction",
+      "description": "Correct for initialization bias in early iterations.",
+      "latex": "m\\hat{} \\leftarrow \\frac{m}{1-\\beta_1^t}, \\quad v\\hat{} \\leftarrow \\frac{v}{1-\\beta_2^t}$",
+      "visualState": { "t": 5, "beta1": 0.9, "correction1": 2.71, "correction2": 1.01 }
+    },
+    {
+      "step": 7,
+      "title": "Final Adam Update",
+      "description": "Combine bias-corrected moments for the parameter update.",
+      "latex": "w \\leftarrow w - \\eta \\frac{m\\hat{}}{\\sqrt{v\\hat{}} + \\epsilon}$",
+      "visualState": { "update": -0.015, "effectiveLR": 0.015, "converged": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "AdaGrad Effective LR",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "A parameter has accumulated squared gradients $G = 25$. With base LR $\\eta = 0.1$, what is the effective learning rate?",
+      "answer": "$\\eta_{eff} = \\frac{0.1}{\\sqrt{25}} = \\frac{0.1}{5} = 0.02$",
+      "explanation": "AdaGrad divides the learning rate by the square root of accumulated squared gradients. As gradients accumulate, the effective LR decreases.",
+      "hints": ["Effective LR = $\\eta / \\sqrt{G}$", "$\\sqrt{25} = 5$", "$0.1 / 5 = 0.02$"]
+    },
+    {
+      "id": "p2",
+      "title": "Adam Bias Correction",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "At iteration $t=5$, raw moment estimates are $m_5 = 0.5$, $v_5 = 0.3$. With $\\beta_1 = 0.9$, $\\beta_2 = 0.999$, compute corrected estimates.",
+      "answer": "$m\\hat{} = 0.5 / (1-0.9^5) \\approx 3.10$ | $v\\hat{} = 0.3 / (1-0.999^5) \\approx 60.12$",
+      "explanation": "Without correction, early estimates are biased toward 0. The correction factor $(1-\\beta^t)$ grows from near 0 to 1 over time, reducing the correction magnitude.",
+      "hints": ["$0.9^5 \\approx 0.59$", "$0.999^5 \\approx 0.995$", "Division compensates for the bias"]
+    },
+    {
+      "id": "p3",
+      "title": "RMSprop vs AdaGrad",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "Why does RMSprop generally outperform AdaGrad for deep learning?",
+      "answer": "AdaGrad's learning rate monotonically decreases and eventually becomes effectively zero, stopping learning. RMSprop's exponential moving average prevents this by 'forgetting' old gradients.",
+      "explanation": "In deep learning, we often need to keep learning throughout training. AdaGrad was designed for sparse convex problems (like SVMs), not deep networks where we need sustained learning.",
+      "hints": ["AdaGrad accumulates ALL past squared gradients", "RMSprop uses EMA—forgets old gradients", "Consider what happens after 10,000 iterations"]
+    },
+    {
+      "id": "p4",
+      "title": "Effective LR Comparison",
+      "difficulty": "medium",
+      "type": "comparison",
+      "description": "For a parameter with gradient variance: SGD has consistent gradient magnitude 1.0. Adam has $v\\hat{} = 2.0$. Both use $\\eta = 0.01$. Compare updates.",
+      "answer": "SGD update: $-0.01 \\cdot 1.0 = -0.01$ | Adam update: $-0.01 \\cdot m\\hat{} / \\sqrt{2} \\approx -0.007 \\cdot m\\hat{}$",
+      "explanation": "Adam's adaptivity means it takes smaller steps when gradient variance is high. If $m\\hat{} = 1$, Adam's update is ~70% of SGD's for this parameter, showing automatic step size reduction in uncertain directions.",
+      "hints": ["Adam divides by $\\sqrt{v}$", "Higher variance → smaller effective step", "SGD has no such adaptation"]
+    },
+    {
+      "id": "p5",
+      "title": "AdamW vs Adam",
+      "difficulty": "hard",
+      "type": "implementation",
+      "description": "Explain why AdamW's weight decay $\\lambda\\theta$ differs from Adam's L2 regularization in the gradient.",
+      "answer": "In Adam, L2 gradient is added before adaptive scaling, so parameters with high gradient variance get LESS regularization. In AdamW, weight decay is applied AFTER adaptive scaling, giving all parameters the same regularization strength.",
+      "explanation": "Adam: $g_{eff} = (g + \\lambda\\theta) / \\sqrt{v}$—parameters with large $v$ (high variance) get suppressed regularization. AdamW: $\\theta \\leftarrow \\theta - \\eta(g/\\sqrt{v}) - \\eta\\lambda\\theta$—regularization independent of adaptive scaling.",
+      "hints": ["Consider where $\\lambda\\theta$ appears in the formula", "Adaptive scaling affects regularization in Adam", "AdamW decouples these effects"]
+    },
+    {
+      "id": "p6",
+      "title": "Optimizer Selection",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Recommend optimizers for: (a) Training BERT on text, (b) Training ResNet on ImageNet, (c) Sparse embedding learning, (d) Reinforcement learning with non-stationary gradients.",
+      "answer": "(a) AdamW (standard for transformers) | (b) SGD with momentum (better generalization) | (c) AdaGrad (designed for sparse gradients) | (d) RMSprop or Adam (handles changing gradients)",
+      "explanation": "Transformer training: AdamW is standard with weight decay for regularization. Vision: SGD often generalizes better despite slower convergence. Sparse: AdaGrad's per-parameter scaling helps rare features. RL: Non-stationary problems benefit from adaptive methods that forget old gradients.",
+      "hints": ["Consider generalization vs convergence speed", "Sparse gradients need special handling", "Non-stationary = changing gradient statistics"]
+    }
+  ],
+  "minigame": {
+    "id": "optimizer-race",
+    "title": "Optimizer Grand Prix",
+    "description": "Race different optimizers through challenging loss landscapes. See which converges fastest, which escapes saddle points, and which generalizes best.",
+    "instructions": [
+      "Choose your optimizer: SGD, Momentum, AdaGrad, RMSprop, or Adam",
+      "Set hyperparameters: learning rate, momentum, betas",
+      "Navigate through valleys, avoid saddle points, find the global minimum",
+      "Compare convergence speed and final loss across optimizers",
+      "Challenge: Beat Adam with properly tuned SGD!"
+    ],
+    "controls": [
+      {
+        "id": "optimizer",
+        "label": "Optimizer",
+        "type": "select",
+        "options": ["SGD", "SGD+Momentum", "AdaGrad", "RMSprop", "Adam", "AdamW"]
+      },
+      {
+        "id": "learningRate",
+        "label": "Learning Rate",
+        "type": "slider",
+        "min": 0.0001,
+        "max": 1.0,
+        "step": 0.0001,
+        "default": 0.01
+      },
+      {
+        "id": "momentum",
+        "label": "Momentum / Beta1",
+        "type": "slider",
+        "min": 0,
+        "max": 0.99,
+        "step": 0.01,
+        "default": 0.9
+      },
+      {
+        "id": "beta2",
+        "label": "Beta2 (Adam only)",
+        "type": "slider",
+        "min": 0.9,
+        "max": 0.999,
+        "step": 0.001,
+        "default": 0.999
+      },
+      {
+        "id": "landscape",
+        "label": "Loss Landscape",
+        "type": "select",
+        "options": ["Bowl", "Elongated Valley", "Saddle Point", "Noisy Bowl", "Sharp Minimum"]
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import numpy as np\nfrom typing import List, Tuple\n\n# ==================== Optimizer Implementations ====================\n\nclass Optimizer:\n    \"\"\"Base optimizer class\"\"\"\n    def __init__(self, learning_rate=0.01):\n        self.lr = learning_rate\n        self.t = 0  # iteration counter\n    \n    def step(self, params: np.ndarray, grads: np.ndarray) -> np.ndarray:\n        \"\"\"Update parameters and return new values\"\"\"\n        raise NotImplementedError\n\nclass SGD(Optimizer):\n    \"\"\"Stochastic Gradient Descent\"\"\"\n    def step(self, params, grads):\n        self.t += 1\n        return params - self.lr * grads\n\nclass SGDMomentum(Optimizer):\n    \"\"\"SGD with momentum\"\"\"\n    def __init__(self, learning_rate=0.01, momentum=0.9):\n        super().__init__(learning_rate)\n        self.momentum = momentum\n        self.velocity = None\n    \n    def step(self, params, grads):\n        self.t += 1\n        if self.velocity is None:\n            self.velocity = np.zeros_like(params)\n        \n        self.velocity = self.momentum * self.velocity + self.lr * grads\n        return params - self.velocity\n\nclass AdaGrad(Optimizer):\n    \"\"\"AdaGrad: Adaptive Gradient Algorithm\"\"\"\n    def __init__(self, learning_rate=0.01, epsilon=1e-8):\n        super().__init__(learning_rate)\n        self.epsilon = epsilon\n        self.accumulated = None\n    \n    def step(self, params, grads):\n        self.t += 1\n        if self.accumulated is None:\n            self.accumulated = np.zeros_like(params)\n        \n        # Accumulate squared gradients\n        self.accumulated += grads ** 2\n        \n        # Adaptive learning rate\n        adapted_lr = self.lr / (np.sqrt(self.accumulated) + self.epsilon)\n        return params - adapted_lr * grads\n\nclass RMSprop(Optimizer):\n    \"\"\"RMSprop: Root Mean Square Propagation\"\"\"\n    def __init__(self, learning_rate=0.01, decay_rate=0.9, epsilon=1e-8):\n        super().__init__(learning_rate)\n        self.decay = decay_rate\n        self.epsilon = epsilon\n        self.sq_grad_ema = None\n    \n    def step(self, params, grads):\n        self.t += 1\n        if self.sq_grad_ema is None:\n            self.sq_grad_ema = np.zeros_like(params)\n        \n        # Exponential moving average of squared gradients\n        self.sq_grad_ema = self.decay * self.sq_grad_ema + (1 - self.decay) * (grads ** 2)\n        \n        # Adaptive update\n        adapted_lr = self.lr / (np.sqrt(self.sq_grad_ema) + self.epsilon)\n        return params - adapted_lr * grads\n\nclass Adam(Optimizer):\n    \"\"\"Adam: Adaptive Moment Estimation\"\"\"\n    def __init__(self, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):\n        super().__init__(learning_rate)\n        self.beta1 = beta1\n        self.beta2 = beta2\n        self.epsilon = epsilon\n        self.m = None  # first moment\n        self.v = None  # second moment\n    \n    def step(self, params, grads):\n        self.t += 1\n        if self.m is None:\n            self.m = np.zeros_like(params)\n            self.v = np.zeros_like(params)\n        \n        # Update biased moments\n        self.m = self.beta1 * self.m + (1 - self.beta1) * grads\n        self.v = self.beta2 * self.v + (1 - self.beta2) * (grads ** 2)\n        \n        # Bias correction\n        m_hat = self.m / (1 - self.beta1 ** self.t)\n        v_hat = self.v / (1 - self.beta2 ** self.t)\n        \n        # Update\n        return params - self.lr * m_hat / (np.sqrt(v_hat) + self.epsilon)\n\nclass AdamW(Optimizer):\n    \"\"\"Adam with decoupled weight decay\"\"\"\n    def __init__(self, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, weight_decay=0.01):\n        super().__init__(learning_rate)\n        self.beta1 = beta1\n        self.beta2 = beta2\n        self.epsilon = epsilon\n        self.weight_decay = weight_decay\n        self.m = None\n        self.v = None\n    \n    def step(self, params, grads):\n        self.t += 1\n        if self.m is None:\n            self.m = np.zeros_like(params)\n            self.v = np.zeros_like(params)\n        \n        # Adam update on gradients\n        self.m = self.beta1 * self.m + (1 - self.beta1) * grads\n        self.v = self.beta2 * self.v + (1 - self.beta2) * (grads ** 2)\n        \n        m_hat = self.m / (1 - self.beta1 ** self.t)\n        v_hat = self.v / (1 - self.beta2 ** self.t)\n        \n        # Decoupled weight decay\n        params_adam = params - self.lr * m_hat / (np.sqrt(v_hat) + self.epsilon)\n        return params_adam - self.lr * self.weight_decay * params\n\n# ==================== Comparison and Testing ====================\n\ndef compare_optimizers(func, grad_func, x0, iterations=1000):\n    \"\"\"\n    Compare all optimizers on a test function\n    Returns: dict of optimizer name -> (trajectory, losses)\n    \"\"\"\n    optimizers = {\n        'SGD': SGD(learning_rate=0.1),\n        'SGD+Momentum': SGDMomentum(learning_rate=0.1, momentum=0.9),\n        'AdaGrad': AdaGrad(learning_rate=0.1),\n        'RMSprop': RMSprop(learning_rate=0.1, decay_rate=0.9),\n        'Adam': Adam(learning_rate=0.1, beta1=0.9, beta2=0.999),\n        'AdamW': AdamW(learning_rate=0.1, weight_decay=0.01)\n    }\n    \n    results = {}\n    \n    for name, opt in optimizers.items():\n        x = x0.copy()\n        trajectory = [x.copy()]\n        losses = [func(x)]\n        \n        for _ in range(iterations):\n            grad = grad_func(x)\n            x = opt.step(x, grad)\n            trajectory.append(x.copy())\n            losses.append(func(x))\n        \n        results[name] = (np.array(trajectory), np.array(losses))\n    \n    return results\n\ndef rosenbrock(x):\n    \"\"\"Rosenbrock function - optimization test\"\"\"\n    return (1 - x[0])**2 + 100 * (x[1] - x[0]**2)**2\n\ndef rosenbrock_grad(x):\n    dx0 = -2*(1 - x[0]) - 400*x[0]*(x[1] - x[0]**2)\n    dx1 = 200*(x[1] - x[0]**2)\n    return np.array([dx0, dx1])\n\n# Test\nif __name__ == \"__main__\":\n    print(\"=== Optimizer Comparison on Rosenbrock ===\")\n    x0 = np.array([-1.0, 2.0])\n    \n    results = compare_optimizers(rosenbrock, rosenbrock_grad, x0, iterations=2000)\n    \n    print(f\"\\nStarting point: {x0}\")\n    print(f\"Global minimum: [1, 1] with loss 0\\n\")\n    \n    for name, (traj, losses) in results.items():\n        final_x = traj[-1]\n        final_loss = losses[-1]\n        print(f\"{name:15s}: final x = [{final_x[0]:8.4f}, {final_x[1]:8.4f}], loss = {final_loss:.6f}\")\n    \n    print(\"\\n=== Effective Learning Rate Analysis ===\")\n    # Sparse gradient scenario\n    grad_sparse = np.array([0.001, 10.0])  # very different magnitudes\n    \n    ada = AdaGrad(learning_rate=0.1)\n    ada.accumulated = np.array([100.0, 0.1])  # simulated history\n    \n    effective_lr_ada = ada.lr / (np.sqrt(ada.accumulated) + ada.epsilon)\n    print(f\"AdaGrad effective LRs: {effective_lr_ada}\")\n    print(f\"→ Rare feature LR: {effective_lr_ada[0]:.4f}, Frequent feature LR: {effective_lr_ada[1]:.4f}\")\n    print(f\"→ AdaGrad gives larger updates to rarely updated parameters!\")"
+  }
+}

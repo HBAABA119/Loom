@@ -1,0 +1,228 @@
+{
+  "id": "ai-01-perceptron",
+  "bookId": "book-ai",
+  "title": "The Perceptron",
+  "category": "Foundations",
+  "order": 1,
+  "estimatedTime": "30 min",
+  "theory": {
+    "overview": "The Perceptron is the simplest form of a neural network—essentially a single neuron. Invented by Frank Rosenblatt in 1957, it takes multiple inputs, applies weights to each, sums them up, and passes the result through an activation function to produce an output. It laid the foundation for modern deep learning. The perceptron can learn to classify linearly separable data by adjusting its weights based on prediction errors.",
+    "keyConcepts": [
+      {
+        "name": "Weighted Sum",
+        "description": "The perceptron computes a weighted sum of inputs: $z = w_1x_1 + w_2x_2 + ... + w_nx_n + b = \\mathbf{w} \\cdot \\mathbf{x} + b$. Each input $x_i$ is multiplied by its corresponding weight $w_i$, and we add a bias term $b$.",
+        "latex": "z = \\sum_{i=1}^{n} w_i x_i + b"
+      },
+      {
+        "name": "Activation Function",
+        "description": "The step function produces binary output: $\\hat{y} = 1$ if $z \\geq 0$, otherwise $\\hat{y} = 0$. This creates a decision boundary that separates the input space into two regions.",
+        "latex": "\\hat{y} = \\begin{cases} 1 & \\text{if } z \\geq 0 \\\\ 0 & \\text{if } z < 0 \\end{cases}"
+      },
+      {
+        "name": "Decision Boundary",
+        "description": "The set of points where $z = 0$ forms a hyperplane. For 2D inputs, this is a line: $w_1x_1 + w_2x_2 + b = 0$. Points on one side of this boundary are classified as 1, the other side as 0.",
+        "latex": "w_1x_1 + w_2x_2 + b = 0"
+      },
+      {
+        "name": "Learning Rule",
+        "description": "When the perceptron makes an error, weights are updated: $w_i \\leftarrow w_i + \\eta(y - \\hat{y})x_i$. The learning rate $\\eta$ controls step size, $(y - \\hat{y})$ is the error, and $x_i$ is the input that contributed to the error.",
+        "latex": "w_i \\leftarrow w_i + \\eta(y - \\hat{y})x_i"
+      }
+    ],
+    "complexity": {
+      "forwardPass": "$O(n)$ where $n$ = number of inputs",
+      "training": "$O(T \\cdot n \\cdot m)$ where $T$ = epochs, $m$ = training examples",
+      "convergence": "Guaranteed for linearly separable data (Perceptron Convergence Theorem)"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize",
+      "description": "Start with random weights and bias (typically small values near 0).",
+      "latex": "w_1 = 0.5, \\ w_2 = -0.3, \\ b = 0.1",
+      "visualState": {
+        "weights": [0.5, -0.3],
+        "bias": 0.1,
+        "inputs": [1.0, 0.5],
+        "output": null
+      }
+    },
+    {
+      "step": 2,
+      "title": "Compute Weighted Sum",
+      "description": "Calculate the weighted sum of all inputs plus bias.",
+      "latex": "z = w_1x_1 + w_2x_2 + b = (0.5)(1.0) + (-0.3)(0.5) + 0.1 = 0.5 - 0.15 + 0.1 = 0.45",
+      "visualState": {
+        "weights": [0.5, -0.3],
+        "bias": 0.1,
+        "inputs": [1.0, 0.5],
+        "z": 0.45,
+        "output": null
+      }
+    },
+    {
+      "step": 3,
+      "title": "Apply Activation",
+      "description": "Pass the weighted sum through the step function to get binary output.",
+      "latex": "\\hat{y} = \\text{step}(0.45) = 1 \\quad \\text{(since } 0.45 \\geq 0\\text{)}",
+      "visualState": {
+        "weights": [0.5, -0.3],
+        "bias": 0.1,
+        "inputs": [1.0, 0.5],
+        "z": 0.45,
+        "output": 1
+      }
+    },
+    {
+      "step": 4,
+      "title": "Compare with Target",
+      "description": "If the output doesn't match the target label, we need to update weights.",
+      "latex": "\\text{Error} = y - \\hat{y} = 0 - 1 = -1",
+      "visualState": {
+        "target": 0,
+        "output": 1,
+        "error": -1
+      }
+    },
+    {
+      "step": 5,
+      "title": "Update Weights",
+      "description": "Adjust weights using the perceptron learning rule with learning rate $\\eta = 0.1$.",
+      "latex": "w_1 \\leftarrow 0.5 + 0.1(-1)(1.0) = 0.4 \\\\ w_2 \\leftarrow -0.3 + 0.1(-1)(0.5) = -0.35 \\\\ b \\leftarrow 0.1 + 0.1(-1) = 0.0",
+      "visualState": {
+        "weights": [0.4, -0.35],
+        "bias": 0.0,
+        "learningRate": 0.1
+      }
+    },
+    {
+      "step": 6,
+      "title": "Repeat",
+      "description": "Continue training on more examples until convergence or max epochs reached.",
+      "latex": "\\text{Repeat for all training examples until } \\forall i: \\hat{y}_i = y_i",
+      "visualState": {
+        "epoch": 1,
+        "accuracy": 0.75
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Manual Perceptron Computation",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "Given weights $w = [0.5, -0.2]$ and bias $b = 0.3$, compute the output for input $x = [1.0, 2.0]$.",
+      "latex": "w = \\begin{bmatrix} 0.5 \\\\ -0.2 \\end{bmatrix}, \\quad x = \\begin{bmatrix} 1.0 \\\\ 2.0 \\end{bmatrix}, \\quad b = 0.3",
+      "hints": [
+        "Compute $z = w_1x_1 + w_2x_2 + b$",
+        "$z = (0.5)(1.0) + (-0.2)(2.0) + 0.3$",
+        "Apply step function: output = 1 if $z \\geq 0$, else 0"
+      ],
+      "solution": {
+        "z": 0.4,
+        "output": 1
+      }
+    },
+    {
+      "id": "p2",
+      "title": "AND Gate Implementation",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "Find weights and bias that implement the AND gate: outputs 1 only when both inputs are 1.",
+      "latex": "\\text{AND}(x_1, x_2) = \\begin{cases} 1 & \\text{if } x_1 = 1 \\text{ and } x_2 = 1 \\\\ 0 & \\text{otherwise} \\end{cases}",
+      "hints": [
+        "Try weights $w_1 = 1, w_2 = 1$ and bias $b = -1.5$",
+        "Verify: AND(0,0): $0+0-1.5 = -1.5 < 0$ → 0 ✓",
+        "AND(1,1): $1+1-1.5 = 0.5 > 0$ → 1 ✓"
+      ],
+      "solution": {
+        "weights": [1, 1],
+        "bias": -1.5
+      }
+    },
+    {
+      "id": "p3",
+      "title": "XOR Challenge",
+      "difficulty": "hard",
+      "type": "theory",
+      "description": "Explain why a single perceptron cannot solve the XOR problem.",
+      "latex": "\\text{XOR}(x_1, x_2) = \\begin{cases} 1 & \\text{if } x_1 \\neq x_2 \\\\ 0 & \\text{if } x_1 = x_2 \\end{cases}",
+      "explanation": "XOR is not linearly separable. You cannot draw a single straight line to separate the output classes. The points (0,0)→0, (1,1)→0, (0,1)→1, (1,0)→1 form a checkerboard pattern that no single hyperplane can classify correctly. This limitation led to multi-layer perceptrons (neural networks).",
+      "visualAid": {
+        "type": "scatter",
+        "points": [
+          {"x": 0, "y": 0, "class": 0},
+          {"x": 1, "y": 1, "class": 0},
+          {"x": 0, "y": 1, "class": 1},
+          {"x": 1, "y": 0, "class": 1}
+        ]
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Learning Rate Effects",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "Experiment with different learning rates $\\eta$ and observe convergence behavior.",
+      "latex": "w \\leftarrow w + \\eta(y - \\hat{y})x",
+      "interactive": {
+        "type": "slider",
+        "parameter": "learningRate",
+        "min": 0.001,
+        "max": 1.0,
+        "default": 0.1,
+        "observations": [
+          "Too small ($\\eta < 0.01$): Slow convergence, many epochs needed",
+          "Optimal ($\\eta \\approx 0.1$): Fast, stable convergence",
+          "Too large ($\\eta > 0.5$): Oscillation, may not converge"
+        ]
+      }
+    }
+  ],
+  "minigame": {
+    "id": "perceptron-trainer",
+    "title": "Perceptron Trainer",
+    "description": "Train a perceptron to classify 2D points. Adjust the decision boundary by modifying weights and watch the perceptron learn.",
+    "instructions": [
+      "Blue and red points represent two classes",
+      "The line is the decision boundary: $w_1x + w_2y + b = 0$",
+      "Click 'Auto-Train' to see the perceptron learning algorithm",
+      "Or manually adjust weights to find the optimal boundary"
+    ],
+    "controls": [
+      {
+        "id": "w1",
+        "label": "Weight 1 ($w_1$)",
+        "type": "slider",
+        "min": -2,
+        "max": 2,
+        "step": 0.1,
+        "default": 0.5
+      },
+      {
+        "id": "w2", 
+        "label": "Weight 2 ($w_2$)",
+        "type": "slider",
+        "min": -2,
+        "max": 2,
+        "step": 0.1,
+        "default": -0.3
+      },
+      {
+        "id": "bias",
+        "label": "Bias ($b$)",
+        "type": "slider",
+        "min": -2,
+        "max": 2,
+        "step": 0.1,
+        "default": 0.1
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import numpy as np\n\nclass Perceptron:\n    def __init__(self, learning_rate=0.1, n_iterations=1000):\n        self.lr = learning_rate\n        self.n_iter = n_iterations\n        self.weights = None\n        self.bias = None\n    \n    def fit(self, X, y):\n        n_samples, n_features = X.shape\n        \n        # Initialize weights and bias\n        self.weights = np.zeros(n_features)\n        self.bias = 0\n        \n        # Training loop\n        for _ in range(self.n_iter):\n            for idx, x_i in enumerate(X):\n                # Forward pass\n                linear_output = np.dot(x_i, self.weights) + self.bias\n                y_predicted = 1 if linear_output >= 0 else 0\n                \n                # Update weights if prediction is wrong\n                update = self.lr * (y[idx] - y_predicted)\n                self.weights += update * x_i\n                self.bias += update\n    \n    def predict(self, X):\n        linear_output = np.dot(X, self.weights) + self.bias\n        return np.where(linear_output >= 0, 1, 0)\n\n# Example usage\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])\ny = np.array([0, 0, 0, 1])  # AND gate\n\nperceptron = Perceptron(learning_rate=0.1, n_iterations=100)\nperceptron.fit(X, y)\npredictions = perceptron.predict(X)"
+  }
+}

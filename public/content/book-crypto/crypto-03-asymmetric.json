@@ -1,0 +1,376 @@
+{
+  "id": "crypto-03-asymmetric",
+  "bookId": "book-crypto",
+  "title": "Public Key Cryptography",
+  "category": "Intermediate",
+  "order": 3,
+  "estimatedTime": "60 min",
+  "theory": {
+    "overview": "Public key cryptography solved the key distribution problem that plagued symmetric encryption—how do two parties establish a shared secret over an insecure channel? In 1976, Diffie and Hellman introduced the concept; in 1977, Rivest, Shamir, and Adleman created RSA, the first practical implementation. The brilliant insight: use mathematically related key pairs—one public for encryption, one private for decryption. Anyone can encrypt with your public key, but only you can decrypt with your private key. RSA relies on the difficulty of factoring large numbers: multiplying two primes is easy, but finding those primes from their product is computationally infeasible when the numbers are hundreds of digits long.",
+    "sections": [
+      {
+        "title": "The Key Distribution Problem",
+        "content": "In symmetric cryptography, both parties need the same secret key. But how do you share that key securely? If you could communicate securely, you wouldn't need encryption in the first place! This chicken-and-egg problem limited cryptography to situations where keys could be physically exchanged. Public key cryptography breaks this deadlock by using asymmetric keys: encryption and decryption use different keys. You publish your public key widely while keeping your private key secret. Anyone can send you encrypted messages, but only you can read them. This enables secure communication with strangers over the internet—fundamental to e-commerce, secure messaging, and modern digital life.",
+        "keyPoints": [
+          "Symmetric encryption requires pre-shared secret keys",
+          "Public key: encrypt with public key, decrypt with private key",
+          "Key pairs are mathematically related but computationally irreversible",
+          "Enables secure communication without prior key exchange"
+        ]
+      },
+      {
+        "title": "RSA Algorithm",
+        "content": "RSA works through elegant number theory. First, choose two large prime numbers p and q (typically 1024+ bits each). Compute n = p × q and φ(n) = (p-1)(q-1). Choose public exponent e (usually 65537) such that gcd(e, φ(n)) = 1. Compute private exponent d where d × e ≡ 1 mod φ(n). Public key is (e, n); private key is (d, n). To encrypt message m: c = m^e mod n. To decrypt ciphertext c: m = c^d mod n. The security relies on the RSA problem: given n, e, and c, finding m is as hard as factoring n. With sufficiently large primes (2048+ bits for n), this is computationally infeasible.",
+        "keyPoints": [
+          "Key generation: pick primes p, q; compute n=pq, φ(n)=(p-1)(q-1)",
+          "Public key: (e, n); Private key: (d, n)",
+          "Encryption: c = m^e mod n; Decryption: m = c^d mod n",
+          "Security based on difficulty of integer factorization"
+        ]
+      },
+      {
+        "title": "Modular Exponentiation",
+        "content": "Computing m^e mod n directly is impossible for large numbers (m^65537 has thousands of digits). Instead, we use modular exponentiation with the square-and-multiply algorithm. To compute a^b mod n: examine b's bits from left to right. Start with result = 1. For each bit: square the result (result = result^2 mod n). If the bit is 1, multiply by a (result = result × a mod n). This requires O(log b) operations instead of O(b). For b = 65537, this reduces ~65,000 multiplications to just 17 squarings and multiplications. Modular exponentiation makes RSA practical despite enormous exponent values.",
+        "keyPoints": [
+          "Square-and-multiply algorithm for efficient modular exponentiation",
+          "O(log exponent) operations instead of O(exponent)",
+          "Critical for making RSA computationally feasible",
+          "Implemented in hardware for performance"
+        ]
+      },
+      {
+        "title": "Security and Key Sizes",
+        "content": "RSA security depends entirely on key size. In 1999, a 512-bit RSA key was factored in 4 months. By 2020, 1024-bit keys are considered weak. Current recommendation: 2048-bit minimum for short-term security, 3072 or 4096 bits for long-term. Each doubling of key size roughly quadruples computation time while significantly increasing factoring difficulty. However, larger keys mean slower encryption/decryption—RSA is 100-1000× slower than AES. In practice, RSA is rarely used to encrypt actual messages. Instead, it encrypts a symmetric key, which then encrypts the data (hybrid encryption). This combines RSA's key distribution advantages with AES's speed.",
+        "keyPoints": [
+          "2048-bit RSA: minimum recommended key size (2024+)",
+          "4096-bit RSA: high security, slower performance",
+          "RSA is slow: used to encrypt symmetric keys, not data",
+          "Hybrid encryption: RSA for keys, AES for data"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "One-Way Function",
+        "description": "Easy to compute, hard to reverse. Multiplication vs factorization.",
+        "latex": "Given p, q: compute n = p × q (easy), Given n: find p, q (hard)"
+      },
+      {
+        "name": "RSA Encryption",
+        "description": "Raise message to public exponent, modulo n",
+        "latex": "c = m^e mod n"
+      },
+      {
+        "name": "RSA Decryption",
+        "description": "Raise ciphertext to private exponent, modulo n",
+        "latex": "m = c^d mod n"
+      },
+      {
+        "name": "Euler's Totient",
+        "description": "Count of integers less than n that are coprime to n",
+        "latex": "φ(n) = (p-1)(q-1) for n = p × q"
+      }
+    ],
+    "complexity": {
+      "keyGeneration": "O(log³ n) using Miller-Rabin primality test",
+      "encryption": "O(log e × log² n) ≈ O(log² n) for small e",
+      "decryption": "O(log d × log² n) - slower than encryption",
+      "factoring": "Best known: sub-exponential, making RSA secure"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Key Generation - Choose Primes",
+      "description": "Select two large prime numbers p and q. Keep them secret.",
+      "latex": "p = 61, q = 53 (small example for demonstration)",
+      "visualState": {
+        "p": 61,
+        "q": 53,
+        "primeTest": "Both pass primality test",
+        "bitLength": "1024 bits each (in practice)"
+      }
+    },
+    {
+      "step": 2,
+      "title": "Compute n and φ(n)",
+      "description": "Calculate n = p × q (modulus) and Euler's totient φ(n) = (p-1)(q-1).",
+      "latex": "n = p × q = 61 × 53 = 3233, φ(n) = (p-1)(q-1) = 60 × 52 = 3120",
+      "visualState": {
+        "n": 3233,
+        "phi": 3120,
+        "operation": "multiply"
+      }
+    },
+    {
+      "step": 3,
+      "title": "Choose Public Exponent e",
+      "description": "Select e such that 1 < e < φ(n) and gcd(e, φ(n)) = 1. Common choice: 65537.",
+      "latex": "e = 17, gcd(17, 3120) = 1 ✓",
+      "visualState": {
+        "e": 17,
+        "coprimeCheck": "gcd(17, 3120) = 1",
+        "valid": true
+      }
+    },
+    {
+      "step": 4,
+      "title": "Compute Private Exponent d",
+      "description": "Find d where d × e ≡ 1 mod φ(n). Use extended Euclidean algorithm.",
+      "latex": "d × 17 ≡ 1 mod 3120 → d = 2753",
+      "visualState": {
+        "d": 2753,
+        "verification": "(2753 × 17) mod 3120 = 1 ✓",
+        "algorithm": "Extended Euclidean"
+      }
+    },
+    {
+      "step": 5,
+      "title": "Public and Private Keys",
+      "description": "Package the keys. Public: (e, n), Private: (d, n).",
+      "latex": "Public: (17, 3233), Private: (2753, 3233)",
+      "visualState": {
+        "publicKey": "(e=17, n=3233)",
+        "privateKey": "(d=2753, n=3233)",
+        "pAndQ": "Discarded for security"
+      }
+    },
+    {
+      "step": 6,
+      "title": "Encryption",
+      "description": "Convert message to number m, compute c = m^e mod n.",
+      "latex": "m = 65 ('A'), c = 65^17 mod 3233 = 2790",
+      "visualState": {
+        "plaintext": "A",
+        "m": 65,
+        "ciphertext": 2790,
+        "operation": "modular_exponentiation"
+      }
+    },
+    {
+      "step": 7,
+      "title": "Decryption",
+      "description": "Recover message by computing m = c^d mod n.",
+      "latex": "m = 2790^2753 mod 3233 = 65 → 'A'",
+      "visualState": {
+        "ciphertext": 2790,
+        "d": 2753,
+        "computedM": 65,
+        "plaintext": "A",
+        "verified": true
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Small RSA Encryption",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "Using public key (e=3, n=33), encrypt message m=7.",
+      "latex": "c = 7^3 mod 33",
+      "hints": [
+        "Compute 7^3 = 343",
+        "Divide 343 by 33 to find remainder",
+        "343 ÷ 33 = 10 remainder 13"
+      ],
+      "solution": {
+        "answer": "13",
+        "explanation": "7^3 = 343, and 343 mod 33 = 343 - 33×10 = 343 - 330 = 13"
+      }
+    },
+    {
+      "id": "p2",
+      "title": "RSA Decryption",
+      "difficulty": "easy",
+      "type": "interactive",
+      "description": "With private key (d=7, n=33), decrypt ciphertext c=13.",
+      "latex": "m = 13^7 mod 33",
+      "hints": [
+        "Use square-and-multiply: 13^7 = 13^(4+2+1)",
+        "13^2 = 169 ≡ 169-5×33 = 169-165 = 4",
+        "13^4 = 4^2 = 16, then 13^7 = 16 × 4 × 13 = 832 ≡ 832-25×33 = 832-825 = 7"
+      ],
+      "solution": {
+        "answer": "7",
+        "explanation": "13^7 mod 33 = 7, which is the original message. Notice this reverses the encryption from the previous problem!"
+      }
+    },
+    {
+      "id": "p3",
+      "title": "Key Size Analysis",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why is RSA with 512-bit keys considered insecure today, while 2048-bit is standard?",
+      "latex": "Factoring difficulty grows sub-exponentially with key size",
+      "hints": [
+        "512-bit RSA was factored in 1999",
+        "General Number Field Sieve algorithm",
+        "Each additional bit provides diminishing returns"
+      ],
+      "solution": {
+        "answer": "512-bit keys can be factored with modern computers; 2048-bit requires resources beyond nation-state capabilities",
+        "explanation": "The General Number Field Sieve has sub-exponential complexity. While 512-bit factoring is routine today, 2048-bit requires ~2^60 more computation—beyond any known computing capability."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Hybrid Encryption",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why do we use RSA to encrypt an AES key rather than encrypting the message directly?",
+      "latex": "Speed: RSA << AES, Security tradeoff with key size",
+      "hints": [
+        "RSA is 100-1000x slower than AES",
+        "AES can process streaming data efficiently",
+        "RSA has maximum message size limits"
+      ],
+      "solution": {
+        "answer": "RSA is too slow for large data; we use it to encrypt a random AES key, then use fast AES for the actual data",
+        "explanation": "This combines the best of both: RSA's key distribution with AES's speed. The AES key is called a session key and is unique per communication."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Euler's Totient",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "For n = 35 (which is 5 × 7), what is φ(n)?",
+      "latex": "φ(n) = (p-1)(q-1) for n = p × q",
+      "hints": [
+        "Factor 35 into primes: 35 = 5 × 7",
+        "φ(35) = (5-1) × (7-1)",
+        "φ(35) = 4 × 6"
+      ],
+      "solution": {
+        "answer": "24",
+        "explanation": "φ(35) = (5-1)(7-1) = 4 × 6 = 24. There are 24 integers from 1 to 34 that are coprime to 35."
+      }
+    },
+    {
+      "id": "p6",
+      "title": "Mathematical Relationship",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why does RSA decryption work? Prove that (m^e)^d ≡ m mod n when d × e ≡ 1 mod φ(n).",
+      "latex": "c^d = (m^e)^d = m^(ed) = m^(1+kφ(n)) ≡ m mod n",
+      "hints": [
+        "By Euler's theorem: m^φ(n) ≡ 1 mod n",
+        "ed = 1 + kφ(n) for some integer k",
+        "m^(1+kφ(n)) = m × (m^φ(n))^k ≡ m × 1^k = m"
+      ],
+      "solution": {
+        "answer": "Euler's theorem guarantees m^φ(n) ≡ 1, so raising to power 1+kφ(n) returns m",
+        "explanation": "This is the mathematical foundation: m^ed = m^(1+kφ(n)) = m × (m^φ(n))^k ≡ m × 1 = m (mod n). The structure of the exponents ensures encryption and decryption are inverses."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "rsa-key-builder",
+    "title": "RSA Key Architect",
+    "description": "Build RSA keys step by step! Select primes, compute n and φ(n), choose valid public exponents, and derive private keys. Learn the complete RSA key generation process through interactive challenges.",
+    "type": "interactive-builder",
+    "instructions": [
+      "Complete each step of RSA key generation in order",
+      "Choose primes that pass validation checks",
+      "Find public exponents coprime to φ(n)",
+      "Use extended Euclidean algorithm to find d",
+      "Test your keys by encrypting and decrypting messages"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Prime Selection",
+        "description": "Learn to select valid prime numbers",
+        "task": "select_primes",
+        "targetPrimes": [61, 53],
+        "hints": true
+      },
+      {
+        "level": 2,
+        "name": "Modulus Calculation",
+        "description": "Compute n and φ(n)",
+        "task": "compute_values",
+        "inputs": {"p": 61, "q": 53},
+        "target": {"n": 3233, "phi": 3120}
+      },
+      {
+        "level": 3,
+        "name": "Exponent Selection",
+        "description": "Choose valid public exponent e",
+        "task": "select_e",
+        "phi": 3120,
+        "validEs": [3, 5, 7, 17, 257, 65537],
+        "defaultE": 17
+      },
+      {
+        "level": 4,
+        "name": "Find Private Key",
+        "description": "Compute d using extended Euclidean algorithm",
+        "task": "compute_d",
+        "e": 17,
+        "phi": 3120,
+        "targetD": 2753
+      },
+      {
+        "level": 5,
+        "name": "Full Key Generation",
+        "description": "Complete the entire RSA key generation process",
+        "task": "complete_generation",
+        "difficulty": "hard"
+      }
+    ],
+    "scoring": {
+      "correctStep": 10,
+      "noHintsBonus": 25,
+      "speedBonus": "time_remaining × 0.5",
+      "levelCompletion": 100
+    }
+  },
+  "visualizer": {
+    "type": "rsa-flow",
+    "title": "RSA Encryption Flow",
+    "description": "Visualize the complete RSA process: key generation, encryption with public key, and decryption with private key",
+    "features": [
+      "Step-by-step key generation visualization",
+      "Modular exponentiation animation",
+      "Number transformation display",
+      "Key component highlighting"
+    ],
+    "modes": [
+      {
+        "id": "keygen",
+        "name": "Key Generation",
+        "description": "Watch primes transform into public and private keys"
+      },
+      {
+        "id": "encrypt",
+        "name": "Encryption",
+        "description": "See message transform through modular exponentiation"
+      },
+      {
+        "id": "decrypt",
+        "name": "Decryption",
+        "description": "Observe ciphertext recover the original message"
+      },
+      {
+        "id": "full",
+        "name": "Complete Flow",
+        "description": "End-to-end encryption and decryption process"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "RSA Key Generation and Basic Encryption",
+        "code": "from Crypto.PublicKey import RSA\nfrom Crypto.Cipher import PKCS1_OAEP\nimport binascii\n\n# Generate RSA key pair\nkey = RSA.generate(2048)\n\n# Extract components\nprivate_key = key.export_key()\npublic_key = key.publickey().export_key()\n\nprint(\"Private key length:\", len(private_key), \"bytes\")\nprint(\"Public key length:\", len(public_key), \"bytes\")\n\n# Encrypt using public key\ncipher = PKCS1_OAEP.new(key.publickey())\nmessage = b\"Secret message\"\nencrypted = cipher.encrypt(message)\nprint(f\"\\nEncrypted: {binascii.hexlify(encrypted)}\")\n\n# Decrypt using private key\ndecipher = PKCS1_OAEP.new(key)\ndecrypted = decipher.decrypt(encrypted)\nprint(f\"Decrypted: {decrypted}\")"
+      },
+      {
+        "title": "Hybrid Encryption (RSA + AES)",
+        "code": "from Crypto.PublicKey import RSA\nfrom Crypto.Cipher import AES, PKCS1_OAEP\nfrom Crypto.Util.Padding import pad, unpad\nfrom Crypto.Random import get_random_bytes\n\n# Generate RSA key\nrsa_key = RSA.generate(2048)\n\n# Large data to encrypt\ndata = b\"This is a very long message that needs encryption...\" * 100\n\n# Generate random AES key\naes_key = get_random_bytes(32)\n\n# Encrypt AES key with RSA\nrsa_cipher = PKCS1_OAEP.new(rsa_key.publickey())\nencrypted_aes_key = rsa_cipher.encrypt(aes_key)\n\n# Encrypt data with AES\naes_cipher = AES.new(aes_key, AES.MODE_CBC)\nciphertext = aes_cipher.encrypt(pad(data, AES.block_size))\n\nprint(f\"Encrypted AES key: {len(encrypted_aes_key)} bytes\")\nprint(f\"Encrypted data: {len(ciphertext)} bytes\")\n\n# Decryption process\naes_key_decrypted = PKCS1_OAEP.new(rsa_key).decrypt(encrypted_aes_key)\ndecipher = AES.new(aes_key_decrypted, AES.MODE_CBC, iv=aes_cipher.iv)\ndecrypted = unpad(decipher.decrypt(ciphertext), AES.block_size)\nprint(f\"Verified: {decrypted == data}\")"
+      }
+    ]
+  }
+}

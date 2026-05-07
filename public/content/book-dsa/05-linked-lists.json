@@ -1,0 +1,459 @@
+{
+  "id": "05-linked-lists",
+  "bookId": "book-dsa",
+  "title": "Linked Lists",
+  "category": "Linear Structures",
+  "order": 5,
+  "estimatedTime": "55 min",
+  "theory": {
+    "overview": "Linked lists are fundamental data structures consisting of nodes, each containing data and a reference (pointer) to the next node. Unlike arrays, linked lists don't require contiguous memory allocation—nodes can be scattered anywhere in memory, connected by pointers. This flexibility enables efficient insertion and deletion at any position ($O(1)$ if you have the pointer to the node), but comes with trade-offs: random access is $O(n)$ (must traverse from head), and memory overhead is higher due to pointer storage. Understanding linked lists is crucial for implementing other structures like stacks, queues, and graphs, and they appear frequently in interview questions involving operations on sequences.",
+    "sections": [
+      {
+        "title": "Singly Linked List Structure",
+        "content": "A singly linked list consists of nodes with two fields: data and next (pointer to next node). The list is accessed via a head pointer. The last node's next points to null. Basic operations: insert at head ($O(1)$), insert after given node ($O(1)$), delete from head ($O(1)$), delete after given node ($O(1)$), search ($O(n)$). The key insight: with a pointer to a node, you can insert/delete after it in constant time, but you can't easily insert before without a pointer to the previous node.",
+        "keyPoints": [
+          "Node structure: { data: value, next: Node | null }",
+          "Insert at head: newNode.next = head; head = newNode",
+          "Insert after: newNode.next = node.next; node.next = newNode",
+          "Delete after: node.next = node.next.next"
+        ]
+      },
+      {
+        "title": "Doubly Linked List",
+        "content": "Doubly linked lists have nodes with three fields: data, next, and prev (pointer to previous node). This enables bidirectional traversal and $O(1)$ deletion of a node when you have its pointer (no need for previous pointer). Trade-off: more memory (extra pointer per node) and slightly more complex insertion/deletion (must update two pointers). Used in implementing LRU cache, undo/redo functionality, and when bidirectional traversal is needed.",
+        "keyPoints": [
+          "Memory per node: Singly (2 fields), Doubly (3 fields)",
+          "Delete node: Singly O(n) (need previous), Doubly O(1) (have prev)",
+          "Reverse traversal: Singly O(n), Doubly O(1)",
+          "Insert complexity: Both O(1) but doubly needs more pointer updates"
+        ]
+      },
+      {
+        "title": "Circular Linked List",
+        "content": "In a circular linked list, the last node's next points back to the head instead of null. This enables continuous traversal—useful for round-robin scheduling, implementing queues with circular buffers, and problems where you need to cycle through elements. Circular singly linked lists require care to detect when you've traversed the entire list (check if current.next == head). Circular doubly linked lists are common (DLL with head.prev = tail and tail.next = head).",
+        "keyPoints": [
+          "Round-robin scheduling",
+          "Implementing queues",
+          "Game player turns",
+          "Music playlist cycling"
+        ]
+      },
+      {
+        "title": "Linked List vs Array",
+        "content": "Arrays excel at random access ($O(1)$) and have excellent cache locality (contiguous memory). They're memory-efficient (no pointers). Linked lists excel at insertion/deletion ($O(1)$ with pointer) and don't require resizing. They use memory efficiently for dynamic growth (allocate nodes as needed). Arrays suffer from $O(n)$ insertion/deletion (shifting required) and fixed capacity (without resizing). Linked lists suffer from $O(n)$ access, poor cache locality, and pointer overhead. Choose based on operation patterns: arrays for access-heavy, linked lists for modification-heavy.",
+        "keyPoints": [
+          "Access by index: Array O(1), Linked O(n)",
+          "Insert at beginning: Array O(n), Linked O(1)",
+          "Insert at end: Array O(1) amortized, Linked O(1) with tail",
+          "Insert at position: Array O(n), Linked O(1) with pointer",
+          "Delete at beginning: Array O(n), Linked O(1)",
+          "Delete at position: Array O(n), Linked O(1) with pointer",
+          "Memory overhead: Array None, Linked Pointer per node",
+          "Cache locality: Array Excellent, Linked Poor"
+        ]
+      },
+      {
+        "title": "Common Linked List Techniques",
+        "content": "Fast and slow pointers (tortoise and hare): one pointer moves 1 step, another moves 2 steps. Used to find middle of list ($O(n)$), detect cycles ($O(n)$), find cycle start, find $k$-th from end. Dummy head technique: create a dummy node before head to simplify edge cases (deleting head, inserting before head). Runner technique: advance one pointer $k$ steps, then move both together to find $k$-th from end. Reversal: iterative (three pointers) or recursive (reverse rest, link current to previous).",
+        "techniques": [
+          { "name": "Fast/Slow Pointers", "use": "Middle, cycle detection, k-th from end", "complexity": "$O(n)$ time, $O(1)$ space" },
+          { "name": "Dummy Head", "use": "Simplify edge cases in deletion/insertion", "benefit": "Uniform handling of head operations" },
+          { "name": "Runner", "use": "Find k-th from end", "method": "Advance runner k steps, then move both" },
+          { "name": "Two Pass", "use": "Length calculation then traversal", "simple": "Easy to implement" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Pointer Manipulation",
+        "description": "Core linked list operations involve updating next pointers. Always draw diagrams to verify pointer updates. Common bug: losing reference to remaining list when reassigning.",
+        "tip": "Save next before reassigning: next = node.next; node.next = newNode; newNode.next = next"
+      },
+      {
+        "name": "Sentinel/Dummy Node",
+        "description": "Dummy node before head eliminates special cases for head operations. All operations become uniform: work on dummy.next instead of head.",
+        "benefit": "Simpler code, fewer edge cases to check"
+      },
+      {
+        "name": "Memory Management",
+        "description": "In languages without GC (C), must free deleted nodes to prevent leaks. In managed languages, dereference nodes so GC can reclaim. Watch for cycles preventing GC.",
+        "critical": "Always update pointers when deleting to avoid memory leaks"
+      },
+      {
+        "name": "Cycle Detection",
+        "description": "Floyd's cycle detection: fast pointer moves 2 steps, slow moves 1. If they meet, cycle exists. To find start: reset one to head, move both at 1 step until they meet.",
+        "proof": "Distance from head to cycle start = distance from meeting point to cycle start mod cycle length"
+      }
+    ],
+    "complexity": {
+      "access": "$O(n)$ - must traverse from head",
+      "search": "$O(n)$ - linear scan",
+      "insertAtHead": "$O(1)$",
+      "insertAtEnd": "$O(1)$ with tail pointer, $O(n)$ without",
+      "insertAfter": "$O(1)$",
+      "deleteFromHead": "$O(1)$",
+      "deleteAfter": "$O(1)$",
+      "space": "$O(n)$ - n nodes with data + pointers"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Create Node",
+      "description": "Allocate new node with data. Set next to null initially.",
+      "code": "Node newNode = new Node(data); newNode.next = null;",
+      "visualState": { "newNode": { "data": 42, "next": null } }
+    },
+    {
+      "step": 2,
+      "title": "Link to List",
+      "description": "Set newNode.next to current head, then update head to newNode.",
+      "code": "newNode.next = head; head = newNode;",
+      "visualState": { "head": "newNode", "newNode.next": "old head" }
+    },
+    {
+      "step": 3,
+      "title": "Traverse",
+      "description": "Start from head, follow next pointers until null.",
+      "code": "Node current = head; while (current != null) current = current.next;",
+      "visualState": { "current": "head", "path": "head → node2 → node3 → null" }
+    },
+    {
+      "step": 4,
+      "title": "Delete Node",
+      "description": "To delete after given node: set node.next = node.next.next.",
+      "code": "node.next = node.next.next;",
+      "visualState": { "deleted": "node.next", "newNext": "node.next.next" }
+    },
+    {
+      "step": 5,
+      "title": "Memory Cleanup",
+      "description": "In languages without GC, free deleted node. In GC languages, just dereference.",
+      "code": "Node deleted = node.next; node.next = deleted.next; deleted = null;",
+      "visualState": { "freed": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Reverse Linked List",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Reverse a singly linked list.",
+      "example": "1→2→3→4 becomes 4→3→2→1",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Iterative: three pointers (prev, curr, next). For each node, reverse its next to point to prev, advance all three. Return prev. Recursive: reverse rest, link current to previous.",
+      "hints": ["Need three pointers: prev, current, next", "Reverse link: current.next = prev", "Advance all pointers after reversal"]
+    },
+    {
+      "id": "p2",
+      "title": "Merge Two Sorted Lists",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Merge two sorted linked lists into one sorted list.",
+      "example": "1→3→5 and 2→4→6 merge to 1→2→3→4→5→6",
+      "complexity": { "time": "$O(n + m)$", "space": "$O(1)$" },
+      "solution": "Dummy head technique. Compare heads of both lists, append smaller to result, advance that list. When one list exhausted, append remaining of other.",
+      "hints": ["Use dummy head to simplify", "Compare heads, take smaller", "Append remaining when one list ends"]
+    },
+    {
+      "id": "p3",
+      "title": "Linked List Cycle",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Detect if a linked list has a cycle.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Floyd's cycle detection. Fast pointer (2 steps), slow pointer (1 step). If they meet, cycle exists. If fast reaches null, no cycle.",
+      "hints": ["Two pointers: fast (2 steps), slow (1 step)", "If they meet, cycle exists", "If fast reaches null, no cycle"]
+    },
+    {
+      "id": "p4",
+      "title": "Middle of Linked List",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find the middle node of a linked list. If even length, return second middle.",
+      "example": "1→2→3→4→5 returns 3. 1→2→3→4 returns 3",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Fast/slow pointers. Fast moves 2 steps, slow moves 1. When fast reaches end, slow is at middle.",
+      "hints": ["Fast pointer 2 steps, slow 1 step", "When fast at end, slow at middle", "No need to count length"]
+    },
+    {
+      "id": "p5",
+      "title": "Remove Nth Node From End",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Remove the nth node from the end of linked list.",
+      "example": "1→2→3→4→5, n=2 removes 4, result: 1→2→3→5",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Two passes: find length, then traverse to length-n. Or one pass: advance runner n steps, then move both until runner at end. Delete node after slow.",
+      "hints": ["Runner technique: advance n steps first", "Then move both until runner at end", "Delete node after slow pointer"]
+    },
+    {
+      "id": "p6",
+      "title": "Reorder List",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Reorder list: L0→Ln→L1→Ln-1→L2→Ln-2...",
+      "example": "1→2→3→4 becomes 1→4→2→3",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Find middle, reverse second half, then merge two halves alternately.",
+      "hints": ["Find middle with fast/slow", "Reverse second half", "Merge alternately: first from first half, then from second"]
+    },
+    {
+      "id": "p7",
+      "title": "Palindrome Linked List",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Check if linked list is a palindrome.",
+      "example": "1→2→2→1 is palindrome",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Find middle with fast/slow. Reverse second half. Compare first half with reversed second half. Restore list if needed (reverse second half again).",
+      "hints": ["Find middle, reverse second half", "Compare first half with reversed second half", "Can restore by reversing again"]
+    },
+    {
+      "id": "p8",
+      "title": "Intersection of Two Linked Lists",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Find the node where two linked lists intersect.",
+      "complexity": { "time": "$O(n + m)$", "space": "$O(1)$" },
+      "solution": "Get lengths of both lists. Advance longer list by difference. Then move both pointers together until they meet (intersection) or both reach null (no intersection).",
+      "hints": ["Calculate lengths of both lists", "Advance longer list by difference", "Move both together until they match"]
+    },
+    {
+      "id": "p9",
+      "title": "Sort List",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Sort linked list using merge sort.",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(\\log n)$ for recursion stack" },
+      "solution": "Find middle with slow/fast. Recursively sort both halves. Merge sorted halves. Base case: empty or single node.",
+      "hints": ["Merge sort: find middle, split", "Recursively sort both halves", "Merge sorted halves"]
+    },
+    {
+      "id": "p10",
+      "title": "Rotate List",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rotate list to the right by k places.",
+      "example": "1→2→3→4→5, k=2 becomes 4→5→1→2→3",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Find length, connect tail to head (make circular). Find new tail at position (length - k % length). New head is new tail.next. Break circular link.",
+      "hints": ["Connect tail to head (circular)", "Find new tail: length - k positions from head", "New head = new tail.next, break circular link"]
+    },
+    {
+      "id": "p11",
+      "title": "Add Two Numbers",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Add two numbers represented as reversed linked lists (digits in nodes).",
+      "example": "2→4→3 (342) + 5→6→4 (465) = 7→0→8 (807)",
+      "complexity": { "time": "$O(max(n,m))$", "space": "$O(max(n,m))$" },
+      "solution": "Traverse both lists simultaneously, add digits with carry. Create new node for sum digit. Continue until both lists exhausted and carry is 0.",
+      "hints": ["Traverse both lists together", "Add digits with carry from previous", "Create new node for each digit, handle carry at end"]
+    },
+    {
+      "id": "p12",
+      "title": "Copy List with Random Pointer",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Copy a linked list where each node has a random pointer to any node or null.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "First pass: create copy nodes, insert after original. Second pass: set copy.random = original.random.next. Third pass: separate original and copy lists.",
+      "hints": ["Insert copy after original: A→A'→B→B'→C→C'", "Set copy.random = original.random.next", "Separate lists by alternating links"]
+    },
+    {
+      "id": "p13",
+      "title": "Remove Duplicates from Sorted List",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Remove duplicates from sorted linked list.",
+      "example": "1→1→2→3→3 becomes 1→2→3",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Traverse list. If current.val == current.next.val, set current.next = current.next.next (skip duplicate). Else advance current.",
+      "hints": ["Sorted means duplicates are consecutive", "Skip duplicates: current.next = current.next.next", "Only advance when no duplicate"]
+    },
+    {
+      "id": "p14",
+      "title": "Remove All Duplicates",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Remove all nodes with duplicate values from sorted list (keep only distinct).",
+      "example": "1→2→2→3→3→4 becomes 1→4",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Dummy head. Compare current.next with current.next.next. If duplicate, skip all duplicates (advance while same value). Else advance current.",
+      "hints": ["Use dummy head to handle head deletion", "Skip all consecutive duplicates", "Only keep first of each unique value"]
+    },
+    {
+      "id": "p15",
+      "title": "Swap Nodes in Pairs",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Swap every two adjacent nodes in linked list.",
+      "example": "1→2→3→4 becomes 2→1→4→3",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Iterative with dummy head. For each pair: first.next = second.next, second.next = first, prev.next = second. Move pointers appropriately.",
+      "hints": ["Use dummy head", "Swap: first.next = second.next, second.next = first", "Update previous pointer to link swapped pair"]
+    },
+    {
+      "id": "p16",
+      "title": "Reverse Nodes in k-Group",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Reverse nodes of linked list in groups of k. If fewer than k remain, leave as is.",
+      "example": "1→2→3→4→5, k=2 becomes 2→1→4→3→5",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Count k nodes. If k nodes exist, reverse them. Recursively process remaining list. Link reversed group to result of recursion.",
+      "hints": ["Check if k nodes exist before reversing", "Reverse k nodes, link to rest", "Recursive or iterative approach"]
+    },
+    {
+      "id": "p17",
+      "title": "Detect Cycle Start",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find the node where cycle begins in linked list.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Detect cycle with fast/slow. When they meet, reset one to head. Move both at 1 step. Where they meet is cycle start.",
+      "hints": ["First detect cycle with fast/slow", "When they meet, reset one to head", "Move both at 1 step - meeting point is start"]
+    },
+    {
+      "id": "p18",
+      "title": "Flatten Multilevel Doubly Linked List",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Flatten a doubly linked list where each node has child pointer (can be null or another list).",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Traverse list. When child exists, save next, flatten child recursively, link current to child head, child tail to saved next.",
+      "hints": ["DFS or iterative with stack", "When child found, flatten it first", "Link: current→child→...→childTail→next"]
+    },
+    {
+      "id": "p19",
+      "title": "LRU Cache with Linked List",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Implement LRU cache using doubly linked list + hash map.",
+      "complexity": { "time": "$O(1)$ get/put", "space": "$O(capacity)$" },
+      "solution": "Hash map maps key to node. DLL maintains access order (MRU at head, LRU at tail). On get: move to head. On put: update or add to head, evict LRU if over capacity.",
+      "hints": ["Hash map for O(1) lookup", "DLL for O(1) move/delete", "MRU at head, LRU at tail"]
+    },
+    {
+      "id": "p20",
+      "title": "Add Two Numbers II",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Add two numbers represented as linked lists (not reversed).",
+      "example": "7→2→4→3 (7243) + 5→6→4 (564) = 7→8→0→7 (7807)",
+      "complexity": { "time": "$O(max(n,m))$", "space": "$O(max(n,m))$" },
+      "solution": "Reverse both lists, add, reverse result. Or use stacks: push all digits, pop and add with carry, build result.",
+      "hints": ["Reverse lists first, then add", "Or use stacks to reverse order", "Reverse result at end"]
+    },
+    {
+      "id": "p21",
+      "title": "Odd Even Linked List",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Group all odd-indexed nodes together followed by even-indexed nodes.",
+      "example": "1→2→3→4→5 becomes 1→3→5→2→4",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Separate into odd and even lists. Traverse original, append to odd or even based on index. Link odd tail to even head.",
+      "hints": ["Two pointers: oddHead, evenHead", "Traverse, separate based on index", "Link odd tail to even head"]
+    },
+    {
+      "id": "p22",
+      "title": "Split Linked List in Parts",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Split linked list into k consecutive parts with尽可能 equal size.",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Calculate base size = n/k, extra = n % k. First 'extra' parts have size base+1, rest have size base. Traverse and split accordingly.",
+      "hints": ["Base size = n/k, extra = n % k", "First 'extra' parts get one extra node", "Traverse and split at calculated sizes"]
+    },
+    {
+      "id": "p23",
+      "title": "Design Linked List",
+      "difficulty": "easy",
+      "type": "implementation",
+      "description": "Design singly linked list with get, addAtHead, addAtTail, addAtIndex, deleteAtIndex.",
+      "complexity": { "get": "$O(index)$", "addAtHead": "$O(1)$", "addAtTail": "$O(n)$", "deleteAtIndex": "$O(index)$" },
+      "solution": "Maintain head and size. For index operations, traverse to position. Handle edge cases (empty list, invalid index).",
+      "hints": ["Maintain size for validation", "Traverse to index for indexed operations", "Handle head updates for index 0"]
+    },
+    {
+      "id": "p24",
+      "title": "Next Greater Node Value",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "For each node, find next node with greater value. Store in array.",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Reverse list. Use stack to track nodes. For each node, pop while stack top's value ≤ current. Result for popped nodes is current. Push current.",
+      "hints": ["Reverse list to process from right to left", "Use monotonic decreasing stack", "When popping, that node's answer is current"]
+    },
+    {
+      "id": "p25",
+      "title": "Insertion Sort List",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Sort linked list using insertion sort.",
+      "complexity": { "time": "$O(n^2)$", "space": "$O(1)$" },
+      "solution": "Maintain sorted portion (initially head). For each unsorted node, find its position in sorted portion, insert. Continue until all sorted.",
+      "hints": ["Sorted portion grows from left", "For each unsorted node, find position in sorted", "Insert and continue"]
+    }
+  ],
+  "minigame": {
+    "id": "linked-list-builder",
+    "title": "Linked List Constructor",
+    "description": "Build and manipulate linked lists through interactive challenges. Visualize pointer operations in real-time.",
+    "type": "interactive",
+    "challenges": [
+      {
+        "name": "Build List",
+        "task": "Create list 1→2→3→4",
+        "operations": ["insert 1", "insert 2", "insert 3", "insert 4"]
+      },
+      {
+        "name": "Reverse",
+        "task": "Reverse 1→2→3 to 3→2→1",
+        "operations": ["reverse"]
+      },
+      {
+        "name": "Delete",
+        "task": "Delete node with value 2 from 1→2→3",
+        "operations": ["delete 2"]
+      }
+    ],
+    "visualization": {
+      "showPointers": true,
+      "showMemoryAddresses": true,
+      "animateOperations": true
+    }
+  },
+  "visualizer": {
+    "type": "linked-list-operations",
+    "title": "Linked List Operations Visualizer",
+    "description": "Visualize pointer operations, insertion, deletion, and traversal step by step.",
+    "operations": ["insert", "delete", "reverse", "traverse", "detect-cycle"],
+    "features": [
+      "Node visualization with data and pointer",
+      "Pointer movement animation",
+      "Memory address display",
+      "Step-by-step explanation"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Node Definition",
+        "code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next"
+      },
+      {
+        "title": "Reverse Iterative",
+        "code": "def reverse_list(head):\n    prev = None\n    curr = head\n    while curr:\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    return prev  # O(n) time, O(1) space"
+      },
+      {
+        "title": "Fast/Slow Middle",
+        "code": "def find_middle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    return slow  # O(n) time, O(1) space"
+      }
+    ]
+  }
+}

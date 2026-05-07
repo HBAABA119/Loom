@@ -1,0 +1,86 @@
+{
+  "id": "engine-13-io",
+  "bookId": "book-engine",
+  "title": "I/O Systems & Event Loops",
+  "category": "Advanced",
+  "order": 13,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "I/O systems handle communication between programs and the outside world. Event loops enable efficient handling of many concurrent I/O operations without blocking. Understanding I/O models (blocking, non-blocking, asynchronous) is crucial for writing scalable servers and responsive applications.",
+    "sections": [
+      {
+        "title": "Blocking vs Non-Blocking I/O",
+        "content": "Blocking I/O waits for the operation to complete before returning. Non-blocking I/O returns immediately, indicating whether the operation completed or would block.",
+        "keyPoints": [
+          "Blocking: thread waits for I/O",
+          "Non-blocking: immediate return",
+          "Async: callbacks when I/O completes"
+        ]
+      },
+      {
+        "title": "Event Loops",
+        "content": "An event loop continuously checks for I/O events and invokes callbacks when events occur. This enables a single thread to handle thousands of concurrent connections efficiently.",
+        "examples": [
+          { "code": "Node.js event loop", "explanation": "Single thread handles many connections via callbacks" }
+        ]
+      },
+      {
+        "title": "select vs epoll vs kqueue",
+        "content": "Different OS APIs for monitoring multiple file descriptors. select() has O(n) overhead. epoll (Linux) and kqueue (BSD) use efficient data structures for O(1) operations."
+      }
+    ],
+    "keyConcepts": [
+      { "name": "File Descriptor", "description": "OS handle for I/O resource" },
+      { "name": "Callback", "description": "Function invoked when I/O completes" },
+      { "name": "Reactor Pattern", "description": "Event-driven architecture for I/O" }
+    ]
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "File Descriptors",
+      "content": "Everything is a file in Unix. File descriptors are integers representing open files, sockets, or pipes. Operations like read(), write(), close() work on all types."
+    },
+    {
+      "number": 2,
+      "title": "The select() Loop",
+      "content": "Build a set of file descriptors to monitor. select() blocks until any is ready. Iterate through descriptors to find which ones need attention and process them."
+    },
+    {
+      "number": 3,
+      "title": "epoll & Scalability",
+      "content": "epoll (Linux) scales better than select() for many connections. It uses a kernel-side data structure and notifies only ready descriptors, avoiding O(n) scans."
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": 1,
+      "title": "Event Loop Order",
+      "difficulty": "Medium",
+      "description": "In an event loop, if fd1 and fd2 are both ready, which is processed first?",
+      "solution": "Depends on implementation. Typically the one with lower fd number or the one that was registered first. Order shouldn't matter for correctness."
+    },
+    {
+      "id": 2,
+      "title": "C10K Problem",
+      "difficulty": "Hard",
+      "description": "Why can't thread-per-connection handle 10,000 concurrent connections?",
+      "solution": "Thread stacks consume memory (~8MB each = 80GB). Context switching overhead becomes significant. Thread creation/destruction is expensive."
+    }
+  ],
+  "minigame": {
+    "id": "event-loop",
+    "title": "Event Loop Simulator",
+    "type": "interactive",
+    "description": "Handle I/O events efficiently in an event-driven system"
+  },
+  "visualizer": {
+    "id": "io-models",
+    "title": "I/O Models Comparison",
+    "type": "interactive"
+  },
+  "codeExample": {
+    "language": "c",
+    "code": "// Simple epoll-based event loop\nvoid event_loop(int listen_fd) {\n    int epoll_fd = epoll_create1(0);\n    \n    struct epoll_event ev, events[MAX_EVENTS];\n    ev.events = EPOLLIN;\n    ev.data.fd = listen_fd;\n    epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_fd, &ev);\n    \n    while (1) {\n        // Wait for events (blocking, but efficient)\n        int nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);\n        \n        for (int i = 0; i < nfds; i++) {\n            if (events[i].data.fd == listen_fd) {\n                // New connection\n                int conn_fd = accept(listen_fd, NULL, NULL);\n                set_nonblocking(conn_fd);\n                \n                ev.events = EPOLLIN | EPOLLET;  // Edge-triggered\n                ev.data.fd = conn_fd;\n                epoll_ctl(epoll_fd, EPOLL_CTL_ADD, conn_fd, &ev);\n            } else {\n                // Existing connection has data\n                char buf[1024];\n                int n = read(events[i].data.fd, buf, sizeof(buf));\n                \n                if (n > 0) {\n                    // Process and respond\n                    process_request(buf, n);\n                    write(events[i].data.fd, response, response_len);\n                } else if (n == 0 || (n < 0 && errno != EAGAIN)) {\n                    // Connection closed or error\n                    close(events[i].data.fd);\n                }\n            }\n        }\n    }\n}"
+  }
+}

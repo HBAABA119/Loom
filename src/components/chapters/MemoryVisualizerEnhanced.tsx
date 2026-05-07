@@ -28,17 +28,23 @@ const generateSteps = (): Step[] => {
   ];
 };
 
-export default function MemoryVisualizerEnhanced() {
+function MemoryVisualizerEnhanced() {
   const { currentStep: stepIndex, totalSteps, isPlaying, playbackSpeed, togglePlay, pause, setStep, nextStep, prevStep, setTotalSteps, setPlaybackSpeed } = useTimeline();
-  const { setActiveLines } = useCodeHighlight();
-  const [currentStep, setCurrentStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => { setTotalSteps(generateSteps().length); }, [setTotalSteps]);
   useEffect(() => { setCurrentStep(stepIndex); }, [stepIndex]);
   const steps = generateSteps();
   const step = steps[currentStep] || steps[0];
-  useEffect(() => { if (step?.codeLines) setActiveLines(step.codeLines); }, [step]);
-  useEffect(() => { let interval: NodeJS.Timeout; if (isPlaying && currentStep < steps.length - 1) { interval = setInterval(() => nextStep(), 2500 / playbackSpeed); } else if (currentStep >= steps.length - 1 && isPlaying) pause(); return () => clearInterval(interval); }, [isPlaying, currentStep, steps.length, playbackSpeed, nextStep, pause]);
+    useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && currentStep < steps.length - 1) {
+      interval = setInterval(() => nextStep(), 2500 / playbackSpeed);
+    } else if (currentStep >= steps.length - 1 && isPlaying) {
+      pause();
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, currentStep, steps.length, playbackSpeed, nextStep, pause]);
   const handleReset = useCallback(() => { pause(); setStep(0); }, [pause, setStep]);
 
   const getCellColor = (cell: Cell) => {
@@ -89,3 +95,5 @@ export default function MemoryVisualizerEnhanced() {
     </div>
   );
 }
+
+export default MemoryVisualizerEnhanced;

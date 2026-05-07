@@ -1,0 +1,180 @@
+{
+  "id": "07-shor-algorithm",
+  "bookId": "book-quantum",
+  "title": "Shor's Factoring Algorithm",
+  "category": "Algorithms",
+  "order": 7,
+  "estimatedTime": "80 min",
+  "theory": {
+    "overview": "Shor's algorithm (1994) provides an exponential speedup for integer factorization, threatening RSA encryption. While the best classical algorithm (General Number Field Sieve) requires sub-exponential time, Shor's algorithm runs in polynomial time O((log N)³). The algorithm reduces factoring to order-finding (period-finding) using modular exponentiation, then solves period-finding using the Quantum Fourier Transform (QFT). A quantum computer with ~4000 logical qubits could break RSA-2048. This sparked massive interest in quantum computing and post-quantum cryptography.",
+    "sections": [
+      {
+        "title": "From Factoring to Period Finding",
+        "content": "Shor's key insight: factoring is equivalent to finding the period of a modular exponential function. For N = pq (product of primes), choose random a < N coprime to N. Consider f(x) = aˣ mod N. This function is periodic: f(x+r) = f(x) where r is the order of a modulo N. If we find r, and r is even, then a^(r/2) ≡ ±1 (mod N). If a^(r/2) ≢ -1, then gcd(a^(r/2) ± 1, N) gives factors of N. Finding the period classically requires exponential time, but quantum computers can find it efficiently using QFT.",
+        "steps": [
+          "Pick random a < N, check gcd(a,N) = 1",
+          "Find period r of f(x) = aˣ mod N",
+          "If r is odd or a^(r/2) ≡ -1, try different a",
+          "Compute gcd(a^(r/2) ± 1, N) to get factors"
+        ],
+        "example": "N = 15, a = 7: 7¹=7, 7²=49≡4, 7³=28≡13, 7⁴=91≡1 (mod 15). Period r=4. Then 7²=4, gcd(4±1,15) = gcd(5,15)=5, gcd(3,15)=3. Factors: 3 and 5."
+      },
+      {
+        "title": "Modular Exponentiation",
+        "content": "The quantum circuit implements f(x) = aˣ mod N in superposition. We need a reversible circuit computing |x⟩|0⟩ → |x⟩|aˣ mod N⟩. Using repeated squaring, aˣ mod N can be computed with O(log x) multiplications. Each multiplication uses O((log N)²) gates with carry-save adders. The total gate count is O((log N)³), dominated by modular multiplication. The input register needs n = ⌈log₂ N⌉ qubits to represent x. The output register also needs n qubits for the result. This is the most resource-intensive part of Shor's algorithm.",
+        "complexity": "O((log N)³) gates for modular exponentiation",
+        "resources": "2n qubits for input and output registers",
+        "technique": "Repeated squaring: aˣ = a^(x₀)·(a²)^(x₁)·(a⁴)^(x₂)·..."
+      },
+      {
+        "title": "The Quantum Fourier Transform",
+        "content": "The QFT is the quantum analog of the discrete Fourier transform. On n qubits, QFT maps $|j\\rangle \\rightarrow \\frac{1}{\\\sqrt{2^n}}\\\sum_{k=0}^{2^n-1} e^{2\\\pi i j k / 2^n}|k\\rangle$. It can be implemented with O(n²) gates—exponentially faster than classical FFT's O(n2ⁿ). The QFT circuit uses Hadamard gates and controlled phase rotations. The rotation angles decrease exponentially: π, π/2, π/4, π/8, etc. The QFT reveals periodicity: if a state has period r, the QFT output shows peaks at multiples of 2ⁿ/r. Measuring gives an approximation to k·2ⁿ/r for random k, from which we can extract r using continued fractions.",
+        "formula": "$QFT|j\\rangle = \\frac{1}{\\\sqrt{2^n}}\\\sum_{k=0}^{2^n-1} e^{2\\\pi i j k / 2^n}|k\\rangle$",
+        "circuitDepth": "O(n²) gates (vs O(n2ⁿ) classically)",
+        "insight": "QFT transforms periodicity in time domain to peaks in frequency domain"
+      },
+      {
+        "title": "Period Finding Algorithm",
+        "content": "To find the period r of f(x) = aˣ mod N: 1) Initialize input register to superposition of all x: $\\frac{1}{\\\sqrt{2^n}}\\\sum_x |x\\rangle|0\\rangle$. 2) Apply modular exponentiation: $\\frac{1}{\\\sqrt{2^n}}\\\sum_x |x\\rangle|a^x \\\mod N\\rangle$. 3) Measure the output register, collapsing input to superposition of x with the same f(x): $\\frac{1}{\\\sqrt{M}}\\\sum_{j=0}^{M-1}|x_0 + jr\\rangle$. 4) Apply QFT to input register, creating peaks at multiples of 2ⁿ/r. 5) Measure to get an approximation of k·2ⁿ/r. 6) Use continued fractions to recover r from this approximation.",
+        "stateAfter": "After measuring output: $\\frac{1}{\\\sqrt{M}}\\\sum_j |x_0 + jr\\rangle|y\\rangle$",
+        "qftEffect": "Peaks in probability at $k \\\cdot \\frac{2^n}{r}$",
+        "classicalPost": "Continued fractions to find r from measurement"
+      },
+      {
+        "title": "Resource Requirements",
+        "content": "Breaking RSA-2048 (N ≈ 2²⁰⁴⁸) requires significant resources. Original estimates: ~4000 logical qubits and ~10¹² gates. Error correction overhead increases this substantially—physical qubit estimates range from millions to billions depending on error rates. Recent optimizations reduce requirements: using fast modular multiplication, optimizing QFT implementations, and better error-correcting codes. The race is on between building fault-tolerant quantum computers and deploying post-quantum cryptography (lattice-based, hash-based, code-based schemes that resist quantum attacks).",
+        "estimates": [
+          { "parameter": "Logical qubits", "value": "~4000 for RSA-2048" },
+          { "parameter": "Physical qubits", "value": "Millions to billions (with error correction)" },
+          { "parameter": "Gate count", "value": "~10¹² logical gates" },
+          { "parameter": "Circuit depth", "value": "~10⁹ time steps" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Period-Finding to Factoring",
+        "description": "The mathematical reduction that makes Shor's algorithm work. Finding periods of modular exponentiation is sufficient to factor integers.",
+        "math": "If a^r ≡ 1 (mod N) and r is even, then gcd(a^(r/2) ± 1, N) often gives factors"
+      },
+      {
+        "name": "Quantum Parallelism + Interference",
+        "description": "Evaluate f(x) for all x simultaneously, then use QFT to interfere paths constructively only when x values share the same remainder pattern.",
+        "analogy": "Like finding the pitch of a tone by listening to its harmonics"
+      },
+      {
+        "name": "Phase Estimation",
+        "description": "Shor's algorithm is a specific case of quantum phase estimation—finding eigenvalues of unitary operators.",
+        "connection": "Modular exponentiation is a unitary; its eigenvalues encode the period"
+      },
+      {
+        "name": "Post-Quantum Cryptography",
+        "description": "Cryptographic schemes designed to resist quantum attacks. NIST has standardized lattice-based algorithms (CRYSTALS-Kyber, -Dilithium).",
+        "status": "New standards being deployed as quantum threat grows"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "O((log N)³) quantum gates, polynomial in number of bits",
+      "spaceComplexity": "O(log N) qubits (with optimizations)",
+      "classicalComparison": "Exponential speedup over GNFS's sub-exponential time"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Classical Preprocessing",
+      "description": "Check if N is even, prime, or a prime power. If so, factor classically. Otherwise, pick random a < N with gcd(a,N) = 1.",
+      "latex": "\\text{Pick } a \\\in [2, N-1] \\text{ with } \\\gcd(a, N) = 1",
+      "visualState": { "random": "a selected", "coprime": "verified" }
+    },
+    {
+      "step": 2,
+      "title": "Initialize Registers",
+      "description": "Create superposition in input register (n qubits) and set output register (n qubits) to |0⟩.",
+      "latex": "\\frac{1}{\\\sqrt{2^n}}\\\sum_{x=0}^{2^n-1}|x\\rangle|0\\rangle^{\\\otimes n}",
+      "visualState": { "inputRegister": "superposition", "outputRegister": "|0⟩" }
+    },
+    {
+      "step": 3,
+      "title": "Modular Exponentiation",
+      "description": "Apply U_f: |x⟩|y⟩ → |x⟩|y ⊕ aˣ mod N⟩. This computes f(x) in superposition.",
+      "latex": "\\frac{1}{\\\sqrt{2^n}}\\\sum_{x=0}^{2^n-1}|x\\rangle|a^x \\\mod N\\rangle",
+      "visualState": { "entanglement": "input-output", "function": "computed" }
+    },
+    {
+      "step": 4,
+      "title": "Measure Output Register",
+      "description": "Measure output, getting some value y = a^(x₀) mod N. Input collapses to superposition of all x with that output value.",
+      "latex": "\\frac{1}{\\\sqrt{M}}\\\sum_{j=0}^{M-1}|x_0 + jr\\rangle|y\\rangle",
+      "visualState": { "measured": "y obtained", "input": "periodic superposition" }
+    },
+    {
+      "step": 5,
+      "title": "Apply QFT",
+      "description": "Apply Quantum Fourier Transform to input register, converting periodicity to peaks in frequency domain.",
+      "latex": "QFT: \\text{peaks at multiples of } \\frac{2^n}{r}",
+      "visualState": { "peaks": "at k·2ⁿ/r", "probability": "concentrated" }
+    },
+    {
+      "step": 6,
+      "title": "Measure and Extract Period",
+      "description": "Measure to get approximation c ≈ k·2ⁿ/r. Use continued fractions to recover r from c/2ⁿ.",
+      "latex": "\\frac{c}{2^n} \\\approx \\frac{k}{r} \\Rightarrow \\text{find } r \\text{ via continued fractions}",
+      "visualState": { "measurement": "c obtained", "classical": "post-processing" }
+    },
+    {
+      "step": 7,
+      "title": "Find Factors",
+      "description": "If r is even and a^(r/2) ≢ -1 (mod N), compute gcd(a^(r/2) ± 1, N) to get factors.",
+      "latex": "p = \\\gcd(a^{r/2} - 1, N), \\\quad q = \\\gcd(a^{r/2} + 1, N)",
+      "visualState": { "factors": "p, q found", "verified": "p·q = N" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Period Finding",
+      "difficulty": "Easy",
+      "description": "For N = 15, a = 2, find the period of 2ˣ mod 15.",
+      "options": ["2", "4", "8", "16"],
+      "correctAnswer": 1,
+      "explanation": "2¹=2, 2²=4, 2³=8, 2⁴=16≡1 (mod 15). The period is 4. Then 2²=4, and gcd(4±1,15) = gcd(3,15)=3, gcd(5,15)=5. Factors found!",
+      "hint": "Compute powers until you get back to 1."
+    },
+    {
+      "id": "p2",
+      "title": "QFT Speedup",
+      "difficulty": "Medium",
+      "description": "What's the gate complexity of QFT on n qubits?",
+      "options": ["O(n)", "O(n²)", "O(n³)", "O(2ⁿ)"],
+      "correctAnswer": 1,
+      "explanation": "QFT requires O(n²) gates. Hadamard on each qubit (n gates) plus controlled rotations between pairs (n(n-1)/2 gates). This is exponentially faster than classical FFT which needs O(n2ⁿ) operations.",
+      "hint": "Count Hadamards (n) plus controlled phases (n choose 2)."
+    },
+    {
+      "id": "p3",
+      "title": "Shor's Complexity",
+      "difficulty": "Medium",
+      "description": "What is the time complexity of Shor's algorithm for factoring an n-bit number?",
+      "options": ["O(n²)", "O(n³)", "O(2ⁿ)", "O(n!)"],
+      "correctAnswer": 1,
+      "explanation": "Shor's algorithm runs in O(n³) where n = log N is the number of bits. This is dominated by modular exponentiation requiring O((log N)³) gates. This is polynomial vs. sub-exponential for classical algorithms.",
+      "hint": "The bottleneck is modular exponentiation with O((log N)³) gates."
+    },
+    {
+      "id": "p4",
+      "title": "Continued Fractions",
+      "difficulty": "Hard",
+      "description": "After QFT, you measure c where c/2ⁿ ≈ k/r. If c/2ⁿ = 0.375 = 3/8, what could r be?",
+      "options": ["3", "8", "3 or 8", "1/8"],
+      "correctAnswer": 2,
+      "explanation": "c/2ⁿ = 3/8 could mean k=3, r=8 or k=1, r=8/3 (not integer) or other combinations. We need to test candidates: r=8 is valid. Also k=3, r=8 is one solution. Generally, we test denominators of convergents from continued fraction expansion.",
+      "hint": "3/8 is already in lowest terms. r could be 8 or a divisor if k shares factors with 8."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\nfrom math import gcd\n\ndef modular_exp(a, x, N):\n    \"\"\"Compute a^x mod N efficiently\"\"\"\n    result = 1\n    a = a % N\n    while x > 0:\n        if x & 1:\n            result = (result * a) % N\n        a = (a * a) % N\n        x >>= 1\n    return result\n\ndef find_period_classical(a, N):\n    \"\"\"Classical period finding (for small N)\"\"\"\n    x = 1\n    power = a % N\n    while power != 1:\n        power = (power * a) % N\n        x += 1\n    return x\n\ndef shor_classical_simulation(N, max_attempts=10):\n    \"\"\"Classical simulation of Shor's algorithm steps\"\"\"\n    print(f'Attempting to factor N = {N}')\n    \n    for attempt in range(max_attempts):\n        # Step 1: Pick random a\n        a = np.random.randint(2, N)\n        g = gcd(a, N)\n        \n        if g > 1:\n            print(f'Lucky guess! a = {a} shares factor {g} with N')\n            return g, N // g\n        \n        # Step 2-3: Find period (classical for small N)\n        r = find_period_classical(a, N)\n        print(f'Attempt {attempt + 1}: a = {a}, period r = {r}')\n        \n        # Step 4: Check if period is useful\n        if r % 2 != 0:\n            print(f'  r is odd, trying different a')\n            continue\n        \n        a_half = modular_exp(a, r // 2, N)\n        if a_half == N - 1:\n            print(f'  a^(r/2) ≡ -1, trivial root, trying different a')\n            continue\n        \n        # Step 5: Compute factors\n        p = gcd(a_half - 1, N)\n        q = gcd(a_half + 1, N)\n        \n        if p > 1 and p < N:\n            print(f'  Success! Factors: {p} × {q} = {N}')\n            return p, q\n    \n    return None\n\n# Test with small example\nN = 15\nresult = shor_classical_simulation(N)\n\n# Demonstrate QFT matrix\ndef qft_matrix(n):\n    N = 2**n\n    omega = np.exp(2j * np.pi / N)\n    return np.array([[omega**(j*k) for k in range(N)] for j in range(N)]) / np.sqrt(N)\n\nprint('\\n--- QFT Matrix (n=2) ---')\nQFT2 = qft_matrix(2)\nprint(QFT2.round(4))",
+    "qsharp": "namespace Quantum.Shor {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Measurement;\n    open Microsoft.Quantum.Math;\n    open Microsoft.Quantum.Convert;\n    \n    // Simplified period finding for demonstration\n    operation ModularExp(a : Int, x : Int, N : Int) : Int {\n        mutable result = 1;\n        mutable base = a % N;\n        mutable exp = x;\n        \n        while (exp > 0) {\n            if (exp &&& 1) == 1 {\n                set result = (result * base) % N;\n            }\n            set base = (base * base) % N;\n            set exp = exp >>> 1;\n        }\n        \n        return result;\n    }\n    \n    // Simplified QFT implementation\n    operation QFT(qubits : Qubit[]) : Unit is Adj {\n        let n = Length(qubits);\n        \n        for (i in 0..n-1) {\n            H(qubits[i]);\n            \n            for (j in i+1..n-1) {\n                let angle = PI() / IntAsDouble(2^(j-i));\n                Controlled R1([qubits[j]], (angle, qubits[i]));\n            }\n        }\n        \n        // Reverse order for standard QFT output\n        for (i in 0..n/2-1) {\n            Swap(qubits[i], qubits[n-1-i]);\n        }\n    }\n    \n    @EntryPoint()\n    operation PeriodFindingDemo(a : Int, N : Int, n : Int) : Int {\n        use (reg, ancilla) = (Qubit[n], Qubit[n]);\n        \n        // Initialize superposition\n        ApplyToEach(H, reg);\n        \n        // Apply modular exponentiation (simplified)\n        // In real implementation, this uses quantum arithmetic\n        for (i in 0..2^n - 1) {\n            // Controlled modular multiplication\n        }\n        \n        // Measure ancilla\n        let y = MeasureInteger(LittleEndian(ancilla));\n        \n        // Apply QFT to register\n        QFT(reg);\n        \n        // Measure to get period information\n        let result = MeasureInteger(LittleEndian(reg));\n        \n        return result;\n    }\n}",
+    "quipper": "import Quipper\n\n-- Simplified Shor's algorithm components\n\n-- QFT on n qubits\nqft :: [Qubit] -> Circ [Qubit]\nqft qubits = do\n  qubits <- qftRecursive qubits\n  return (reverse qubits)  -- Reverse for standard output\n\nqftRecursive :: [Qubit] -> Circ [Qubit]\nqftRecursive [] = return []\nqftRecursive (q:qs) = do\n  q <- hadamard q\n  q <- applyControlledPhases q qs 0\n  qs <- qftRecursive qs\n  return (q:qs)\n\napplyControlledPhases :: Qubit -> [Qubit] -> Int -> Circ Qubit\napplyControlledPhases q [] _ = return q\napplyControlledPhases q (c:cs) i = do\n  -- Apply controlled R_(2^(i+2)) rotation\n  let angle = 2 * pi / (2^(i+2))\n  (c, q) <- controlled_R c q angle\n  applyControlledPhases q cs (i+1)\n\n-- Modular exponentiation (very simplified)\nmodularExp :: Qubit -> Qubit -> Int -> Int -> Circ (Qubit, Qubit)\nmodularExp reg ancilla a N = do\n  -- Actual implementation requires quantum arithmetic\n  -- This is a placeholder\n  return (reg, ancilla)\n\n-- Main period finding\nperiodFinding :: Int -> Int -> Int -> Circ [Bit]\nperiodFinding a N n = do\n  -- Allocate registers\n  reg <- replicateM n (qinit True)  -- n qubits\n  ancilla <- replicateM n (qinit True)\n  \n  -- Initialize superposition\n  reg <- mapM hadamard reg\n  \n  -- Apply modular exponentiation\n  (reg, ancilla) <- modularExp (head reg) (head ancilla) a N\n  \n  -- Measure ancilla (simplified)\n  (ancilla, _) <- measure_qubit (head ancilla)\n  \n  -- Apply QFT\n  reg <- qft reg\n  \n  -- Measure register\n  (reg, results) <- mapM measure_qubit reg\n  \n  return results"
+  }
+}

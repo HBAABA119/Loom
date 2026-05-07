@@ -1,0 +1,355 @@
+{
+  "id": "crypto-05-signatures",
+  "bookId": "book-crypto",
+  "title": "Digital Signatures",
+  "category": "Advanced",
+  "order": 5,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Digital signatures provide the cryptographic equivalent of handwritten signatures: proof of authenticity, non-repudiation, and message integrity in the digital realm. Combining the one-way property of hash functions with the asymmetric power of public key cryptography, digital signatures allow anyone to verify a message came from you (authenticity) while ensuring you cannot later deny sending it (non-repudiation). When you sign a document, you're essentially performing a mathematical operation that only your private key can perform—but anyone with your public key can verify. Digital signatures power software updates, secure email, cryptocurrency transactions, legal contracts, and countless trust mechanisms in our digital infrastructure.",
+    "sections": [
+      {
+        "title": "How Digital Signatures Work",
+        "content": "The signature process combines hashing and asymmetric encryption. First, hash the message to produce a fixed-size digest—this is more efficient than signing the entire message and binds the signature to the exact content. Then, encrypt that hash with your private key (in RSA: s = h^d mod n). This encrypted hash is the digital signature. Verification reverses the process: anyone can decrypt the signature using your public key to recover the hash, then independently hash the received message and compare. If they match, the message is authentic (from you) and unaltered (hasn't been tampered). The security relies on the fact that only your private key could have created a signature that decrypts correctly with your public key.",
+        "keyPoints": [
+          "Sign: hash message, encrypt hash with private key",
+          "Verify: decrypt signature with public key, compare to message hash",
+          "Binding: signature is tied to both signer identity and message content",
+          "Non-repudiation: signer cannot deny creating the signature"
+        ]
+      },
+      {
+        "title": "RSA Signatures",
+        "content": "RSA signatures leverage the mathematical relationship between encryption and decryption. In RSA, e and d are inverses: (m^e)^d = (m^d)^e = m mod n. This symmetry enables signing—encrypt with private key (normally used for decryption), and anyone can 'decrypt' with public key to verify. The signature process: compute message hash h = SHA-256(m), compute signature s = h^d mod n. Verification: compute h' = s^e mod n, verify h' equals SHA-256(m). For security, RSA signatures use padding schemes like PKCS#1 v1.5 or PSS (Probabilistic Signature Scheme). PSS is recommended as it provides provable security—each signature includes randomness, making signature forgery equivalent to solving the RSA problem directly.",
+        "keyPoints": [
+          "RSA signing: s = h^d mod n (sign with private key)",
+          "RSA verification: h = s^e mod n (verify with public key)",
+          "Padding required: raw RSA is vulnerable to attacks",
+          "PSS recommended: probabilistic, provably secure"
+        ]
+      },
+      {
+        "title": "ECDSA: Elliptic Curve Digital Signature Algorithm",
+        "content": "ECDSA, used in Bitcoin, Ethereum, and TLS, provides equivalent security to RSA with much smaller keys—256-bit ECDSA matches 3072-bit RSA security. ECDSA operates on elliptic curves over finite fields. Key generation: select random private key d, compute public key Q = d × G where G is a generator point on the curve. Signing: select random k, compute R = k × G = (x, y), set r = x mod n, compute s = k^(-1) × (h + r × d) mod n. Signature is (r, s). Verification: compute w = s^(-1), u1 = h × w, u2 = r × w, then check if u1 × G + u2 × Q equals R. The security relies on the Elliptic Curve Discrete Logarithm Problem: finding d from Q = d × G is computationally infeasible.",
+        "keyPoints": [
+          "ECDSA: 256-bit security ≈ 3072-bit RSA",
+          "Uses elliptic curve mathematics over finite fields",
+          "Smaller signatures, faster computation than RSA",
+          "Requires randomness: bad randomness leaks private key (Sony PlayStation 3 hack)"
+        ]
+      },
+      {
+        "title": "Applications and Security",
+        "content": "Digital signatures enable trust across countless applications. Software distribution: OS vendors sign updates so your device verifies authenticity before installation, preventing malware injection. Code signing: developers sign applications so operating systems warn users about unverified software. Document signing: PDFs with embedded signatures provide legal non-repudiation. Blockchain: transactions are signed to prove ownership of funds without revealing private keys. Certificate authorities sign TLS certificates, creating trust chains that secure web browsing. Security considerations: private key protection is paramount—compromised signing keys enable forged signatures. Hardware security modules (HSMs) store keys in tamper-resistant hardware. Timestamping services prove when signatures were created, preventing backdating attacks. Signature algorithms evolve as cryptanalysis advances—RSA-2048 minimum, ECDSA-P256 standard, post-quantum algorithms being standardized.",
+        "keyPoints": [
+          "Software verification: prevents malware injection",
+          "Document signing: legal non-repudiation",
+          "Blockchain: prove ownership without revealing keys",
+          "Key protection: HSMs, secure enclaves essential"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Signature Generation",
+        "description": "Create signature by hashing then encrypting with private key",
+        "latex": "s = Sign(d, m) = Encrypt_d(Hash(m))"
+      },
+      {
+        "name": "Signature Verification",
+        "description": "Verify by decrypting with public key and comparing hashes",
+        "latex": "Verify(e, m, s): Hash(m) == Decrypt_e(s)"
+      },
+      {
+        "name": "Non-repudiation",
+        "description": "Signer cannot deny creating the signature",
+        "latex": "Only holder of private key d could have created s"
+      },
+      {
+        "name": "Message Binding",
+        "description": "Signature is valid only for specific message",
+        "latex": "Verify fails if m' ≠ m even with valid s"
+      }
+    ],
+    "complexity": {
+      "signing": "O(log³ n) for RSA using modular exponentiation",
+      "verification": "O(log³ n) - faster than signing for RSA",
+      "ecdsaSigning": "O(log² n) - faster than RSA",
+      "ecdsaVerification": "O(log³ n) - multi-scalar multiplication"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Hash the Message",
+      "description": "Compute cryptographic hash of the message to create a fixed-size digest.",
+      "latex": "h = SHA-256(message)",
+      "visualState": {
+        "message": "Transfer $1000 to Alice",
+        "hashAlgorithm": "SHA-256",
+        "hash": "a3f5c2e8d9b1..."
+      }
+    },
+    {
+      "step": 2,
+      "title": "Apply Padding",
+      "description": "Add padding to the hash according to signature scheme (PSS or PKCS#1 v1.5).",
+      "latex": "padded = PSS-Encode(h, key_size)",
+      "visualState": {
+        "hash": "a3f5c2e8d9b1...",
+        "padding": "Randomized PSS padding added",
+        "paddedHash": "00 01 FF... FF 00 || hash || salt"
+      }
+    },
+    {
+      "step": 3,
+      "title": "Sign with Private Key",
+      "description": "Encrypt padded hash with private key to create signature.",
+      "latex": "s = padded^d mod n",
+      "visualState": {
+        "operation": "modular_exponentiation",
+        "privateExponent": "d",
+        "modulus": "n",
+        "signature": "1a4b8c2d9e..."
+      }
+    },
+    {
+      "step": 4,
+      "title": "Send Message and Signature",
+      "description": "Transmit original message along with signature to recipient.",
+      "latex": "Send: (message, signature)",
+      "visualState": {
+        "sender": "Alice",
+        "recipient": "Bob",
+        "message": "Transfer $1000 to Alice",
+        "signatureAttached": true
+      }
+    },
+    {
+      "step": 5,
+      "title": "Verify with Public Key",
+      "description": "Recipient decrypts signature with sender's public key to recover padded hash.",
+      "latex": "padded' = s^e mod n",
+      "visualState": {
+        "publicKey": "(e, n)",
+        "signature": "1a4b8c2d9e...",
+        "decryptedPadded": "00 01 FF..."
+      }
+    },
+    {
+      "step": 6,
+      "title": "Extract and Compare",
+      "description": "Extract hash from padding, compute message hash locally, compare.",
+      "latex": "h' = PSS-Decode(padded'), h'' = SHA-256(message), verify h' == h''",
+      "visualState": {
+        "extractedHash": "a3f5c2e8d9b1...",
+        "computedHash": "a3f5c2e8d9b1...",
+        "match": true,
+        "verified": true
+      }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Signature Properties",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What three security properties does a digital signature provide?",
+      "latex": "Authenticity + Integrity + Non-repudiation",
+      "hints": [
+        "Authenticity: who sent the message?",
+        "Integrity: was message modified?",
+        "Non-repudiation: can sender deny it?"
+      ],
+      "solution": {
+        "answer": "Authenticity (message from claimed sender), Integrity (message not modified), Non-repudiation (sender cannot deny)",
+        "explanation": "Digital signatures provide all three: only the private key holder can create valid signatures (authenticity), any message change invalidates the signature (integrity), and the signature cryptographically proves origin (non-repudiation)."
+      }
+    },
+    {
+      "id": "p2",
+      "title": "Why Hash First?",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why do we hash the message before signing instead of signing the message directly?",
+      "latex": "Sign(Hash(m)) vs Sign(m)",
+      "hints": [
+        "RSA has maximum message size limits",
+        "Large messages would be slow to sign",
+        "Hashes provide fixed-size input"
+      ],
+      "solution": {
+        "answer": "Hashing produces fixed-size input, enables signing large messages efficiently, and creates strong binding between signature and content",
+        "explanation": "Signing directly limits message size and is computationally expensive for large data. Hashing produces fixed-size input (256 bits) while ensuring any message change invalidates the signature through avalanche effect."
+      }
+    },
+    {
+      "id": "p3",
+      "title": "RSA vs ECDSA Keys",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Compare key sizes: 256-bit ECDSA provides equivalent security to what size RSA key?",
+      "latex": "ECDSA-256 ≈ RSA-???",
+      "hints": [
+        "ECDSA uses elliptic curve mathematics",
+        "Smaller keys provide equivalent security",
+        "256-bit ECDSA ≈ 3072-bit RSA"
+      ],
+      "solution": {
+        "answer": "256-bit ECDSA ≈ 3072-bit RSA security",
+        "explanation": "Elliptic curve cryptography provides equivalent security with much smaller keys due to the hardness of the Elliptic Curve Discrete Logarithm Problem compared to integer factorization."
+      }
+    },
+    {
+      "id": "p4",
+      "title": "Signature Forgery",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why can't an attacker forge my signature if they know my public key?",
+      "latex": "Given (e, n) and m, compute s where Verify((e,n), m, s) = true",
+      "hints": [
+        "Creating valid signature requires private key",
+        "Verification uses public key (available to all)",
+        "Only private key can decrypt to valid hash"
+      ],
+      "solution": {
+        "answer": "Creating a valid signature requires the private key; knowing the public key only allows verification, not signature generation",
+        "explanation": "The one-way nature of trapdoor functions ensures that while anyone can verify using the public key, only the private key holder can create valid signatures. Computing s = h^d mod n without knowing d requires solving the RSA problem, which is as hard as factoring n."
+      }
+    },
+    {
+      "id": "p5",
+      "title": "Modified Message",
+      "difficulty": "medium",
+      "type": "interactive",
+      "description": "Alice signs 'Pay Bob $100'. Eve intercepts and changes it to 'Pay Bob $1000'. Will the signature still verify?",
+      "latex": "Verify(e, 'Pay Bob $1000', s) = ?",
+      "hints": [
+        "Signature binds to message hash",
+        "Any message change changes hash",
+        "Avalanche effect: completely different hash"
+      ],
+      "solution": {
+        "answer": "No, verification will fail",
+        "explanation": "Changing $100 to $1000 produces a completely different SHA-256 hash (avalanche effect). When Bob verifies, his computed hash won't match the hash recovered from the signature, revealing tampering."
+      }
+    },
+    {
+      "id": "p6",
+      "title": "ECDSA Randomness",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why must ECDSA signing use good randomness? What happened when Sony reused random numbers?",
+      "latex": "k must be unique per signature",
+      "hints": [
+        "ECDSA signing: s = k^(-1)(h + rd) mod n",
+        "If same k used twice: equations relate d",
+        "Private key can be recovered"
+      ],
+      "solution": {
+        "answer": "Reusing random number k allows private key recovery from two signatures",
+        "explanation": "Sony PlayStation 3 used the same k for all signatures. With two signatures (r, s1) and (r, s2) on different messages: k = (h1 - h2) / (s1 - s2). Once k is known, private key d = (sk - h) / r. This completely compromised PS3 security."
+      }
+    }
+  ],
+  "minigame": {
+    "id": "signature-verifier",
+    "title": "Digital Signature Detective",
+    "description": "Analyze messages and signatures to verify authenticity! Learn to spot valid vs invalid signatures, understand tampering detection, and master the verification process through interactive challenges.",
+    "type": "verification-challenge",
+    "instructions": [
+      "Receive signed messages from various senders",
+      "Verify signatures using public keys",
+      "Detect tampered messages (signature won't match)",
+      "Identify valid vs forged signatures",
+      "Earn points for correct verifications"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Basic Verification",
+        "description": "Verify simple RSA signatures with known public keys",
+        "task": "verify_rsa",
+        "signatures": 5,
+        "hints": true
+      },
+      {
+        "level": 2,
+        "name": "Tamper Detection",
+        "description": "Identify which messages have been modified after signing",
+        "task": "detect_tampering",
+        "tamperedMessages": 3,
+        "validMessages": 3
+      },
+      {
+        "level": 3,
+        "name": "Key Matching",
+        "description": "Match signatures to correct public keys from a set",
+        "task": "match_keys",
+        "keyPool": 5,
+        "signatures": 8
+      },
+      {
+        "level": 4,
+        "name": "Forensics Challenge",
+        "description": "Analyze a complete scenario with multiple suspects and signatures",
+        "task": "forensics",
+        "complexity": "high"
+      }
+    ],
+    "scoring": {
+      "correctVerification": 10,
+      "correctTamperDetect": 20,
+      "perfectLevel": 50,
+      "speedBonus": "time_remaining × 0.3"
+    }
+  },
+  "visualizer": {
+    "type": "signature-flow",
+    "title": "Digital Signature Process",
+    "description": "Interactive visualization of the complete signing and verification process, showing how hash functions and asymmetric cryptography combine to create tamper-proof digital signatures",
+    "features": [
+      "Step-by-step signing animation",
+      "Hash computation visualization",
+      "Public/private key operations",
+      "Verification flow with comparison",
+      "Tampering detection demonstration"
+    ],
+    "modes": [
+      {
+        "id": "sign",
+        "name": "Sign Message",
+        "description": "Watch a message transform into a digital signature"
+      },
+      {
+        "id": "verify",
+        "name": "Verify Signature",
+        "description": "See how signatures are validated"
+      },
+      {
+        "id": "tamper",
+        "name": "Tampering Detection",
+        "description": "Observe how modifications invalidate signatures"
+      },
+      {
+        "id": "compare",
+        "name": "RSA vs ECDSA",
+        "description": "Compare the two major signature algorithms"
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "RSA Signature with PyCryptodome",
+        "code": "from Crypto.Signature import pkcs1_15\nfrom Crypto.Hash import SHA256\nfrom Crypto.PublicKey import RSA\n\n# Generate key pair\nkey = RSA.generate(2048)\nprivate_key = key\npublic_key = key.publickey()\n\n# Message to sign\nmessage = b\"Important document to sign\"\n\n# Create signature\nh = SHA256.new(message)\nsigner = pkcs1_15.new(private_key)\nsignature = signer.sign(h)\n\nprint(f\"Signature: {signature.hex()[:32]}...\")\nprint(f\"Signature length: {len(signature)} bytes\")\n\n# Verify signature\nh = SHA256.new(message)\nverifier = pkcs1_15.new(public_key)\ntry:\n    verifier.verify(h, signature)\n    print(\"\\nSignature is VALID - message authenticated!\")\nexcept (ValueError, TypeError):\n    print(\"\\nSignature is INVALID - possible tampering!\")\n\n# Try verifying with modified message\nmodified = b\"Important document to sign!\"  # Added !\nh2 = SHA256.new(modified)\ntry:\n    verifier.verify(h2, signature)\n    print(\"Modified message verified (shouldn't happen)\")\nexcept:\n    print(\"Modified message rejected (correct behavior)\")"
+      },
+      {
+        "title": "ECDSA Signatures",
+        "code": "from Crypto.PublicKey import ECC\nfrom Crypto.Signature import DSS\nfrom Crypto.Hash import SHA256\n\n# Generate ECC key pair (P-256 curve = equivalent to RSA-3072)\nkey = ECC.generate(curve='P-256')\n\nprint(f\"ECC Key size: 256 bits\")\nprint(f\"Public key point: ({key.pointQ.x[:16]}..., {key.pointQ.y[:16]}...)\")\n\n# Sign message\nmessage = b\"Bitcoin-style transaction\"\nh = SHA256.new(message)\nsigner = DSS.new(key, mode='fips-186-3')\nsignature = signer.sign(h)\n\nprint(f\"\\nECDSA Signature: {signature.hex()[:32]}...\")\nprint(f\"Signature length: {len(signature)} bytes (shorter than RSA!)\")\n\n# Verify\nverifier = DSS.new(key.public_key(), mode='fips-186-3')\ntry:\n    verifier.verify(h, signature)\n    print(\"\\nECDSA signature VERIFIED!\")\nexcept:\n    print(\"\\nSignature verification FAILED!\")"
+      }
+    ]
+  }
+}

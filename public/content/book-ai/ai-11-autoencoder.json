@@ -1,0 +1,275 @@
+{
+  "id": "ai-11-autoencoder",
+  "bookId": "book-ai",
+  "title": "Autoencoders",
+  "category": "Unsupervised Learning",
+  "order": 11,
+  "estimatedTime": "45 min",
+  "theory": {
+    "overview": "Autoencoders are neural networks that learn to copy their input to their output through a compressed representation. By forcing data through an information bottleneck, they learn efficient encodings of input data—useful for dimensionality reduction, denoising, anomaly detection, and generative modeling. Unlike other dimensionality reduction techniques like PCA, autoencoders can learn non-linear transformations, capturing complex patterns in data.",
+    "sections": [
+      {
+        "title": "The Encoder-Decoder Architecture",
+        "content": "Autoencoders consist of two parts: an encoder compresses input into a latent representation (bottleneck), and a decoder reconstructs the input from this representation.",
+        "formula": "z = Encoder(x), \\quad \\hat{x} = Decoder(z)$",
+        "loss": "Reconstruction loss: $L = ||x - \\hat{x}||^2$ (MSE) or binary cross-entropy",
+        "dimensions": "Input (e.g., 784 for 28×28 MNIST) → Bottleneck (e.g., 32) → Output (784)"
+      },
+      {
+        "title": "Undercomplete Autoencoders",
+        "content": "The simplest form with a bottleneck smaller than the input. Forces the network to learn the most salient features.",
+        "properties": [
+          "Bottleneck dimension < input dimension",
+          "Acts like non-linear PCA",
+          "Sensitive to initial conditions",
+          "Risk: learning identity function if bottleneck too large"
+        ]
+      },
+      {
+        "title": "Denoising Autoencoders",
+        "content": "Trained to reconstruct clean input from corrupted version. Learn robust features that capture essential structure.",
+        "training": "Input: corrupted x' (e.g., with Gaussian noise or dropout). Target: clean x.",
+        "corruptionTypes": ["Gaussian noise", "Salt-and-pepper noise", "Random masking (dropout)", "Rotation/scaling"],
+        "benefit": "Cannot simply memorize—must learn underlying patterns"
+      },
+      {
+        "title": "Sparse Autoencoders",
+        "content": "Instead of compressing dimension, enforce sparsity constraint on hidden activations. Many neurons inactive for any given input.",
+        "approaches": [
+          "L1 regularization on activations",
+          "KL divergence from target sparsity",
+          "k-sparse: only top-k activations pass"
+        ],
+        "intuition": "Like having many specialists—each neuron learns to detect specific features"
+      },
+      {
+        "title": "Variational Autoencoders (VAE)",
+        "content": "Probabilistic autoencoders that learn a distribution over latent space. Enable sampling new data points.",
+        "components": [
+          "Encoder outputs μ and σ (parameters of latent distribution)",
+          "Reparameterization trick: z = μ + σ·ε where ε ~ N(0,1)",
+          "Decoder reconstructs from sampled z",
+          "Loss = Reconstruction + KL( q(z|x) || p(z) )"
+        ],
+        "advantage": "Smooth, structured latent space—interpolation produces meaningful variations"
+      },
+      {
+        "title": "Applications",
+        "content": "Autoencoders have diverse practical applications across domains.",
+        "uses": [
+          { "task": "Dimensionality Reduction", "comparison": "Non-linear PCA, better for complex manifolds" },
+          { "task": "Image Denoising", "approach": "Denoising autoencoder learns to remove corruption" },
+          { "task": "Anomaly Detection", "method": "High reconstruction error = anomaly" },
+          { "task": "Feature Learning", "usage": "Pre-training encoder for downstream tasks" },
+          { "task": "Data Compression", "benefit": "Learned compression better than generic algorithms" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Bottleneck",
+        "description": "The compressed latent representation. Size determines information capacity.",
+        "tradeoff": "Smaller = more compression, harder to reconstruct accurately"
+      },
+      {
+        "name": "Reconstruction Loss",
+        "description": "Measures difference between input and output.",
+        "types": ["MSE for continuous data", "BCE for binary/normalized data", "Perceptual loss for images"]
+      },
+      {
+        "name": "Latent Space",
+        "description": "The compressed representation space. In VAEs, this follows a learned distribution.",
+        "property": "Nearby points in latent space should produce similar outputs"
+      },
+      {
+        "name": "KL Divergence",
+        "description": "In VAEs, measures how much the learned distribution differs from prior (usually N(0,I)).",
+        "role": "Regularization—prevents memorization, enforces structure"
+      }
+    ],
+    "complexity": {
+      "training": "$O(N \\cdot E \\cdot d^2)$ where N = samples, E = epochs, d = max layer size",
+      "inference": "$O(d^2)$—single forward pass through encoder or decoder",
+      "memory": "$O(W)$ where W = total parameters"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Input Corruption (Denoising)",
+      "description": "Add noise to input for denoising training.",
+      "latex": "x' = x + \\epsilon, \\quad \\epsilon \\sim \\mathcal{N}(0, \\sigma^2)$",
+      "visualState": { "clean": "original", "noisy": "corrupted", "noise": "gaussian" }
+    },
+    {
+      "step": 2,
+      "title": "Encoder Forward",
+      "description": "Compress input through hidden layers.",
+      "latex": "h = \\sigma(W_e x + b_e)$",
+      "visualState": { "input": 784, "hidden1": 256, "hidden2": 64, "bottleneck": 32 }
+    },
+    {
+      "step": 3,
+      "title": "VAE: Sample Latent",
+      "description": "For VAE, sample from learned distribution.",
+      "latex": "z = \\mu + \\sigma \\odot \\epsilon, \\quad \\epsilon \\sim \\mathcal{N}(0,I)$",
+      "visualState": { "mu": "mean", "sigma": "std", "sample": "z" }
+    },
+    {
+      "step": 4,
+      "title": "Decoder Forward",
+      "description": "Reconstruct from latent representation.",
+      "latex": "\\hat{x} = \\sigma(W_d z + b_d)$",
+      "visualState": { "bottleneck": 32, "hidden1": 64, "hidden2": 256, "output": 784 }
+    },
+    {
+      "step": 5,
+      "title": "Reconstruction Loss",
+      "description": "Compare output to original.",
+      "latex": "L_{recon} = ||x - \\hat{x}||^2$",
+      "visualState": { "mse": "calculated", "error": "per_pixel" }
+    },
+    {
+      "step": 6,
+      "title": "VAE: KL Loss",
+      "description": "Regularize latent distribution.",
+      "latex": "L_{KL} = -\\frac{1}{2}\\sum(1 + \\log \\sigma^2 - \\mu^2 - \\sigma^2)$",
+      "visualState": { "kl": "divergence", "prior": "N(0,I)" }
+    },
+    {
+      "step": 7,
+      "title": "Total Loss",
+      "description": "Combine losses with weighting.",
+      "latex": "L = L_{recon} + \\beta L_{KL}$",
+      "visualState": { "recon_weight": 1, "kl_weight": 0.001 }
+    },
+    {
+      "step": 8,
+      "title": "Backpropagation",
+      "description": "Update encoder and decoder weights.",
+      "latex": "\\theta \\leftarrow \\theta - \\alpha \\nabla_{\\theta} L$",
+      "visualState": { "gradients": "flow", "weights": "updated" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Bottleneck Size",
+      "difficulty": "easy",
+      "type": "conceptual",
+      "description": "If input is 28×28 MNIST images (784 dims) and bottleneck is 32 dims, what's the compression ratio?",
+      "answer": "784:32 = 24.5:1 compression ratio",
+      "explanation": "The autoencoder compresses 784 pixel values into just 32 latent values—a 24.5x reduction. The decoder must learn to reconstruct from this highly compressed representation.",
+      "hints": ["784 / 32", "Input dim / Bottleneck dim", "Compression ratio"]
+    },
+    {
+      "id": "p2",
+      "title": "Denoising vs Standard",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Why can't a denoising autoencoder simply learn to ignore its input and output the average of all training data?",
+      "answer": "Because different corrupted inputs map to different clean targets. The network must use structure in the corrupted input to determine what noise to remove.",
+      "explanation": "If the noise is random each time, the same underlying image produces different corrupted versions. To minimize loss across all these variations, the network must extract robust features that identify the underlying image, then reconstruct it.",
+      "hints": ["Same image, different noise", "Must generalize across corruptions", "Identity function fails"]
+    },
+    {
+      "id": "p3",
+      "title": "VAE Reparameterization",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "Why use z = μ + σε instead of sampling z ~ N(μ, σ²) directly?",
+      "answer": "Backpropagation cannot flow through random sampling. The reparameterization trick moves sampling to an input noise variable, allowing gradients to flow through μ and σ.",
+      "explanation": "If we sample z directly from a distribution with learned parameters, we break the computation graph. By expressing z as a deterministic function of μ, σ, and fixed random noise ε, we enable gradient descent on μ and σ.",
+      "hints": ["Need gradients for μ and σ", "Sampling is non-differentiable", "Move randomness to input"]
+    },
+    {
+      "id": "p4",
+      "title": "KL Loss Behavior",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "If encoder outputs μ=0, σ=1 for all inputs, what is KL divergence from N(0,I)?",
+      "answer": "0—the distributions match perfectly. KL = -½Σ(1 + log(1) - 0 - 1) = 0.",
+      "explanation": "When μ=0 and σ=1, the posterior q(z|x) equals the prior p(z)=N(0,I). The KL formula evaluates to zero, meaning no penalty. This is actually problematic—all inputs map to same distribution, losing distinctiveness.",
+      "hints": ["q(z|x) = N(0,I)", "p(z) = N(0,I)", "Same distribution → zero KL"]
+    },
+    {
+      "id": "p5",
+      "title": "Anomaly Detection",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "Design an anomaly detection system using autoencoders. What threshold should you use?",
+      "answer": "Train on normal data only. Set threshold as percentile (e.g., 95th) of reconstruction errors on validation set. New data with error > threshold = anomaly.",
+      "explanation": "Autoencoders learn to reconstruct 'normal' patterns well. Anomalous patterns—never seen in training—have high reconstruction error because the encoder compresses them into the 'normal' latent space poorly.",
+      "hints": ["Train on normal data only", "High error = unfamiliar", "Use validation percentile"]
+    },
+    {
+      "id": "p6",
+      "title": "Sparse vs Undercomplete",
+      "difficulty": "hard",
+        "type": "comparison",
+      "description": "Compare sparse autoencoders (many hidden units, sparsity constraint) vs undercomplete (few hidden units).",
+      "answer": "Undercomplete: hard bottleneck limit. Sparse: many units but few active simultaneously. Sparse can represent more diverse features—different subsets for different inputs.",
+      "explanation": "Undercomplete forces all information through fixed small vector. Sparse allows overcomplete representation (more units than inputs) but each input uses only a few. Like having many specialists vs few generalists.",
+      "hints": ["Fixed capacity vs adaptive capacity", "Subset selection", "Overcomplete representations"]
+    }
+  ],
+  "minigame": {
+    "id": "autoencoder-builder",
+    "title": "Autoencoder Architect",
+    "description": "Build and train autoencoders interactively. Adjust bottleneck size, add noise for denoising, visualize reconstructions, and explore the latent space by moving sliders.",
+    "instructions": [
+      "Select dataset (MNIST digits, faces, or simple shapes)",
+      "Choose autoencoder type (Standard, Denoising, Sparse, VAE)",
+      "Set architecture (layer sizes)",
+      "Adjust bottleneck dimension",
+      "For denoising: set noise level and type",
+      "Train and watch reconstruction quality",
+      "Explore latent space with sliders"
+    ],
+    "controls": [
+      {
+        "id": "dataset",
+        "label": "Dataset",
+        "type": "select",
+        "options": ["MNIST Digits", "Fashion MNIST", "Simple Curves"]
+      },
+      {
+        "id": "aeType",
+        "label": "Autoencoder Type",
+        "type": "select",
+        "options": ["Standard", "Denoising", "Sparse", "VAE"]
+      },
+      {
+        "id": "bottleneck",
+        "label": "Bottleneck Size",
+        "type": "slider",
+        "min": 2,
+        "max": 128,
+        "step": 2,
+        "default": 32
+      },
+      {
+        "id": "noiseLevel",
+        "label": "Noise Level (Denoising)",
+        "type": "slider",
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "default": 0.3
+      },
+      {
+        "id": "sparsity",
+        "label": "Sparsity Target",
+        "type": "slider",
+        "min": 0.01,
+        "max": 0.5,
+        "step": 0.01,
+        "default": 0.1
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass Autoencoder(nn.Module):\n    def __init__(self, input_dim=784, hidden_dims=[256, 64], latent_dim=32):\n        super().__init__()\n        \n        # Encoder\n        encoder_layers = []\n        prev_dim = input_dim\n        for h_dim in hidden_dims:\n            encoder_layers.extend([\n                nn.Linear(prev_dim, h_dim),\n                nn.ReLU(),\n                nn.BatchNorm1d(h_dim)\n            ])\n            prev_dim = h_dim\n        encoder_layers.append(nn.Linear(prev_dim, latent_dim))\n        self.encoder = nn.Sequential(*encoder_layers)\n        \n        # Decoder (reverse architecture)\n        decoder_layers = []\n        prev_dim = latent_dim\n        for h_dim in reversed(hidden_dims):\n            decoder_layers.extend([\n                nn.Linear(prev_dim, h_dim),\n                nn.ReLU(),\n                nn.BatchNorm1d(h_dim)\n            ])\n            prev_dim = h_dim\n        decoder_layers.extend([\n            nn.Linear(prev_dim, input_dim),\n            nn.Sigmoid()  # For normalized [0,1] data\n        ])\n        self.decoder = nn.Sequential(*decoder_layers)\n    \n    def forward(self, x):\n        z = self.encoder(x)\n        x_recon = self.decoder(z)\n        return x_recon, z\n\nclass DenoisingAutoencoder(Autoencoder):\n    \"\"\"\n    Same architecture, different training procedure\n    \"\"\"\n    def add_noise(self, x, noise_factor=0.3):\n        noise = torch.randn_like(x) * noise_factor\n        return torch.clamp(x + noise, 0, 1)\n\nclass VAE(nn.Module):\n    \"\"\"\n    Variational Autoencoder with reparameterization trick\n    \"\"\"\n    def __init__(self, input_dim=784, hidden_dim=400, latent_dim=20):\n        super().__init__()\n        \n        # Encoder outputs mu and log_var\n        self.fc1 = nn.Linear(input_dim, hidden_dim)\n        self.fc_mu = nn.Linear(hidden_dim, latent_dim)\n        self.fc_logvar = nn.Linear(hidden_dim, latent_dim)\n        \n        # Decoder\n        self.fc_decode1 = nn.Linear(latent_dim, hidden_dim)\n        self.fc_decode2 = nn.Linear(hidden_dim, input_dim)\n    \n    def encode(self, x):\n        h = F.relu(self.fc1(x))\n        return self.fc_mu(h), self.fc_logvar(h)\n    \n    def reparameterize(self, mu, logvar):\n        \"\"\"\n        Reparameterization trick: z = mu + sigma * epsilon\n        where epsilon ~ N(0, 1)\n        \"\"\"\n        std = torch.exp(0.5 * logvar)\n        eps = torch.randn_like(std)\n        return mu + eps * std\n    \n    def decode(self, z):\n        h = F.relu(self.fc_decode1(z))\n        return torch.sigmoid(self.fc_decode2(h))\n    \n    def forward(self, x):\n        mu, logvar = self.encode(x)\n        z = self.reparameterize(mu, logvar)\n        x_recon = self.decode(z)\n        return x_recon, mu, logvar\n\ndef vae_loss(x_recon, x, mu, logvar):\n    \"\"\"\n    VAE loss = Reconstruction loss + KL divergence\n    \"\"\"\n    # Reconstruction loss (binary cross-entropy)\n    BCE = F.binary_cross_entropy(x_recon, x, reduction='sum')\n    \n    # KL divergence: -0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)\n    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())\n    \n    return BCE + KLD, BCE, KLD\n\n# Training example\ndef train_autoencoder(model, dataloader, epochs=10, learning_rate=1e-3, device='cuda'):\n    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)\n    model.to(device)\n    \n    for epoch in range(epochs):\n        total_loss = 0\n        for batch_idx, (data, _) in enumerate(dataloader):\n            data = data.view(data.size(0), -1).to(device)\n            \n            # For denoising autoencoder, add noise here\n            # noisy_data = model.add_noise(data) if isinstance(model, DenoisingAutoencoder) else data\n            \n            optimizer.zero_grad()\n            \n            if isinstance(model, VAE):\n                recon_batch, mu, logvar = model(data)\n                loss, bce, kld = vae_loss(recon_batch, data, mu, logvar)\n            else:\n                recon_batch, z = model(data)\n                loss = F.mse_loss(recon_batch, data)\n            \n            loss.backward()\n            optimizer.step()\n            \n            total_loss += loss.item()\n        \n        avg_loss = total_loss / len(dataloader.dataset)\n        print(f'Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}')\n\n# Feature extraction example\ndef extract_features(model, dataloader, device='cuda'):\n    \"\"\"\n    Use trained encoder as feature extractor\n    \"\"\"\n    model.eval()\n    features = []\n    labels = []\n    \n    with torch.no_grad():\n        for data, target in dataloader:\n            data = data.view(data.size(0), -1).to(device)\n            if isinstance(model, VAE):\n                mu, _ = model.encode(data)\n                z = mu\n            else:\n                _, z = model(data)\n            features.append(z.cpu())\n            labels.append(target)\n    \n    return torch.cat(features), torch.cat(labels)\n\nif __name__ == \"__main__\":\n    # Test architectures\n    print(\"=== Autoencoder Architectures ===\\n\")\n    \n    # Standard\n    ae = Autoencoder(input_dim=784, hidden_dims=[256, 64], latent_dim=32)\n    print(f\"Standard AE: {sum(p.numel() for p in ae.parameters()):,} parameters\")\n    \n    # VAE\n    vae = VAE(input_dim=784, hidden_dim=400, latent_dim=20)\n    print(f\"VAE: {sum(p.numel() for p in vae.parameters()):,} parameters\")\n    \n    # Test forward\n    x = torch.randn(4, 784)\n    \n    ae_recon, z_ae = ae(x)\n    print(f\"\\nStandard AE: input {x.shape} → latent {z_ae.shape} → output {ae_recon.shape}\")\n    \n    vae_recon, mu, logvar = vae(x)\n    print(f\"VAE: input {x.shape} → latent (μ,σ) {mu.shape} → output {vae_recon.shape}\")\n    \n    loss, bce, kld = vae_loss(vae_recon, x, mu, logvar)\n    print(f\"VAE loss: {loss.item():.2f} (BCE: {bce.item():.2f}, KL: {kld.item():.2f})\")"
+  }
+}

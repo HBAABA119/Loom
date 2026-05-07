@@ -20,7 +20,7 @@ const complexities = [
   { name: "O(n²)", color: "#f85149", multiplier: 50 },
 ];
 
-export default function BigOMinigameEnhanced() {
+function BigOMinigameEnhanced() {
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
     level: 1,
@@ -150,3 +150,5 @@ export default function BigOMinigameEnhanced() {
     </div>
   );
 }
+
+export default BigOMinigameEnhanced;

@@ -1,0 +1,313 @@
+{
+  "id": "ai-15-loss-functions",
+  "bookId": "book-ai",
+  "title": "Loss Functions",
+  "category": "Foundations",
+  "order": 15,
+  "estimatedTime": "35 min",
+  "theory": {
+    "overview": "Loss functions are the compass that guides neural network training. They quantify how wrong the network's predictions are, converting the abstract goal of 'perform well' into concrete, optimizable mathematics. Choosing the right loss function is critical: it shapes what the network learns, handles class imbalance, manages outliers, and determines convergence properties. From classification (Cross-Entropy) to regression (MSE), from ranking to generation, understanding loss functions is fundamental to effective deep learning.",
+    "sections": [
+      {
+        "title": "What is a Loss Function?",
+        "content": "A loss function L(y, ŷ) measures the discrepancy between predicted values ŷ and true targets y. The goal of training is to minimize expected loss over the data distribution.",
+        "properties": [
+          { "name": "Differentiable", "requirement": "Must be differentiable for gradient descent", "exception": "Use differentiable approximations or reinforcement learning" },
+          { "name": "Non-negative", "requirement": "L(y, y) = 0, L(y, ŷ) ≥ 0", "reason": "Zero means perfect prediction" },
+          { "name": "Meaningful", "requirement": "Should capture domain-relevant error", "example": "Perceptual loss for images vs pixel-wise MSE" }
+        ]
+      },
+      {
+        "title": "Mean Squared Error (MSE)",
+        "content": "The classic regression loss. Penalizes squared difference between prediction and target.",
+        "formula": "$L_{MSE} = \\frac{1}{N}\\sum_{i=1}^N (y_i - \\hat{y}_i)^2$",
+        "properties": [
+          "Strongly penalizes large errors (outlier sensitivity)",
+          "Mathematically convenient (smooth, convex)",
+          "Assumes Gaussian noise",
+          "Gradient: $\\nabla = -\\frac{2}{N}(y - \\hat{y})$"
+        ],
+        "whenToUse": "Regression tasks where outliers are important to penalize",
+        "alternatives": "MAE when outliers should be ignored, Huber for robustness"
+      },
+      {
+        "title": "Mean Absolute Error (MAE / L1)",
+        "content": "Sum of absolute differences. More robust to outliers than MSE.",
+        "formula": "$L_{MAE} = \\frac{1}{N}\\sum_{i=1}^N |y_i - \\hat{y}_i|$",
+        "properties": [
+          "Linear penalty (less outlier sensitivity)",
+          "Non-differentiable at zero (use subgradient)",
+          "Assumes Laplacian noise",
+          "Median prediction optimal under MAE"
+        ],
+        "comparison": "MSE → mean, MAE → median. MAE more robust, MSE smoother optimization."
+      },
+      {
+        "title": "Cross-Entropy Loss",
+        "content": "The standard for classification. Measures information-theoretic difference between predicted probability distribution and true distribution.",
+        "binaryFormula": "$L_{BCE} = -[y \\log(\\hat{y}) + (1-y)\\log(1-\\hat{y})]$",
+        "categoricalFormula": "$L_{CE} = -\\sum_{c=1}^C y_c \\log(\\hat{y}_c)$",
+        "intuition": "Measures how many bits of information are needed to encode true distribution using predicted distribution",
+        "whyItWorks": "Combines well with softmax (logits → probabilities), gradients scale with error magnitude"
+      },
+      {
+        "title": "KL Divergence",
+        "content": "Kullback-Leibler divergence measures how one probability distribution diverges from another.",
+        "formula": "$D_{KL}(P||Q) = \\sum_i P(i) \\log \\frac{P(i)}{Q(i)}$",
+        "relation": "Cross-Entropy = Entropy + KL Divergence",
+        "properties": [
+          "Asymmetric: D_KL(P||Q) ≠ D_KL(Q||P)",
+          "Non-negative: D_KL ≥ 0, equals 0 iff P = Q",
+          "Not a true metric (no triangle inequality)"
+        ],
+        "usage": "Knowledge distillation, VAEs, matching distributions"
+      },
+      {
+        "title": "Hinge Loss & SVM-style Losses",
+        "content": "For maximum-margin classification. Encourages confident correct predictions.",
+        "formula": "$L_{hinge} = \\max(0, 1 - y \\cdot \\hat{y})$",
+        "multiClass": "$L_{multiclass} = \\sum_{j \\neq y} \\max(0, s_j - s_y + \\delta)$",
+        "properties": [
+          "Zero loss when confident and correct (margin ≥ 1)",
+          "Linear penalty for violations",
+          "Used in SVMs and some deep classification"
+        ],
+        "advantage": "Focuses on 'hard' examples near decision boundary"
+      },
+      {
+        "title": "Focal Loss",
+        "content": "Addresses class imbalance by down-weighting easy examples. Used heavily in object detection.",
+        "formula": "$L_{FL} = -\\alpha_t (1 - \\hat{y}_t)^\\gamma \\log(\\hat{y}_t)$",
+        "hyperparameters": [
+          "γ (gamma): focusing parameter. γ=0 → standard CE, higher = more focus on hard examples",
+          "α (alpha): class weighting for imbalance"
+        ],
+        "intuition": "The (1-ŷ)^γ term reduces loss for well-classified examples (ŷ close to 1), preventing them from dominating the gradient"
+      },
+      {
+        "title": "Contrastive & Triplet Loss",
+        "content": "Metric learning losses. Learn embeddings where similar items are close and dissimilar items are far apart.",
+        "contrastive": "$L_{con} = \\mathbb{1}[y=1]d^2 + \\mathbb{1}[y=0]\\max(0, m - d)^2$",
+        "triplet": "$L_{triplet} = \\max(0, d(a,p) - d(a,n) + margin)$",
+        "usage": "Face recognition, semantic similarity, recommendation systems",
+        "components": [
+          "Anchor (a): reference sample",
+          "Positive (p): similar to anchor",
+          "Negative (n): dissimilar to anchor",
+          "d(): distance metric (usually Euclidean)"
+        ]
+      },
+      {
+        "title": "Advanced & Custom Losses",
+        "content": "Modern applications require specialized loss functions.",
+        "examples": [
+          { "name": "Perceptual Loss", "use": "Image generation", "method": "Compare high-level features from pretrained CNN" },
+          { "name": "Dice Loss", "use": "Segmentation", "formula": "1 - 2|X∩Y|/(|X|+|Y|), handles class imbalance" },
+          { "name": "CTC Loss", "use": "Speech recognition", "purpose": "Alignment-free sequence learning" },
+          { "name": "Gumbel-Softmax", "use": "Discrete sampling", "purpose": "Differentiable argmax for categorical choices" }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Surrogate Loss",
+        "description": "Many losses are surrogates—tractable approximations of the true objective (e.g., accuracy).",
+        "example": "We optimize cross-entropy (differentiable) as a proxy for accuracy (non-differentiable)",
+        "calibration": "Some losses produce well-calibrated probabilities (logistic), others don't (hinge)"
+      },
+      {
+        "name": "Gradient Behavior",
+        "description": "Different losses produce different gradient landscapes affecting optimization.",
+        "mse": "Gradient ∝ error (linear in error magnitude)",
+        "crossEntropy": "Gradient ∝ (ŷ - y) (automatically scaled by confidence)"
+      },
+      {
+        "name": "Robustness",
+        "description": "Sensitivity to outliers and label noise.",
+        "robustLosses": ["MAE", "Huber", "Tukey biweight"],
+        "sensitiveLosses": ["MSE", "Cross-entropy with wrong labels"]
+      },
+      {
+        "name": "Class Imbalance",
+        "description": "Standard losses assume balanced classes. Solutions:",
+        "strategies": ["Class weights in loss", "Focal loss", "Oversampling", "SMOTE"]
+      }
+    ],
+    "complexity": {
+      "forward": "$O(N \\cdot d)$ where N = samples, d = output dimension—element-wise operations",
+      "backward": "$O(N \\cdot d)$—gradients also element-wise",
+      "memory": "$O(1)$ additional—loss is scalar, but intermediate values saved for backward"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Compute Predictions",
+      "description": "Model produces logits or probabilities.",
+      "latex": "\\hat{y} = f(x; \\theta)$",
+      "visualState": { "model_output": "logits", "batch": "N_samples" }
+    },
+    {
+      "step": 2,
+      "title": "Apply Activation (if needed)",
+      "description": "Convert logits to probabilities for classification.",
+      "latex": "p = \\text{softmax}(\\hat{y})$",
+      "visualState": { "logits": "raw", "probs": "normalized", "sum_to_1": true }
+    },
+    {
+      "step": 3,
+      "title": "Compute Pointwise Loss",
+      "description": "Calculate loss per sample.",
+      "latex": "\\ell_i = L(y_i, \\hat{y}_i)$",
+      "visualState": { "per_sample": "loss", "depends_on": "task" }
+    },
+    {
+      "step": 4,
+      "title": "Aggregate",
+      "description": "Average or sum across batch.",
+      "latex": "\\mathcal{L} = \\frac{1}{N}\\sum_{i=1}^N \\ell_i$",
+      "visualState": { "mean": "or_sum", "scalar": "loss" }
+    },
+    {
+      "step": 5,
+      "title": "Add Regularization",
+      "description": "Include weight penalties if applicable.",
+      "latex": "\\mathcal{L}_{total} = \\mathcal{L}_{data} + \\lambda \\mathcal{L}_{reg}$",
+      "visualState": { "l2": "optional", "l1": "optional" }
+    },
+    {
+      "step": 6,
+      "title": "Backward Pass",
+      "description": "Compute gradients through loss.",
+      "latex": "\\frac{\\partial \\mathcal{L}}{\\partial \\theta} = \\frac{\\partial \\mathcal{L}}{\\partial \\hat{y}} \\cdot \\frac{\\partial \\hat{y}}{\\partial \\theta}$",
+      "visualState": { "chain_rule": "applied", "gradients": "flow" }
+    },
+    {
+      "step": 7,
+      "title": "Gradient Scaling",
+      "description": "Loss determines gradient magnitude.",
+      "latex": "\\nabla_\\theta \\propto \\frac{\\partial \\mathcal{L}}{\\partial \\hat{y}}$",
+      "visualState": { "large_loss": "large_grad", "easy_examples": "small_grad" }
+    },
+    {
+      "step": 8,
+      "title": "Parameter Update",
+      "description": "Optimizer uses gradients to update weights.",
+      "latex": "\\theta \\leftarrow \\theta - \\alpha \\nabla_\\theta \\mathcal{L}$",
+      "visualState": { "optimizer_step": "taken", "weights": "updated" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "MSE Gradient",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "For MSE loss L = (y - ŷ)², what's the derivative ∂L/∂ŷ?",
+      "answer": "∂L/∂ŷ = -2(y - ŷ). The negative sign means increase ŷ to decrease loss when ŷ < y.",
+      "explanation": "The gradient tells us how to change the prediction to reduce loss. When prediction is too low (ŷ < y), (y - ŷ) is positive, so gradient is negative—meaning we should increase ŷ.",
+      "hints": ["Chain rule", "Power rule", "Direction to move"]
+    },
+    {
+      "id": "p2",
+      "title": "Cross-Entropy Behavior",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "For binary classification with CE loss, if the true label y=1 but model predicts ŷ=0.01 confidently wrong, what is the loss? What about ŷ=0.5?",
+      "answer": "ŷ=0.01: L = -log(0.01) ≈ 4.6. ŷ=0.5: L = -log(0.5) ≈ 0.69. Wrong confidence penalized much more.",
+      "explanation": "Cross-entropy has 'infinite' loss as prediction approaches 0 for true class (log(0) = -∞). This creates strong gradients to fix confident errors. At ŷ=0.5 (uncertain), loss is moderate.",
+      "hints": ["CE = -log(ŷ) for y=1", "Log of small number is large negative", "Confident wrong is bad"]
+    },
+    {
+      "id": "p3",
+      "title": "Focal Loss Gamma",
+      "difficulty": "medium",
+      "type": "conceptual",
+      "description": "Focal loss adds (1-ŷ)^γ. If γ=2 and a sample has ŷ=0.9 (well-classified), how much is its loss down-weighted compared to standard CE?",
+      "answer": "Down-weighted by (1-0.9)² = 0.01. Loss is 1/100th of what CE would assign.",
+      "explanation": "The focusing parameter γ controls how aggressively easy examples are down-weighted. γ=0 → no effect. γ=2 → well-classified examples (high ŷ) get squared discount. This prevents easy examples from drowning out hard ones in the gradient.",
+      "hints": ["(1-ŷ)^γ factor", "γ=2 means squared", "Well-classified → ŷ close to 1"]
+    },
+    {
+      "id": "p4",
+      "title": "Hinge vs Cross-Entropy",
+      "difficulty": "medium",
+      "type": "comparison",
+      "description": "A classifier is very confident and correct (score=10 for true class). Compare hinge loss vs cross-entropy.",
+      "answer": "Hinge: 0 (satisfied margin). CE: -log(softmax(10)) ≈ small but non-zero. Hinge 'gives up' on already-good examples.",
+      "explanation": "Hinge loss has a 'satisfied' region—once margin ≥ 1, loss is zero and no gradient flows. Cross-entropy always pushes for higher confidence (lower entropy). This can be good (calibrated probabilities) or bad (overconfidence, wasted computation).",
+      "hints": ["Hinge has flat region", "CE always wants more", "Margin satisfaction"]
+    },
+    {
+      "id": "p5",
+      "title": "Triplet Loss Mining",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "In triplet loss training with many negatives, which negatives should you use? All of them?",
+      "answer": "Use 'hard' or 'semi-hard' negatives—those that violate or nearly violate the margin constraint. Easy negatives (already far enough) give zero loss and no learning signal.",
+      "explanation": "Random negative sampling is inefficient—most negatives are already easy (d(a,n) >> d(a,p)). Hard negative mining finds violations: negatives closer than positive or within margin. Semi-hard: negatives where d(a,n) < d(a,p) + margin. Essential for efficient metric learning.",
+      "hints": ["Easy negatives → zero loss", "Hard negatives violate margin", "Semi-hard = slightly violating"]
+    },
+    {
+      "id": "p6",
+      "title": "Multi-Task Loss Weighting",
+      "difficulty": "hard",
+      "type": "design",
+      "description": "You're training a model with 3 tasks: classification (CE loss ~0.1), regression (MSE ~100), and segmentation (Dice ~0.5). How to combine?",
+      "answer": "Different scales cause problems. Solutions: (1) Normalize by initial task losses, (2) Learnable weighting (Kendall et al.), (3) Uncertainty weighting. Simple average would ignore classification (scale mismatch).",
+      "explanation": "Direct sum: L = CE + MSE + Dice ≈ 0.1 + 100 + 0.5 = 100.6. MSE dominates, other tasks effectively ignored. Normalize: L = CE/0.1 + MSE/100 + Dice/0.5 gives equal initial influence. Or learn weights: L = Σ w_i L_i + log σ_i where σ_i is task uncertainty.",
+      "hints": ["Scale matters", "One loss can dominate", "Normalize or learn weights"]
+    }
+  ],
+  "minigame": {
+    "id": "loss-landscape-explorer",
+    "title": "Loss Landscape Explorer",
+    "description": "Visualize how different loss functions shape the optimization landscape. Compare MSE vs MAE robustness to outliers, see how Cross-Entropy gradients scale with confidence, and experiment with Focal Loss parameters on imbalanced data.",
+    "instructions": [
+      "Select a loss function to explore",
+      "Add outliers or noise to data",
+      "Visualize loss surface in 2D",
+      "See gradient magnitude distribution",
+      "Compare convergence on different data distributions"
+    ],
+    "controls": [
+      {
+        "id": "lossFunction",
+        "label": "Loss Function",
+        "type": "select",
+        "options": ["MSE", "MAE", "Huber", "Cross-Entropy", "Focal Loss", "Hinge"]
+      },
+      {
+        "id": "outlierLevel",
+        "label": "Outlier Percentage",
+        "type": "slider",
+        "min": 0,
+        "max": 0.2,
+        "step": 0.01,
+        "default": 0.05
+      },
+      {
+        "id": "focalGamma",
+        "label": "Focal Loss Gamma",
+        "type": "slider",
+        "min": 0,
+        "max": 5,
+        "step": 0.1,
+        "default": 2
+      },
+      {
+        "id": "classBalance",
+        "label": "Class Imbalance Ratio",
+        "type": "slider",
+        "min": 1,
+        "max": 100,
+        "step": 1,
+        "default": 10
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nimport numpy as np\n\nclass CustomLosses:\n    \"\"\"\n    Implementations of various loss functions from scratch\n    \"\"\"\n    \n    @staticmethod\n    def mse_loss(y_pred, y_true, reduction='mean'):\n        \"\"\"\n        Mean Squared Error: L = (y_pred - y_true)^2\n        \"\"\"\n        loss = (y_pred - y_true) ** 2\n        if reduction == 'mean':\n            return loss.mean()\n        elif reduction == 'sum':\n            return loss.sum()\n        return loss\n    \n    @staticmethod\n    def mae_loss(y_pred, y_true, reduction='mean'):\n        \"\"\"\n        Mean Absolute Error (L1): L = |y_pred - y_true|\n        \"\"\"\n        loss = torch.abs(y_pred - y_true)\n        if reduction == 'mean':\n            return loss.mean()\n        elif reduction == 'sum':\n            return loss.sum()\n        return loss\n    \n    @staticmethod\n    def huber_loss(y_pred, y_true, delta=1.0, reduction='mean'):\n        \"\"\"\n        Huber loss: quadratic near zero, linear far from zero\n        Robust to outliers while maintaining differentiability\n        \"\"\"\n        error = y_pred - y_true\n        is_small_error = torch.abs(error) <= delta\n        \n        small_loss = 0.5 * error ** 2\n        large_loss = delta * torch.abs(error) - 0.5 * delta ** 2\n        \n        loss = torch.where(is_small_error, small_loss, large_loss)\n        \n        if reduction == 'mean':\n            return loss.mean()\n        elif reduction == 'sum':\n            return loss.sum()\n        return loss\n    \n    @staticmethod\n    def binary_cross_entropy(y_pred, y_true, eps=1e-7, reduction='mean'):\n        \"\"\"\n        Binary Cross-Entropy: L = -[y*log(ŷ) + (1-y)*log(1-ŷ)]\n        \"\"\"\n        # Clamp for numerical stability\n        y_pred = torch.clamp(y_pred, eps, 1 - eps)\n        \n        loss = -(y_true * torch.log(y_pred) + \n                 (1 - y_true) * torch.log(1 - y_pred))\n        \n        if reduction == 'mean':\n            return loss.mean()\n        elif reduction == 'sum':\n            return loss.sum()\n        return loss\n    \n    @staticmethod\n    def focal_loss(y_pred, y_true, alpha=0.25, gamma=2.0, reduction='mean'):\n        \"\"\"\n        Focal Loss: down-weights easy examples\n        FL = -α(1-ŷ)^γ log(ŷ) for positive class\n        \"\"\"\n        eps = 1e-7\n        y_pred = torch.clamp(y_pred, eps, 1 - eps)\n        \n        # Cross-entropy component\n        ce_loss = -(y_true * torch.log(y_pred) + \n                    (1 - y_true) * torch.log(1 - y_pred))\n        \n        # Focal weight: (1 - ŷ)^γ for positive, ŷ^γ for negative\n        p_t = y_true * y_pred + (1 - y_true) * (1 - y_pred)\n        focal_weight = (1 - p_t) ** gamma\n        \n        # Alpha weighting\n        alpha_t = y_true * alpha + (1 - y_true) * (1 - alpha)\n        \n        loss = alpha_t * focal_weight * ce_loss\n        \n        if reduction == 'mean':\n            return loss.mean()\n        elif reduction == 'sum':\n            return loss.sum()\n        return loss\n    \n    @staticmethod\n    def dice_loss(y_pred, y_true, smooth=1.0):\n        \"\"\"\n        Dice Loss for segmentation: 1 - 2|X∩Y|/(|X|+|Y|)\n        Handles class imbalance better than cross-entropy\n        \"\"\"\n        # Flatten\n        y_pred = y_pred.view(-1)\n        y_true = y_true.view(-1)\n        \n        intersection = (y_pred * y_true).sum()\n        union = y_pred.sum() + y_true.sum()\n        \n        dice = (2. * intersection + smooth) / (union + smooth)\n        return 1 - dice\n    \n    @staticmethod\n    def contrastive_loss(embedding1, embedding2, label, margin=1.0):\n        \"\"\"\n        Contrastive loss for metric learning\n        label=1: same class (minimize distance)\n        label=0: different class (distance > margin)\n        \"\"\"\n        distance = F.pairwise_distance(embedding1, embedding2)\n        \n        loss_same = label * distance.pow(2)  # Same class: minimize distance\n        loss_diff = (1 - label) * torch.clamp(margin - distance, min=0).pow(2)\n        \n        return (loss_same + loss_diff).mean()\n    \n    @staticmethod\n    def triplet_loss(anchor, positive, negative, margin=1.0):\n        \"\"\"\n        Triplet loss: d(a,p) should be < d(a,n)\n        \"\"\"\n        d_ap = F.pairwise_distance(anchor, positive)\n        d_an = F.pairwise_distance(anchor, negative)\n        \n        loss = torch.clamp(d_ap - d_an + margin, min=0)\n        return loss.mean()\n\ndef demonstrate_losses():\n    \"\"\"\n    Demonstrate different loss functions on sample data\n    \"\"\"\n    print(\"=== Loss Function Comparison ===\\n\")\n    \n    # Regression example\n    y_true_reg = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0])\n    y_pred_reg = torch.tensor([1.2, 1.9, 3.5, 4.1, 4.8])\n    \n    print(\"Regression Losses:\")\n    print(f'  MSE: {CustomLosses.mse_loss(y_pred_reg, y_true_reg):.4f}')\n    print(f'  MAE: {CustomLosses.mae_loss(y_pred_reg, y_true_reg):.4f}')\n    print(f'  Huber: {CustomLosses.huber_loss(y_pred_reg, y_true_reg):.4f}')\n    \n    # Add outlier\n    y_pred_outlier = torch.tensor([1.2, 1.9, 3.5, 4.1, 100.0])\n    print(f'\\nWith outlier (pred=100 for true=5):')\n    print(f'  MSE: {CustomLosses.mse_loss(y_pred_outlier, y_true_reg):.4f} (explodes!)')\n    print(f'  MAE: {CustomLosses.mae_loss(y_pred_outlier, y_true_reg):.4f} (linear)')\n    print(f'  Huber: {CustomLosses.huber_loss(y_pred_outlier, y_true_reg):.4f} (robust)')\n    \n    # Classification example\n    print(f\"\\n=== Classification Losses ===\")\n    \n    # Confident correct prediction\n    y_true = torch.tensor([1, 0, 1])\n    y_pred_confident = torch.tensor([0.99, 0.01, 0.98])\n    y_pred_uncertain = torch.tensor([0.6, 0.4, 0.55])\n    \n    print(f'Confident correct (0.99, 0.01, 0.98):')\n    print(f'  BCE: {CustomLosses.binary_cross_entropy(y_pred_confident, y_true):.4f}')\n    print(f'  Focal: {CustomLosses.focal_loss(y_pred_confident, y_true, gamma=2):.4f}')\n    \n    print(f'\\nUncertain predictions (0.6, 0.4, 0.55):')\n    print(f'  BCE: {CustomLosses.binary_cross_entropy(y_pred_uncertain, y_true):.4f}')\n    print(f'  Focal: {CustomLosses.focal_loss(y_pred_uncertain, y_true, gamma=2):.4f}')\n    \n    # Focal loss with different gamma\n    print(f'\\nFocal Loss (varying gamma, easy example ŷ=0.9, y=1):')\n    y_easy = torch.tensor([1.0])\n    y_pred_easy = torch.tensor([0.9])\n    for gamma in [0, 1, 2, 5]:\n        loss = CustomLosses.focal_loss(y_pred_easy, y_easy, gamma=gamma)\n        down_weight = (1 - 0.9) ** gamma\n        print(f'  γ={gamma}: loss={loss:.4f}, down-weight={down_weight:.4f}')\n    \n    # Segmentation example\n    print(f\"\\n=== Segmentation (Dice Loss) ===\")\n    pred_mask = torch.tensor([[[[0.9, 0.1], [0.8, 0.2]]]])\n    true_mask = torch.tensor([[[[1.0, 0.0], [1.0, 0.0]]]])\n    print(f'  Dice Loss: {CustomLosses.dice_loss(pred_mask, true_mask):.4f}')\n    print(f'  (Lower is better, 0 = perfect overlap)')\n    \n    # Metric learning\n    print(f\"\\n=== Metric Learning ===\")\n    anchor = torch.randn(10, 128)\n    positive = anchor + torch.randn(10, 128) * 0.1  # Similar to anchor\n    negative = torch.randn(10, 128)  # Random, different from anchor\n    \n    triplet_loss = CustomLosses.triplet_loss(anchor, positive, negative)\n    print(f'  Triplet Loss: {triplet_loss:.4f}')\n    print(f'  (Margin enforced: d(a,p) + margin < d(a,n))')\n\ndef compare_gradients():\n    \"\"\"\n    Show how different losses produce different gradients\n    \"\"\"\n    print(f\"\\n=== Gradient Comparison ===\")\n    \n    # Single example where prediction is slightly wrong\n    y_true = torch.tensor([1.0])\n    y_pred = torch.tensor([0.7], requires_grad=True)\n    \n    losses = {\n        'MSE': CustomLosses.mse_loss,\n        'MAE': CustomLosses.mae_loss,\n        'BCE': CustomLosses.binary_cross_entropy,\n    }\n    \n    for name, loss_fn in losses.items():\n        y_pred.grad = None\n        loss = loss_fn(y_pred, y_true)\n        loss.backward()\n        print(f'{name}: loss={loss.item():.4f}, grad={y_pred.grad.item():.4f}')\n    \n    # For confident wrong prediction\n    print(f\"\\nConfident wrong (ŷ=0.01, y=1):\")\n    y_pred_wrong = torch.tensor([0.01], requires_grad=True)\n    for name, loss_fn in losses.items():\n        y_pred_wrong.grad = None\n        loss = loss_fn(y_pred_wrong, y_true)\n        loss.backward()\n        print(f'{name}: loss={loss.item():.4f}, grad={y_pred_wrong.grad.item():.4f}')\n\nif __name__ == \"__main__\":\n    demonstrate_losses()\n    compare_gradients()\n    \n    print(f\"\\n=== Using PyTorch Built-in Losses ===\")\n    # Standard PyTorch usage\n    mse = nn.MSELoss()\n    ce = nn.CrossEntropyLoss()  # Includes softmax\n    focal = nn.BCEWithLogitsLoss()  # BCE with built-in sigmoid\n    \n    print(\"Common pattern:\")\n    print(\"  criterion = nn.CrossEntropyLoss()\")\n    print(\"  optimizer.zero_grad()\")\n    print(\"  outputs = model(inputs)  # logits\")\n    print(\"  loss = criterion(outputs, targets)\")\n    print(\"  loss.backward()\")\n    print(\"  optimizer.step()\")"
+  }
+}

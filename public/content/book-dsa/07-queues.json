@@ -1,0 +1,427 @@
+{
+  "id": "07-queues",
+  "bookId": "book-dsa",
+  "title": "Queues",
+  "category": "Linear Structures",
+  "order": 7,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "A queue is a linear data structure following the FIFO (First In, First Out) principle—the first element added is the first to be removed. Think of a line at a store: people join at the back and leave from the front. Queues support enqueue (add to back) and dequeue (remove from front), both $O(1)$. Queues are essential for scheduling tasks, breadth-first search, buffering data streams, and implementing fairness in resource allocation. This chapter covers queue implementation, variations (circular queue, priority queue, deque), and classic queue-based problems.",
+    "sections": [
+      {
+        "title": "Queue Operations",
+        "content": "Core operations: enqueue(val) adds to rear ($O(1)$), dequeue() removes from front ($O(1)$), front() returns front without removing ($O(1)$), isEmpty() checks if empty ($O(1)$), size() returns count ($O(1)$). Implementation can use array with front/rear pointers (circular queue to avoid shifting) or linked list (head as front, tail as rear). Circular queue uses modulo arithmetic to wrap around, making enqueue/dequeue $O(1)$ without shifting.",
+        "operations": [
+          { "name": "enqueue", "complexity": "$O(1)$", "description": "Add to rear" },
+          { "name": "dequeue", "complexity": "$O(1)$", "description": "Remove from front" },
+          { "name": "front/peek", "complexity": "$O(1)$", "description": "Return front without removing" },
+          { "name": "isEmpty", "complexity": "$O(1)$", "description": "Check if queue has elements" }
+        ]
+      },
+      {
+        "title": "Circular Queue",
+        "content": "In array-based queue, when rear reaches end, we can't enqueue even if front has moved (wasted space). Circular queue treats array as ring: after last index comes first. Use modulo: rear = (rear + 1) % capacity. Front also wraps around. Must distinguish full from empty (use count or waste one slot). Circular queue enables efficient use of fixed-size array.",
+        "formulas": [
+          "rear = (rear + 1) % capacity",
+          "front = (front + 1) % capacity",
+          "size = (rear - front + capacity) % capacity"
+        ]
+      },
+      {
+        "title": "Priority Queue",
+        "content": "Priority queue orders elements by priority, not insertion order. Highest (or lowest) priority element is dequeued first. Implementation: unsorted array ($O(1)$ enqueue, $O(n)$ dequeue), sorted array ($O(n)$ enqueue, $O(1)$ dequeue), binary heap ($O(\\log n)$ both). Binary heap (min-heap or max-heap) is most common—efficient for priority queue operations. Used in Dijkstra's algorithm, Huffman coding, task scheduling.",
+        "implementations": [
+          { "type": "Unsorted Array", "enqueue": "$O(1)$", "dequeue": "$O(n)$" },
+          { "type": "Sorted Array", "enqueue": "$O(n)$", "dequeue": "$O(1)$" },
+          { "type": "Binary Heap", "enqueue": "$O(\\log n)$", "dequeue": "$O(\\log n)$" }
+        ]
+      },
+      {
+        "title": "Deque (Double-Ended Queue)",
+        "content": "Deque allows insertion and deletion at both ends. Operations: addFront, addRear, removeFront, removeRear—all $O(1)$. Implementation: circular array with front and rear pointers (handle wrap-around for both ends) or doubly linked list. Used in sliding window problems, palindrome checking, implementing both stack and queue.",
+        "operations": [
+          { "name": "addFront", "complexity": "$O(1)$" },
+          { "name": "addRear", "complexity": "$O(1)$" },
+          { "name": "removeFront", "complexity": "$O(1)$" },
+          { "name": "removeRear", "complexity": "$O(1)$" }
+        ]
+      },
+      {
+        "title": "Queue Applications",
+        "content": "BFS: queue stores nodes to visit level by level. Task scheduling: FCFS (First Come First Served) queue. Buffering: queue smooths out rate differences between producer and consumer. Printer spooler: jobs queue for printing. Call center: callers queue for agents. Music playlist: queue of songs. Message queues: inter-process communication. All rely on FIFO ordering.",
+        "applications": [
+          "BFS graph traversal",
+          "Task scheduling (FCFS)",
+          "Producer-consumer buffering",
+          "Print job spooling",
+          "Message passing systems"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "FIFO Principle",
+        "description": "First In, First Out. First element added is first removed. Ensures fairness in ordering.",
+        "analogy": "Line at store, queue at amusement park"
+      },
+      {
+        "name": "Circular Buffer",
+        "description": "Array treated as ring using modulo arithmetic. Prevents wasted space when front advances.",
+        "formula": "index = (index + 1) % capacity"
+      },
+      {
+        "name": "Heap Property",
+        "description": "In min-heap, parent ≤ children. In max-heap, parent ≥ children. Enables $O(\\log n)$ priority queue.",
+        "array": "For index i: parent = (i-1)/2, left = 2i+1, right = 2i+2"
+      },
+      {
+        "name": "Blocking Queue",
+        "description": "Queue that blocks when full (enqueue) or empty (dequeue). Used in producer-consumer synchronization.",
+        "use": "Thread-safe communication, bounded buffer"
+      }
+    ],
+    "complexity": {
+      "enqueue": "$O(1)$",
+      "dequeue": "$O(1)$",
+      "front": "$O(1)$",
+      "isEmpty": "$O(1)$",
+      "size": "$O(1)$",
+      "space": "$O(n)$ for n elements"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Queue",
+      "description": "Create empty queue with front and rear pointers at -1 (or 0 for circular).",
+      "code": "front = rear = -1; array = new Array[capacity];",
+      "visualState": { "front": -1, "rear": -1, "size": 0 }
+    },
+    {
+      "step": 2,
+      "title": "Enqueue",
+      "description": "Increment rear (with wrap for circular), add element at rear. Update front if first element.",
+      "code": "rear = (rear + 1) % capacity; array[rear] = value; if (front == -1) front = rear;",
+      "visualState": { "rear": 0, "elements": [5], "front": 0 }
+    },
+    {
+      "step": 3,
+      "title": "Dequeue",
+      "description": "Return element at front, increment front (with wrap). Reset if queue becomes empty.",
+      "code": "value = array[front]; if (front == rear) front = rear = -1; else front = (front + 1) % capacity;",
+      "visualState": { "front": 1, "popped": 5 }
+    },
+    {
+      "step": 4,
+      "title": "Check Empty",
+      "description": "Return true if front == -1 (or front == rear in some implementations).",
+      "code": "return front == -1;",
+      "visualState": { "isEmpty": false }
+    },
+    {
+      "step": 5,
+      "title": "Check Full",
+      "description": "Return true if (rear + 1) % capacity == front (circular).",
+      "code": "return (rear + 1) % capacity == front;",
+      "visualState": { "isFull": false }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Implement Queue using Stacks",
+      "difficulty": "easy",
+      "type": "implementation",
+      "description": "Implement queue using two stacks (push efficient or pop efficient).",
+      "complexity": { "push": "$O(1)$", "pop": "$O(1)$ amortized" },
+      "solution": "Two stacks: input and output. Push: push to input. Pop/peek: if output empty, move all from input to output. Then pop/peek from output.",
+      "hints": ["Two stacks: input and output", "Push to input", "Pop from output, refill from input if empty"]
+    },
+    {
+      "id": "p2",
+      "title": "Implement Stack using Queues",
+      "difficulty": "easy",
+      "type": "implementation",
+      "description": "Implement stack using one or two queues.",
+      "complexity": { "push": "$O(n)$", "pop": "$O(1)$" },
+      "solution": "Two queues. Push: enqueue to q2, move all from q1 to q2, swap q1 and q2. Pop: dequeue from q1.",
+      "hints": ["Two queues", "Push: add to empty, move all, swap", "Pop: dequeue from main"]
+    },
+    {
+      "id": "p3",
+      "title": "Design Circular Queue",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement circular queue with fixed capacity using array.",
+      "complexity": { "enqueue": "$O(1)$", "dequeue": "$O(1)$" },
+      "solution": "Front and rear pointers. Use modulo for wrap: rear = (rear + 1) % capacity. Distinguish full from empty using count or waste one slot.",
+      "hints": ["Use modulo for wrap-around", "Track count to distinguish full/empty", "Front = (front + 1) % capacity on dequeue"]
+    },
+    {
+      "id": "p4",
+      "title": "Design Circular Deque",
+      "difficulty": "medium",
+      "type": "implementation",
+      "description": "Implement deque with fixed capacity (insert/delete at both ends).",
+      "complexity": { "all": "$O(1)$" },
+      "solution": "Circular array with front and rear. Handle wrap for both ends. addFront: front = (front - 1 + capacity) % capacity. addRear: rear = (rear + 1) % capacity.",
+      "hints": ["Circular array with front and rear", "Modulo for wrap at both ends", "Track count for full/empty"]
+    },
+    {
+      "id": "p5",
+      "title": "Recent Counter",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Return number of requests in last 3000ms. Requests come in increasing time.",
+      "example": "times=[100,3001,3002]. Output: [1,2,3]",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Queue of times. For each request, dequeue while front < current - 3000. Enqueue current. Return queue size.",
+      "hints": ["Queue stores recent times", "Dequeue old requests (< current - 3000)", "Queue size is answer"]
+    },
+    {
+      "id": "p6",
+      "title": "Number of Islands",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Count islands (connected '1's) in 2D grid using BFS.",
+      "example": "grid=[['1','1','0','0','0'],...]. Output: 1",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(min(m,n))$" },
+      "solution": "Iterate all cells. When '1' found, increment count, BFS to mark all connected '1's as visited. BFS uses queue of coordinates.",
+      "hints": ["BFS for each unvisited '1'", "Queue stores coordinates to visit", "Mark visited to avoid recounting"]
+    },
+    {
+      "id": "p7",
+      "title": "Rotting Oranges",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minutes until no fresh oranges remain (2 rots adjacent 1s).",
+      "example": "grid=[[2,1,1],[1,1,0],[0,1,1]]. Output: 4",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from all initially rotten oranges. Queue stores rotten positions. Each minute, rot adjacent fresh oranges. Count minutes until queue empty.",
+      "hints": ["BFS from all initial rotten oranges", "Queue stores positions to process", "Count levels (minutes) in BFS"]
+    },
+    {
+      "id": "p8",
+      "title": "Open the Lock",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum turns to open lock with 4 wheels (0-9 each) given deadends.",
+      "example": "deadends=['0201','0101'], target='0202'. Output: 6",
+      "complexity": { "time": "$O(10^4)$", "space": "$O(10^4)$" },
+      "solution": "BFS from '0000'. For each state, try 8 possible moves (±1 each wheel). Skip deadends. Track visited. Return steps when target reached.",
+      "hints": ["BFS from '0000'", "8 possible moves per state", "Skip deadends and visited"]
+    },
+    {
+      "id": "p9",
+      "title": "Perfect Squares",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find least number of perfect square numbers that sum to n.",
+      "example": "n=12. Output: 3 (4+4+4)",
+      "complexity": { "time": "$O(n \\sqrt{n})$", "space": "$O(n)$" },
+      "solution": "BFS from 0. Level 0: 0. Level 1: all squares ≤ n. Level k: sum of level k-1 with squares. Return level when n reached.",
+      "hints": ["BFS from 0", "Each level adds one square", "First time reaching n is answer"]
+    },
+    {
+      "id": "p10",
+      "title": "Binary Tree Level Order",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Return level order traversal of binary tree (BFS).",
+      "example": "tree=[3,9,20,null,null,15,7]. Output: [[3],[9,20],[15,7]]",
+      "complexity": { "time": "$O(n)$", "space": "$O(n)$" },
+      "solution": "Queue for BFS. Enqueue root. While queue not empty: process level (all nodes in queue), enqueue children.",
+      "hints": ["Queue for BFS", "Process all nodes at current level", "Enqueue children for next level"]
+    },
+    {
+      "id": "p11",
+      "title": "Course Schedule",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Determine if can finish all courses given prerequisites (detect cycle in DAG).",
+      "example": "numCourses=2, prerequisites=[[1,0]]. Output: true",
+      "complexity": { "time": "$O(V+E)$", "space": "$O(V+E)$" },
+      "solution": "Topological sort using BFS (Kahn's algorithm). Build adjacency list and in-degree count. Queue nodes with 0 in-degree. Process, reduce in-degree of neighbors. If all processed, no cycle.",
+      "hints": ["Build graph and in-degree count", "Queue nodes with 0 in-degree", "If not all processed, cycle exists"]
+    },
+    {
+      "id": "p12",
+      "title": "Sliding Window Maximum",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find max in each sliding window of size k.",
+      "example": "nums=[1,3,-1,-3,5,3,6,7], k=3. Output: [3,3,5,5,6,7]",
+      "complexity": { "time": "$O(n)$", "space": "$O(k)$" },
+      "solution": "Monotonic decreasing deque. Store indices. Remove indices outside window. Remove from back while values ≤ current. Push current. Front is max.",
+      "hints": ["Monotonic decreasing deque", "Remove indices outside window", "Remove smaller values from back"]
+    },
+    {
+      "id": "p13",
+      "title": "Task Scheduler",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find least intervals to execute tasks with cooldown n between same tasks.",
+      "example": "tasks=['A','A','A','B','B','B'], n=2. Output: 8",
+      "complexity": { "time": "$O(n)$", "space": "$O(1)$" },
+      "solution": "Count frequencies. Max frequency task determines idle slots. Formula: max(len(tasks), (maxFreq - 1) * (n + 1) + countMaxFreq).",
+      "hints": ["Count task frequencies", "Max frequency determines structure", "Formula accounts for idle slots"]
+    },
+    {
+      "id": "p14",
+      "title": "Moving Average from Data Stream",
+      "difficulty": "easy",
+      "type": "algorithm",
+      "description": "Calculate moving average of last k numbers from stream.",
+      "complexity": { "next": "$O(1)$", "space": "$O(k)$" },
+      "solution": "Queue of size k. On next(val): enqueue, if size > k dequeue. Return sum / size. Maintain running sum.",
+      "hints": ["Queue of size k", "Maintain running sum", "Return sum / size"]
+    },
+    {
+      "id": "p15",
+      "title": "Design Hit Counter",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Design hit counter that records hits in past 5 minutes.",
+      "complexity": { "hit": "$O(1)$", "getHits": "$O(1)$" },
+      "solution": "Queue of (timestamp, count). On hit(timestamp): if same as last, increment count. Else enqueue new. Remove old entries. getHits: sum counts in queue.",
+      "hints": ["Queue of (timestamp, count)", "Group consecutive hits", "Remove entries older than 5 minutes"]
+    },
+    {
+      "id": "p16",
+      "title": "Walls and Gates",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Fill each empty room with distance to nearest gate (-1 = wall, INF = empty, 0 = gate).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from all gates. Queue stores gate positions. For each cell, update distance if current + 1 < existing. Enqueue for further propagation.",
+      "hints": ["BFS from all gates simultaneously", "Queue stores positions to process", "Update distance if shorter path found"]
+    },
+    {
+      "id": "p17",
+      "title": "Shortest Path in Binary Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest path from top-left to bottom-right in binary matrix (can move 8 directions).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from (0,0). Queue stores (row, col, distance). Mark visited. Return distance when reach (m-1, n-1).",
+      "hints": ["BFS from start", "8 directions (including diagonals)", "Return distance when reach target"]
+    },
+    {
+      "id": "p18",
+      "title": "As Far from Land as Possible",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find water cell (0) with maximum distance to nearest land (1) in grid.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "Multi-source BFS from all land cells. Queue stores land positions. BFS outward, tracking distance. Max distance is answer.",
+      "hints": ["Multi-source BFS from all land", "Queue stores positions", "Track max distance during BFS"]
+    },
+    {
+      "id": "p19",
+      "title": "01 Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "For each cell, find distance to nearest 0.",
+      "example": "matrix=[[0,0,0],[0,1,0],[0,0,0]]. Output: [[0,0,0],[0,1,0],[0,0,0]]",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "Multi-source BFS from all 0s. Queue stores positions. BFS outward, setting distance = current + 1.",
+      "hints": ["Multi-source BFS from all 0s", "Initialize queue with all 0 positions", "BFS outward, set distances"]
+    },
+    {
+      "id": "p20",
+      "title": "Nearest Exit from Entrance",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find nearest exit from entrance in maze (can move in 4 directions).",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "BFS from entrance. Queue stores (row, col, distance). Mark visited. Return distance when reach border cell.",
+      "hints": ["BFS from entrance", "Queue stores (row, col, distance)", "Return when reach border"]
+    },
+    {
+      "id": "p21",
+      "title": "Shortest Bridge",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find shortest bridge (flip 0 to 1) to connect two islands in binary matrix.",
+      "complexity": { "time": "$O(m \\times n)$", "space": "$O(m \\times n)$" },
+      "solution": "DFS to find first island, mark cells and add to queue. BFS from island cells to find nearest cell of second island.",
+      "hints": ["DFS to find and mark first island", "BFS from island to find second island", "Distance is bridge length"]
+    },
+    {
+      "id": "p22",
+      "title": "Word Ladder",
+      "difficulty": "hard",
+      "type": "algorithm",
+      "description": "Find shortest transformation sequence from beginWord to endWord, changing one letter at a time.",
+      "complexity": { "time": "$O(n \\times m^2)$", "space": "$O(n \\times m^2)$" },
+      "solution": "BFS from beginWord. For each word, try all one-letter mutations. If in dict and not visited, add to queue. Track distance.",
+      "hints": ["BFS for shortest path", "Generate all one-letter mutations", "Use visited set to avoid cycles"]
+    },
+    {
+      "id": "p23",
+      "title": "Minimum Genetic Mutation",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find minimum mutations to transform start to end string using bank (one char change per step).",
+      "complexity": { "time": "$O(n \\times m)$", "space": "$O(n)$" },
+      "solution": "BFS from start. For each string, try all one-char mutations. If in bank and not visited, add to queue. Return steps when reach end.",
+      "hints": ["BFS from start string", "Try all single-character mutations", "Return steps when reach end"]
+    },
+    {
+      "id": "p24",
+      "title": "Kth Smallest Element in Sorted Matrix",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Find kth smallest element in sorted matrix (each row/col sorted).",
+      "complexity": { "time": "$O(k \\log n)$", "space": "$O(n)$" },
+      "solution": "Min-heap of (value, row, col). Initialize with first element of each row. Extract min k times. Push next element from same row.",
+      "hints": ["Min-heap for sorted access", "Initialize with first column", "Extract k times, push next from row"]
+    },
+    {
+      "id": "p25",
+      "title": "Rearrange String k Distance Apart",
+      "difficulty": "medium",
+      "type": "algorithm",
+      "description": "Rearrange string so same characters are at least k distance apart.",
+      "example": "s='aabbcc', k=3. Output: 'abcabc'",
+      "complexity": { "time": "$O(n \\log n)$", "space": "$O(n)$" },
+      "solution": "Max-heap of (count, char). Greedy: place most frequent first, wait k slots before placing again. Use queue to track cooldown.",
+      "hints": ["Max-heap by frequency", "Place most frequent first", "Queue for cooldown (wait k slots)"]
+    }
+  ],
+  "minigame": {
+    "id": "queue-simulator",
+    "title": "Queue Master",
+    "description": "Master queue operations! Enqueue, dequeue, and solve queue-based challenges.",
+    "type": "interactive",
+    "challenges": [
+      { "name": "Basic Operations", "tasks": ["enqueue 5", "enqueue 3", "dequeue", "peek"] },
+      { "name": "Circular Queue", "tasks": ["fill queue", "wrap around", "dequeue all"] },
+      { "name": "Priority Queue", "tasks": ["enqueue with priority", "dequeue (highest first)"] }
+    ]
+  },
+  "visualizer": {
+    "type": "queue-operations",
+    "title": "Queue Operations Visualizer",
+    "description": "Visualize enqueue, dequeue, and circular queue operations step by step.",
+    "operations": ["enqueue", "dequeue", "front", "circular"],
+    "features": ["Front/rear pointers", "Circular wrap visualization", "Operation history"]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Circular Queue",
+        "code": "class CircularQueue:\n    def __init__(self, k):\n        self.k = k\n        self.q = [0] * k\n        self.front = self.rear = -1\n    \n    def enqueue(self, value):\n        if self.is_full(): return False\n        if self.front == -1:\n            self.front = 0\n        self.rear = (self.rear + 1) % self.k\n        self.q[self.rear] = value\n        return True"
+      },
+      {
+        "title": "Priority Queue (Min-Heap)",
+        "code": "import heapq\n\nclass PriorityQueue:\n    def __init__(self):\n        self.heap = []\n    \n    def enqueue(self, item, priority):\n        heapq.heappush(self.heap, (priority, item))\n    \n    def dequeue(self):\n        return heapq.heappop(self.heap)[1]  # O(log n)"
+      },
+      {
+        "title": "BFS Template",
+        "code": "from collections import deque\n\ndef bfs(start, target):\n    queue = deque([start])\n    visited = {start}\n    \n    while queue:\n        node = queue.popleft()\n        if node == target:\n            return True\n        for neighbor in get_neighbors(node):\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)\n    return False"
+      }
+    ]
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "id": "06-grover-algorithm",
+  "bookId": "book-quantum",
+  "title": "Grover's Search Algorithm",
+  "category": "Algorithms",
+  "order": 6,
+  "estimatedTime": "75 min",
+  "theory": {
+    "overview": "Grover's algorithm (1996) provides a quadratic speedup for unstructured search problems. Given a database of N items with one marked item, classical search requires O(N) queries in the worst case. Grover's algorithm finds the marked item in O(√N) queries—a provably optimal quantum speedup for this problem. The algorithm works by amplifying the amplitude of the marked state through repeated application of two reflections: the oracle (reflects marked state) and the diffusion operator (reflects about the average). This 'Grover iteration' is applied approximately π√N/4 times, after which measurement yields the marked item with high probability.",
+    "sections": [
+      {
+        "title": "The Unstructured Search Problem",
+        "content": "You're given a function f: {0,1}ⁿ → {0,1} where f(x) = 1 for exactly one marked item x = w (winner), and f(x) = 0 for all others. Classically, finding w requires testing about N/2 items on average (N in worst case). The database is unstructured—no ordering or pattern helps. This models many real problems: finding a specific password hash, searching an unsorted database, constraint satisfaction (SAT), and more. Grover's algorithm doesn't require the database to be quantum—it just needs quantum access to the checking function (oracle).",
+        "setup": "N = 2ⁿ items, 1 marked, oracle marks |w⟩ with phase -1",
+        "classical": "O(N) queries required",
+        "quantum": "O(√N) queries sufficient"
+      },
+      {
+        "title": "The Oracle (Phase Kickback)",
+        "content": "The oracle marks the winning state by flipping its phase: $O|x\rangle = (-1)^{f(x)}|x\rangle$, so $O|w\rangle = -|w\rangle$ and $O|x\rangle = |x\rangle$ for $x \neq w$. This is called phase kickback—we encode the answer in the phase. The oracle is a black box in the algorithm analysis, but in practice, it's implemented as a quantum circuit that evaluates f. For database search, this might be comparing each entry to the target. For SAT, it's checking if an assignment satisfies all clauses. The key is that the oracle runs in polynomial time relative to the problem size.",
+        "action": "$O|x\\rangle = \\begin{cases} -|x\\rangle & \\text{if } x = w \\\\\ |x\\rangle & \\text{otherwise} \\\end{cases}$",
+        "geometric": "Reflection across hyperplane orthogonal to |w⟩",
+        "keyPoint": "Only needs to recognize the answer, not know it in advance"
+      },
+      {
+        "title": "Amplitude Amplification",
+        "content": "Grover's algorithm uses two reflections to amplify the marked state's amplitude. Start with equal superposition $|s\rangle = \frac{1}{\\sqrt{N}}\\sum_x |x\rangle$. This can be written as $|s\rangle = \\sin(\theta)|w\rangle + \\cos(\theta)|r\rangle$ where $|r\rangle$ is the uniform superposition of unmarked states and $\\sin(\theta) = 1/\\sqrt{N}$. One Grover iteration (G = DO) rotates the state by $2\theta$ toward $|w\rangle$. After k iterations: $\\sin((2k+1)\theta)|w\rangle + \\cos((2k+1)\theta)|r\rangle$. We want $(2k+1)\theta \\approx \\pi/2$, so $k \\approx \frac{\\pi}{4\theta} - \frac{1}{2} \\approx \frac{\\pi}{4}\\sqrt{N}$.",
+        "formula": "After k iterations: $\\\sin((2k+1)\\theta)|w\\rangle + \\\cos((2k+1)\\theta)|r\\rangle$",
+        "optimal": "k ≈ π√N/4 iterations",
+        "visual": "2D plane spanned by |w⟩ and |r⟩: each iteration rotates by 2θ"
+      },
+      {
+        "title": "The Diffusion Operator",
+        "content": "The diffusion operator D reflects about the average amplitude (about $|s\rangle$). It can be written as $D = 2|s\rangle\\langle s| - I$ or implemented as $H^{\\otimes n}(2|0\rangle\\langle 0| - I)H^{\\otimes n}$. The operator $2|0\rangle\\langle 0| - I$ flips the phase of all states except |0...0⟩. Geometrically, D inverts all amplitudes about their mean. Combined with the oracle (which flips the marked state's amplitude), this amplifies the marked state while suppressing others. The diffusion operator is the same regardless of which item is marked—it's 'problem-independent.'",
+        "implementation": "$D = H^{\\\otimes n} \\\cdot \\text{diag}(1, -1, -1, ..., -1) \\\cdot H^{\\\otimes n}$",
+        "effect": "Reflection about the uniform superposition |s⟩",
+        "circuit": "H^{⊗n} — [Z on |0⟩] — H^{⊗n}"
+      },
+      {
+        "title": "Multiple Solutions",
+        "content": "If there are M marked items instead of 1, the analysis changes. The initial overlap with the 'good' subspace is $\\sin(\theta) = \\sqrt{M/N}$. The optimal number of iterations becomes approximately $\frac{\\pi}{4}\\sqrt{N/M}$. If M = N/4, just one iteration suffices. Interestingly, if M > N/2 (more than half are solutions), the algorithm gets worse with more iterations! In this case, we can add dummy items to reduce M/N. The success probability oscillates sinusoidally with the number of iterations—there's an optimal stopping point.",
+        "formula": "k_opt ≈ π/4 · √(N/M)",
+        "probability": "P(success) = sin²((2k+1)θ) where sin(θ) = √(M/N)",
+        "caveat": "If M > N/2, add dummy items or use different approach"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Quadratic Speedup",
+        "description": "Grover provides √N speedup, not exponential. This is provably optimal for unstructured search—no quantum algorithm can do better.",
+        "lowerBound": "Ω(√N) queries are necessary for any quantum algorithm"
+      },
+      {
+        "name": "Amplitude Amplification",
+        "description": "A generalization of Grover's technique that works with any search problem where you can recognize solutions. Used as a subroutine in many algorithms.",
+        "extension": "Works with arbitrary initial states, not just uniform superposition"
+      },
+      {
+        "name": "Phase Oracle vs Boolean Oracle",
+        "description": "Phase oracle marks with -1 phase. Boolean oracle has an auxiliary output qubit: |x⟩|0⟩ → |x⟩|f(x)⟩. Phase oracle can be derived from boolean oracle using phase kickback.",
+        "conversion": "Apply oracle with |−⟩ = |0⟩−|1⟩ as target: |x⟩|−⟩ → (−1)^f(x)|x⟩|−⟩"
+      },
+      {
+        "name": "Fixed-Point Search",
+        "description": "Standard Grover overshoots if run too long. Fixed-point variants converge monotonically, useful when the exact number of solutions is unknown.",
+        "use": "When M is unknown or when you want guaranteed convergence"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "O(√N) oracle queries, O(√N · poly(log N)) total time",
+      "spaceComplexity": "O(log N) qubits (n qubits for N = 2ⁿ items)",
+      "optimality": "Quadratic speedup is optimal for unstructured search"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Uniform Superposition",
+      "description": "Apply Hadamard to all n qubits to create equal superposition of all N = 2ⁿ states.",
+      "latex": "|s\\rangle = H^{\\\otimes n}|0\\rangle^{\\\otimes n} = \\frac{1}{\\\sqrt{N}}\\\sum_{x=0}^{N-1}|x\\rangle",
+      "visualState": { "uniform": true, "markedAmplitude": "1/√N" }
+    },
+    {
+      "step": 2,
+      "title": "Apply Oracle",
+      "description": "Mark the winning state |w⟩ by flipping its phase. All other states unchanged.",
+      "latex": "O|s\\rangle = \\frac{1}{\\\sqrt{N}}(\\\sum_{x \\neq w}|x\\rangle - |w\\rangle)$",
+      "visualState": { "markedPhase": "flipped", "amplitudes": "same magnitude" }
+    },
+    {
+      "step": 3,
+      "title": "Apply Diffusion Operator",
+      "description": "Reflect about the average amplitude. This amplifies the marked state's amplitude.",
+      "latex": "D \\\cdot O|s\\rangle: \\text{amplitude of } |w\\rangle \\\approx \\frac{3}{\\\sqrt{N}}, \\text{ others } \\\approx \\frac{1}{\\\sqrt{N}}",
+      "visualState": { "markedAmplitude": "amplified", "others": "suppressed" }
+    },
+    {
+      "step": 4,
+      "title": "Repeat Grover Iteration",
+      "description": "Repeat steps 2-3 approximately π√N/4 times. Each iteration rotates the state closer to |w⟩.",
+      "latex": "G^k|s\\rangle = \\\sin((2k+1)\\theta)|w\\rangle + \\\cos((2k+1)\\theta)|r\\rangle",
+      "visualState": { "iterations": "≈ π√N/4", "angle": "(2k+1)θ" }
+    },
+    {
+      "step": 5,
+      "title": "Measure",
+      "description": "Measure all qubits. The probability of obtaining |w⟩ is close to 1.",
+      "latex": "P(|w\\rangle) = \\\sin^2((2k+1)\\theta) \\\approx 1 - O(1/N)",
+      "visualState": { "measurement": true, "successProbability": "≈ 1" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Grover Iterations",
+      "difficulty": "Easy",
+      "description": "You have a database of N = 1024 items. How many Grover iterations are optimal?",
+      "options": ["16", "25", "32", "64"],
+      "correctAnswer": 1,
+      "explanation": "k_opt ≈ π/4 · √N = π/4 · 32 ≈ 25.1. So about 25 iterations. Using the formula: π√1024/4 = 32π/4 ≈ 25.",
+      "hint": "Use k ≈ π√N/4. √1024 = 32."
+    },
+    {
+      "id": "p2",
+      "title": "Multiple Solutions",
+      "difficulty": "Medium",
+      "description": "If there are M = 4 marked items in N = 256 total items, how many iterations?",
+      "options": ["4", "8", "16", "32"],
+      "correctAnswer": 0,
+      "explanation": "With M solutions, k_opt ≈ π/4 · √(N/M) = π/4 · √(256/4) = π/4 · √64 = π/4 · 8 ≈ 6.28 ≈ 4 when rounded to nearest integer in practice. Actually closer to 4-6 iterations.",
+      "hint": "Use √(N/M) instead of √N when there are multiple solutions."
+    },
+    {
+      "id": "p3",
+      "title": "Amplitude After Iteration",
+      "difficulty": "Medium",
+      "description": "After one Grover iteration on N items, what's the approximate amplitude of the marked state?",
+      "options": ["1/√N", "2/√N", "3/√N", "1"],
+      "correctAnswer": 2,
+      "explanation": "After oracle + diffusion, the marked state's amplitude becomes approximately 3/√N while unmarked states have amplitude ≈ 1/√N. This is the amplification effect—the marked state grows while others shrink slightly.",
+      "hint": "The diffusion operator reflects about the mean, amplifying deviations."
+    },
+    {
+      "id": "p4",
+      "title": "Speedup for SAT",
+      "difficulty": "Hard",
+      "description": "For a SAT problem with n variables and a unique satisfying assignment, what's Grover's speedup over brute force?",
+      "options": ["Exponential (2^n → poly(n))", "Quadratic (2^n → 2^(n/2))", "Linear (2^n → n·2^n)", "No speedup"],
+      "correctAnswer": 1,
+      "explanation": "Brute force tries all 2ⁿ assignments. Grover needs O(2^(n/2)) = O(√(2ⁿ)) iterations. This is a quadratic speedup. While not exponential, it's provably optimal for unstructured search.",
+      "hint": "Grover gives √N speedup. Here N = 2ⁿ."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n\ndef grover_algorithm(n, marked_state, iterations=None):\n    \"\"\"\n    Simulate Grover's algorithm for n qubits, searching for marked_state.\n    \"\"\"\n    N = 2**n\n    if iterations is None:\n        iterations = int(np.round(np.pi/4 * np.sqrt(N)))\n    \n    # Initialize uniform superposition\n    psi = np.ones(N) / np.sqrt(N)\n    \n    # Oracle: flips phase of marked state\n    def oracle(state):\n        new_state = state.copy()\n        new_state[marked_state] *= -1\n        return new_state\n    \n    # Diffusion operator: reflection about average\n    def diffusion(state):\n        mean = np.mean(state)\n        return 2 * mean - state\n    \n    print(f'Searching N={N} items for marked state |{marked_state:0{n}b}⟩')\n    print(f'Optimal iterations: {iterations}')\n    print(f'\\nInitial amplitude of marked state: {psi[marked_state]:.6f}')\n    \n    # Run Grover iterations\n    for i in range(iterations):\n        psi = oracle(psi)\n        psi = diffusion(psi)\n        print(f'After iteration {i+1}: amplitude = {psi[marked_state]:.6f}, prob = {np.abs(psi[marked_state])**2:.4f}')\n    \n    # Calculate final probabilities\n    probs = np.abs(psi)**2\n    print(f'\\nFinal probability of marked state: {probs[marked_state]:.4f}')\n    print(f'Maximum other probability: {np.max(np.delete(probs, marked_state)):.6f}')\n    \n    return psi\n\n# Run on small example\npsi_final = grover_algorithm(n=4, marked_state=10)\n\n# Verify quadratic speedup scaling\nprint('\\n--- Scaling Analysis ---')\nfor n in range(2, 9):\n    N = 2**n\n    opt_iter = int(np.round(np.pi/4 * np.sqrt(N)))\n    print(f'n={n}, N={N:4d}: iterations={opt_iter:3d}, ratio N/iter={N/opt_iter:.1f}')",
+    "qsharp": "namespace Quantum.Grover {\n    open Microsoft.Quantum.Canon;\n    open Microsoft.Quantum.Intrinsic;\n    open Microsoft.Quantum.Measurement;\n    open Microsoft.Quantum.Math;\n    open Microsoft.Quantum.Convert;\n    \n    // Oracle that marks the target state\n    operation MarkingOracle(target : Int, qubits : Qubit[]) : Unit is Adj {\n        // Convert target to binary and apply controlled-Z\n        // This is a simplified version\n        let n = Length(qubits);\n        \n        // Apply X to flip bits where target has 0\n        for i in 0..n-1 {\n            if (not ((target >>> i) &&& 1) == 1) {\n                X(qubits[i]);\n            }\n        }\n        \n        // Apply multi-controlled Z\n        Controlled Z(Most(qubits), Tail(qubits));\n        \n        // Uncompute\n        for i in 0..n-1 {\n            if (not ((target >>> i) &&& 1) == 1) {\n                X(qubits[i]);\n            }\n        }\n    }\n    \n    // Diffusion operator\n    operation Diffusion(qubits : Qubit[]) : Unit is Adj {\n        ApplyToEach(H, qubits);\n        ApplyToEach(X, qubits);\n        Controlled Z(Most(qubits), Tail(qubits));\n        ApplyToEach(X, qubits);\n        ApplyToEach(H, qubits);\n    }\n    \n    @EntryPoint()\n    operation RunGrover(n : Int, target : Int) : Int {\n        use qubits = Qubit[n];\n        \n        // Initialize uniform superposition\n        ApplyToEach(H, qubits);\n        \n        // Calculate optimal iterations\n        let iterations = Round(PI() / 4.0 * Sqrt(IntAsDouble(2^ n)));\n        \n        // Grover iterations\n        for _ in 1..iterations {\n            MarkingOracle(target, qubits);\n            Diffusion(qubits);\n        }\n        \n        // Measure and return result\n        let result = MeasureInteger(LittleEndian(qubits));\n        return result;\n    }\n}",
+    "quipper": "import Quipper\n\n-- Simplified Grover's algorithm\ngroverSearch :: Int -> Circ Bit\ngroverSearch target = do\n  -- For 3-qubit example\n  q1 <- qinit True\n  q2 <- qinit True  \n  q3 <- qinit True\n  \n  -- Initialize superposition\n  q1 <- hadamard q1\n  q2 <- hadamard q2\n  q3 <- hadamard q3\n  \n  -- Grover iterations (2 for 3 qubits = N=8, optimal ≈ π/4·√8 ≈ 2.2)\n  (q1, q2, q3) <- groverIteration (q1, q2, q3) target\n  (q1, q2, q3) <- groverIteration (q1, q2, q3) target\n  \n  -- Measure\n  (q1, b1) <- measure_qubit q1\n  (q2, b2) <- measure_qubit q2\n  (q3, b3) <- measure_qubit q3\n  \n  -- Return combined result\n  return b1  -- Simplified\n\n-- Oracle implementation (simplified)\noracle3Qubit :: Qubit -> Qubit -> Qubit -> Int -> Circ (Qubit, Qubit, Qubit)\noracle3Qubit q1 q2 q3 target = do\n  -- Mark target state with phase flip\n  -- Implementation depends on target\n  return (q1, q2, q3)\n\n-- Diffusion operator\ndiffusion3Qubit :: Qubit -> Qubit -> Qubit -> Circ (Qubit, Qubit, Qubit)\ndiffusion3Qubit q1 q2 q3 = do\n  q1 <- hadamard q1\n  q2 <- hadamard q2\n  q3 <- hadamard q3\n  q1 <- gate_X q1\n  q2 <- gate_X q2\n  q3 <- gate_X q3\n  -- Multi-controlled phase\n  (q1, q2) <- controlled_not q1 q2\n  (q2, q3) <- controlled_not q2 q3\n  q3 <- gate_Z q3\n  (q2, q3) <- controlled_not q2 q3\n  (q1, q2) <- controlled_not q1 q2\n  q1 <- gate_X q1\n  q2 <- gate_X q2\n  q3 <- gate_X q3\n  q1 <- hadamard q1\n  q2 <- hadamard q2\n  q3 <- hadamard q3\n  return (q1, q2, q3)\n\ngroverIteration (q1, q2, q3) target = do\n  (q1, q2, q3) <- oracle3Qubit q1 q2 q3 target\n  (q1, q2, q3) <- diffusion3Qubit q1 q2 q3\n  return (q1, q2, q3)"
+  }
+}

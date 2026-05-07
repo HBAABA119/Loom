@@ -1,0 +1,309 @@
+{
+  "id": "engine-02-parser",
+  "bookId": "book-engine",
+  "title": "Parsing & Abstract Syntax Trees",
+  "category": "Foundations",
+  "order": 2,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Parsing transforms a flat stream of tokens into a hierarchical tree structure—the Abstract Syntax Tree (AST). While lexing answers 'what are the words?', parsing answers 'what is the grammatical structure?'. The AST captures the semantic relationships between tokens, representing operations, precedence, and nesting. Every compiler, interpreter, and static analyzer relies on parsing to understand code structure before execution or transformation.",
+    "sections": [
+      {
+        "title": "From Tokens to Trees",
+        "content": "Consider the expression `3 + 4 * 5`. As tokens: [3, +, 4, *, 5]. But this misses crucial information: multiplication has higher precedence than addition. The AST makes this explicit: a root `+` node with children `3` and a `*` subtree. The `*` node has children `4` and `5`. This tree structure ensures correct evaluation order and provides a clean representation for code transformation, optimization, and code generation.",
+        "examples": [
+          {
+            "expression": "3 + 4 * 5",
+            "tokens": "3 + 4 * 5",
+            "ast": "(+ 3 (* 4 5)) → evaluates to 23, not 35"
+          },
+          {
+            "expression": "(3 + 4) * 5",
+            "tokens": "( 3 + 4 ) * 5",
+            "ast": "(* (+ 3 4) 5) → evaluates to 35"
+          }
+        ]
+      },
+      {
+        "title": "Grammar and Production Rules",
+        "content": "Programming languages are defined by formal grammars, typically in Backus-Naur Form (BNF) or Extended BNF (EBNF). A grammar consists of terminals (tokens from the lexer) and non-terminals (syntactic categories like Expression, Statement, Function). Production rules define how non-terminals expand: Expression → Term { (+|-) Term }. This recursive definition captures arithmetic with proper precedence—Term handles higher-precedence * and /, while Expression handles lower-precedence + and -.",
+        "grammar": [
+          "Expression → Term { ('+' | '-') Term }",
+          "Term → Factor { ('*' | '/') Factor }",
+          "Factor → Number | '(' Expression ')' | Identifier",
+          "Number → [0-9]+",
+          "Identifier → [a-zA-Z_][a-zA-Z0-9_]*"
+        ]
+      },
+      {
+        "title": "Recursive Descent Parsing",
+        "content": "Recursive descent is the most intuitive parsing technique—each non-terminal becomes a function. The parser class maintains a current token pointer and provides methods to consume expected tokens. For Expression, we first parse a Term, then while the next token is + or -, we consume it and parse another Term. This naturally handles left-associativity and produces correct precedence. Each parse method returns an AST node, building the tree bottom-up.",
+        "keyPoints": [
+          "One function per grammar rule",
+          "Lookahead token determines which rule to apply",
+          "Mutual recursion between rules (Expr calls Term, Term calls Factor, Factor may call Expr)",
+          "Predictive parsing with fixed lookahead (typically 1 token)"
+        ]
+      },
+      {
+        "title": "AST Node Types",
+        "content": "A well-designed AST uses distinct node types for different language constructs. BinaryOp nodes have left/right children and an operator. Literal nodes store values. Identifier nodes store names. Block nodes contain statement lists. IfStmt nodes have condition, then-block, and optional else-block. FunctionDecl nodes have name, parameters, and body. This type hierarchy enables the compiler to handle each construct appropriately during analysis and code generation.",
+        "nodeTypes": [
+          { "type": "BinaryOp", "fields": "operator, left, right", "example": "+, -, *, /" },
+          { "type": "Literal", "fields": "value, type", "example": "42, 'hello', true" },
+          { "type": "Identifier", "fields": "name", "example": "x, myVar" },
+          { "type": "Assignment", "fields": "target, value", "example": "x = 5" },
+          { "type": "IfStmt", "fields": "condition, thenBranch, elseBranch", "example": "if (x) { ... }" },
+          { "type": "WhileStmt", "fields": "condition, body", "example": "while (x) { ... }" },
+          { "type": "CallExpr", "fields": "callee, arguments", "example": "foo(1, 2)" }
+        ]
+      },
+      {
+        "title": "Error Handling and Recovery",
+        "content": "Production parsers must handle syntax errors gracefully. Synchronization points (like semicolons or closing braces) help the parser recover and continue finding more errors. Error messages should be specific: 'Expected ; after expression' is better than 'Syntax error'. Panic mode recovery skips tokens until a synchronizing token is found, allowing the parser to report multiple errors in one pass.",
+        "examples": [
+          {
+            "badCode": "if x > 5 { y = 10",
+            "error": "Expected '(' after 'if', found 'x'",
+            "recovery": "Insert implicit parens or skip to '{'"
+          }
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Left Recursion",
+        "description": "Rules like Expr → Expr + Term cause infinite recursion in naive recursive descent. Transform to Expr → Term { + Term } or use a loop.",
+        "latex": "A \\rightarrow A\\alpha \\text{ is left-recursive}"
+      },
+      {
+        "name": "Operator Precedence",
+        "description": "Grammar structure encodes precedence: deeper rules (Term inside Expr) have higher precedence than outer rules.",
+        "example": "* binds tighter than + because Factor is inside Term which is inside Expr"
+      },
+      {
+        "name": "Associativity",
+        "description": "Left-associative: a - b - c = (a - b) - c. Right-associative: a = b = c = a = (b = c). Loop gives left, recursion gives right.",
+        "example": "Left recursion via loop; right recursion via recursive call"
+      },
+      {
+        "name": "LL(1) Grammars",
+        "description": "Grammars parseable with 1-token lookahead. First and Follow sets determine predictability. Most programming languages are designed to be LL(1) or close to it.",
+        "check": "No FIRST/FIRST conflicts, no FIRST/FOLLOW conflicts"
+      }
+    ],
+    "complexity": {
+      "timeComplexity": "$O(n)$ for LL(1) recursive descent where $n$ = token count",
+      "spaceComplexity": "$O(d)$ where $d$ = maximum nesting depth (recursion stack)",
+      "astSize": "$O(n)$ nodes for $n$ tokens"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize Parser",
+      "description": "Load tokens from lexer, set current position to first token, prepare error list.",
+      "visualState": { "tokens": ["IDENTIFIER(x)", "OPERATOR(=)", "NUMBER(5)"], "position": 0, "ast": null }
+    },
+    {
+      "step": 2,
+      "title": "Parse Expression",
+      "description": "Entry point for parsing. Calls parseTerm for higher precedence, then handles + and -.",
+      "visualState": { "rule": "Expression", "entering": "parseExpression()", "lookahead": "IDENTIFIER(x)" }
+    },
+    {
+      "step": 3,
+      "title": "Parse Term (Higher Precedence)",
+      "description": "Parse factors first, then handle * and /. This ensures * happens before +.",
+      "visualState": { "rule": "Term", "calling": "parseFactor()", "recursionDepth": 1 }
+    },
+    {
+      "step": 4,
+      "title": "Parse Factor (Base Case)",
+      "description": "Handle literals, identifiers, and parenthesized expressions. Returns leaf nodes.",
+      "visualState": { "rule": "Factor", "nodeType": "Identifier", "value": "x", "created": true }
+    },
+    {
+      "step": 5,
+      "title": "Build BinaryOp Node",
+      "description": "After parsing left and right operands, create BinaryOp AST node with operator.",
+      "visualState": { "node": { "type": "BinaryOp", "op": "=", "left": "x", "right": "5" }, "treeDepth": 2 }
+    },
+    {
+      "step": 6,
+      "title": "Return Completed AST",
+      "description": "Root node contains entire program structure. Ready for semantic analysis or code generation.",
+      "visualState": { "astRoot": "BinaryOp", "totalNodes": 3, "treeHeight": 2, "status": "complete" }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Simple Expression AST",
+      "difficulty": "easy",
+      "type": "tree-building",
+      "description": "Draw the AST for: `5 + 3 * 2`",
+      "answer": "Root: +, Left: 5, Right: (* 3 2)",
+      "explanation": "Multiplication has higher precedence, so 3*2 forms a subtree. The + node has 5 and the * subtree as children.",
+      "hints": ["* has higher precedence than +", "Build from leaves up", "+ is the root"]
+    },
+    {
+      "id": "p2",
+      "title": "Parentheses Change Structure",
+      "difficulty": "easy",
+      "type": "tree-building",
+      "description": "Draw the AST for: `(5 + 3) * 2`",
+      "answer": "Root: *, Left: (+ 5 3), Right: 2",
+      "explanation": "Parentheses force 5+3 to evaluate first. The * node now has the + subtree and 2 as children.",
+      "hints": ["Parentheses override precedence", "+ subtree is now left child of *", "* becomes the root"]
+    },
+    {
+      "id": "p3",
+      "title": "AST Node Count",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "How many AST nodes for: `a + b + c`?",
+      "answer": "5 nodes: 2 BinaryOp nodes (+), 3 Identifier nodes (a, b, c)",
+      "explanation": "Left-associative: (a + b) + c. Two BinaryOp nodes (both +), three leaf Identifier nodes.",
+      "hints": ["+ is left-associative", "(a + b) + c structure", "Count both operators and operands"]
+    },
+    {
+      "id": "p4",
+      "title": "Left vs Right Associativity",
+      "difficulty": "medium",
+      "type": "tree-building",
+      "description": "How does AST differ for left-associative `a - b - c` vs right-associative `a = b = c`?",
+      "answer": "Left: ((- a b) c), Right: (a (= b c))",
+      "explanation": "Left-assoc builds left-deep tree. Right-assoc (assignment) builds right-deep tree. Evaluation order differs.",
+      "hints": ["Left-assoc: ((a-b)-c)", "Right-assoc: (a=(b=c))", "Tree shape reflects evaluation order"]
+    },
+    {
+      "id": "p5",
+      "title": "Precedence Depth",
+      "difficulty": "medium",
+      "type": "analysis",
+      "description": "What is tree height for: `1 + 2 * 3 - 4 / 5`?",
+      "answer": "Height 3 (root + or -, children include * and / subtrees at height 2, leaves at height 1)",
+      "explanation": "+ and - are at same precedence level (left to right), * and / are deeper. Structure: (+ (- 1 (* 2 3)) (/ 4 5)) approx.",
+      "hints": ["* and / have higher precedence", "They form deeper subtrees", "Count edges from root to deepest leaf"]
+    },
+    {
+      "id": "p6",
+      "title": "Grammar Production",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "In grammar: Expr → Term { (+|-) Term }, what does { } mean?",
+      "answer": "Zero or more repetitions (Kleene star)",
+      "explanation": "The braces indicate the (+|-) Term part can repeat zero or more times, enabling chains like a + b - c + d.",
+      "hints": ["{ } is EBNF notation", "Similar to regex *", "Handles chains of operators"]
+    },
+    {
+      "id": "p7",
+      "title": "First and Follow Sets",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "Why do LL(1) parsers need FIRST and FOLLOW sets?",
+      "answer": "To determine which production to use with only 1-token lookahead",
+      "explanation": "FIRST tells what terminals a production can start with. FOLLOW tells what can follow a non-terminal. Together they resolve choice conflicts.",
+      "hints": ["FIRST: starting terminals of a rule", "FOLLOW: what can come after", "LL(1) means 1 lookahead token"]
+    },
+    {
+      "id": "p8",
+      "title": "Recursive Descent Advantage",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What makes recursive descent parsers easy to understand and implement?",
+      "answer": "Each grammar rule becomes a function—direct correspondence between grammar and code",
+      "explanation": "The structure mirrors the grammar exactly. Easy to debug, extend, and maintain. Hand-written parsers often use this approach.",
+      "hints": ["One function per rule", "Grammar directly becomes code", "Easy to trace execution"]
+    },
+    {
+      "id": "p9",
+      "title": "Parse Tree vs AST",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "What's the difference between a parse tree and an AST?",
+      "answer": "Parse tree shows all grammar productions; AST is simplified, omits syntactic sugar",
+      "explanation": "Parse tree includes intermediate non-terminals. AST keeps only semantic content—no parens nodes, no single-child pass-through nodes.",
+      "hints": ["Parse tree = concrete syntax", "AST = abstract syntax", "AST is smaller and cleaner"]
+    },
+    {
+      "id": "p10",
+      "title": "Complex Expression Parsing",
+      "difficulty": "hard",
+      "type": "tree-building",
+      "description": "Build AST for: `f(a, b) + g(c) * 3`",
+      "answer": "Root: +, Left: CallExpr(f, [a, b]), Right: * (CallExpr(g, [c]), 3)",
+      "explanation": "Function calls are nodes with callee and arguments. Precedence makes g(c)*3 a subtree before the addition.",
+      "hints": ["Function calls are AST nodes too", "Arguments are child list", "Apply precedence normally"]
+    }
+  ],
+  "minigame": {
+    "id": "ast-builder",
+    "title": "AST Architect",
+    "description": "Build Abstract Syntax Trees by dragging and connecting nodes! Learn how precedence, associativity, and parentheses shape the tree structure. A fun puzzle game for understanding parser output.",
+    "type": "drag-drop-puzzle",
+    "instructions": [
+      "Read the expression at the top",
+      "Drag operators and operands to build the tree",
+      "Higher precedence operators go deeper in the tree",
+      "Connect nodes by dragging from parent to child",
+      "Submit when your tree matches the expression semantics"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Tree Sapling",
+        "description": "Simple arithmetic with clear precedence",
+        "problems": [
+          { "expression": "2 + 3", "nodes": ["+", "2", "3"], "structure": "flat" },
+          { "expression": "5 * 4", "nodes": ["*", "5", "4"], "structure": "flat" }
+        ]
+      },
+      {
+        "level": 2,
+        "name": "Branching Out",
+        "description": "Mixed precedence expressions",
+        "problems": [
+          { "expression": "1 + 2 * 3", "nodes": ["+", "1", "*", "2", "3"], "structure": "* is child of +" },
+          { "expression": "10 - 4 / 2", "nodes": ["-", "10", "/", "4", "2"], "structure": "/ is child of -" }
+        ]
+      },
+      {
+        "level": 3,
+        "name": "Deep Roots",
+        "description": "Complex nested expressions with parens",
+        "problems": [
+          { "expression": "(1 + 2) * (3 + 4)", "nodes": ["*", "+", "1", "2", "+", "3", "4"], "structure": "two + subtrees" },
+          { "expression": "a + b * c - d / e", "nodes": ["-", "+", "a", "*", "b", "c", "/", "d", "e"], "structure": "left assoc chain" }
+        ]
+      }
+    ],
+    "scoring": {
+      "correctStructure": 100,
+      "speedBonus": "max(0, 60 - timeTaken)",
+      "hintsPenalty": "-10 per hint used"
+    }
+  },
+  "visualizer": {
+    "type": "parser-simulation",
+    "title": "Parser & AST Builder",
+    "description": "Watch recursive descent parsing in action. See tokens transform into a hierarchical tree. Observe how precedence rules shape the tree structure.",
+    "features": [
+      "Step-by-step token consumption",
+      "Call stack visualization for recursion",
+      "Live AST construction",
+      "Precedence highlighting",
+      "Grammar rule display"
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Recursive Descent Parser",
+        "code": "from enum import Enum, auto\nfrom dataclasses import dataclass\nfrom typing import List, Optional, Union\n\nclass TokenType(Enum):\n    NUMBER = auto()\n    IDENTIFIER = auto()\n    PLUS = auto()\n    MINUS = auto()\n    MULTIPLY = auto()\n    DIVIDE = auto()\n    LPAREN = auto()\n    RPAREN = auto()\n    EOF = auto()\n\n@dataclass\nclass Token:\n    type: TokenType\n    value: Union[str, int, float]\n\n# AST Node Classes\n@dataclass\nclass NumberNode:\n    value: Union[int, float]\n    \n@dataclass\nclass IdentifierNode:\n    name: str\n    \n@dataclass\nclass BinaryOpNode:\n    operator: str\n    left: 'ASTNode'\n    right: 'ASTNode'\n\nASTNode = Union[NumberNode, IdentifierNode, BinaryOpNode]\n\nclass Parser:\n    def __init__(self, tokens: List[Token]):\n        self.tokens = tokens\n        self.pos = 0\n    \n    def current(self) -> Token:\n        return self.tokens[self.pos] if self.pos < len(self.tokens) else Token(TokenType.EOF, None)\n    \n    def consume(self, expected: TokenType = None) -> Token:\n        token = self.current()\n        if expected and token.type != expected:\n            raise SyntaxError(f'Expected {expected}, got {token.type}')\n        self.pos += 1\n        return token\n    \n    def parse(self) -> ASTNode:\n        \"\"\"Entry point: parse an expression\"\"\"\n        return self.parse_expression()\n    \n    def parse_expression(self) -> ASTNode:\n        \"\"\"\n        Expression → Term { ('+' | '-') Term }\n        Handles low-precedence + and -\n        \"\"\"\n        left = self.parse_term()\n        \n        while self.current().type in (TokenType.PLUS, TokenType.MINUS):\n            op_token = self.consume()\n            right = self.parse_term()\n            left = BinaryOpNode(op_token.value, left, right)\n        \n        return left\n    \n    def parse_term(self) -> ASTNode:\n        \"\"\"\n        Term → Factor { ('*' | '/') Factor }\n        Handles high-precedence * and /\n        \"\"\"\n        left = self.parse_factor()\n        \n        while self.current().type in (TokenType.MULTIPLY, TokenType.DIVIDE):\n            op_token = self.consume()\n            right = self.parse_factor()\n            left = BinaryOpNode(op_token.value, left, right)\n        \n        return left\n    \n    def parse_factor(self) -> ASTNode:\n        \"\"\"\n        Factor → NUMBER | IDENTIFIER | '(' Expression ')'\n        Base case: literals, variables, or parenthesized expressions\n        \"\"\"\n        token = self.current()\n        \n        if token.type == TokenType.NUMBER:\n            self.consume()\n            return NumberNode(token.value)\n        \n        elif token.type == TokenType.IDENTIFIER:\n            self.consume()\n            return IdentifierNode(token.value)\n        \n        elif token.type == TokenType.LPAREN:\n            self.consume()  # (\n            expr = self.parse_expression()\n            self.consume(TokenType.RPAREN)  # )\n            return expr\n        \n        else:\n            raise SyntaxError(f'Unexpected token: {token}')\n    \n    def print_ast(self, node: ASTNode, indent: int = 0):\n        prefix = '  ' * indent\n        if isinstance(node, NumberNode):\n            print(f'{prefix}Number({node.value})')\n        elif isinstance(node, IdentifierNode):\n            print(f'{prefix}Identifier({node.name})')\n        elif isinstance(node, BinaryOpNode):\n            print(f'{prefix}BinaryOp({node.operator})')\n            self.print_ast(node.left, indent + 1)\n            self.print_ast(node.right, indent + 1)\n\n# Example usage\ntokens = [\n    Token(TokenType.NUMBER, 3),\n    Token(TokenType.PLUS, '+'),\n    Token(TokenType.NUMBER, 4),\n    Token(TokenType.MULTIPLY, '*'),\n    Token(TokenType.NUMBER, 5),\n    Token(TokenType.EOF, None)\n]\n\nparser = Parser(tokens)\nast = parser.parse()\nprint('AST for: 3 + 4 * 5')\nparser.print_ast(ast)\n# Output shows 3 + (4 * 5), demonstrating precedence!"
+      }
+    ]
+  }
+}

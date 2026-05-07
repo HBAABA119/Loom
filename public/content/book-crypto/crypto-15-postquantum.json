@@ -1,0 +1,147 @@
+{
+  "id": "crypto-15-postquantum",
+  "bookId": "book-crypto",
+  "title": "Post-Quantum Cryptography",
+  "category": "Advanced",
+  "order": 15,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Quantum computers threaten current cryptography. Shor's algorithm breaks RSA, DSA, and ECDSA in polynomial time on quantum computers. Grover's algorithm halves symmetric key security but is manageable with larger keys. Post-Quantum Cryptography (PQC) develops algorithms secure against both classical and quantum attacks. NIST's 2024 PQC standards—CRYSTALS-Kyber for key encapsulation and CRYSTALS-Dilithium for signatures—mark the beginning of the quantum-resistant era. Understanding PQC is essential for long-term security planning.",
+    "sections": [
+      {
+        "title": "The Quantum Threat",
+        "content": "Quantum computers use qubits and quantum algorithms to solve certain problems exponentially faster. Shor's algorithm factors integers and computes discrete logarithms in polynomial time, completely breaking RSA and ECC. A few thousand logical qubits could break 2048-bit RSA. Current quantum computers have hundreds of noisy qubits—not yet capable, but advancing rapidly. Harvest now, decrypt later: attackers may record encrypted traffic today to decrypt when quantum computers mature. This creates urgency for PQC adoption even before quantum computers exist.",
+        "keyPoints": [
+          "Shor's algorithm breaks RSA/ECC",
+          "Polynomial time vs exponential",
+          "Current quantum computers: ~100s of qubits",
+          "Harvest now, decrypt later threat"
+        ]
+      },
+      {
+        "title": "Lattice-Based Cryptography",
+        "content": "Lattice-based cryptography is the leading PQC approach. Built on hard lattice problems like Learning With Errors (LWE) and Ring-LWE. These problems resist quantum attacks because they're based on high-dimensional geometry rather than number theory. CRYSTALS-Kyber (now ML-KEM) provides IND-CCA2 secure key encapsulation with reasonable key sizes (~1KB) and performance comparable to ECDH. CRYSTALS-Dilithium (now ML-DSA) provides signatures. Lattice problems have security proofs reducing to worst-case hard problems, providing confidence in their security.",
+        "keyPoints": [
+          "Based on high-dimensional lattice problems",
+          "Learning With Errors (LWE) hardness",
+          "CRYSTALS-Kyber: Key encapsulation",
+          "CRYSTALS-Dilithium: Signatures"
+        ]
+      },
+      {
+        "title": "Other PQC Approaches",
+        "content": "Beyond lattices, multiple approaches exist. Hash-based signatures (SPHINCS+) are conservative, based only on hash function security with no number-theoretic assumptions—slow but trusted. Code-based cryptography (Classic McEliece) uses error-correcting codes, large keys but well-studied. Multivariate cryptography uses systems of quadratic equations. Isogeny-based cryptography (SIKE) was broken in 2022, demonstrating PQC risks. NIST continues evaluating additional candidates for future standards.",
+        "keyPoints": [
+          "Hash-based: SPHINCS+, conservative",
+          "Code-based: Classic McEliece, large keys",
+          "SIKE: Broken in 2022",
+          "Multiple candidates for diversity"
+        ]
+      },
+      {
+        "title": "Migration Strategies",
+        "content": "Transitioning to PQC requires planning. Hybrid approaches combine classical and post-quantum algorithms during transition—if PQC fails, classical still protects. Google's 2016 experiment combined ECDH with NewHope. Key size increases: Kyber public keys are ~1KB vs 32 bytes for X25519, impacting bandwidth. Performance: Kyber is fast but signatures (Dilithium) add overhead. Algorithm agility: design systems to swap algorithms. Crypto inventory: identify all uses of vulnerable algorithms. NIST recommends starting migration now, with full transition by 2035.",
+        "keyPoints": [
+          "Hybrid classical + PQC during transition",
+          "Larger keys and signatures",
+          "Algorithm agility essential",
+          "Start migration now"
+        ]
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Shor's Algorithm",
+        "description": "Quantum algorithm breaking RSA/ECC",
+        "latex": "\\text{Factoring in } O(n^3) \\text{ on quantum computer}"
+      },
+      {
+        "name": "LWE",
+        "description": "Learning With Errors problem",
+        "latex": "\\text{Find } s \\text{ given } (A, As + e)"
+      },
+      {
+        "name": "ML-KEM",
+        "description": "NIST standard for key encapsulation",
+        "latex": "\\text{Kyber-768: } \\approx \\text{ AES-192 security}"
+      }
+    ],
+    "complexity": {
+      "shor": "O(n^3) for n-bit number",
+      "kyber": "O(n^2) for n-dimension lattice",
+      "grover": "O(2^(n/2)) for n-bit key"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Assess Current Cryptography",
+      "description": "Inventory all uses of RSA, DSA, ECDSA, and DH.",
+      "latex": "\\text{Identify vulnerable algorithms}",
+      "visualState": {"inventory": "in progress", "vulnerable": "identified"}
+    },
+    {
+      "step": 2,
+      "title": "Select PQC Algorithms",
+      "description": "Choose NIST-approved algorithms: ML-KEM for KEM, ML-DSA for signatures.",
+      "latex": "\\text{ML-KEM-768 + ML-DSA-65}",
+      "visualState": {"kem": "Kyber", "signature": "Dilithium"}
+    },
+    {
+      "step": 3,
+      "title": "Hybrid Deployment",
+      "description": "Deploy hybrid classical + PQC during transition period.",
+      "latex": "\\text{SharedSecret} = KDF(ECDH || Kyber)",
+      "visualState": {"hybrid": "enabled", "classical": "X25519", "pqc": "Kyber"}
+    },
+    {
+      "step": 4,
+      "title": "Update Infrastructure",
+      "description": "Update TLS libraries, certificates, and key management.",
+      "latex": "\\text{TLS 1.3 + PQC extensions}",
+      "visualState": {"tls": "updated", "certificates": "PQC-capable"}
+    },
+    {
+      "step": 5,
+      "title": "Monitor Standards",
+      "description": "Follow NIST updates and cryptoanalytic developments.",
+      "latex": "\\text{Agility: swap if broken}",
+      "visualState": {"monitoring": "active", "agility": "maintained"}
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Shor's Algorithm Target",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "Which algorithms does Shor's algorithm break?",
+      "solution": {"answer": "RSA, DSA, ECDSA, and Diffie-Hellman", "explanation": "Shor's algorithm efficiently factors integers and solves discrete logarithms, breaking all algorithms based on these problems."}
+    },
+    {
+      "id": "p2",
+      "title": "Grover's Impact",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "What is the impact of Grover's algorithm on symmetric cryptography?",
+      "solution": {"answer": "Halves effective key length", "explanation": "Grover's algorithm searches unsorted databases in O(sqrt(N)), effectively halving key security. AES-256 becomes ~128-bit secure—still secure, but AES-128 becomes ~64-bit—unsafe."}
+    },
+    {
+      "id": "p3",
+      "title": "Hybrid Approach",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Why use hybrid classical + post-quantum during transition?",
+      "solution": {"answer": "Protects against both classical and quantum attacks; fallback if PQC breaks", "explanation": "Hybrids ensure that if the PQC algorithm has an undiscovered weakness, the classical component still provides security. This is conservative during the transition period."}
+    }
+  ],
+  "minigame": {
+    "id": "pqc-explorer",
+    "title": "Post-Quantum Explorer",
+    "description": "Compare classical and post-quantum algorithms",
+    "type": "comparison",
+    "levels": [{"level": 1, "name": "Algorithm Comparison"}, {"level": 2, "name": "Key Size Impact"}]
+  },
+  "visualizer": {"type": "pqc-comparison", "title": "Post-Quantum Algorithm Comparison"},
+  "codeExample": {"language": "python", "snippets": [{"title": "Kyber KEM (Conceptual)", "code": "# Using liboqs or similar PQC library\nfrom oqs import KeyEncapsulation\n\nkem = KeyEncapsulation('Kyber512')\npublic_key = kem.generate_keypair()\n\n# Encapsulate: creates ciphertext and shared secret\nciphertext, shared_secret = kem.encap_secret(public_key)\n\n# Decapsulate: recovers shared secret\nrecovered = kem.decap_secret(ciphertext)"}]}
+}

@@ -1,0 +1,84 @@
+{
+  "id": "14-quantum-walks",
+  "bookId": "book-quantum",
+  "title": "Quantum Walks",
+  "category": "Algorithms",
+  "order": 14,
+  "estimatedTime": "50 min",
+  "theory": {
+    "overview": "Quantum walks are the quantum analog of classical random walks, providing a framework for quantum algorithms with quadratically faster spread (σ ∝ t vs σ ∝ √t). Two models exist: discrete-time (DTQW) with coin operator and continuous-time (CTQW) under Hamiltonian evolution. Quantum walks enable faster search on graphs and solve element distinctness in O(N^{2/3}) queries.",
+    "sections": [
+      {
+        "title": "Discrete-Time Quantum Walk",
+        "content": "DTQW uses position and coin Hilbert spaces. State: |ψ⟩ = Σ_x (a_x|x⟩|→⟩ + b_x|x⟩|←⟩). Each step applies coin then shift: U = S·(C ⊗ I). Hadamard coin creates superposition. Spreads ballistically with σ ∝ t.",
+        "evolution": "U = S(C ⊗ I)",
+        "spread": "σ ∝ t (ballistic)"
+      },
+      {
+        "title": "Quantum Walk Search",
+        "content": "Quantum walks search marked vertices faster than classical. On complete graph: O(√N) vs classical O(N). Oracle modifies walk at marked vertices. Works on structured graphs where database isn't fully connected.",
+        "speedup": "Quadratic: O(√N) vs O(N)",
+        "applications": ["Unsorted search", "Graph search", "Spatial search"]
+      },
+      {
+        "title": "Element Distinctness",
+        "content": "Ambainis's quantum walk algorithm finds collisions in O(N^{2/3}) queries, optimal for quantum. Walks on Johnson graph J(N, r) of subsets. Applications: collision finding, triangle finding, formula evaluation.",
+        "complexity": "O(N^{2/3}) queries",
+        "graph": "Johnson graph J(N, r)"
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Ballistic Spreading",
+        "description": "Quantum walks spread linearly σ ∝ t vs diffusively σ ∝ √t for classical"
+      },
+      {
+        "name": "Coin Operator",
+        "description": "Creates superposition over directions (Hadamard, Grover coins)"
+      }
+    ],
+    "complexity": {
+      "spread": "σ ∝ t (ballistic)",
+      "search": "O(√N) on complete graph",
+      "elementDistinctness": "O(N^{2/3}) queries"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Initialize",
+      "description": "Prepare walker at starting position with coin state",
+      "latex": "|\\\psi(0)\\rangle = |0\\rangle \\\otimes |\\rightarrow\\rangle"
+    },
+    {
+      "step": 2,
+      "title": "Evolve",
+      "description": "Apply coin then shift repeatedly",
+      "latex": "|\\\psi(t)\\rangle = (SC)^t |\\\psi(0)\\rangle"
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Spread Comparison",
+      "difficulty": "Easy",
+      "description": "After 100 steps, compare σ between classical and quantum walks",
+      "options": ["Same: ~10", "Classical: ~10, Quantum: ~100", "Classical: ~100, Quantum: ~10"],
+      "correctAnswer": 1,
+      "explanation": "Classical: σ = √100 = 10. Quantum: σ ∝ t = 100."
+    },
+    {
+      "id": "p2",
+      "title": "Element Distinctness",
+      "difficulty": "Medium",
+      "description": "Query complexity of quantum walk for element distinctness?",
+      "options": ["O(N)", "O(√N)", "O(N^{2/3})"],
+      "correctAnswer": 2,
+      "explanation": "Optimal quantum algorithm achieves O(N^{2/3}) queries."
+    }
+  ],
+  "codeExample": {
+    "python": "import numpy as np\n# Discrete-time quantum walk simulation\ndef quantum_walk_step(state, coin, shift):\n    n = len(state) // 2\n    new_state = np.zeros_like(state)\n    for x in range(n):\n        new_state[2*x:2*x+2] = coin @ state[2*x:2*x+2]\n    return shift @ new_state\n\n# Hadamard coin\nH = np.array([[1, 1], [1, -1]]) / np.sqrt(2)\nprint('Quantum walk: ballistic spread σ ∝ t')",
+    "qsharp": "namespace Quantum.Walks {\n    operation QuantumWalkStep(pos : Qubit[], coin : Qubit) : Unit {\n        H(coin);  // Coin flip\n        // Controlled shift operations...\n    }\n}"
+  }
+}

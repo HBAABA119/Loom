@@ -1,0 +1,251 @@
+{
+  "id": "arch-05-registers",
+  "bookId": "book-arch",
+  "title": "Registers & Counters",
+  "category": "Memory",
+  "order": 5,
+  "estimatedTime": "30 min",
+  "theory": {
+    "overview": "Registers are the fastest and most frequently accessed memory in a computer, located directly within the processor. They serve as temporary holding places for data being processed, addresses being accessed, and control information guiding execution. Unlike main memory (RAM) which can take hundreds of clock cycles to access, registers respond instantly. Counters—specialized registers that increment or decrement—drive sequencing, timing, and program flow. Understanding how these fundamental components work is essential for grasping how processors execute instructions and manage state.",
+    "sections": [
+      {
+        "title": "The Role of Registers",
+        "content": "Registers are the working memory of the CPU. Modern processors typically have dozens to hundreds of general-purpose registers for holding data, plus special-purpose registers for specific functions: the Program Counter (PC) holds the address of the next instruction, the Instruction Register (IR) holds the currently executing instruction, the Stack Pointer (SP) tracks the top of the call stack, and status registers hold condition flags. Accessing a register takes zero wait states—it's instantaneous relative to the clock.",
+        "types": {
+          "generalPurpose": "Hold operands and results (R0-R31 in ARM, eax-edx in x86)",
+          "programCounter": "Points to next instruction (PC/EIP/RIP)",
+          "stackPointer": "Points to stack top (SP/ESP/RSP)",
+          "instructionRegister": "Holds current instruction being decoded",
+          "statusRegister": "Contains flags: Z, N, C, V, etc.",
+          "addressRegisters": "Hold memory addresses for access"
+        }
+      },
+      {
+        "title": "Register Files: Organized Storage",
+        "content": "Processors organize registers into register files—arrays of registers with multiple read/write ports. A typical register file allows reading two registers and writing one register simultaneously every clock cycle. This multi-ported design enables the register file to supply operands to the ALU while receiving results, all in one cycle. Register files are implemented using SRAM cells with specialized read/write circuitry.",
+        "characteristics": {
+          "readPorts": "2-4 simultaneous reads",
+          "writePorts": "1-2 simultaneous writes",
+          "accessTime": "1 clock cycle",
+          "capacity": "32-512 registers in high-end designs"
+        }
+      },
+      {
+        "title": "Shift Registers: Moving Data",
+        "content": "A shift register moves its contents left or right on each clock pulse. Serial-in-parallel-out (SIPO) shift registers convert a stream of serial bits to parallel form. Parallel-in-serial-out (PISO) does the reverse. Shift registers are used for communication protocols, multiplication/division by 2 (shift operations), and creating delays. A circular shift register (rotate) wraps bits around, preserving all information while changing positions.",
+        "operations": {
+          "logicalShiftLeft": "Multiply by 2, fill LSB with 0",
+          "logicalShiftRight": "Unsigned divide by 2, fill MSB with 0",
+          "arithmeticShiftRight": "Signed divide by 2, preserve sign bit",
+          "rotate": "Wrap bits around (no loss)",
+          "rotateThroughCarry": "Include carry flag in rotation"
+        }
+      },
+      {
+        "title": "Counters: Sequencing Events",
+        "content": "Counters are registers that automatically increment (or decrement) on each clock cycle. Synchronous counters update all bits simultaneously using carry-lookahead logic, making them fast but complex. Asynchronous (ripple) counters chain toggle flip-flops, where each stage toggles when the previous stage falls. They're simpler but slower due to ripple delay. Counters drive the program counter (sequential instruction fetch), timers, and frequency dividers.",
+        "types": {
+          "binary": "Standard count: 0, 1, 2, 3...",
+          "moduloN": "Count 0 to N-1, then reset",
+          "ring": "One bit circulates (one-hot)",
+          "johnson": "Shift register with inverted feedback"
+        }
+      },
+      {
+        "title": "The Program Counter: Guiding Execution",
+        "content": "The Program Counter (PC) is arguably the most important register in a processor. It holds the memory address of the next instruction to fetch. After each fetch, the PC increments by the instruction size (typically 4 bytes). For branches and jumps, the PC is loaded with a new target address. The PC's behavior—sequential with occasional jumps—defines the flow of program execution. Some architectures expose the PC as a general register (ARM), others hide it (x86).",
+        "operations": [
+          "Sequential: PC = PC + 4 (next instruction)",
+          "Branch: PC = target_address (conditional)",
+          "Jump: PC = target_address (unconditional)",
+          "Call: PC = target, save return address",
+          "Return: PC = saved return address"
+        ]
+      },
+      {
+        "title": "Register Windows and Renaming",
+        "content": "Advanced architectures use register windows (SPARC) or register renaming to avoid limitations. Register windows provide multiple overlapping register sets for fast procedure calls. Register renaming maps architectural registers to a larger physical register file, eliminating false dependencies (WAR and WAW hazards) in out-of-order execution. These techniques allow more instruction-level parallelism while maintaining the simple programmer-visible register model.",
+        "benefits": {
+          "registerWindows": "Fast procedure call/return",
+          "renaming": "Eliminates false dependencies",
+          "speculation": "Enables out-of-order execution"
+        }
+      }
+    ],
+    "keyConcepts": [
+      {
+        "name": "Register File",
+        "description": "Multi-ported SRAM array storing all processor registers. Supports simultaneous read/write.",
+        "ports": "2R1W (2 read, 1 write) typical"
+      },
+      {
+        "name": "Program Counter (PC)",
+        "description": "Holds address of next instruction. Automatically increments, loads new value on branches.",
+        "aliases": "EIP (x86 32-bit), RIP (x86 64-bit)"
+      },
+      {
+        "name": "Shift Operation",
+        "description": "Moves bits left or right. Shifting left multiplies by 2; right divides by 2.",
+        "formula": "x << n = x × 2^n"
+      },
+      {
+        "name": "Synchronous vs Asynchronous",
+        "description": "Synchronous counters update all bits together (fast). Asynchronous ripple through stages (slow).",
+        "delay": "Sync: O(1), Async: O(log n) or O(n)"
+      }
+    ],
+    "complexity": {
+      "registerAccess": "O(1) - single clock cycle",
+      "shiftDelay": "O(1) with barrel shifter",
+      "counterDelay": "O(1) for sync, O(n) for async"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Design Register Storage",
+      "description": "Create an array of D flip-flops to store multiple bits, all sharing a common clock.",
+      "visualState": { "width": 32, "type": "D flip-flop array" }
+    },
+    {
+      "step": 2,
+      "title": "Add Read Ports",
+      "description": "Connect multiplexers to select which registers to read for the ALU inputs.",
+      "visualState": { "readPorts": 2, "selection": "address-based" }
+    },
+    {
+      "step": 3,
+      "title": "Add Write Port",
+      "description": "Enable writing ALU results back to any register based on destination address.",
+      "visualState": { "writePort": 1, "writeEnable": true }
+    },
+    {
+      "step": 4,
+      "title": "Create Counter Function",
+      "description": "Add increment logic and feedback to create a counter that advances each clock.",
+      "visualState": { "operation": "increment", "feedback": true }
+    }
+  ],
+  "practiceProblems": [
+    {
+      "id": "p1",
+      "title": "Register Access Time",
+      "difficulty": "easy",
+      "type": "concept",
+      "description": "How many clock cycles does a typical register read take?",
+      "answer": "1",
+      "explanation": "Register access is the fastest memory operation, completing in a single clock cycle with zero wait states.",
+      "hints": ["Registers are on-chip", "No bus delays", "Single cycle access"]
+    },
+    {
+      "id": "p2",
+      "title": "Shift Left Operation",
+      "difficulty": "easy",
+      "type": "calculation",
+      "description": "What is the result of shifting binary 00001100 left by 1 position?",
+      "answer": "00011000",
+      "explanation": "12 (00001100) shifted left becomes 24 (00011000). Each left shift multiplies by 2.",
+      "hints": ["Shift left = multiply by 2", "12 × 2 = 24", "Add 0 on right"]
+    },
+    {
+      "id": "p3",
+      "title": "Program Counter Increment",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "After fetching a 4-byte instruction, how much does the PC increment?",
+      "answer": "4",
+      "explanation": "The PC advances by the instruction size (4 bytes for ARM/x86-32) to point to the next sequential instruction.",
+      "hints": ["PC moves to next instruction", "Instruction size = 4 bytes", "Increment by 4"]
+    },
+    {
+      "id": "p4",
+      "title": "Counter Types",
+      "difficulty": "medium",
+      "type": "concept",
+      "description": "Which counter type is faster but requires more gates?",
+      "answer": "Synchronous",
+      "explanation": "Synchronous counters use lookahead logic to update all bits simultaneously (faster). Asynchronous counters are simpler but have ripple delay.",
+      "hints": ["Synchronous = all bits together", "More complex logic", "Faster operation"]
+    },
+    {
+      "id": "p5",
+      "title": "Modulo-16 Counter",
+      "difficulty": "medium",
+      "type": "calculation",
+      "description": "How many flip-flops are needed for a modulo-16 counter?",
+      "answer": "4",
+      "explanation": "A modulo-16 counter counts 0-15 (16 states). 2^4 = 16, so 4 flip-flops are needed.",
+      "hints": ["Count states: 0 to 15 = 16 states", "2^n states with n flip-flops", "2^4 = 16"]
+    },
+    {
+      "id": "p6",
+      "title": "Barrel Shifter",
+      "difficulty": "hard",
+      "type": "concept",
+      "description": "What is the time complexity of a shift using a barrel shifter?",
+      "answer": "O(1)",
+      "explanation": "A barrel shifter can shift any number of positions in constant time using a matrix of multiplexers, unlike sequential shifters.",
+      "hints": ["Barrel shifter is parallel", "All bits shift at once", "Constant time regardless of shift amount"]
+    }
+  ],
+  "minigame": {
+    "id": "register-racer",
+    "title": "Register Racer",
+    "description": "Manage a CPU's registers in real-time! Route data between registers and the ALU, execute shift operations, and keep the program counter moving. Fast and accurate execution earns combo bonuses!",
+    "type": "action-puzzle",
+    "instructions": [
+      "Data arrives from memory or ALU and needs to be stored in registers",
+      "Click the correct register to store or retrieve data",
+      "Execute shift operations by dragging to shift units",
+      "Keep the program counter updated with the correct next address",
+      "Chain operations quickly for combo multipliers!"
+    ],
+    "levels": [
+      {
+        "level": 1,
+        "name": "Basic Registers",
+        "description": "Learn to load and store from simple registers",
+        "registers": ["R0", "R1", "R2", "R3"],
+        "operations": ["LOAD", "STORE"],
+        "timeLimit": 60,
+        "targetScore": 1000
+      },
+      {
+        "level": 2,
+        "name": "Shift Operations",
+        "description": "Add shift and rotate operations",
+        "registers": ["R0-R3"],
+        "operations": ["LOAD", "STORE", "SHL", "SHR", "ROL", "ROR"],
+        "timeLimit": 90,
+        "targetScore": 2000
+      },
+      {
+        "level": 3,
+        "name": "Program Counter",
+        "description": "Manage the PC through branches and jumps",
+        "registers": ["R0-R3", "PC"],
+        "operations": ["LOAD", "STORE", "SHIFT", "BRANCH", "JUMP"],
+        "timeLimit": 120,
+        "targetScore": 3000
+      },
+      {
+        "level": 4,
+        "name": "Counter Logic",
+        "description": "Build and control counter circuits",
+        "registers": ["R0-R3", "PC", "SP"],
+        "components": ["Counter", "Timer", "Frequency Divider"],
+        "timeLimit": 150,
+        "targetScore": 5000
+      }
+    ]
+  },
+  "codeExample": {
+    "language": "python",
+    "snippets": [
+      {
+        "title": "Register File Simulation",
+        "code": "class RegisterFile:\n    def __init__(self, num_registers=32, width=32):\n        self.registers = [[0] * width for _ in range(num_registers)]\n        self.num_regs = num_registers\n    \n    def read(self, addr1, addr2=None):\n        # Read two registers simultaneously\n        val1 = self.registers[addr1]\n        val2 = self.registers[addr2] if addr2 else None\n        return val1, val2\n    \n    def write(self, addr, value):\n        # Write one register\n        if addr != 0:  # R0 often hardwired to 0\n            self.registers[addr] = value\n    \n    def display(self):\n        for i in range(min(8, self.num_regs)):\n            val = sum(bit << j for j, bit in enumerate(self.registers[i]))\n            print(f'R{i}: {val}')\n\n# Shift operations\ndef shift_left(value, positions, width=8):\n    mask = (1 << width) - 1\n    return (value << positions) & mask\n\ndef shift_right_logical(value, positions):\n    return value >> positions\n\ndef shift_right_arithmetic(value, positions, width=8):\n    sign_bit = (value >> (width - 1)) & 1\n    result = value >> positions\n    if sign_bit:\n        # Fill with 1s from left\n        ones = ((1 << positions) - 1) << (width - positions)\n        result |= ones\n    return result & ((1 << width) - 1)\n\n# Test\nrf = RegisterFile(8, 8)\nrf.write(1, [0,1,0,1,0,0,0,0])  # 10\nrf.write(2, [1,1,1,1,0,0,0,0])  # 15\nrf.display()\n\nprint(f'10 << 1 = {shift_left(10, 1)}')  # 20\nprint(f'10 >> 1 = {shift_right_logical(10, 1)}')  # 5"
+      }
+    ]
+  }
+}
